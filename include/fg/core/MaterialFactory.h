@@ -1,0 +1,262 @@
+/*-----------------------------------------------------------------------------
+Copyright (c) 2025  Mao-Pao-Tong Workshop
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-----------------------------------------------------------------------------*/
+// main.cpp - Complete Ogre A* Hex Grid Visualization System
+#pragma once
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
+#include <cmath>
+#include <utility>
+#include <algorithm>
+#include <functional>
+
+// === Include OgreBites for modern initialization ===
+#include <Bites/OgreApplicationContext.h>
+#include <OgreRoot.h>
+#include <OgreSceneManager.h>
+#include <OgreRenderWindow.h>
+#include <OgreCamera.h>
+#include <OgreViewport.h>
+#include <OgreEntity.h>
+#include <OgreManualObject.h>
+#include <OgreSceneNode.h>
+#include <OgreFrameListener.h>
+#include <OgreRTShaderSystem.h>
+#include <OgreTechnique.h>
+#include "fg/MaterialNames.h"
+#include "stb_truetype.h"
+
+namespace fog
+{
+    // === Custom hash function ===
+    //
+    // === Hexagonal Map Visualizer class ===
+    using namespace Ogre;
+    using namespace OgreBites;
+
+    class MaterialFactory
+    {
+    private:
+        static void createTexture(RenderSystem *renderSystem)
+        {
+
+            // 加载字体文件（如 Roboto.ttf）
+            unsigned char *ttf_buffer = new unsigned char[1 << 20];
+            FILE *fontFile = fopen("Roboto.ttf", "rb");
+            fread(ttf_buffer, 1, 1 << 20, fontFile);
+            fclose(fontFile);
+
+            stbtt_fontinfo font;
+            stbtt_InitFont(&font, ttf_buffer, stbtt_GetFontOffsetForIndex(ttf_buffer, 0));
+
+            const char *text = "Building A";
+            int width = 256, height = 64;
+            unsigned char *pixels = new unsigned char[width * height];
+
+            // 渲染黑白文字（简化版）
+            // stbtt_BakeFontBitmap(ttf_buffer, 0, 32.0f, pixels, width, height, 32, 95, cdata);
+
+            // 转为 RGBA（白色文字 + alpha）
+            Ogre::uint8 *rgba = new Ogre::uint8[width * height * 4];
+            for (int i = 0; i < width * height; ++i)
+            {
+                rgba[i * 4 + 0] = 255;       // R
+                rgba[i * 4 + 1] = 255;       // G
+                rgba[i * 4 + 2] = 255;       // B
+                rgba[i * 4 + 3] = pixels[i]; // A
+            }
+
+            TextureManager *texMgr = TextureManager::getSingletonPtr();
+
+            // 上传到 GPU 纹理
+            TexturePtr tex = TextureManager::getSingleton().createManual(
+                "DynamicTextTex",
+                Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+                Ogre::TEX_TYPE_2D,
+                width, height, 0,
+                Ogre::PF_BYTE_RGBA,
+                Ogre::TU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+
+            delete[] rgba;
+            delete[] pixels;
+            delete[] ttf_buffer;
+        }
+        // 在你的 HexMapVisualizer 构造函数或初始化函数中调用
+        static Ogre::MaterialPtr createVertexColourMaterialForSelected(MaterialManager *matMgr)
+        {
+            using namespace Ogre;
+
+            // 创建材质，名称和资源组
+            MaterialPtr mat = matMgr->create(MaterialNames::materialNameSelected, "General");
+
+            // 禁用阴影接收
+            mat->setReceiveShadows(false);
+            mat->setDepthWriteEnabled(false);
+            mat->setTransparencyCastsShadows(false);
+
+            // 获取默认技术（Ogre 2.x 默认会自动创建一个）
+            Technique *tech = mat->getTechnique(0);
+
+            // 配置 Pass
+            Pass *pass = tech->getPass(0);
+            pass->setVertexColourTracking(TrackVertexColourEnum::TVC_EMISSIVE); // 自发光
+            pass->setSceneBlending(Ogre::SceneBlendType::SBT_TRANSPARENT_ALPHA);
+            pass->setDepthCheckEnabled(false);
+            pass->setLightingEnabled(false);
+            pass->setSelfIllumination(1, 1, 0.8);
+            pass->setDepthBias(1.0f, 0.0f);
+            return mat;
+        }
+        static Ogre::MaterialPtr createVertexColourMaterial(MaterialManager *matMgr)
+        {
+            using namespace Ogre;
+
+            // 创建材质，名称和资源组
+            MaterialPtr mat = matMgr->create(MaterialNames::materialNameToCreate, "General");
+
+            // 禁用阴影接收
+            mat->setReceiveShadows(false);
+
+            // 获取默认技术（Ogre 2.x 默认会自动创建一个）
+            Technique *tech = mat->getTechnique(0);
+
+            // 配置 Pass
+            Pass *pass = tech->getPass(0);
+            pass->setLightingEnabled(true);
+            pass->setVertexColourTracking(TrackVertexColourEnum::TVC_DIFFUSE); // 漫反射
+            // pass->setVertexColourTracking(TrackVertexColourEnum::TVC_AMBIENT);//环境光
+            // pass->setVertexColourTracking(TrackVertexColourEnum::TVC_EMISSIVE);//自发光
+            // pass->setVertexColourTracking(TrackVertexColourEnum::TVC_SPECULAR);//镜面反射
+            return mat;
+        }
+        static Ogre::MaterialPtr createVertexColourMaterialBuilding(MaterialManager *matMgr)
+        {
+            using namespace Ogre;
+
+            // 创建材质，名称和资源组
+            MaterialPtr mat = matMgr->create(MaterialNames::materialNameBuilding, "General");
+
+            // 禁用阴影接收
+            mat->setReceiveShadows(true);
+
+            // 获取默认技术（Ogre 2.x 默认会自动创建一个）
+            Technique *tech = mat->getTechnique(0);
+
+            // 配置 Pass
+            Pass *pass = tech->getPass(0);
+            pass->setLightingEnabled(true);
+            pass->setVertexColourTracking(TrackVertexColourEnum::TVC_NONE // 漫反射
+                                                                          //| TrackVertexColourEnum::TVC_AMBIENT  // 环境光
+                                                                          //| TrackVertexColourEnum::TVC_EMISSIVE // 自发光
+            );
+            // pass->setVertexColourTracking(TrackVertexColourEnum::TVC_EMISSIVE);//自发光
+            // pass->setVertexColourTracking(TrackVertexColourEnum::TVC_SPECULAR);//镜面反射
+            // TextureUnitState * texState = pass->createTextureUnitState("Ground23_spec.png");
+            //TextureUnitState *sandTex = pass->createTextureUnitState("tusk.jpg");
+            //sandTex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
+
+            TextureUnitState *grassTex = pass->createTextureUnitState("11_13.jpg");
+            grassTex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
+            //grassTex->setColourOperationEx(LayerBlendOperationEx::LBX_BLEND_CURRENT_ALPHA); // 与当前颜色相乘
+
+            // TextureUnitState * blendTex = pass->createTextureUnitState("grass_1024.png");
+            // blendTex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
+
+            grassTex->setColourOperationEx(
+                LayerBlendOperationEx::LBX_BLEND_TEXTURE_ALPHA,
+                LayerBlendSource::LBS_TEXTURE, // 草地纹理
+                LayerBlendSource::LBS_CURRENT // 当前颜色（即沙地）
+            );
+
+            // texState1->setColourOperationEx();
+            // texState->setTextureFiltering(Ogre::TFO_ANISOTROPIC);
+            // texState->setColourOperation(Ogre::LayerBlendOperation::LBO_MODULATE);
+
+            return mat;
+        }
+
+        static Ogre::MaterialPtr createVertexColourMaterialH0085(MaterialManager *matMgr)
+        {
+            using namespace Ogre;
+
+            // 创建材质，名称和资源组
+            MaterialPtr mat = matMgr->create(MaterialNames::materialNameH0085, "General");
+
+            // 禁用阴影接收
+            mat->setReceiveShadows(true);
+
+            // 获取默认技术（Ogre 2.x 默认会自动创建一个）
+            Technique *tech = mat->getTechnique(0);
+
+            // 配置 Pass
+            Pass *pass = tech->getPass(0);
+            pass->setLightingEnabled(true);
+            pass->setVertexColourTracking(TrackVertexColourEnum::TVC_NONE // 漫反射
+                                                                          //| TrackVertexColourEnum::TVC_AMBIENT  // 环境光
+                                                                          //| TrackVertexColourEnum::TVC_EMISSIVE // 自发光
+            );
+            // pass->setVertexColourTracking(TrackVertexColourEnum::TVC_EMISSIVE);//自发光
+            // pass->setVertexColourTracking(TrackVertexColourEnum::TVC_SPECULAR);//镜面反射
+            // TextureUnitState * texState = pass->createTextureUnitState("Ground23_spec.png");
+            //TextureUnitState *sandTex = pass->createTextureUnitState("tusk.jpg");
+            //sandTex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
+
+            TextureUnitState *grassTex = pass->createTextureUnitState("texture_diffuse.png");
+            grassTex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
+            //grassTex->setColourOperationEx(LayerBlendOperationEx::LBX_BLEND_CURRENT_ALPHA); // 与当前颜色相乘
+
+            // TextureUnitState * blendTex = pass->createTextureUnitState("grass_1024.png");
+            // blendTex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
+
+            // grassTex->setColourOperationEx(
+            //     LayerBlendOperationEx::LBX_BLEND_TEXTURE_ALPHA,
+            //     LayerBlendSource::LBS_TEXTURE, // 草地纹理
+            //     LayerBlendSource::LBS_CURRENT // 当前颜色（即沙地）
+            // );
+
+            // texState1->setColourOperationEx();
+            // texState->setTextureFiltering(Ogre::TFO_ANISOTROPIC);
+            // texState->setColourOperation(Ogre::LayerBlendOperation::LBO_MODULATE);
+
+            return mat;
+        }
+
+        void update()
+        {
+        }
+
+    public:
+        static void createMaterials(MaterialManager *matMgr)
+        {
+            //
+            // Create hexagonal grid object
+
+            //
+            createVertexColourMaterial(matMgr);
+            createVertexColourMaterialForSelected(matMgr); // for selected
+            createVertexColourMaterialBuilding(matMgr);    // for building
+        }
+    };
+
+}; // end of namespace

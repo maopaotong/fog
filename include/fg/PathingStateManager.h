@@ -1,0 +1,227 @@
+/*-----------------------------------------------------------------------------
+Copyright (c) 2025  Mao-Pao-Tong Workshop
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-----------------------------------------------------------------------------*/
+#pragma once
+#include "fg/defines.h"
+
+#include <typeindex>
+
+#include <memory>
+#include <type_traits>
+#include <utility>
+#include <Ogre.h>
+#include <fg/Cell.h>
+#include "fg/util/Context.h"
+#include "OgreSceneNode.h"
+#include "fg/util/CostMap.h"
+#include "fg/PathFollow2.h"
+#include "fg/core/PathState.h"
+#include "fg/core/PathFollow2MissionState.h"
+#include "fg/Tasks.h"
+#include "fg/Cell.h"
+#include "fg/CellInstanceManager.h"
+
+namespace fog
+{
+    /**
+     * PathingStateManager find a path from current state position to mouse position.
+     */
+    class PathingStateManager : public State, public Stairs
+    {
+        //
+        State *sourceState;
+        CellInstanceState *targetCis;
+        PathState *path;
+
+    protected:
+        HexTile::Key cKey2;
+        HexTile::Key cKey1;
+
+    public:
+        PathingStateManager() : sourceState(nullptr), targetCis(nullptr), path(nullptr)
+        {
+            std::cout << "PathingStateManager created." << std::endl;
+            Context<Event::Bus>::get()-> //
+                subscribe<MovableEventType, State *>([this](MovableEventType evtType, State *state)
+                                                     {
+                                                         if (evtType == MovableEventType::StateUnpicked)
+                                                         {
+                                                             this->setSource(nullptr);
+                                                         }
+                                                         else if (evtType == MovableEventType::StatePicked)
+                                                         {
+                                                             this->setSource(state);
+                                                         }
+                                                         else if (evtType == MovableEventType::StateStartMoving)
+                                                         {
+                                                             this->setSource(nullptr);
+                                                         }
+                                                         return true; //
+                                                     });
+        }
+        virtual ~PathingStateManager()
+        {
+            std::cout << "~PathingStateManager destroyed." << std::endl;
+        }
+
+        void setPath(PathState *path2)
+        {
+            if (this->path)
+            {
+                this->removeChild(this->path);
+            }
+            this->path = path2;
+            if (this->path)
+            {
+                this->addChild(path);
+            }
+        }
+
+        void setSource(State *state)
+        {
+            if (this->sourceState)
+            {
+                this->setPath(nullptr);
+                this->setTargetCis(nullptr);
+                this->sourceState = nullptr;
+            }
+            this->sourceState = state;
+        }
+        void setTargetCis(CellInstanceState *cis)
+        {
+            if (this->targetCis)
+            {
+                this->targetCis->popColour();
+            }
+            this->targetCis = cis;
+            if (this->targetCis)
+            {
+                this->targetCis->pushColour(ColourValue::White);
+            }
+        }
+
+        //TODO move this function to MouseStateManager
+        CONSUMED onMouseMoved(int x, int y)
+        {
+            if (!this->sourceState)
+            {
+                return false;
+            }
+
+            Viewport *viewport = Context<CoreMod>::get()->getViewport();
+            Camera *camera = Context<CoreMod>::get()->getCamera();
+
+            float ndcX = x / (float)viewport->getActualWidth();
+            float ndcY = y / (float)viewport->getActualHeight();
+
+            Ogre::Ray ray = camera->getCameraToViewportRay(ndcX, ndcY);
+
+            Ogre::Plane ground(Ogre::Vector3::UNIT_Y, 0); // Y = 0
+
+            auto hitGrd = ray.intersects(ground);
+
+            Ogre::Vector3 pos2;
+
+            if (!hitGrd.first)
+            {
+                return false;
+            }
+
+            pos2 = ray.getPoint(hitGrd.second);
+            CellInstanceManager *cellInstMgrState = Context<CellInstanceManager>::get();
+
+            //Point2<float> p2 = Point2<float>::from(pos2, Transform::D3_NORMAL_D2(Config::D2H2D3));            
+            Point2<float> p2 = Point2<float>::from(pos2, *Context<Transform::D3_NORMAL_D2>::get());            
+
+            CellInstanceState *cis = cellInstMgrState->getCellInstanceStateByPosition(p2);
+            if (!cis)
+            {
+                return false;
+            }
+            if (cis == targetCis)
+            {
+                return false;
+            }
+            if (targetCis)
+            {
+                targetCis->popColour();
+                Context<Event::Bus>::get()-> //
+                    emit<MouseCellEventType, HexTile::Key>(MouseCellEventType::MouseLeaveCell, targetCis->getCellKey());
+            }
+            cis->pushColour(ColourValue::White);
+            targetCis = cis;
+            Context<Event::Bus>::get()-> //
+                emit<MouseCellEventType, HexTile::Key>(MouseCellEventType::MouseEnterCell, targetCis->getCellKey());
+
+            return false;
+        }
+
+        GOON step(float time) override
+        {
+            if (!sourceState)
+            {
+                return true;
+            }
+            if (!targetCis)
+            {
+                return true;
+            }
+
+            CellInstanceState *sourceCis = nullptr;
+            // find source cell
+            MovableStateManager *movableStateMgr = Context<MovableStateManager>::get();
+            movableStateMgr->forEach([&sourceCis](State *state)
+                                     {
+                                         if (state->isActive())
+                                         {
+                                             sourceCis = Context<CellInstanceManager>::get()->getCellInstanceStateByPosition(state->getPosition());
+                                             if (sourceCis)
+                                             {
+                                                 return false; // break
+                                             }
+                                         } //
+                                         return true; });
+            if (!sourceCis)
+            {
+                return true;
+            }
+            //
+            HexTile::Key cKey2 = targetCis->getCellKey();
+            HexTile::Key cKey1 = sourceCis->getCellKey();
+            if (this->cKey2 == cKey2 && this->cKey1 == cKey1)
+            {                // do nothing.
+                return true; // GOON
+            }
+            // update path
+            this->cKey1 = cKey1;
+            this->cKey2 = cKey2;
+
+            std::vector<HexTile::Key> pathByCellKey = Context<CostMap>::get()->findPath(cKey1, cKey2);
+
+            PathState *pathState2 = new PathState();
+            pathState2->init();
+            pathState2->setPath(pathByCellKey);
+            this->setPath(pathState2);
+            return true;
+        }
+
+    }; //
+};

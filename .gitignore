@@ -1,0 +1,7 @@
+build
+.fog
+.vscode
+tmp
+vcpkg_installed
+*~
+imgui.ini
