@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-
+#include "util/Video.h"
 #include "util/VarBag.h"
 #include "util/Box2.h"
 #include "util/Point2.h"

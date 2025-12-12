@@ -5,7 +5,7 @@
 #pragma once
 #include "fg/defines.h"
 #include "fg/State.h"
-#include "fg/CoreMod.h"
+#include "fg/core/CoreMod.h"//TODO remove this include. 
 #include "fg/MaterialNames.h"
 #include "fg/MeshBuild.h"
 #include "fg/Config.h"

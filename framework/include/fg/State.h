@@ -18,7 +18,6 @@
 #include "fg/MeshBuild.h"
 #include "fg/util/Property.h"
 #include "fg/util/Options.h"
-#include "fg/Tasks.h"
 
 #define WATCH_PROPERTY(monitor, obj_ptr, member_name) \
     (monitor).add((obj_ptr), &std::remove_pointer_t<decltype(obj_ptr)>::member_name, #member_name)

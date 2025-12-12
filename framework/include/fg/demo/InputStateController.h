@@ -31,7 +31,7 @@
 #include <iostream>
 #include "fg/util.h"
 #include "fg/InputState.h"
-#include "fg/CoreMod.h"
+#include "fg/core/CoreMod.h"
 namespace fog
 {
     using namespace OgreBites;

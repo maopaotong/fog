@@ -14,7 +14,7 @@
 #include "ImGuiFPSCounter.h"
 #include "fg/ImGuiApp.h"
 #include "ImGuiAppImpl.h"
-#include "fg/Video.h"
+#include "fg/util.h"
 #include <functional>
 
 #define MAO_IMGUI_BUTTON_LEFT 0

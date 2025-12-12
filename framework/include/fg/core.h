@@ -3,12 +3,4 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-
-namespace fog
-{
-
-    struct Space
-    {
-    };
-
-}; // end of namespace
+#include "core/CoreMod.h"

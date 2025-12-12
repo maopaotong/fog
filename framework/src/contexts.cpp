@@ -4,7 +4,7 @@
  */
 #include "fg/util/Context.h"
 #include "fg/util.h"
-#include "fg/CoreMod.h"
+#include "fg/core/CoreMod.h"
 #include "fg/CellInstanceManager.h"
 #include "fg/MovingStateManager.h"
 #include "fg/MovableStateManager.h"

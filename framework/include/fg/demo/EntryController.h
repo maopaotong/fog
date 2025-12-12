@@ -31,7 +31,7 @@
 #include <iostream>
 #include "fg/util.h"
 #include "fg/util/CellUtil.h"
-#include "fg/CoreMod.h"
+#include "fg/core/CoreMod.h"
 #include "fg/core/MoveToCellTask.h"
 #include "fg/CellInstanceManager.h"
 #include "fg/PathingStateManager.h"

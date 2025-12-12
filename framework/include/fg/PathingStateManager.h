@@ -17,7 +17,6 @@
 #include "fg/PathFollow2.h"
 #include "fg/core/PathState.h"
 #include "fg/core/PathFollow2MissionState.h"
-#include "fg/Tasks.h"
 #include "fg/util.h"
 #include "fg/CellInstanceManager.h"
 

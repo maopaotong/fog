@@ -6,8 +6,8 @@
 #include <OgreInput.h>
 #include <OgreApplicationContext.h>
 #include <any>
-#include "ImGuiApp.h"
-#include "State.h"
+#include "fg/ImGuiApp.h"
+#include "fg/Stairs.h"
 #include "fg/util.h"
 #include "fg/Mod.h"
 

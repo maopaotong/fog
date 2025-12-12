@@ -9,9 +9,8 @@
 namespace fog
 {
 
-class Video
+struct Video
 {
-public:
     struct Mode
     {
         int width;

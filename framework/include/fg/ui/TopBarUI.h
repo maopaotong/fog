@@ -5,7 +5,7 @@
 #pragma once
 #include "imgui.h"
 #include <string>
-#include "fg/CoreMod.h"
+#include "fg/core.h"
 #include "fg/State.h"
 #include "fg/util.h"
 #include <fmt/format.h>

@@ -7,7 +7,7 @@
 #include <Ogre.h>
 #include <OgreColourValue.h>
 #include "fg/State.h"
-#include "fg/CoreMod.h"
+#include "fg/core/CoreMod.h"
 #include "fg/util/Cell.h"
 #include "fg/MaterialNames.h"
 #include "fg/MeshBuild.h"
