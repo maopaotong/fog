@@ -5,16 +5,12 @@
 #pragma once
 
 #include <Ogre.h>
-#include "fg/PathFollow2.h"
-#include "fg/util/CellUtil.h"
-#include "fg/util/CostMap.h"
+#include "fg/util.h"
 #include "fg/State.h"
 #include "fg/Pickable.h"
 #include "fg/core/PathFollow2MissionState.h"
-#include "fg/util/CollectionUtil.h"
 #include "fg/core/ManualState.h"
 #include "fg/MeshBuild.h"
-#include "fg/util/Point2.h"
 namespace fog
 {
     using namespace Ogre;

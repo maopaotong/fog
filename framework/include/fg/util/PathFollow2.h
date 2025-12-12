@@ -9,7 +9,7 @@
 
 namespace fog
 {
-    
+    using Vector2 = Point2<float>;
     class PathFollow2
     {
     public:
@@ -17,7 +17,7 @@ namespace fog
         float speedFactor = 30.0f;
         float speed;
         int next = 1; // ignore the first one.
-        Vector2 position;
+        Point2<float> position;
 
     public:
         PathFollow2(Vector2 position, std::vector<Point2<float>> path, float speed) : speed(speed)

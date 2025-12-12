@@ -5,14 +5,11 @@
 #pragma once
 
 #include <Ogre.h>
-#include "fg/PathFollow2.h"
-#include "fg/util/CellUtil.h"
-#include "fg/util/CostMap.h"
+#include "fg/util.h"
 #include "fg/State.h"
 #include "PathState.h"
 #include "fg/Pickable.h"
 #include "fg/core/PathFollow2MissionState.h"
-#include "fg/util/CollectionUtil.h"
 #include "fg/core/EntityState.h"
 namespace fog
 {

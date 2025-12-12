@@ -4,7 +4,7 @@
  */
 #pragma once
 #include "imgui.h"
-#include "fg/defines.h"
+#include "fg/Common.h"
 #include <string>
 #include "fg/core.h"
 #include "fg/State.h"

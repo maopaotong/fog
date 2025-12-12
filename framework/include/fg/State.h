@@ -3,14 +3,13 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/defines.h"
+#include "fg/Common.h"
 #include <Ogre.h>
 #include <OgreNode.h>
 #include <type_traits>
 #include <stack>
 #include <functional>
 #include <iostream>
-#include "PathFollow2.h"
 #include "Pickable.h"
 #include "OgreFrameListener.h"
 #include "fg/util.h"

@@ -7,7 +7,7 @@
 #include <OgreFrameListener.h>
 #include <OgreAnimationState.h>
 #include <vector>
-#include "fg/PathFollow2.h"
+#include "fg/util.h"
 #include "fg/Config.h"
 
 namespace fog
@@ -85,8 +85,8 @@ namespace fog
 
             PathFollow2 &pathFollow = this->getPath();
 
-            Vector2 currentPos2D;
-            Vector2 direction2D;
+            Point2<float> currentPos2D;
+            Point2<float> direction2D;
             if (!pathFollow.move(timeSinceLastFrame, currentPos2D, direction2D))
             {
                 this->done = true;

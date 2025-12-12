@@ -13,7 +13,7 @@
 #include "fg/util/Property.h"
 #include "fg/core/ManualState.h"
 #include "fg/util/DiamondSquare.h"
-#include "fg/defines.h"
+#include "fg/Common.h"
 #include "fg/core/TilesTerrains.h"
 #include "fg/core/TilesGenerator.h"
 #include "fg/Config.h"

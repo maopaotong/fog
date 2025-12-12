@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/defines.h"
+#include "fg/Common.h"
 #include "OgreColourValue.h"
 
 using namespace Ogre;

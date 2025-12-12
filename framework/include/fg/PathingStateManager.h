@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/defines.h"
+#include "fg/Common.h"
 
 #include <typeindex>
 
@@ -14,7 +14,6 @@
 #include "fg/util/Context.h"
 #include "OgreSceneNode.h"
 #include "fg/util/CostMap.h"
-#include "fg/PathFollow2.h"
 #include "fg/core/PathState.h"
 #include "fg/core/PathFollow2MissionState.h"
 #include "fg/util.h"
