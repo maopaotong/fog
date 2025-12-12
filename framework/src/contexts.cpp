@@ -79,7 +79,7 @@ namespace fog
     CameraState *Context<CameraState>::ctxObj = new CameraState();
     
     template <>
-    tiles::Terrains *Context<tiles::Terrains>::ctxObj = nullptr;
+    cells::Terrains *Context<cells::Terrains>::ctxObj = nullptr;
 
     template <>
     Options *Context<Options>::ctxObj = new Options();

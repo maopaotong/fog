@@ -22,7 +22,7 @@
 #include "fg/core/TextureFactory.h"
 #include "fg/util.h"
 
-namespace fog::tiles
+namespace fog::cells
 {
 
     static constexpr float UNRESOLVED_HEIGHT = -100;
@@ -170,7 +170,7 @@ namespace fog::tiles
                         cKeys[i].y = std::clamp<int>(cKeys[i].y, 0, tHeight - 1);
                     }
 
-                    tiles::Tile &tl0 = tiles[cKeys[0].x][cKeys[0].y];
+                    cells::Tile &tl0 = tiles[cKeys[0].x][cKeys[0].y];
                     // tile centre position.
                     // Vector2 tileCentreP = Cell::getOrigin2D(cKeys[0].x, cKeys[0].y);
                     Vector2 tileCentreP = cKeys[0].getCentre();
@@ -184,7 +184,7 @@ namespace fog::tiles
                     TileType type0 = tl0.type;
                     for (int i = 1; i < 5; i++) // check other 4 corner's type. normally the max different types is 3, include the centre.
                     {
-                        tiles::Tile &tlI = tiles[cKeys[i].x][cKeys[i].y];
+                        cells::Tile &tlI = tiles[cKeys[i].x][cKeys[i].y];
                         TileType typeI = tlI.type;
                         if (typeI != type0)
                         {
@@ -252,7 +252,7 @@ namespace fog::tiles
                                                                        int tx = std::clamp<int>(cKey.x, 0, tWidth - 1);
                                                                        int ty = std::clamp<int>(cKey.y, 0, tHeight - 1);
 
-                                                                       tiles::Tile &ttl = tiles[tx][ty];
+                                                                       cells::Tile &ttl = tiles[tx][ty];
                                                                        return defineTileHeight(ttl); //
                                                                    });
                             hMap[x][y].height = h;
@@ -411,7 +411,7 @@ namespace fog::tiles
         /**
          *
          */
-        float defineTileHeight(tiles::Tile &tl)
+        float defineTileHeight(cells::Tile &tl)
         {
 
             float tlHeight = 0.0;

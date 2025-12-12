@@ -9,7 +9,7 @@
 #include "fg/util/Iteration.h"
 #include "fg/util/Rect.h"
 #include "fg/Config.h"
-namespace fog::tiles
+namespace fog::cells
 {
 
     using TileType = uint8;

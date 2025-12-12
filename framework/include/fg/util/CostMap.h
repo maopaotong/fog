@@ -47,25 +47,25 @@ namespace fog
     public:
         struct DefaultCost
         {
-            std::vector<std::vector<tiles::Tile>> *tiles;
-            DefaultCost(std::vector<std::vector<tiles::Tile>> *tiles) : tiles(tiles)
+            std::vector<std::vector<cells::Tile>> *tiles;
+            DefaultCost(std::vector<std::vector<cells::Tile>> *tiles) : tiles(tiles)
             {
             }
             int operator()(Point2<int> &cKey)
             {
-                tiles::TileType type = (*tiles)[cKey.x][cKey.y].type;
+                cells::TileType type = (*tiles)[cKey.x][cKey.y].type;
                 int cost = CostMap::DEFAULT_COST;
                 switch (type)
                 {
-                case tiles::Type::OCEAN:
-                case tiles::Type::MOUNTAIN:
-                case tiles::Type::LAKE:
+                case cells::Type::OCEAN:
+                case cells::Type::MOUNTAIN:
+                case cells::Type::LAKE:
 
                     cost = CostMap::OBSTACLE;
                     break;
-                case tiles::Type::HILL:
-                case tiles::Type::FROZEN:
-                case tiles::Type::RIVER:
+                case cells::Type::HILL:
+                case cells::Type::FROZEN:
+                case cells::Type::RIVER:
                     cost = 2;
                     break;
                 }

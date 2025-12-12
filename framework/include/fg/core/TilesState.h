@@ -31,10 +31,10 @@ namespace fog
         int tlsHeight;
         int terWidth;
         int terHeight;
-        std::vector<std::vector<tiles::Vertex>> vertexs;
+        std::vector<std::vector<cells::Vertex>> vertexs;
         TilesTerrains(int tlsWidth, int tlsHeight, int terWidth, int terHeight) : tlsWidth(tlsWidth), tlsHeight(tlsHeight),
                                                                                   terWidth(terWidth), terHeight(terHeight),
-                                                                                  vertexs(terWidth, std::vector<tiles::Vertex>(terHeight, tiles::Vertex()))
+                                                                                  vertexs(terWidth, std::vector<cells::Vertex>(terHeight, cells::Vertex()))
         {
         }
         Vector3 getOrigin() override
@@ -87,9 +87,9 @@ namespace fog
 
     public:
         TilesTerrains *tts;
-        std::vector<std::vector<tiles::Tile>> &tiles;
+        std::vector<std::vector<cells::Tile>> &tiles;
     public:
-        TilesState(std::vector<std::vector<tiles::Tile>> &tiles, TilesTerrains * tts) : ManualState(), tiles(tiles), tts(tts)
+        TilesState(std::vector<std::vector<cells::Tile>> &tiles, TilesTerrains * tts) : ManualState(), tiles(tiles), tts(tts)
         {
             this->material = "Tiles";
         }
@@ -99,7 +99,7 @@ namespace fog
         }
         void rebuildMesh() override
         {
-            tiles::Terrains *terrains = Context<tiles::Terrains>::get();
+            cells::Terrains *terrains = Context<cells::Terrains>::get();
 
             //mesh
             terrains->buildVertexs(tiles, tts->vertexs);
@@ -120,7 +120,7 @@ namespace fog
             MaterialPtr mat = MaterialManager::getSingletonPtr()->getByName("Tiles");
             // tex0
             std::string texName0 = "TerrainsTex001";
-            Context<tiles::Terrains>::get()->createWorldTexture(texName0, tts->vertexs);
+            Context<cells::Terrains>::get()->createWorldTexture(texName0, tts->vertexs);
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(texName0);
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
             // tex9

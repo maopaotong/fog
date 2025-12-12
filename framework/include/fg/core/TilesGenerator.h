@@ -18,7 +18,7 @@
 #include "fg/util/Rect.h"
 #include "fg/Config.h"
 #include "fg/core/Tiles.h"
-namespace fog::tiles
+namespace fog::cells
 {
 
     using TileType = uint8;
