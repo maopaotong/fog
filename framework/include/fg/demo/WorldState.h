@@ -13,7 +13,7 @@
 #include "fg/MovableStateManager.h"
 #include "fg/BuildingStateManager.h"
 #include "fg/InventoryStateManager.h"
-#include "fg/core/TilesState.h"
+#include "fg/core/CellsState.h"
 #include "fg/util/CostMap.h"
 namespace fog
 {
@@ -21,15 +21,15 @@ namespace fog
     {
     protected:
         // CellStateControl *cells;
-        TilesState *tilesState;
-        TilesTerrains *tts;
+        CellsState *tilesState;
+        CellsTerrains *tts;
         std::vector<std::vector<cells::Tile>> tiles;
 
     public:
         WorldState()
         {
         }
-        void initTilesAndCostMap()
+        void initCellsAndCostMap()
         {
 
             cells::Terrains *terrains = Context<cells::Terrains>::get();
@@ -38,10 +38,10 @@ namespace fog
             int tsHeight = terrains->tHeight;
             int terWidth = terrains->width;
             int terHeight = terrains->height;
-            this->tts = new TilesTerrains(tsWidth, tsHeight, terWidth, terHeight);
+            this->tts = new CellsTerrains(tsWidth, tsHeight, terWidth, terHeight);
             // std::vector<std::vector<tiles::Vertex>> vertexs(terWidth, std::vector<tiles::Vertex>(terHeight, tiles::Vertex()));
 
-            cells::TilesGenerator::generateTiles(tiles, tsWidth, tsHeight);
+            cells::CellsGenerator::generateCells(tiles, tsWidth, tsHeight);
             // cost map
 
             CostMap *costMap = new CostMap(tsWidth, tsHeight);
@@ -80,14 +80,14 @@ namespace fog
             CoreMod *core = Context<CoreMod>::get();
             Ogre::Root *root = core->getRoot();
 
-            this->initTilesAndCostMap();
+            this->initCellsAndCostMap();
             Cell::Key cKey = findCellToStandOn();//
 
             Context<FogOfWar>::get()->setHomeCell(cKey);
             Context<FogOfWar>::get()->init();
 
             // Create frame listener for main loop
-            this->tilesState = new TilesState(this->tiles, this->tts);
+            this->tilesState = new CellsState(this->tiles, this->tts);
             
             this->tilesState->init();
 

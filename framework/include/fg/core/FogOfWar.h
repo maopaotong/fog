@@ -5,7 +5,7 @@
 #pragma once
 
 #include "fg/core/TextureFactory.h"
-#include "fg/core/Tiles.h"
+#include "fg/core/Cells.h"
 #include "fg/util/CollectionUtil.h"
 #include "fg/util/Box2.h"
 #include "Ogre.h"

@@ -28,7 +28,7 @@
 #include <OgreRTShaderSystem.h>
 #include <OgreTechnique.h>
 #include "fg/util/Cell.h"
-#include "fg/core/Tiles.h"
+#include "fg/core/Cells.h"
 namespace fog
 {
 

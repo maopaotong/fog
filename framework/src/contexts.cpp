@@ -13,7 +13,7 @@
 #include "fg/BuildingStateManager.h"
 #include "fg/InventoryStateManager.h"
 #include "fg/CameraState.h"
-#include "fg/core/TilesTerrains.h"
+#include "fg/core/CellsTerrains.h"
 #include "fg/core/FogOfWar.h"
 #include "fg/util/CostMap.h"
 namespace fog

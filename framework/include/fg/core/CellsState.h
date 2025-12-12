@@ -14,8 +14,8 @@
 #include "fg/core/ManualState.h"
 #include "fg/util/DiamondSquare.h"
 #include "fg/Common.h"
-#include "fg/core/TilesTerrains.h"
-#include "fg/core/TilesGenerator.h"
+#include "fg/core/CellsTerrains.h"
+#include "fg/core/CellsGenerator.h"
 #include "fg/Config.h"
 #include "fg/core/FogOfWar.h"
 #include "fg/Terrains.h"
@@ -24,7 +24,7 @@ namespace fog
 {
     using namespace Ogre;
 
-    struct TilesTerrains : public Terrains
+    struct CellsTerrains : public Terrains
     {
 
         int tlsWidth;
@@ -32,7 +32,7 @@ namespace fog
         int terWidth;
         int terHeight;
         std::vector<std::vector<cells::Vertex>> vertexs;
-        TilesTerrains(int tlsWidth, int tlsHeight, int terWidth, int terHeight) : tlsWidth(tlsWidth), tlsHeight(tlsHeight),
+        CellsTerrains(int tlsWidth, int tlsHeight, int terWidth, int terHeight) : tlsWidth(tlsWidth), tlsHeight(tlsHeight),
                                                                                   terWidth(terWidth), terHeight(terHeight),
                                                                                   vertexs(terWidth, std::vector<cells::Vertex>(terHeight, cells::Vertex()))
         {
@@ -82,14 +82,14 @@ namespace fog
     };
 
     //
-    class TilesState : public ManualState
+    class CellsState : public ManualState
     {
 
     public:
-        TilesTerrains *tts;
+        CellsTerrains *tts;
         std::vector<std::vector<cells::Tile>> &tiles;
     public:
-        TilesState(std::vector<std::vector<cells::Tile>> &tiles, TilesTerrains * tts) : ManualState(), tiles(tiles), tts(tts)
+        CellsState(std::vector<std::vector<cells::Tile>> &tiles, CellsTerrains * tts) : ManualState(), tiles(tiles), tts(tts)
         {
             this->material = "Tiles";
         }

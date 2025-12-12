@@ -17,7 +17,7 @@
 #include "fg/util/Iteration.h"
 #include "fg/util/Rect.h"
 #include "fg/Config.h"
-#include "fg/core/Tiles.h"
+#include "fg/core/Cells.h"
 namespace fog::cells
 {
 
@@ -25,7 +25,7 @@ namespace fog::cells
     /**
      * Generator of tiles with types.
      */
-    class TilesGenerator
+    class CellsGenerator
     {
 
     public:
@@ -35,7 +35,7 @@ namespace fog::cells
             Iteration::forEach<Tile>(tiles, w, h, [&tiles, &w, &h, &plot, &region, &toType](int x, int y, Tile &tl)
                                      { bool isRegion = forEachTileInSameRegion(tiles, w, h, Cell::Key(x, y), tl, region); });
         }
-        static void generateTiles(std::vector<std::vector<Tile>> &tiles, int w, int h)
+        static void generateCells(std::vector<std::vector<Tile>> &tiles, int w, int h)
         {
             assert(w == h && "cannot generate tiles because w<>h.");
             Iteration::forEachAsTable<std::vector<std::vector<Tile>> &>(w, h, //

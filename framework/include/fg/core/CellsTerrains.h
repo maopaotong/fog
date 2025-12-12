@@ -18,7 +18,7 @@
 #include "fg/util/Iteration.h"
 #include "fg/util/Rect.h"
 #include "fg/Config.h"
-#include "fg/core/Tiles.h"
+#include "fg/core/Cells.h"
 #include "fg/core/TextureFactory.h"
 #include "fg/util.h"
 
