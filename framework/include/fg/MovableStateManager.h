@@ -50,7 +50,6 @@ namespace fog
             {
                 CellInstanceManager *cisManager = Context<CellInstanceManager>::get();
 
-
                 CellInstanceState *cis2 = cisManager->getCellInstanceStateByPosition(state->getPosition());
                 this->trySetCis(cis2);
             }
@@ -80,34 +79,42 @@ namespace fog
     class MovableStateManager : public State, public Stairs
     {
         MovingState movingState;
-
+        EntityState *actor2;
         std::vector<std::string> aniNames = {"RunBase", "RunTop"};
 
     public:
-        MovableStateManager()
+        MovableStateManager() : actor2(new Sinbad())
         {
             Context<Event::Bus>::get()-> //
                 subscribe<MovableEventType, State *>([this](MovableEventType evtType, State *state)
-                                              {
-                                                  if (evtType == MovableEventType::StateStartMoving)
-                                                  {
-                                                      this->movingState.setState(nullptr);
-                                                  }
-                                                  return true; //
-                                              });
+                                                     {
+                                                         if (evtType == MovableEventType::StateStartMoving)
+                                                         {
+                                                             this->movingState.setState(nullptr);
+                                                         }
+                                                         return true; //
+                                                     });
         }
         virtual ~MovableStateManager()
         {
         }
         void init() override
         {
-           this->createSinbad();
+            this->createSinbad();
         }
 
-        void createSinbad(){
-            EntityState *actor2 = new Sinbad();
+        void createSinbad()
+        {
+
             actor2->init();
             this->addChild(actor2);
+
+            // find a position.
+        }
+
+        void setCellToStandOn(HexTile::Key cKey)
+        {
+            actor2->setPosition(cKey);
         }
 
         bool step(float time) override
@@ -133,9 +140,9 @@ namespace fog
             {
                 Node *node = it.movable->getParentNode();
                 State *s = State::get(node);
-                if (s && s->pickable()&&s->getParent() == this)
+                if (s && s->pickable() && s->getParent() == this)
                 {
-                    
+
                     picked = s;
                     break;
                 }

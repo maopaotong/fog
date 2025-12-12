@@ -102,6 +102,11 @@ namespace fog
             Vector3 positionIn3D = this->getSceneNode()->getPosition();
             return Point2<float>::from(positionIn3D, *Context<Transform::D3_NORMAL_D2>::get());
         }
+
+        void setPosition(HexTile::Key cKey){
+            Vector3 v3 = cKey.transform3();
+            this->getSceneNode()->setPosition(v3);
+        }
         
         State * getParent(){
             return this->parent;

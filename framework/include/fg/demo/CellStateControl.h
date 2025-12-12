@@ -77,7 +77,7 @@ namespace fog
         bool getCostColor(HexTile::Key &cell, Ogre::ColourValue &color) const
         {
             CostMap *costMap = Context<CostMap>::get();
-            const int cost = costMap->getCost(cell.x, cell.y);
+            const int cost = costMap->getCost(cell);
             switch (cost)
             {
             case CostMap::OBSTACLE:

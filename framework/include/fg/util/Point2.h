@@ -71,6 +71,11 @@ namespace fog
             return x != p2.x || y != p2.y;
         }
 
+        bool operator==(const Point2<T> &p2) const
+        {
+            return x == p2.x && y == p2.y;
+        }
+
         bool sameSign(T a, T b)
         {
             return (a ^ b) >= 0;

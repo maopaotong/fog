@@ -91,13 +91,13 @@ namespace fog::tiles
         // tiles index in number
         int tWidth;
         int tHeight;
+
         // normal width of rect, when rad of cell = 1.
         // depends on the quality argument.
         float rectWidth;
         float rectHeight;
         float rectRad; // average rad of the rect.
-        Terrains(int tWidth, int tHeight, int quality) : tWidth(tWidth),
-                                                         tHeight(tHeight)
+        Terrains(Box2<int> box, int quality) : tWidth(box.getWidth()), tHeight(box.getHeight())
         {
             this->rectWidth = 2.0 / quality;                         // rad of tile = 1 , width of tile = 2;
             this->rectHeight = rectWidth;                            // rect height == width
@@ -127,8 +127,8 @@ namespace fog::tiles
                         center.x + (u - 0.5f) * rectWidth,
                         center.y + (v - 0.5f) * rectHeight);
 
-                    //HexTile::Key k = Cell::getCellKey(p, 1); //
-                    HexTile::Key k = Point2<float>(p.x,p.y).transform(Transform::CentreToCellKey());
+                    // HexTile::Key k = Cell::getCellKey(p, 1); //
+                    HexTile::Key k = Point2<float>(p.x, p.y).transform(Transform::CentreToCellKey());
 
                     totalHeight += getHeight(k);
                 }
@@ -166,15 +166,15 @@ namespace fog::tiles
                     for (int i = 0; i < 5; i++)
                     {
 
-                        //cKeys[i] = Cell::getCellKey(points[i], 1.0); //
-                        cKeys[i] = Point2<float>(points[i].x,points[i].y).transform(Transform::CentreToCellKey());
+                        // cKeys[i] = Cell::getCellKey(points[i], 1.0); //
+                        cKeys[i] = Point2<float>(points[i].x, points[i].y).transform(Transform::CentreToCellKey());
                         cKeys[i].x = std::clamp<int>(cKeys[i].x, 0, tWidth - 1);
                         cKeys[i].y = std::clamp<int>(cKeys[i].y, 0, tHeight - 1);
                     }
 
                     tiles::Tile &tl0 = tiles[cKeys[0].x][cKeys[0].y];
                     // tile centre position.
-                    //Vector2 tileCentreP = Cell::getOrigin2D(cKeys[0].x, cKeys[0].y);
+                    // Vector2 tileCentreP = Cell::getOrigin2D(cKeys[0].x, cKeys[0].y);
                     Vector2 tileCentreP = cKeys[0].getCentre();
                     //
                     hMap[x][y].cKey = cKeys[0]; // centre cell.
@@ -347,13 +347,14 @@ namespace fog::tiles
             int typePlot[11] = {0}; // for debug.
             int width;
             int height;
-            unsigned char * data;
+            unsigned char *data;
             WorldTexOp(std::vector<std::vector<Vertex>> &hMap, int w, int h) : hMap(hMap), width(w), height(h)
             {
                 data = new unsigned char[w * h * 4];
             }
-            ~WorldTexOp(){
-                delete []data;
+            ~WorldTexOp()
+            {
+                delete[] data;
             }
 
             void operator()()

@@ -30,11 +30,11 @@
 #include "fg/util/HexTile.h"
 namespace fog
 {
-    
+
     // === NavNode structure ===
     struct NavNode
     {
-        int x, y;
+        Point2<int> p;
         float g, h;
         float f() const { return g + h; }
         bool operator>(const NavNode &other) const { return f() > other.f(); }
@@ -43,15 +43,15 @@ namespace fog
     class CostMap
     {
         struct PairHash
-    {
-        template <typename T, typename U>
-        std::size_t operator()(const std::pair<T, U> &p) const
         {
-            auto h1 = std::hash<T>{}(p.first);
-            auto h2 = std::hash<U>{}(p.second);
-            return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
-        }
-    };
+            template <typename T, typename U>
+            std::size_t operator()(const std::pair<T, U> &p) const
+            {
+                auto h1 = std::hash<T>{}(p.first);
+                auto h2 = std::hash<U>{}(p.second);
+                return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
+            }
+        };
 
     public:
         static constexpr float hexSize = 30.0f; // inner radius
@@ -67,6 +67,15 @@ namespace fog
         std::vector<std::vector<int>> costGrid;
         int width, height;
 
+        bool isWalkable(Point2<int> p) const
+        {
+            if (!isInSide(p))
+            {
+                return false;
+            }
+
+            return getCost(p) > 0;
+        }
     public:
         static const int OBSTACLE = 0;
         static const int DEFAULT_COST = 1;
@@ -76,48 +85,43 @@ namespace fog
             costGrid.resize(height, std::vector<int>(width, DEFAULT_COST));
         }
 
-        void setCost(int x, int y, int cost)
+        void setCost(Point2<int> p, int cost)
         {
-            if (x >= 0 && x < width && y >= 0 && y < height)
-            {
-                costGrid[y][x] = cost;
-            }
+            costGrid[p.y][p.x] = cost;
         }
 
-        int getCost(int x, int y) const
+        int getCost(Point2<int> p) const
         {
-            if (x < 0 || x >= width || y < 0 || y >= height)
-                return OBSTACLE;
-            return costGrid[y][x];
+            return costGrid[p.y][p.x];
         }
-
-        bool isWalkable(int x, int y) const
+        bool isInSide(Point2<int> p) const
         {
-            return getCost(x, y) > 0;
+            return p.x >= 0 && p.x < this->width && p.y >= 0 && p.y < this->height;
         }
+        
 
-        HexTile::Key getNeighbor(int x, int y, int direction) const
+        HexTile::Key getNeighbor(Point2<int> p, int direction) const
         {
             if (direction < 0 || direction >= 6)
-                return {x, y};
-            if (y % 2 == 0)
+                return p;
+            if (p.y % 2 == 0)
             {
-                return {x + dx_even[direction], y + dy_even[direction]};
+                return {p.x + dx_even[direction], p.y + dy_even[direction]};
             }
             else
             {
-                return {x + dx_odd[direction], y + dy_odd[direction]};
+                return {p.x + dx_odd[direction], p.y + dy_odd[direction]};
             }
         }
 
-        float heuristic(int x1, int y1, int x2, int y2) const
+        float heuristic(Point2<int> p1, Point2<int> p2) const
         {
-            int q1 = x1 - (y1 - (y1 & 1)) / 2;
-            int r1 = y1;
+            int q1 = p1.x - (p1.y - (p1.y & 1)) / 2;
+            int r1 = p1.y;
             int s1 = -q1 - r1;
 
-            int q2 = x2 - (y2 - (y2 & 1)) / 2;
-            int r2 = y2;
+            int q2 = p2.x - (p2.y - (p2.y & 1)) / 2;
+            int r2 = p2.y;
             int s2 = -q2 - r2;
 
             int dq = abs(q1 - q2);
@@ -129,7 +133,7 @@ namespace fog
 
         std::vector<HexTile::Key> findPath(HexTile::Key start, HexTile::Key end)
         {
-            std::vector<HexTile::Key> path = findPathInternal(start.x, start.y, end.x, end.y);
+            std::vector<HexTile::Key> path = findPathInternal(start, end);
             std::vector<HexTile::Key> cellPath;
             for (const auto &pos : path)
             {
@@ -139,13 +143,13 @@ namespace fog
         }
         std::vector<HexTile::Key> findNormPath(HexTile::Key start, HexTile::Key end)
         {
-            return findPathInternal(start.x, start.y, end.x, end.y);
+            return findPathInternal(start, end);
         }
-        std::vector<HexTile::Key> findPathInternal(int startX, int startY, int endX, int endY)
+        std::vector<HexTile::Key> findPathInternal(HexTile::Key start, HexTile::Key end)
         {
             using Pos = HexTile::Key;
 
-            if (!isWalkable(startX, startY) || !isWalkable(endX, endY))
+            if (!isWalkable(start) || !isWalkable(end))
             {
                 return {};
             }
@@ -155,33 +159,33 @@ namespace fog
             std::unordered_map<Pos, float, HexTile::Key::Hash> gScore;
             std::unordered_set<Pos, HexTile::Key::Hash> closed;
 
-            NavNode start = {startX, startY, 0, heuristic(startX, startY, endX, endY)};
-            openList.push(start);
-            gScore[{startX, startY}] = 0;
+            NavNode startNode = {start, 0, heuristic(start, end)};
+            openList.push(startNode);
+            gScore[{start}] = 0;
 
             while (!openList.empty())
             {
                 NavNode current = openList.top();
                 openList.pop();
-                Pos currPos = {current.x, current.y};
+                Pos currPos = current.p;
 
                 if (closed.find(currPos) != closed.end())
                     continue;
                 closed.insert(currPos);
 
-                if (current.x == endX && current.y == endY)
+                if (current.p == end)
                 {
                     return reconstructPath(cameFrom, currPos);
                 }
 
                 for (int i = 0; i < 6; i++)
                 {
-                    auto [nx, ny] = getNeighbor(current.x, current.y, i);
-                    if (!isWalkable(nx, ny))
+                    auto nk = getNeighbor(current.p, i);
+                    if (!isWalkable(nk))
                         continue;
 
-                    Pos neighbor = {nx, ny};
-                    int moveCost = getCost(nx, ny);
+                    Pos neighbor = nk;
+                    int moveCost = getCost(nk);
                     float tentativeG = gScore[currPos] + moveCost;
 
                     auto it = gScore.find(neighbor);
@@ -189,9 +193,9 @@ namespace fog
                     {
                         cameFrom[neighbor] = currPos;
                         gScore[neighbor] = tentativeG;
-                        float h = heuristic(nx, ny, endX, endY);
+                        float h = heuristic(nk, end);
 
-                        NavNode node = {nx, ny, tentativeG, h};
+                        NavNode node = {nk, tentativeG, h};
                         openList.push(node);
                     }
                 }
@@ -228,7 +232,7 @@ namespace fog
             {
                 int x = static_cast<int>(path[i].x);
                 int y = static_cast<int>(path[i].y);
-                totalCost += getCost(x, y);
+                totalCost += getCost(Point2<int>(x, y));
             }
             return totalCost;
         }

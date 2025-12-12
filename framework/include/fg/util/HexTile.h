@@ -25,6 +25,9 @@ namespace fog
             Key(const Point2<float> cKey) : Key(static_cast<int>(cKey.x), static_cast<int>(cKey.y))
             {
             }
+            Key(const Point2<int> cKey) : Point2<int>(cKey)
+            {
+            }
 
             bool operator==(const Key &ck) const
             {

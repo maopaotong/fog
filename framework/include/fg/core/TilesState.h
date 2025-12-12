@@ -90,9 +90,9 @@ namespace fog
 
     public:
         TilesTerrains *tts;
-
+        std::vector<std::vector<tiles::Tile>> &tiles;
     public:
-        TilesState() : ManualState(), tts(nullptr)
+        TilesState(std::vector<std::vector<tiles::Tile>> &tiles, TilesTerrains * tts) : ManualState(), tiles(tiles), tts(tts)
         {
             this->material = "Tiles";
         }
@@ -102,18 +102,9 @@ namespace fog
         }
         void rebuildMesh() override
         {
-
             tiles::Terrains *terrains = Context<tiles::Terrains>::get();
 
-            int tsWidth = terrains->tWidth;
-            int tsHeight = terrains->tHeight;
-            int terWidth = terrains->width;
-            int terHeight = terrains->height;
-            this->tts = new TilesTerrains(tsWidth, tsHeight, terWidth, terHeight);
-            // std::vector<std::vector<tiles::Vertex>> vertexs(terWidth, std::vector<tiles::Vertex>(terHeight, tiles::Vertex()));
-
-            std::vector<std::vector<tiles::Tile>> tiles;
-            tiles::TilesGenerator::generateTiles(tiles, tsWidth, tsHeight);
+            //mesh
             terrains->buildVertexs(tiles, tts->vertexs);
 
             auto heightFunc = [this](Vector3 &pos, Vector3 *norm)
