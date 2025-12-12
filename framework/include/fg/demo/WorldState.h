@@ -22,7 +22,7 @@ namespace fog
     protected:
         // CellStateControl *cells;
         CellsState *tilesState;
-        CellsTerrains *tts;
+        TheTerrains *tts;
         std::vector<std::vector<cells::CellData>> tiles;
 
     public:
@@ -32,13 +32,13 @@ namespace fog
         void initCellsAndCostMap()
         {
 
-            cells::Terrains *terrains = Context<cells::Terrains>::get();
+            cells::CellsTerrains *terrains = Context<cells::CellsTerrains>::get();
 
             int tsWidth = terrains->tWidth;
             int tsHeight = terrains->tHeight;
             int terWidth = terrains->width;
             int terHeight = terrains->height;
-            this->tts = new CellsTerrains(tsWidth, tsHeight, terWidth, terHeight);
+            this->tts = new TheTerrains(tsWidth, tsHeight, terWidth, terHeight);
             // std::vector<std::vector<tiles::Vertex>> vertexs(terWidth, std::vector<tiles::Vertex>(terHeight, tiles::Vertex()));
 
             cells::CellsGenerator::generateCells(tiles, tsWidth, tsHeight);
@@ -64,7 +64,7 @@ namespace fog
                 int x = rPosX(gen);
                 int y = rPosX(gen);
                 cells::CellType type = tiles[x][y].type;
-                if (type == cells::Type::OCEAN || type == cells::Type::MOUNTAIN)
+                if (type == cells::CellTypes::OCEAN || type == cells::CellTypes::MOUNTAIN)
                 {
                     continue;
                 }

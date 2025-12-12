@@ -36,7 +36,7 @@ namespace fog::cells
         Vertex() : Vertex(UNRESOLVED_HEIGHT, -1, -1)
         {
         }
-        Vertex(int tx, int ty, float th) : height(UNRESOLVED_HEIGHT), cKey(tx, ty), types{Type::UNKNOW, Type::UNKNOW, Type::UNKNOW}
+        Vertex(int tx, int ty, float th) : height(UNRESOLVED_HEIGHT), cKey(tx, ty), types{CellTypes::UNKNOW, CellTypes::UNKNOW, CellTypes::UNKNOW}
         {
         }
         bool isHeightResolved()
@@ -80,7 +80,7 @@ namespace fog::cells
         }
     };
 
-    struct Terrains
+    struct CellsTerrains
     {
 
         // rect index in number
@@ -95,7 +95,7 @@ namespace fog::cells
         float rectWidth;
         float rectHeight;
         float rectRad; // average rad of the rect.
-        Terrains(Box2<int> box, int quality) : tWidth(box.getWidth()), tHeight(box.getHeight())
+        CellsTerrains(Box2<int> box, int quality) : tWidth(box.getWidth()), tHeight(box.getHeight())
         {
             this->rectWidth = 2.0 / quality;                         // rad of tile = 1 , width of tile = 2;
             this->rectHeight = rectWidth;                            // rect height == width
@@ -228,7 +228,7 @@ namespace fog::cells
                         tileCentreMap[cKeys[0].x][cKeys[0].y] = &hMap[x][y];
                         hMap[x][y].height = typeHeight;
                     }
-                    else if (tl0.type == Type::OCEAN || tl0.type == Type::SHORE)
+                    else if (tl0.type == CellTypes::OCEAN || tl0.type == CellTypes::SHORE)
                     {
                         // for ocean , the height should be fixed.
                         hMap[x][y].height = typeHeight;
@@ -418,23 +418,23 @@ namespace fog::cells
 
             switch (tl.type)
             {
-            case (Type::OCEAN):
+            case (CellTypes::OCEAN):
                 tlHeight = Config::HEIGHT_OCEAN;
                 break;
-            case (Type::SHORE):
-            case (Type::LAKE):
+            case (CellTypes::SHORE):
+            case (CellTypes::LAKE):
                 tlHeight = Config::HEIGHT_SHORE;
                 break;
-            case (Type::PLAIN):
+            case (CellTypes::PLAIN):
                 tlHeight = Config::HEIGHT_PLAIN;
                 break;
-            case (Type::HILL):
+            case (CellTypes::HILL):
                 tlHeight = Config::HEIGHT_HILL;
                 break;
-            case (Type::MOUNTAIN):
+            case (CellTypes::MOUNTAIN):
                 tlHeight = Config::HEIGHT_MOUNTAIN;
                 break;
-            case (Type::FROZEN):
+            case (CellTypes::FROZEN):
                 tlHeight = Config::HEIGHT_FROZEN;
                 break;
             default:

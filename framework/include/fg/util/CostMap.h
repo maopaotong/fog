@@ -57,15 +57,15 @@ namespace fog
                 int cost = CostMap::DEFAULT_COST;
                 switch (type)
                 {
-                case cells::Type::OCEAN:
-                case cells::Type::MOUNTAIN:
-                case cells::Type::LAKE:
+                case cells::CellTypes::OCEAN:
+                case cells::CellTypes::MOUNTAIN:
+                case cells::CellTypes::LAKE:
 
                     cost = CostMap::OBSTACLE;
                     break;
-                case cells::Type::HILL:
-                case cells::Type::FROZEN:
-                case cells::Type::RIVER:
+                case cells::CellTypes::HILL:
+                case cells::CellTypes::FROZEN:
+                case cells::CellTypes::RIVER:
                     cost = 2;
                     break;
                 }

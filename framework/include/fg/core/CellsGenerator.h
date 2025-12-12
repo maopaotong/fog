@@ -54,30 +54,30 @@ namespace fog::cells
             std::unordered_map<CellType, int> plot;
             Iteration::forEach<float>(heightmap, w, w, [&tiles, &plot](int x, int y, float h)
                                       {
-                                              CellType type = Type::UNKNOW;
+                                              CellType type = CellTypes::UNKNOW;
                                               if (h < Config::GENERATOR1_OCEAN_RATIO) // TODo calculate the actual ratio instead of the height.
                                               {
-                                                  type = Type::OCEAN;
+                                                  type = CellTypes::OCEAN;
                                               }
                                               else if (h < Config::GENERATOR1_SHORE_RATIO)
                                               {
-                                                  type = Type::SHORE;
+                                                  type = CellTypes::SHORE;
                                               }
                                               else if (h < Config::GENERATOR1_PLAIN_RATIO)
                                               {
-                                                  type = Type::PLAIN;
+                                                  type = CellTypes::PLAIN;
                                               }
                                               else if (h < Config::GENERATOR1_HILL_RATIO)
                                               {
-                                                  type = Type::HILL;
+                                                  type = CellTypes::HILL;
                                               }
                                               else if (h < Config::GENERATOR1_MOUNTAIN_RATIO)
                                               {
-                                                  type = Type::MOUNTAIN;
+                                                  type = CellTypes::MOUNTAIN;
                                               }
                                               else
                                               {
-                                                  type = Type::FROZEN;
+                                                  type = CellTypes::FROZEN;
                                               }
                                               tiles[x][y].type = type; //
 
@@ -170,7 +170,7 @@ namespace fog::cells
 
                 CellRegion region([&innerTypes, &borderTypes](CellKey cKey, CellData &tile, CellRegion &rg)
                               {
-                                  if (tile.type == Type::SHORE || tile.type == Type::OCEAN)
+                                  if (tile.type == CellTypes::SHORE || tile.type == CellTypes::OCEAN)
                                   {
                                       innerTypes.insert(tile.type);
                                       return true; //
@@ -189,7 +189,7 @@ namespace fog::cells
                                   {
                                       return false;
                                   }
-                                  if (borderTypes.count(Type::FROZEN) == 0)
+                                  if (borderTypes.count(CellTypes::FROZEN) == 0)
                                   {
                                       return false;
                                   }
@@ -199,7 +199,7 @@ namespace fog::cells
                 bool isLake = forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
                 if (isLake)
                 {
-                    tl.type = Type::LAKE;
+                    tl.type = CellTypes::LAKE;
                     this->totalLakes++;
                 } //
             }
@@ -224,7 +224,7 @@ namespace fog::cells
 
                 CellRegion region([&innerTypes, &borderTypes](CellKey cKey, CellData &tile, CellRegion &rg)
                               {
-                                  if (tile.type == Type::SHORE || tile.type == Type::OCEAN)
+                                  if (tile.type == CellTypes::SHORE || tile.type == CellTypes::OCEAN)
                                   {
                                       innerTypes.insert(tile.type);
                                       return true; //
@@ -270,20 +270,20 @@ namespace fog::cells
 
             if (makeLakeOp1.totalLakes == 0)
             {
-                Iteration::forEach<CellData>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, Type::PLAIN, determineTileTypeForMakeLakeByPlain));
+                Iteration::forEach<CellData>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, CellTypes::PLAIN, determineTileTypeForMakeLakeByPlain));
             }
 
             // remove all other inner ocean/shore
             Iteration::forEach<CellData>(tiles, w, h, RemoveOceanShoreInLand(tiles, w, h));
 
             // remove single ocean.
-            Iteration::forEach<CellData>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, Type::OCEAN, determineNewTypeForSingleOcean));
+            Iteration::forEach<CellData>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, CellTypes::OCEAN, determineNewTypeForSingleOcean));
 
             // remove single shore
-            Iteration::forEach<CellData>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, Type::SHORE, determineNewTypeForSingleShore));
+            Iteration::forEach<CellData>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, CellTypes::SHORE, determineNewTypeForSingleShore));
 
             // resolve single plain
-            Iteration::forEach<CellData>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, Type::PLAIN, determineNewTypeForSingleShore));
+            Iteration::forEach<CellData>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, CellTypes::PLAIN, determineNewTypeForSingleShore));
             /*
              */
 
@@ -292,11 +292,11 @@ namespace fog::cells
         static CellType determineTileTypeForMakeLakeByPlain(std::unordered_set<CellType> borderTypes)
         {
             // TODO find a random type from border
-            if (borderTypes.count(Type::FROZEN) && borderTypes.count(Type::MOUNTAIN) && borderTypes.count(Type::HILL))
+            if (borderTypes.count(CellTypes::FROZEN) && borderTypes.count(CellTypes::MOUNTAIN) && borderTypes.count(CellTypes::HILL))
             { // near fronzen and mountain and hill.
-                return Type::LAKE;
+                return CellTypes::LAKE;
             }
-            return Type::PLAIN;
+            return CellTypes::PLAIN;
         }
 
         static CellType determineNewTypeForInnerMiddleOcean(std::unordered_set<CellType> borderTypes)

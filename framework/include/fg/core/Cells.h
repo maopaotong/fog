@@ -14,7 +14,7 @@ namespace fog::cells
 
     using CellType = uint8;
 
-    class Type
+    class CellTypes
     {
     public:
         static constexpr CellType SKY = 100; //
@@ -36,7 +36,7 @@ namespace fog::cells
         CellType type;
         std::unordered_map<CellType, int> regions; // region , additional types
 
-        CellData() : type(Type::UNKNOW) // unkonwn
+        CellData() : type(CellTypes::UNKNOW) // unkonwn
         {
         }
 
