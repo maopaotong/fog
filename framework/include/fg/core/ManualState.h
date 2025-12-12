@@ -8,7 +8,7 @@
 #include <OgreColourValue.h>
 #include "fg/State.h"
 #include "fg/CoreMod.h"
-#include "fg/Cell.h"
+#include "fg/util/Cell.h"
 #include "fg/MaterialNames.h"
 #include "fg/MeshBuild.h"
 #define DEFAULT_CELL_HIGH_OFFSET .08f

@@ -21,7 +21,7 @@ namespace fog
     class BuildingPlan
     {
     protected:
-        HexTile::Key cKey;
+        Cell::Key cKey;
         State *building;
         float amount;
 
@@ -55,7 +55,7 @@ namespace fog
             }
         }
 
-        void moveToCell(HexTile::Key cKey)
+        void moveToCell(Cell::Key cKey)
         {
             this->cKey = cKey;
             
@@ -71,7 +71,7 @@ namespace fog
         State *picked;
         BuildingPlan *plan;
 
-        std::unordered_map<HexTile::Key, std::vector<State *>, HexTile::Key::Hash> buildingsInCells;
+        std::unordered_map<Cell::Key, std::vector<State *>, Cell::Key::Hash> buildingsInCells;
 
     protected:
         void setPicked(State *picked)
@@ -105,7 +105,7 @@ namespace fog
         void init() override
         {
             Context<Event::Bus>::get()-> //
-                subscribe<MouseCellEventType, HexTile::Key>([this](MouseCellEventType type, HexTile::Key cKey)
+                subscribe<MouseCellEventType, Cell::Key>([this](MouseCellEventType type, Cell::Key cKey)
                                                        {
                                                            if (type == MouseCellEventType::MouseEnterCell)
                                                            {
@@ -118,7 +118,7 @@ namespace fog
                                                            return true; //
                                                        });
             Context<Event::Bus>::get()-> //
-                subscribe<CellEventType, HexTile::Key>([this](CellEventType type, HexTile::Key cKey)
+                subscribe<CellEventType, Cell::Key>([this](CellEventType type, Cell::Key cKey)
                                                   {
                                                       if (type == CellEventType::CellAsTarget)
                                                       {
@@ -196,7 +196,7 @@ namespace fog
             return true;
         }
 
-        void finishPlan(HexTile::Key cKey)
+        void finishPlan(Cell::Key cKey)
         {
 
             auto it = this->buildingsInCells.find(cKey);

@@ -67,7 +67,7 @@ namespace fog
         bool active = false;
         Options options;
         std::string name;
-        HexTile::Key cKey;
+        Cell::Key cKey;
 
         template <typename T>
         Property::Ref<T> createProperty(std::string name, T defaultValue)
@@ -103,7 +103,7 @@ namespace fog
             return Point2<float>::from(positionIn3D, *Context<Transform::D3_NORMAL_D2>::get());
         }
 
-        void setPosition(HexTile::Key cKey){
+        void setPosition(Cell::Key cKey){
             Vector3 v3 = cKey.transform3();
             this->getSceneNode()->setPosition(v3);
         }
@@ -112,11 +112,11 @@ namespace fog
             return this->parent;
         }
 
-        HexTile::Key getCellKey()
+        Cell::Key getCellKey()
         {
             return this->cKey;
         }
-        void setCellKey(HexTile::Key ckey)
+        void setCellKey(Cell::Key ckey)
         {
             this->cKey = ckey;
         }   

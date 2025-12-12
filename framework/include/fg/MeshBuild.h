@@ -36,7 +36,7 @@ namespace fog
                 baseIndex = obj->getCurrentVertexCount();
             }
 
-            void operator()(HexTile::Key &cell, ColourValue color)
+            void operator()(Cell::Key &cell, ColourValue color)
             {
                 //Vector2 origin = Cell::getOrigin2D(cell, Config::CELL_SCALE);
                 Vector2 origin = cell.getCentre().scale(Config::CELL_SCALE);
@@ -46,7 +46,7 @@ namespace fog
                 {
                     ManualObject *obj;
                     ColourValue color;
-                    HexTile::Key &cell;
+                    Cell::Key &cell;
                     Vector2 origin;
                     Vector3 nom3;
                     int layer;
@@ -79,7 +79,7 @@ namespace fog
                 {
                     visit.layer = i + 1;
                     float sizeI = std::powf(2, i) * 6;
-                    HexTile::Key::forEachPointOnCircle(sizeI, 0.0f, visit);
+                    Cell::Key::forEachPointOnCircle(sizeI, 0.0f, visit);
                 }
             }
 
@@ -335,7 +335,7 @@ namespace fog
                 visitPoint.idx = baseIndex;
             }
 
-            void operator()(HexTile::Key &cell, ColourValue color)
+            void operator()(Cell::Key &cell, ColourValue color)
             {
                 operator()([&cell, this](Vector2 & pointOnCircle, int layer, int totalLayer)
                            {
@@ -362,7 +362,7 @@ namespace fog
                     visitPoint.preLayerSize = visitPoint.layerSize;
                     visitPoint.layerSize = layerSize(i);
 
-                    HexTile::Key::forEachPointOnCircle(visitPoint.layerSize, 0.0f, visitPoint, positionFunc);
+                    Cell::Key::forEachPointOnCircle(visitPoint.layerSize, 0.0f, visitPoint, positionFunc);
                 }
                 normObj.commit();
             }

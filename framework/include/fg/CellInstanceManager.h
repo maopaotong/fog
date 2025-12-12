@@ -16,10 +16,10 @@ namespace fog
     {
         std::stack<ColourValue> colours;
         ManualObject *obj;
-        HexTile::Key cis;
+        Cell::Key cis;
 
     public:
-        CellInstanceState(HexTile::Key cis) : cis(cis)
+        CellInstanceState(Cell::Key cis) : cis(cis)
         {
             this->sceNode = Context<CoreMod>::get()->getSceneManager()->getRootSceneNode()->createChildSceneNode();
             this->obj = Context<CoreMod>::get()->getSceneManager()->createManualObject();
@@ -65,7 +65,7 @@ namespace fog
         }
 
         // Get color based on cost
-        bool getCostColor(HexTile::Key &cell, Ogre::ColourValue &color) const
+        bool getCostColor(Cell::Key &cell, Ogre::ColourValue &color) const
         {
             // CostMap *costMap = Context<CostMap>::get();
             // const int cost = costMap->getCost(cell);
@@ -91,7 +91,7 @@ namespace fog
             return false;
         }
 
-        HexTile::Key getCellKey()
+        Cell::Key getCellKey()
         {
             return this->cis;
         }
@@ -115,7 +115,7 @@ namespace fog
 
     class CellInstanceManager : public State
     {
-        std::unordered_map<HexTile::Key, CellInstanceState *, HexTile::Key::Hash> cellInstanceStates;
+        std::unordered_map<Cell::Key, CellInstanceState *, Cell::Key::Hash> cellInstanceStates;
 
     public:
         CellInstanceManager()
@@ -132,7 +132,7 @@ namespace fog
             {
                 for (int y = 0; y < Config::TILES_RANGE.getHeight(); y++)
                 {
-                    HexTile::Key cell(x, y);
+                    Cell::Key cell(x, y);
                     CellInstanceState *state = new CellInstanceState(cell);
                     state->init();
                     this->addChild(state); //
@@ -164,10 +164,10 @@ namespace fog
             // {
             //     return this->cellInstanceStates[cell];
             // }
-            HexTile::Key cKey = HexTile::Key::from(pos);
+            Cell::Key cKey = Cell::Key::from(pos);
             return getCellInstanceStateByCellKey(cKey);
         }
-        CellInstanceState *getCellInstanceStateByCellKey(HexTile::Key cKey)
+        CellInstanceState *getCellInstanceStateByCellKey(Cell::Key cKey)
         {
             auto it = this->cellInstanceStates.find(cKey);
             if (it != this->cellInstanceStates.end())

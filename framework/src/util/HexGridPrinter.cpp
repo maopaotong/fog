@@ -36,7 +36,7 @@ void HexGridPrinter::printPathGrid(CostMap *grid, int startx , int starty , int 
 {
     std::cout << "Path Result (S=start, E=end, *=path, number=cost):\n";
 
-    std::unordered_set<HexTile::Key, HexTile::Key::Hash> pathSet;
+    std::unordered_set<Cell::Key, Cell::Key::Hash> pathSet;
     for (const auto &p : path)
     {
         pathSet.insert({static_cast<int>(p.x), static_cast<int>(p.y)});

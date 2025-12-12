@@ -10,6 +10,8 @@
 #include "util/Event.h"
 #include "util/Property.h"
 #include "util/Transform.h"
-#include "util/HexTile.h"
+#include "util/Cell.h"
 #include "util/StringUtil.h"
+#include "util/Cell.h"
+#include "util/CostMap.h"
 

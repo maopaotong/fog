@@ -18,7 +18,7 @@ namespace fog
 
     class PathState : public State
     {
-        std::vector<HexTile::Key> currentPath;        
+        std::vector<Cell::Key> currentPath;        
 
     public:
         PathState()
@@ -29,7 +29,7 @@ namespace fog
             this->resetPathColor(true);
         }
 
-        void setPath(const std::vector<HexTile::Key> &path)
+        void setPath(const std::vector<Cell::Key> &path)
         {
             this->resetPathColor(true);
             currentPath = path;                        
@@ -40,7 +40,7 @@ namespace fog
         {
             for (auto it = currentPath.begin(); it != currentPath.end(); ++it)
             {
-                HexTile::Key cKey = *it;
+                Cell::Key cKey = *it;
                 CellInstanceState *cis = Context<CellInstanceManager>::get()->getCellInstanceStateByCellKey(cKey);
                 if (unset)
                 {

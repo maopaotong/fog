@@ -8,9 +8,6 @@
 #include <OgreColourValue.h>
 #include "fg/State.h"
 #include "fg/CoreMod.h"
-#include "fg/util/CostMap.h"
-#include "fg/Cell.h"
-#include "fg/util/CostMap.h"
 #include "fg/MeshBuild.h"
 
 #include "fg/util/Property.h"
@@ -149,7 +146,7 @@ namespace fog
             std::vector<std::vector<Vector3>> norms(qWidth, std::vector<Vector3>(qHeight, Vector3::UNIT_Y));
             std::vector<std::vector<Vector3>> positions(qWidth, std::vector<Vector3>(qHeight, Vector3::ZERO));
 
-            Cell::Center *cc = Context<Cell::Center>::get();
+            // Cell::Center *cc = Context<Cell::Center>::get();
 
             // collect position.
             for (int y = 0; y < qHeight; y++)
@@ -158,9 +155,9 @@ namespace fog
                 {
                     int qy = y * step;
                     int qx = x * step;
-                    HexTile::Key cKey = tts->vertexs[qx][qy].cKey;
+                    Cell::Key cKey = tts->vertexs[qx][qy].cKey;
 
-                    HexTile::Key cis = cc->getCell(cKey);
+                    // HexTile::Key cis = cc->getCell(cKey);
 
                     // float scale = Context<Node2D>::get()->getScale();
                     // Vector2 tP = Cell::getOrigin2D(cis,scale);
@@ -175,7 +172,7 @@ namespace fog
 
                     // Vector3 position = qP.transform3(Transform::D2_NORMAL_D3(h));
                     //Vector3 position = ((cis.cast<float>().transform(Transform::CellCentreByKey()) + tts->vertexs[qx][qy].originInTile) * Config::CELL_SCALE).transform3(Transform::D2_NORMAL_D3(h));
-                    Vector3 position = cis.transform3(tts->vertexs[qx][qy].originInTile, h);
+                    Vector3 position = cKey.transform3(tts->vertexs[qx][qy].originInTile, h);
                     // position.y = h;
 
                     positions[x][y] = position;

@@ -39,8 +39,8 @@ namespace fog
     //template <>
     //Node2D *Context<Node2D>::ctxObj = nullptr;
 
-    template <>
-    Cell::Center *Context<Cell::Center>::ctxObj = nullptr;
+    // template <>
+    // Cell::Center *Context<Cell::Center>::ctxObj = nullptr;
 
     template <>
     CoreMod *Context<CoreMod>::ctxObj = nullptr;

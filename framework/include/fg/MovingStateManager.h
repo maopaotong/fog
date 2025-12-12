@@ -23,7 +23,7 @@ namespace fog
         float actorHighOffset;
 
     protected:
-        HexTile::Key cKey2; // target cell key.
+        Cell::Key cKey2; // target cell key.
         State *movingState;
         //
         PathFollow2MissionState *mission = nullptr;
@@ -33,7 +33,7 @@ namespace fog
         Vector3 prePosition;
 
     public:
-        MoveToCellTask(State *state, HexTile::Key cKey2) : movingState(state), cKey2(cKey2)
+        MoveToCellTask(State *state, Cell::Key cKey2) : movingState(state), cKey2(cKey2)
         {
         }
         virtual ~MoveToCellTask()
@@ -43,7 +43,7 @@ namespace fog
         {
             return this->movingState;
         }
-        HexTile::Key getTargetCellKey()
+        Cell::Key getTargetCellKey()
         {
             return this->cKey2;
         }
@@ -64,7 +64,7 @@ namespace fog
             return ret;
         }
 
-        std::tuple<HexTile::Key, Point2<float>> resolveOwnerCell()
+        std::tuple<Cell::Key, Point2<float>> resolveOwnerCell()
         {
             // Cell::Center *cells = Context<Cell::Center>::get();
 
@@ -78,7 +78,7 @@ namespace fog
             // HexTile::Key cell;
             // // bool hitCell = CellUtil::findCellByPoint(costMap, aPos2, aHexTile::Key);
             // bool hitCell = Context<Cell::Center>::get()->findCellByPosition(actorPosIn2D, cell);
-            HexTile::Key cell = HexTile::Key::from(actorPosIn2D);
+            Cell::Key cell = Cell::Key::from(actorPosIn2D);
 
             // todo: not hit?
             return {cell, actorPosIn2D};
@@ -87,12 +87,12 @@ namespace fog
         PathFollow2 buildPath()
         {
 
-            std::tuple<HexTile::Key, Point2<float>> stateCellAndPosition = this->resolveOwnerCell();
+            std::tuple<Cell::Key, Point2<float>> stateCellAndPosition = this->resolveOwnerCell();
 
-            HexTile::Key cKey1 = std::get<HexTile::Key>(stateCellAndPosition);
+            Cell::Key cKey1 = std::get<Cell::Key>(stateCellAndPosition);
 
             CostMap::DefaultCost &costFunc = *Context<CostMap::DefaultCost>::get();
-            std::vector<HexTile::Key> pathByCKey = Context<CostMap>::get()-> //
+            std::vector<Cell::Key> pathByCKey = Context<CostMap>::get()-> //
                                                    findPath(cKey1,
                                                             cKey2, //
                                                             costFunc);
@@ -101,7 +101,7 @@ namespace fog
             {
                 //find the nearest cell as the target.
                 //TODO: if the targe is untouchable area, then find the nearest border cell of such area as the new target. 
-                std::vector<HexTile::Key> linePath = Context<CostMap>::get()-> //
+                std::vector<Cell::Key> linePath = Context<CostMap>::get()-> //
                                                      findPath(
                                                          cKey2,//reverse simple line path 
                                                          cKey1, //
@@ -128,7 +128,7 @@ namespace fog
             // Context<Node2D>::get()->
 
             std::vector<Point2<float>> centres;
-            HexTile::Key::getCentres(pathByCKey, centres);
+            Cell::Key::getCentres(pathByCKey, centres);
             // float pathSpeed = this->Context<Var<float>::Bag>::get()->getVarVal(".pathSpeed", 1.0f);
 
             float pathSpeed = Context<Var<float>::Bag>::get()->getVarVal(".pathSpeed", 1.0f);
@@ -225,9 +225,9 @@ namespace fog
             // {
             //     return false;
             // }
-            HexTile::Key cKey2 = HexTile::Key::from(pos);
+            Cell::Key cKey2 = Cell::Key::from(pos);
 
-            Context<Event::Bus>::get()->emit<CellEventType, HexTile::Key>(CellEventType::CellAsTarget, cKey2);
+            Context<Event::Bus>::get()->emit<CellEventType, Cell::Key>(CellEventType::CellAsTarget, cKey2);
 
             // state
             this->movingActiveStateToCell(cKey2);
@@ -235,7 +235,7 @@ namespace fog
             return true;
         }
 
-        void movingActiveStateToCell(HexTile::Key cKey2)
+        void movingActiveStateToCell(Cell::Key cKey2)
         {
             if (this->state == nullptr)
             {

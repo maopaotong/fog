@@ -112,7 +112,7 @@ namespace fog
             // find a position.
         }
 
-        void setCellToStandOn(HexTile::Key cKey)
+        void setCellToStandOn(Cell::Key cKey)
         {
             actor2->setPosition(cKey);
         }

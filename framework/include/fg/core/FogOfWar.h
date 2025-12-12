@@ -29,7 +29,7 @@ namespace fog
         TexturePtr texture;
         Box2<int> bufferBox{0}; // moving around. but keep the width * height, even if the box is moving out the world.
         //
-        HexTile::Key homeCell;
+        Cell::Key homeCell;
 
     public:
         FogOfWar(int tlsWidth, int tlsHeight, int width, int height, std::string texName) : tlsWidth(tlsWidth), tlsHeight(tlsHeight),
@@ -55,7 +55,7 @@ namespace fog
         }
 
     public:
-        void setHomeCell(HexTile::Key cKey)
+        void setHomeCell(Cell::Key cKey)
         {
             this->homeCell = cKey;
         }
@@ -116,7 +116,7 @@ namespace fog
 
         } // end init
 
-        Box2<int> buildBufferBox(HexTile::Key cKey){
+        Box2<int> buildBufferBox(Cell::Key cKey){
             Box2<float> box = cKey.getOuterBoxInUV(tlsWidth, tlsHeight); // cover the entire tile.
             // scale from centre of the box, p1 is (0,0),p2 is very small value some thing like: 1/cells*rad.
             box.expand(3.0); // expand to 3 cell width.
@@ -126,7 +126,7 @@ namespace fog
             return box.cast<int>();
         }
 
-        void set(HexTile::Key cKey, bool visible)
+        void set(Cell::Key cKey, bool visible)
         {
 
             if (Config::DEBUG_FOG_OF_WAR && Config::DEBUG_COUT)
@@ -223,7 +223,7 @@ namespace fog
             // {
             //     this->set(cis, true);
             // }
-            HexTile::Key cis = HexTile::Key::from(state->getPosition());
+            Cell::Key cis = Cell::Key::from(state->getPosition());
             this->set(cis, true);
         }
 

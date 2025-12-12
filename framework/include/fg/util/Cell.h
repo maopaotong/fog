@@ -3,18 +3,23 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/util/Point2.h"
-#include "fg/util/CollectionUtil.h"
-#include "fg/util/Context.h"
 #include "fg/util/Common.h"
+#include <cmath>
+#include <algorithm>
 #include "fg/util/Box2.h"
+#include "fg/util/Context.h"
+#include "fg/util/CollectionUtil.h"
 #include "fg/util/Transform.h"
+using namespace Ogre;
 
 namespace fog
 {
-    struct HexTile
+
+    class Cell
     {
 
+    public:
+    
         struct Key : public Point2<int>
         {
 
@@ -131,6 +136,93 @@ namespace fog
             /*
              */
         };
+    public:
+        template <typename F>
+        static int forEachNeibers(int x, int y, int width, int height, F &&visit)
+        {
+            Cell::Key neibers[6];
+            Cell::getNeibers(x, y, neibers);
+            //
+            int count = 0;
+            for (int i = 0; i < 6; i++)
+            {
+                int nX = neibers[i].x;
+                int nY = neibers[i].y;
+
+                if (nX >= 0 && nX < width && nY >= 0 && nY < height)
+                {
+                    visit(i, nX, nY);
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        /**
+         *
+         *    * * *     [0,3]     [1,3]    [2,3]
+         *   * * *    [0,2]   [1,2]    [2,2]
+         *    * * *     [0,1]     [1,1]    [2,1]
+         *   * * *    [0,0]   [1,0]    [2,0]
+         *
+         */
+        static void getNeibers(int x, int y, Cell::Key *neibers)
+        {
+
+            // e.g. :[1,2]
+            if (y % 2 == 0)
+            {
+
+                neibers[0].x = x; //[1,1]
+                neibers[0].y = y - 1;
+
+                neibers[1].x = x + 1; //[2,2]
+                neibers[1].y = y;
+
+                neibers[2].x = x; //[1,3]
+                neibers[2].y = y + 1;
+
+                neibers[3].x = x - 1; //[0,3]
+                neibers[3].y = y + 1;
+
+                neibers[4].x = x - 1; //[0,2]
+                neibers[4].y = y;
+
+                neibers[5].x = x - 1; //[0,1]
+                neibers[5].y = y - 1;
+            }
+            else
+            { // e.g. [1,1]
+
+                neibers[0].x = x + 1; //[2,0]
+                neibers[0].y = y - 1;
+
+                neibers[1].x = x + 1; //[2,1]
+                neibers[1].y = y;
+
+                neibers[2].x = x + 1; //[2,2]
+                neibers[2].y = y + 1;
+
+                neibers[3].x = x; //[1,2]
+                neibers[3].y = y + 1;
+
+                neibers[4].x = x - 1; //[0,1]
+                neibers[4].y = y;
+
+                neibers[5].x = x; //[1,0]
+                neibers[5].y = y - 1;
+            }
+        }
+
+
+        // static HexTile::Key getCellKey(Ogre::Vector2 p)
+        // {
+
+        //     return (Point2<float>(p.x, p.y)).transform(Transform::CentreToCellKey());
+        // }
+
+
 
         class KeyUtil
         {
@@ -142,5 +234,4 @@ namespace fog
         };
     };
 
-
-}; // end of namespace
+};

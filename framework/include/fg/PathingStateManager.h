@@ -11,7 +11,6 @@
 #include <type_traits>
 #include <utility>
 #include <Ogre.h>
-#include <fg/Cell.h>
 #include "fg/util/Context.h"
 #include "OgreSceneNode.h"
 #include "fg/util/CostMap.h"
@@ -19,7 +18,7 @@
 #include "fg/core/PathState.h"
 #include "fg/core/PathFollow2MissionState.h"
 #include "fg/Tasks.h"
-#include "fg/Cell.h"
+#include "fg/util.h"
 #include "fg/CellInstanceManager.h"
 
 namespace fog
@@ -35,8 +34,8 @@ namespace fog
         PathState *path;
 
     protected:
-        HexTile::Key cKey2;
-        HexTile::Key cKey1;
+        Cell::Key cKey2;
+        Cell::Key cKey1;
 
     public:
         PathingStateManager() : sourceState(nullptr), targetCis(nullptr), path(nullptr)
@@ -147,12 +146,12 @@ namespace fog
             {
                 targetCis->popColour();
                 Context<Event::Bus>::get()-> //
-                    emit<MouseCellEventType, HexTile::Key>(MouseCellEventType::MouseLeaveCell, targetCis->getCellKey());
+                    emit<MouseCellEventType, Cell::Key>(MouseCellEventType::MouseLeaveCell, targetCis->getCellKey());
             }
             cis->pushColour(ColourValue::White);
             targetCis = cis;
             Context<Event::Bus>::get()-> //
-                emit<MouseCellEventType, HexTile::Key>(MouseCellEventType::MouseEnterCell, targetCis->getCellKey());
+                emit<MouseCellEventType, Cell::Key>(MouseCellEventType::MouseEnterCell, targetCis->getCellKey());
 
             return false;
         }
@@ -187,8 +186,8 @@ namespace fog
                 return true;
             }
             //
-            HexTile::Key cKey2 = targetCis->getCellKey();
-            HexTile::Key cKey1 = sourceCis->getCellKey();
+            Cell::Key cKey2 = targetCis->getCellKey();
+            Cell::Key cKey1 = sourceCis->getCellKey();
             if (this->cKey2 == cKey2 && this->cKey1 == cKey1)
             {                // do nothing.
                 return true; // GOON
@@ -197,7 +196,7 @@ namespace fog
             this->cKey1 = cKey1;
             this->cKey2 = cKey2;
             auto costFunc = *Context<CostMap::DefaultCost>::get();
-            std::vector<HexTile::Key> pathByCellKey = Context<CostMap>::get()->findPath(cKey1, cKey2, costFunc);
+            std::vector<Cell::Key> pathByCellKey = Context<CostMap>::get()->findPath(cKey1, cKey2, costFunc);
 
 
             PathState *pathState2 = new PathState();

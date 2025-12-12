@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/util/HexTile.h"
 #include "fg/State.h"
 #include "CellStateControl.h"
 #include "fg/CameraState.h"
@@ -52,7 +51,7 @@ namespace fog
         }
 
 
-        HexTile::Key findCellToStandOn()
+        Cell::Key findCellToStandOn()
         {
             std::random_device rd;
             std::mt19937 gen(rd());
@@ -69,10 +68,10 @@ namespace fog
                 {
                     continue;
                 }
-                return HexTile::Key(x, y);
+                return Cell::Key(x, y);
             }
 
-            return HexTile::Key(0, 0);
+            return Cell::Key(0, 0);
         }
 
         virtual void init() override
@@ -82,7 +81,7 @@ namespace fog
             Ogre::Root *root = core->getRoot();
 
             this->initTilesAndCostMap();
-            HexTile::Key cKey = findCellToStandOn();//
+            Cell::Key cKey = findCellToStandOn();//
 
             Context<FogOfWar>::get()->setHomeCell(cKey);
             Context<FogOfWar>::get()->init();

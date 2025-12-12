@@ -9,7 +9,7 @@
 #include "fg/State.h"
 #include "fg/CoreMod.h"
 #include "fg/util/CostMap.h"
-#include "fg/Cell.h"
+#include "fg/util/Cell.h"
 #include "fg/util/CostMap.h"
 #include "fg/MeshBuild.h"
 
@@ -47,7 +47,7 @@ namespace fog
         void rebuildMesh() override
         {
 
-            Cell::Center *cc = Context<Cell::Center>::get();
+            // Cell::Center *cc = Context<Cell::Center>::get();
             // MeshBuild::PointOnCircle buildMesh(obj);
             MeshBuild::SpiderNet buildMesh(obj);
             buildMesh.begin(this->material);
@@ -74,7 +74,7 @@ namespace fog
         }
 
         // Get color based on cost
-        bool getCostColor(HexTile::Key &cell, Ogre::ColourValue &color) const
+        bool getCostColor(Cell::Key &cell, Ogre::ColourValue &color) const
         {
             CostMap *costMap = Context<CostMap>::get();
             const int cost = 0;// costMap->getCost(cell, 0);
