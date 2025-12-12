@@ -29,7 +29,7 @@ namespace fog::cells
     struct Vertex
     {
         float height;
-        Cell::Key cKey;
+        CellKey cKey;
         Vector2 originInTile;
         std::array<TileType, 3> types;
 
@@ -74,7 +74,7 @@ namespace fog::cells
             return Vector2(c * p.x + s * p.y, -s * p.x + c * p.y);
         }
 
-        float distance(Cell::Key cKey2)
+        float distance(CellKey cKey2)
         {
             return (Vector2(cKey.x, cKey.y) + originInTile).distance(Vector2(cKey2.x, cKey2.y));
         }
@@ -109,7 +109,7 @@ namespace fog::cells
          * Calculate the height by sampling points's avg height.
          */
         float calculateRectHeightBySamples(Ogre::Vector2 center,
-                                           std::function<float(Cell::Key)> getHeight)
+                                           std::function<float(CellKey)> getHeight)
         {
             const int SAMPLES = 3; // 3x3 = 9 points；
             float totalHeight = 0.0f;
@@ -126,7 +126,7 @@ namespace fog::cells
                         center.y + (v - 0.5f) * rectHeight);
 
                     // HexTile::Key k = Cell::getCellKey(p, 1); //
-                    Cell::Key k = Point2<float>(p.x, p.y).transform(Transform::CentreToCellKey());
+                    CellKey k = Point2<float>(p.x, p.y).transform(Transform::CentreToCellKey());
 
                     totalHeight += getHeight(k);
                 }
@@ -160,7 +160,7 @@ namespace fog::cells
                     points[3] = Vector2(centreX, centreY + rectHeight / 2.0f); //
                     points[4] = Vector2(centreX - rectWidth / 2.0f, centreY);  //
 
-                    Cell::Key cKeys[5]; //
+                    CellKey cKeys[5]; //
                     for (int i = 0; i < 5; i++)
                     {
 
@@ -247,7 +247,7 @@ namespace fog::cells
                         }
                         else
                         { // calculate
-                            float h = calculateRectHeightBySamples(points[0], [this, &tiles](Cell::Key cKey)
+                            float h = calculateRectHeightBySamples(points[0], [this, &tiles](CellKey cKey)
                                                                    {
                                                                        int tx = std::clamp<int>(cKey.x, 0, tWidth - 1);
                                                                        int ty = std::clamp<int>(cKey.y, 0, tHeight - 1);
@@ -298,7 +298,7 @@ namespace fog::cells
                     { // is the centre rect
                         // find all neiber tiles , and include the current till as well.
                         // 6+1 = 7 as the max size;
-                        Cell::Key cKey = hMap[x][y].cKey;
+                        CellKey cKey = hMap[x][y].cKey;
                         float sumHeight = 0.0f;
                         int validNeibers = 0;
                         float sumWeight = 0;

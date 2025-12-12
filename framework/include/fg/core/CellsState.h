@@ -155,7 +155,7 @@ namespace fog
                 {
                     int qy = y * step;
                     int qx = x * step;
-                    Cell::Key cKey = tts->vertexs[qx][qy].cKey;
+                    CellKey cKey = tts->vertexs[qx][qy].cKey;
 
                     // HexTile::Key cis = cc->getCell(cKey);
 

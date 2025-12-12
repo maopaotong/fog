@@ -63,7 +63,7 @@ namespace fog::cells
     struct Region
     {
 
-        using RegionFunc = std::function<bool(Cell::Key, Tile &, Region &rg)>;
+        using RegionFunc = std::function<bool(CellKey, Tile &, Region &rg)>;
 
         RegionFunc inner; // inner judge
 
@@ -81,13 +81,13 @@ namespace fog::cells
         void merge(Region &rg)
         {
 
-            RegionFunc inner = [this, &rg](Cell::Key cKey, Tile &type, Region &rg3)
+            RegionFunc inner = [this, &rg](CellKey cKey, Tile &type, Region &rg3)
             {
                 return this->inner(cKey, type, rg3) || rg.inner(cKey, type, rg3);
             };
             this->inner = inner;
 
-            RegionFunc border = [this, &rg](Cell::Key cKey, Tile &type, Region &rg3)
+            RegionFunc border = [this, &rg](CellKey cKey, Tile &type, Region &rg3)
             {
                 return this->border(cKey, type, rg3) || rg.border(cKey, type, rg3);
             };
@@ -97,13 +97,13 @@ namespace fog::cells
         void intersects(Region &rg)
         {
 
-            RegionFunc inner = [this, &rg](Cell::Key cKey, Tile &type, Region &rg3)
+            RegionFunc inner = [this, &rg](CellKey cKey, Tile &type, Region &rg3)
             {
                 return this->inner(cKey, type, rg3) && rg.inner(cKey, type, rg3);
             };
             this->inner = inner;
 
-            RegionFunc border = [this, &rg](Cell::Key cKey, Tile &type, Region &rg3)
+            RegionFunc border = [this, &rg](CellKey cKey, Tile &type, Region &rg3)
             {
                 return this->border(cKey, type, rg3) && rg.border(cKey, type, rg3);
             };

@@ -112,7 +112,7 @@ namespace fog
             // find a position.
         }
 
-        void setCellToStandOn(Cell::Key cKey)
+        void setCellToStandOn(CellKey cKey)
         {
             actor2->setPosition(cKey);
         }

@@ -126,7 +126,7 @@ namespace fog
             return p.x >= 0 && p.x < this->width && p.y >= 0 && p.y < this->height;
         }
 
-        Cell::Key getNeighbor(Point2<int> p, int direction) const
+        CellKey getNeighbor(Point2<int> p, int direction) const
         {
             if (direction < 0 || direction >= 6)
                 return p;
@@ -168,14 +168,14 @@ namespace fog
         //     return cellPath;
         // }
         template <typename F>
-        std::vector<Cell::Key> findPath(Cell::Key start, Cell::Key end, F &&costFunc)
+        std::vector<CellKey> findPath(CellKey start, CellKey end, F &&costFunc)
         {
             return findPathInternal(start, end, costFunc);
         }
         template <typename F>
-        std::vector<Cell::Key> findPathInternal(Cell::Key start, Cell::Key end, F &&costFunc)
+        std::vector<CellKey> findPathInternal(CellKey start, CellKey end, F &&costFunc)
         {
-            using CellKey = Cell::Key;
+            using CellKey = CellKey;
 
             if (!isWalkable(start, costFunc) || !isWalkable(end, costFunc))
             {
@@ -183,9 +183,9 @@ namespace fog
             }
 
             std::priority_queue<NavNode, std::vector<NavNode>, std::greater<NavNode>> openList;
-            std::unordered_map<CellKey, CellKey, Cell::Key::Hash> cameFrom;
-            std::unordered_map<CellKey, float, Cell::Key::Hash> gScore;
-            std::unordered_set<CellKey, Cell::Key::Hash> closed;
+            std::unordered_map<CellKey, CellKey, CellKey::Hash> cameFrom;
+            std::unordered_map<CellKey, float, CellKey::Hash> gScore;
+            std::unordered_set<CellKey, CellKey::Hash> closed;
 
             NavNode startNode = {start, 0, heuristic(start, end)};
             openList.push(startNode);
@@ -233,20 +233,20 @@ namespace fog
         }
 
     private:
-        std::vector<Cell::Key> reconstructPath(
-            const std::unordered_map<Cell::Key, Cell::Key, Cell::Key::Hash> &cameFrom,
-            const Cell::Key &current) const
+        std::vector<CellKey> reconstructPath(
+            const std::unordered_map<CellKey, CellKey, CellKey::Hash> &cameFrom,
+            const CellKey &current) const
         {
 
-            std::vector<Cell::Key> path;
-            Cell::Key node = current;
+            std::vector<CellKey> path;
+            CellKey node = current;
 
             while (cameFrom.find(node) != cameFrom.end())
             {
-                path.push_back(Cell::Key(node.x, node.y));
+                path.push_back(CellKey(node.x, node.y));
                 node = cameFrom.at(node);
             }
-            path.push_back(Cell::Key(node.x, node.y));
+            path.push_back(CellKey(node.x, node.y));
 
             std::reverse(path.begin(), path.end());
             return path;

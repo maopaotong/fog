@@ -74,7 +74,7 @@ namespace fog
         }
 
         // Get color based on cost
-        bool getCostColor(Cell::Key &cell, Ogre::ColourValue &color) const
+        bool getCostColor(CellKey &cell, Ogre::ColourValue &color) const
         {
             CostMap *costMap = Context<CostMap>::get();
             const int cost = 0;// costMap->getCost(cell, 0);

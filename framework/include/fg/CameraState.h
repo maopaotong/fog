@@ -68,7 +68,7 @@ namespace fog
             Vector3 viewCenterOnGround = ray.getPoint(hitGrd.second);
 
             auto p2 = Point2<float>::from(viewCenterOnGround,*Context<Transform::D3_NORMAL_D2>::get());
-            Cell::Key cell = Cell::Key::from(p2);
+            CellKey cell = CellKey::from(p2);
             // if (Context<Cell::Center>::get()->findCellByPosition(p2, cell))
             // {
             //     return true;

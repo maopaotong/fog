@@ -51,7 +51,7 @@ namespace fog
         }
 
 
-        Cell::Key findCellToStandOn()
+        CellKey findCellToStandOn()
         {
             std::random_device rd;
             std::mt19937 gen(rd());
@@ -68,10 +68,10 @@ namespace fog
                 {
                     continue;
                 }
-                return Cell::Key(x, y);
+                return CellKey(x, y);
             }
 
-            return Cell::Key(0, 0);
+            return CellKey(0, 0);
         }
 
         virtual void init() override
@@ -81,7 +81,7 @@ namespace fog
             Ogre::Root *root = core->getRoot();
 
             this->initCellsAndCostMap();
-            Cell::Key cKey = findCellToStandOn();//
+            CellKey cKey = findCellToStandOn();//
 
             Context<FogOfWar>::get()->setHomeCell(cKey);
             Context<FogOfWar>::get()->init();

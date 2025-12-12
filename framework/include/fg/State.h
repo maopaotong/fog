@@ -65,7 +65,7 @@ namespace fog
         bool active = false;
         Options options;
         std::string name;
-        Cell::Key cKey;
+        CellKey cKey;
 
         template <typename T>
         Property::Ref<T> createProperty(std::string name, T defaultValue)
@@ -101,7 +101,7 @@ namespace fog
             return Point2<float>::from(positionIn3D, *Context<Transform::D3_NORMAL_D2>::get());
         }
 
-        void setPosition(Cell::Key cKey){
+        void setPosition(CellKey cKey){
             Vector3 v3 = cKey.transform3();
             this->getSceneNode()->setPosition(v3);
         }
@@ -110,11 +110,11 @@ namespace fog
             return this->parent;
         }
 
-        Cell::Key getCellKey()
+        CellKey getCellKey()
         {
             return this->cKey;
         }
-        void setCellKey(Cell::Key ckey)
+        void setCellKey(CellKey ckey)
         {
             this->cKey = ckey;
         }   

@@ -21,7 +21,7 @@ namespace fog
     class BuildingPlan
     {
     protected:
-        Cell::Key cKey;
+        CellKey cKey;
         State *building;
         float amount;
 
@@ -55,7 +55,7 @@ namespace fog
             }
         }
 
-        void moveToCell(Cell::Key cKey)
+        void moveToCell(CellKey cKey)
         {
             this->cKey = cKey;
             
@@ -71,7 +71,7 @@ namespace fog
         State *picked;
         BuildingPlan *plan;
 
-        std::unordered_map<Cell::Key, std::vector<State *>, Cell::Key::Hash> buildingsInCells;
+        std::unordered_map<CellKey, std::vector<State *>, CellKey::Hash> buildingsInCells;
 
     protected:
         void setPicked(State *picked)
@@ -105,7 +105,7 @@ namespace fog
         void init() override
         {
             Context<Event::Bus>::get()-> //
-                subscribe<MouseCellEventType, Cell::Key>([this](MouseCellEventType type, Cell::Key cKey)
+                subscribe<MouseCellEventType, CellKey>([this](MouseCellEventType type, CellKey cKey)
                                                        {
                                                            if (type == MouseCellEventType::MouseEnterCell)
                                                            {
@@ -118,7 +118,7 @@ namespace fog
                                                            return true; //
                                                        });
             Context<Event::Bus>::get()-> //
-                subscribe<CellEventType, Cell::Key>([this](CellEventType type, Cell::Key cKey)
+                subscribe<CellEventType, CellKey>([this](CellEventType type, CellKey cKey)
                                                   {
                                                       if (type == CellEventType::CellAsTarget)
                                                       {
@@ -196,7 +196,7 @@ namespace fog
             return true;
         }
 
-        void finishPlan(Cell::Key cKey)
+        void finishPlan(CellKey cKey)
         {
 
             auto it = this->buildingsInCells.find(cKey);

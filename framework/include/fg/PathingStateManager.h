@@ -32,8 +32,8 @@ namespace fog
         PathState *path;
 
     protected:
-        Cell::Key cKey2;
-        Cell::Key cKey1;
+        CellKey cKey2;
+        CellKey cKey1;
 
     public:
         PathingStateManager() : sourceState(nullptr), targetCis(nullptr), path(nullptr)
@@ -144,12 +144,12 @@ namespace fog
             {
                 targetCis->popColour();
                 Context<Event::Bus>::get()-> //
-                    emit<MouseCellEventType, Cell::Key>(MouseCellEventType::MouseLeaveCell, targetCis->getCellKey());
+                    emit<MouseCellEventType, CellKey>(MouseCellEventType::MouseLeaveCell, targetCis->getCellKey());
             }
             cis->pushColour(ColourValue::White);
             targetCis = cis;
             Context<Event::Bus>::get()-> //
-                emit<MouseCellEventType, Cell::Key>(MouseCellEventType::MouseEnterCell, targetCis->getCellKey());
+                emit<MouseCellEventType, CellKey>(MouseCellEventType::MouseEnterCell, targetCis->getCellKey());
 
             return false;
         }
@@ -184,8 +184,8 @@ namespace fog
                 return true;
             }
             //
-            Cell::Key cKey2 = targetCis->getCellKey();
-            Cell::Key cKey1 = sourceCis->getCellKey();
+            CellKey cKey2 = targetCis->getCellKey();
+            CellKey cKey1 = sourceCis->getCellKey();
             if (this->cKey2 == cKey2 && this->cKey1 == cKey1)
             {                // do nothing.
                 return true; // GOON
@@ -194,7 +194,7 @@ namespace fog
             this->cKey1 = cKey1;
             this->cKey2 = cKey2;
             auto costFunc = *Context<CostMap::DefaultCost>::get();
-            std::vector<Cell::Key> pathByCellKey = Context<CostMap>::get()->findPath(cKey1, cKey2, costFunc);
+            std::vector<CellKey> pathByCellKey = Context<CostMap>::get()->findPath(cKey1, cKey2, costFunc);
 
 
             PathState *pathState2 = new PathState();
