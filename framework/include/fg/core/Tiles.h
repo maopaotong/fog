@@ -4,17 +4,6 @@
  */
 #pragma once
 #include <vector>
-#include <Ogre.h>
-#include <OgreColourValue.h>
-#include "fg/State.h"
-#include "fg/CoreMod.h"
-#include "fg/util/CostMap.h"
-#include "fg/Cell.h"
-#include "fg/util/CostMap.h"
-#include "fg/MeshBuild.h"
-
-#include "fg/util/Property.h"
-#include "fg/core/ManualState.h"
 #include "fg/util/DiamondSquare.h"
 #include "fg/defines.h"
 #include "fg/util/Iteration.h"

@@ -15,6 +15,7 @@
 #include "fg/CameraState.h"
 #include "fg/core/TilesTerrains.h"
 #include "fg/core/FogOfWar.h"
+#include "fg/util/CostMap.h"
 namespace fog
 {
     // If the var here not initialised, app must provide the value.
@@ -92,5 +93,6 @@ namespace fog
     template<>
     Transform::D3_NORMAL_D2 * Context<Transform::D3_NORMAL_D2>::ctxObj = nullptr;
     
-
+    template<>
+    CostMap::DefaultCost * Context<CostMap::DefaultCost>::ctxObj = nullptr;
 };

@@ -15,15 +15,15 @@ void HexGridPrinter::printCostGrid(CostMap &grid)
             std::cout << " ";
         for (int x = 0; x < grid.width; x++)
         {
-            int cost = grid.costGrid[y][x];
-            if (cost == grid.OBSTACLE)
-            {
-                std::cout << "# ";
-            }
-            else
-            {
-                std::cout << cost << " ";
-            }
+            // int cost = grid.costGrid[y][x];
+            // if (cost == grid.OBSTACLE)
+            // {
+            //     std::cout << "# ";
+            // }
+            // else
+            // {
+            //     std::cout << cost << " ";
+            // }
         }
         std::cout << "\n";
     }
@@ -49,7 +49,7 @@ void HexGridPrinter::printPathGrid(CostMap *grid, int startx , int starty , int 
         for (int x = 0; x < grid->width; x++)
         {
             char c = '.';
-            int cost = grid->costGrid[y][x];
+            int cost =0;// grid->costGrid[y][x];
 
             if (x == startx && y == starty)
             {

@@ -48,7 +48,6 @@ namespace fog
         static bool DEBUG_COUT;
         static bool DEBUG_MOVING_POSITION;
         static bool DEBUG_FOG_OF_WAR;
-                
 
     private:
         static Box2<int> Config::parseValueOfRange2Int(std::string string);
@@ -59,9 +58,9 @@ namespace fog
         {
             ref = Options::get<T>(opts, key, ref);
         }
-        static void init(std::string file);
+        static void init(std::vector<std::string> files);
 
-        static void load(std::string file, Options &opts);
+        static void load(std::string file, Options &opts, bool strict);
 
     }; // end of class
 };

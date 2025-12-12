@@ -196,8 +196,9 @@ namespace fog
             // update path
             this->cKey1 = cKey1;
             this->cKey2 = cKey2;
+            auto costFunc = *Context<CostMap::DefaultCost>::get();
+            std::vector<HexTile::Key> pathByCellKey = Context<CostMap>::get()->findPath(cKey1, cKey2, costFunc);
 
-            std::vector<HexTile::Key> pathByCellKey = Context<CostMap>::get()->findPath(cKey1, cKey2);
 
             PathState *pathState2 = new PathState();
             pathState2->init();

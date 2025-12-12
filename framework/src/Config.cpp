@@ -6,6 +6,7 @@
 #include "fg/Config.h"
 #include "fg/util/Context.h"
 #include <fstream>
+#include <filesystem>
 namespace fog
 {
 
@@ -48,10 +49,13 @@ namespace fog
 
     Box2<int> Config::DEBUG_PRINT_TERRAINS_TEX_RANGE = Box2<int>(0, 0, 0, 0);
 
-    void Config::init(std::string file)
+    void Config::init(std::vector<std::string> files)
     {
         Options opts;
-        load(file,opts);
+        for (auto it = files.begin(); it != files.end(); it++)
+        {
+            load(*it, opts, false);
+        }
         HEIGHT_SCALE = Options::get<float>(opts, "HEIGHT_SCALE", HEIGHT_SCALE);
         TILES_RANGE = Options::get<Box2<int>>(opts, "TILES_RANGE", TILES_RANGE);
 
@@ -117,9 +121,19 @@ namespace fog
         // Config::D2H2D3 = {};
     }
 
-    void Config::load(std::string file, Options &opts)
+    void Config::load(std::string file, Options &opts, bool strict)
     {
-        std::ifstream f(file);
+        std::filesystem::path fpath(file.c_str());
+        if (!std::filesystem::exists(fpath))
+        {
+            throw std::runtime_error(std::string("no such file:" + file));
+        }
+        std::ifstream f(fpath);
+
+        if (!f.is_open())
+        {
+            throw std::runtime_error("failed to open file for read: " + file);
+        }
         std::string line;
         int lNum = 0;
         while (std::getline(f, line))
@@ -180,9 +194,9 @@ namespace fog
             {
                 throw std::runtime_error(std::string("not supported type:") + type);
             }
-            if (!ok)
+            if (!ok && strict)
             {
-                throw std::runtime_error(std::string("config key already exists."));
+                throw std::runtime_error(std::string("configration loading is in strict mode and item already exists:") + key);
             }
 
         } // end while.

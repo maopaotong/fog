@@ -5,7 +5,6 @@
 #pragma once
 #include <Ogre.h>
 #include <OgreVector.h>
-#include "fg/util/CostMap.h"
 #include <OgreManualObject.h>
 #include <OgreColourValue.h>
 #include "fg/Terrains.h"
@@ -266,12 +265,12 @@ namespace fog
         class Center
         {
             // Node2D *root;
-            CostMap *costMap;
+            //CostMap *costMap;
 
         public:
             Center()
             {
-                costMap = Context<CostMap>::get();
+                //costMap = Context<CostMap>::get();
             }
 
             // void translateToCenter()
@@ -375,14 +374,6 @@ namespace fog
                 }
             }
 
-            int getWidth()
-            {
-                return this->costMap->getWidth();
-            }
-            int getHeight()
-            {
-                return this->costMap->getHeight();
-            }
         };
     };
 

@@ -66,14 +66,14 @@ namespace fog
 
         std::tuple<HexTile::Key, Point2<float>> resolveOwnerCell()
         {
-            //Cell::Center *cells = Context<Cell::Center>::get();
+            // Cell::Center *cells = Context<Cell::Center>::get();
 
             // check if this state's position on the target cell
             Point2<float> actorPosIn2D = this->movingState->getPosition();
-            //Node2D *root2D = cells->getRoot2D();
-            //Vector2 actorPosIn2D = root2D->to2D(aPos3);
-            
-            //Vector2 actorPosIn2D = Point2<float>::from(aPos3, Transform::D3_NORMAL_D2(Config::D2_NORMAL_D3));
+            // Node2D *root2D = cells->getRoot2D();
+            // Vector2 actorPosIn2D = root2D->to2D(aPos3);
+
+            // Vector2 actorPosIn2D = Point2<float>::from(aPos3, Transform::D3_NORMAL_D2(Config::D2_NORMAL_D3));
 
             // HexTile::Key cell;
             // // bool hitCell = CellUtil::findCellByPoint(costMap, aPos2, aHexTile::Key);
@@ -89,14 +89,18 @@ namespace fog
 
             std::tuple<HexTile::Key, Point2<float>> stateCellAndPosition = this->resolveOwnerCell();
 
-            std::vector<HexTile::Key> pathByCKey = Context<CostMap>::get()->findNormPath(std::get<HexTile::Key>(stateCellAndPosition), cKey2);
+            CostMap::DefaultCost& costFunc = *Context<CostMap::DefaultCost>::get();
+            std::vector<HexTile::Key> pathByCKey = Context<CostMap>::get()-> //
+                                                   findPath(std::get<HexTile::Key>(stateCellAndPosition), 
+                                                   cKey2,//
+                                                   costFunc
+                                                   );
 
-            
             // CellUtil::translatePathToCellCenter(pathByKey, pathByPosition, CellUtil::offset(costMap));
-            
+
             // Context<Node2D>::get()->
-                        
-            std::vector<Point2<float>> centres; 
+
+            std::vector<Point2<float>> centres;
             HexTile::Key::getCentres(pathByCKey, centres);
             // float pathSpeed = this->Context<Var<float>::Bag>::get()->getVarVal(".pathSpeed", 1.0f);
 

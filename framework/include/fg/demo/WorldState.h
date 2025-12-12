@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
+#include "fg/util/HexTile.h"
 #include "fg/State.h"
 #include "CellStateControl.h"
 #include "fg/CameraState.h"
@@ -14,7 +15,7 @@
 #include "fg/BuildingStateManager.h"
 #include "fg/InventoryStateManager.h"
 #include "fg/core/TilesState.h"
-#include "fg/util/HexTile.h"
+#include "fg/util/CostMap.h"
 namespace fog
 {
     class WorldState : public State
@@ -45,30 +46,8 @@ namespace fog
             // cost map
 
             CostMap *costMap = new CostMap(tsWidth, tsHeight);
-            for (int x = 0; x < tsWidth; x++)
-            {
-                for (int y = 0; y < tsHeight; y++)
-                {
-                    int cost = CostMap::DEFAULT_COST;
-                    switch (tiles[x][y].type)
-                    {
-                    case tiles::Type::OCEAN:
-                    case tiles::Type::MOUNTAIN:
-                    case tiles::Type::LAKE:
-
-                        cost = CostMap::OBSTACLE;
-                        break;
-                    case tiles::Type::HILL:
-                    case tiles::Type::FROZEN:
-                    case tiles::Type::RIVER:
-                        cost = 2;
-                        break;
-                    }
-
-                    costMap->setCost(HexTile::Key(x, y), cost);
-                }
-            }
-
+             Context<CostMap::DefaultCost>::set(new CostMap::DefaultCost(&tiles));
+            
             Context<CostMap>::set(costMap);
         }
 

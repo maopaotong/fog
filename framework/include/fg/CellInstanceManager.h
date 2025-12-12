@@ -67,27 +67,28 @@ namespace fog
         // Get color based on cost
         bool getCostColor(HexTile::Key &cell, Ogre::ColourValue &color) const
         {
-            CostMap *costMap = Context<CostMap>::get();
-            const int cost = costMap->getCost(cell);
-            switch (cost)
-            {
-            case CostMap::OBSTACLE:
-                color = Ogre::ColourValue::Red;
-                return true;
-            case CostMap::DEFAULT_COST:
-                color = Ogre::ColourValue(0.8f, 0.6f, 0.2f); // light Sand color
-                return false;
-            case 2:
-                color = Ogre::ColourValue(0.6f, 0.4f, 0.1f); // Dark Sand color
-                return true;
-            case 3:
-                color = Ogre::ColourValue(0.2f, 0.4f, 0.8f); // Water color
-                return true;
-            default:
-                color = Ogre::ColourValue(0.7f, 0.7f, 0.7f); // light gray
+            // CostMap *costMap = Context<CostMap>::get();
+            // const int cost = costMap->getCost(cell);
+            // switch (cost)
+            // {
+            // case CostMap::OBSTACLE:
+            //     color = Ogre::ColourValue::Red;
+            //     return true;
+            // case CostMap::DEFAULT_COST:
+            //     color = Ogre::ColourValue(0.8f, 0.6f, 0.2f); // light Sand color
+            //     return false;
+            // case 2:
+            //     color = Ogre::ColourValue(0.6f, 0.4f, 0.1f); // Dark Sand color
+            //     return true;
+            // case 3:
+            //     color = Ogre::ColourValue(0.2f, 0.4f, 0.8f); // Water color
+            //     return true;
+            // default:
+            //     color = Ogre::ColourValue(0.7f, 0.7f, 0.7f); // light gray
 
-                return true;
-            }
+            //     return true;
+            // }
+            return false;
         }
 
         HexTile::Key getCellKey()
