@@ -179,7 +179,7 @@ namespace fog
 
             if (!isWalkable(start, costFunc) || !isWalkable(end, costFunc))
             {
-                return {};
+                return {};//empty path
             }
 
             std::priority_queue<NavNode, std::vector<NavNode>, std::greater<NavNode>> openList;

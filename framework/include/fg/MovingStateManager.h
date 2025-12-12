@@ -89,12 +89,39 @@ namespace fog
 
             std::tuple<HexTile::Key, Point2<float>> stateCellAndPosition = this->resolveOwnerCell();
 
-            CostMap::DefaultCost& costFunc = *Context<CostMap::DefaultCost>::get();
+            HexTile::Key cKey1 = std::get<HexTile::Key>(stateCellAndPosition);
+
+            CostMap::DefaultCost &costFunc = *Context<CostMap::DefaultCost>::get();
             std::vector<HexTile::Key> pathByCKey = Context<CostMap>::get()-> //
-                                                   findPath(std::get<HexTile::Key>(stateCellAndPosition), 
-                                                   cKey2,//
-                                                   costFunc
-                                                   );
+                                                   findPath(cKey1,
+                                                            cKey2, //
+                                                            costFunc);
+
+            if (pathByCKey.empty())
+            {
+                //find the nearest cell as the target.
+                //TODO: if the targe is untouchable area, then find the nearest border cell of such area as the new target. 
+                std::vector<HexTile::Key> linePath = Context<CostMap>::get()-> //
+                                                     findPath(
+                                                         cKey2,//reverse simple line path 
+                                                         cKey1, //
+                                                         [](Point2<int> cKey) -> int
+                                                         {
+                                                             return 1;
+                                                         });
+
+                for (auto it = linePath.begin(); it != linePath.end(); it++)
+                { // try
+                    cKey2 = *it;
+                    pathByCKey = Context<CostMap>::get()->findPath(cKey1, cKey2, costFunc);
+
+                    if (!pathByCKey.empty())
+                    {
+                        break;
+                    }
+                }
+                //
+            }
 
             // CellUtil::translatePathToCellCenter(pathByKey, pathByPosition, CellUtil::offset(costMap));
 
