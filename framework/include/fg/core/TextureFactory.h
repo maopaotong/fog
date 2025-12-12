@@ -31,7 +31,7 @@
 #include "stb_truetype.h"
 #include <OgreTextureManager.h>
 #include <OgreHardwarePixelBuffer.h>
-#include "fg/core/Cells.h"
+
 
 namespace fog
 {

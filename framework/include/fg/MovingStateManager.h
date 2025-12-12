@@ -14,7 +14,7 @@
 #include "fg/Config.h"
 #include "fg/util.h"
 
-#include "fg/core/CellsCost.h"
+#include "fg/cells.h"
 namespace fog
 {
 

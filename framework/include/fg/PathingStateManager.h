@@ -19,7 +19,7 @@
 #include "fg/util.h"
 #include "fg/CellInstanceManager.h"
 
-#include "fg/core/CellsCost.h"
+#include "fg/cells/CellsCost.h"
 namespace fog
 {
     /**

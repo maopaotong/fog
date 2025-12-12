@@ -4,7 +4,7 @@
  */
 #pragma once
 #include "fg/util/Common.h"
-#include "fg/core/Cells.h"
+#include "fg/cells/Cells.h"
 namespace fog
 {
 

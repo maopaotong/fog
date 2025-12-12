@@ -13,8 +13,8 @@
 #include "fg/MovableStateManager.h"
 #include "fg/BuildingStateManager.h"
 #include "fg/InventoryStateManager.h"
-#include "fg/core/CellsState.h"
-#include "fg/util/CostMap.h"
+#include "fg/cells.h"
+#include "fg/util.h"
 namespace fog
 {
     class WorldState : public State
