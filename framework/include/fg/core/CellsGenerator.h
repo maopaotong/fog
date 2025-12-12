@@ -18,7 +18,7 @@
 #include "fg/util/Rect.h"
 #include "fg/Config.h"
 #include "fg/core/Cells.h"
-namespace fog::cells
+namespace fog
 {
 
     using CellType = uint8;

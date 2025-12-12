@@ -9,7 +9,7 @@
 #include "fg/util/Iteration.h"
 #include "fg/util/Rect.h"
 #include "fg/Config.h"
-namespace fog::cells
+namespace fog
 {
 
     using CellType = uint8;
