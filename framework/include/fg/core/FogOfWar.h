@@ -61,7 +61,9 @@ namespace fog
         }
         void init()
         {
-            Box2<int> homeBox = this->getTextureBox(this->homeCell);
+            this->bufferBox = buildBufferBox(homeCell);
+
+            Box2<int> homeBox = bufferBox;
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
@@ -98,30 +100,30 @@ namespace fog
                                                          return true; //
                                                      });
 
-            Box2<float> box = HexTile::Key(0, 0).getOuterBoxInUV(tlsWidth, tlsHeight); // cover the entire tile.
+            // Box2<float> box = HexTile::Key(0, 0).getOuterBoxInUV(tlsWidth, tlsHeight); // cover the entire tile.
+            // // scale from centre of the box, p1 is (0,0),p2 is very small value some thing like: 1/cells*rad.
+            // box.expand(3.0); // expand to 3 cell width.
+
+            // // find the position of p2 in texture, and the width now is the numbers of pixels.
+            // box.scale(width, height);
+
+            // int bW = box.getWidth();
+            // int bH = box.getHeight();
+            // // now the box is ready for moving, do not change the width and height.
+            // this->bufferBox = Box2<int>(bW, bH); // fixed width height.
+            // // prepare the buffer for texture update.
+            this->buffer = new unsigned char[bufferBox.getWidth() * bufferBox.getHeight() * 4]; // fixed capacity.
+
+        } // end init
+
+        Box2<int> buildBufferBox(HexTile::Key cKey){
+            Box2<float> box = cKey.getOuterBoxInUV(tlsWidth, tlsHeight); // cover the entire tile.
             // scale from centre of the box, p1 is (0,0),p2 is very small value some thing like: 1/cells*rad.
             box.expand(3.0); // expand to 3 cell width.
 
             // find the position of p2 in texture, and the width now is the numbers of pixels.
             box.scale(width, height);
-
-            int bW = box.getWidth();
-            int bH = box.getHeight();
-            // now the box is ready for moving, do not change the width and height.
-            this->bufferBox = Box2<int>(bW, bH); // fixed width height.
-            // prepare the buffer for texture update.
-            this->buffer = new unsigned char[bW * bH * 4]; // fixed capacity.
-
-        } // end init
-
-        Box2<int> getTextureBox(HexTile::Key cKey)
-        {
-            Point2<float> centre = cKey.getCentre().transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
-            centre.scale(width, height);
-            Box2<int> box2 = this->bufferBox;
-            // move to the target position
-            box2.moveCentreTo(Point2<int>(centre.x, centre.y)); //
-            return box2;
+            return box.cast<int>();
         }
 
         void set(HexTile::Key cKey, bool visible)

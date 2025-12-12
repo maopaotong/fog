@@ -120,5 +120,11 @@ namespace fog
             Point2<T> p2 = this->p2.transform(funcs...);
             return Box2<T>(p1, p2);
         }
+
+        template <typename T2>
+        Box2<T2> cast()
+        {
+            return Box2<T2>(p1.cast<T2>(), p2.cast<T2>());
+        }
     };
 }; // end of namespace
