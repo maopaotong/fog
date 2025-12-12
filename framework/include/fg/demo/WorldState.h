@@ -23,7 +23,7 @@ namespace fog
         // CellStateControl *cells;
         CellsState *tilesState;
         CellsTerrains *tts;
-        std::vector<std::vector<cells::Tile>> tiles;
+        std::vector<std::vector<cells::CellData>> tiles;
 
     public:
         WorldState()
@@ -63,7 +63,7 @@ namespace fog
             {
                 int x = rPosX(gen);
                 int y = rPosX(gen);
-                cells::TileType type = tiles[x][y].type;
+                cells::CellType type = tiles[x][y].type;
                 if (type == cells::Type::OCEAN || type == cells::Type::MOUNTAIN)
                 {
                     continue;

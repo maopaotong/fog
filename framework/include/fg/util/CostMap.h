@@ -47,13 +47,13 @@ namespace fog
     public:
         struct DefaultCost
         {
-            std::vector<std::vector<cells::Tile>> *tiles;
-            DefaultCost(std::vector<std::vector<cells::Tile>> *tiles) : tiles(tiles)
+            std::vector<std::vector<cells::CellData>> *tiles;
+            DefaultCost(std::vector<std::vector<cells::CellData>> *tiles) : tiles(tiles)
             {
             }
             int operator()(Point2<int> &cKey)
             {
-                cells::TileType type = (*tiles)[cKey.x][cKey.y].type;
+                cells::CellType type = (*tiles)[cKey.x][cKey.y].type;
                 int cost = CostMap::DEFAULT_COST;
                 switch (type)
                 {

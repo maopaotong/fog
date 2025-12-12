@@ -87,9 +87,9 @@ namespace fog
 
     public:
         CellsTerrains *tts;
-        std::vector<std::vector<cells::Tile>> &tiles;
+        std::vector<std::vector<cells::CellData>> &tiles;
     public:
-        CellsState(std::vector<std::vector<cells::Tile>> &tiles, CellsTerrains * tts) : ManualState(), tiles(tiles), tts(tts)
+        CellsState(std::vector<std::vector<cells::CellData>> &tiles, CellsTerrains * tts) : ManualState(), tiles(tiles), tts(tts)
         {
             this->material = "Tiles";
         }

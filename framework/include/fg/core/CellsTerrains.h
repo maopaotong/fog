@@ -31,7 +31,7 @@ namespace fog::cells
         float height;
         CellKey cKey;
         Vector2 originInTile;
-        std::array<TileType, 3> types;
+        std::array<CellType, 3> types;
 
         Vertex() : Vertex(UNRESOLVED_HEIGHT, -1, -1)
         {
@@ -139,7 +139,7 @@ namespace fog::cells
          * init the sub cell/rect.
          */
 
-        void buildVertexs(std::vector<std::vector<Tile>> &tiles, std::vector<std::vector<Vertex>> &hMap)
+        void buildVertexs(std::vector<std::vector<CellData>> &tiles, std::vector<std::vector<Vertex>> &hMap)
         {
 
             // float rectWidth = static_cast<float>(tWidth) * 2.0f / static_cast<float>(width);
@@ -170,7 +170,7 @@ namespace fog::cells
                         cKeys[i].y = std::clamp<int>(cKeys[i].y, 0, tHeight - 1);
                     }
 
-                    cells::Tile &tl0 = tiles[cKeys[0].x][cKeys[0].y];
+                    cells::CellData &tl0 = tiles[cKeys[0].x][cKeys[0].y];
                     // tile centre position.
                     // Vector2 tileCentreP = Cell::getOrigin2D(cKeys[0].x, cKeys[0].y);
                     Vector2 tileCentreP = cKeys[0].getCentre();
@@ -180,12 +180,12 @@ namespace fog::cells
                     hMap[x][y].types[0] = tl0.type;
                     // set corner's type
 
-                    std::unordered_set<TileType> typeSet;
-                    TileType type0 = tl0.type;
+                    std::unordered_set<CellType> typeSet;
+                    CellType type0 = tl0.type;
                     for (int i = 1; i < 5; i++) // check other 4 corner's type. normally the max different types is 3, include the centre.
                     {
-                        cells::Tile &tlI = tiles[cKeys[i].x][cKeys[i].y];
-                        TileType typeI = tlI.type;
+                        cells::CellData &tlI = tiles[cKeys[i].x][cKeys[i].y];
+                        CellType typeI = tlI.type;
                         if (typeI != type0)
                         {
                             typeSet.insert(typeI);
@@ -237,9 +237,9 @@ namespace fog::cells
                     {
                         // check if 4 corner's type is same;
                         // check if this rect is inside a certain type.
-                        TileType type0 = hMap[x][y].types[0];
-                        TileType type1 = hMap[x][y].types[1];
-                        TileType type2 = hMap[x][y].types[2];
+                        CellType type0 = hMap[x][y].types[0];
+                        CellType type1 = hMap[x][y].types[1];
+                        CellType type2 = hMap[x][y].types[2];
 
                         if (type0 == type1 && type1 == type2) // 3 types are same , the entire rect is in same cell or the same types of cell.
                         {
@@ -252,7 +252,7 @@ namespace fog::cells
                                                                        int tx = std::clamp<int>(cKey.x, 0, tWidth - 1);
                                                                        int ty = std::clamp<int>(cKey.y, 0, tHeight - 1);
 
-                                                                       cells::Tile &ttl = tiles[tx][ty];
+                                                                       cells::CellData &ttl = tiles[tx][ty];
                                                                        return defineTileHeight(ttl); //
                                                                    });
                             hMap[x][y].height = h;
@@ -411,7 +411,7 @@ namespace fog::cells
         /**
          *
          */
-        float defineTileHeight(cells::Tile &tl)
+        float defineTileHeight(cells::CellData &tl)
         {
 
             float tlHeight = 0.0;

@@ -21,7 +21,7 @@
 namespace fog::cells
 {
 
-    using TileType = uint8;
+    using CellType = uint8;
     /**
      * Generator of tiles with types.
      */
@@ -29,19 +29,19 @@ namespace fog::cells
     {
 
     public:
-        static void changeType(std::vector<std::vector<Tile>> &tiles, int w, int h, Region &region, TileType toType)
+        static void changeType(std::vector<std::vector<CellData>> &tiles, int w, int h, CellRegion &region, CellType toType)
         {
-            std::unordered_map<TileType, int> plot;
-            Iteration::forEach<Tile>(tiles, w, h, [&tiles, &w, &h, &plot, &region, &toType](int x, int y, Tile &tl)
+            std::unordered_map<CellType, int> plot;
+            Iteration::forEach<CellData>(tiles, w, h, [&tiles, &w, &h, &plot, &region, &toType](int x, int y, CellData &tl)
                                      { bool isRegion = forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); });
         }
-        static void generateCells(std::vector<std::vector<Tile>> &tiles, int w, int h)
+        static void generateCells(std::vector<std::vector<CellData>> &tiles, int w, int h)
         {
             assert(w == h && "cannot generate tiles because w<>h.");
-            Iteration::forEachAsTable<std::vector<std::vector<Tile>> &>(w, h, //
-                                                                        [](int row, std::vector<std::vector<Tile>> &tiles)
-                                                                        { tiles.push_back(std::vector<Tile>()); }, //
-                                                                        [](int row, int col, std::vector<std::vector<Tile>> &tiles)
+            Iteration::forEachAsTable<std::vector<std::vector<CellData>> &>(w, h, //
+                                                                        [](int row, std::vector<std::vector<CellData>> &tiles)
+                                                                        { tiles.push_back(std::vector<CellData>()); }, //
+                                                                        [](int row, int col, std::vector<std::vector<CellData>> &tiles)
                                                                         { tiles[row].emplace_back(); }, //
                                                                         tiles                           //
             );
@@ -51,10 +51,10 @@ namespace fog::cells
             DiamondSquare::generateAndNormalise(heightmap, w, Config::GENERATOR2_ROUGHNESS, Config::GENERATOR2_SEED);
 
             // statistic
-            std::unordered_map<TileType, int> plot;
+            std::unordered_map<CellType, int> plot;
             Iteration::forEach<float>(heightmap, w, w, [&tiles, &plot](int x, int y, float h)
                                       {
-                                              TileType type = Type::UNKNOW;
+                                              CellType type = Type::UNKNOW;
                                               if (h < Config::GENERATOR1_OCEAN_RATIO) // TODo calculate the actual ratio instead of the height.
                                               {
                                                   type = Type::OCEAN;
@@ -103,31 +103,31 @@ namespace fog::cells
          */
         struct ChangeSingleTileTypeOp
         {
-            std::vector<std::vector<Tile>> &tiles;
+            std::vector<std::vector<CellData>> &tiles;
             int w;
             int h;
-            TileType type;
-            std::function<TileType(std::unordered_set<TileType>)> typeFunc;
+            CellType type;
+            std::function<CellType(std::unordered_set<CellType>)> typeFunc;
 
-            ChangeSingleTileTypeOp(std::vector<std::vector<Tile>> &tiles, int w, int h, TileType type1, std::function<TileType(std::unordered_set<TileType>)> newType) : tiles(tiles), w(w), h(h), type(type1), typeFunc(newType)
+            ChangeSingleTileTypeOp(std::vector<std::vector<CellData>> &tiles, int w, int h, CellType type1, std::function<CellType(std::unordered_set<CellType>)> newType) : tiles(tiles), w(w), h(h), type(type1), typeFunc(newType)
             {
             }
 
-            void operator()(int x, int y, Tile &tl)
+            void operator()(int x, int y, CellData &tl)
             {
-                TileType type = tl.type;
+                CellType type = tl.type;
 
-                std::unordered_set<TileType> borderTypes;
-                std::unordered_set<Tile *> inners;
+                std::unordered_set<CellType> borderTypes;
+                std::unordered_set<CellData *> inners;
 
-                Region region([&borderTypes, this](CellKey cKey, Tile &tile, Region &rg)
+                CellRegion region([&borderTypes, this](CellKey cKey, CellData &tile, CellRegion &rg)
                               { return tile.type == this->type; },
-                              [&borderTypes](CellKey cKey, Tile &tile, Region &rg)
+                              [&borderTypes](CellKey cKey, CellData &tile, CellRegion &rg)
                               {
                                   borderTypes.insert(tile.type);
                                   return true; //
                               },
-                              [&borderTypes, &inners](CellKey cKey, Tile &tile, Region &rg)
+                              [&borderTypes, &inners](CellKey cKey, CellData &tile, CellRegion &rg)
                               {
                                   inners.insert(&tile);
                                   if (inners.size() > 1) // do not change it ; 1. in case it link to deep ocean. 2. large ocean near land or shore is ok?
@@ -140,7 +140,7 @@ namespace fog::cells
                 bool isRegion = forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
                 if (isRegion)
                 {
-                    TileType type2 = this->typeFunc(borderTypes); // it will become: 1. plain, 2. shore.
+                    CellType type2 = this->typeFunc(borderTypes); // it will become: 1. plain, 2. shore.
                     for (auto it = inners.begin(); it != inners.end(); it++)
                     {
                         (*it)->type = type2;
@@ -151,24 +151,24 @@ namespace fog::cells
 
         struct MakeLakeByOceanShore
         {
-            std::vector<std::vector<Tile>> &tiles;
+            std::vector<std::vector<CellData>> &tiles;
             int w;
             int h;
 
             int totalLakes;
-            MakeLakeByOceanShore(std::vector<std::vector<Tile>> &tiles, int w, int h) : tiles(tiles), w(w), h(h), totalLakes(0)
+            MakeLakeByOceanShore(std::vector<std::vector<CellData>> &tiles, int w, int h) : tiles(tiles), w(w), h(h), totalLakes(0)
             {
             }
 
-            void operator()(int x, int y, Tile &tl)
+            void operator()(int x, int y, CellData &tl)
             {
-                TileType type = tl.type;
+                CellType type = tl.type;
 
-                std::unordered_set<TileType> innerTypes;
-                std::unordered_set<TileType> borderTypes;
-                std::unordered_set<Tile *> inners;
+                std::unordered_set<CellType> innerTypes;
+                std::unordered_set<CellType> borderTypes;
+                std::unordered_set<CellData *> inners;
 
-                Region region([&innerTypes, &borderTypes](CellKey cKey, Tile &tile, Region &rg)
+                CellRegion region([&innerTypes, &borderTypes](CellKey cKey, CellData &tile, CellRegion &rg)
                               {
                                   if (tile.type == Type::SHORE || tile.type == Type::OCEAN)
                                   {
@@ -177,12 +177,12 @@ namespace fog::cells
                                   }
                                   return false; //
                               },
-                              [&borderTypes, &innerTypes](CellKey cKey, Tile &tile, Region &rg)
+                              [&borderTypes, &innerTypes](CellKey cKey, CellData &tile, CellRegion &rg)
                               {
                                   borderTypes.insert(tile.type);
                                   return true; //
                               },
-                              [&borderTypes, &innerTypes, &inners](CellKey cKey, Tile &tile, Region &rg)
+                              [&borderTypes, &innerTypes, &inners](CellKey cKey, CellData &tile, CellRegion &rg)
                               {
                                   inners.insert(&tile);
                                   if (inners.size() > 1)
@@ -207,22 +207,22 @@ namespace fog::cells
 
         struct RemoveOceanShoreInLand
         {
-            std::vector<std::vector<Tile>> &tiles;
+            std::vector<std::vector<CellData>> &tiles;
             int w;
             int h;
 
-            RemoveOceanShoreInLand(std::vector<std::vector<Tile>> &tiles, int w, int h) : tiles(tiles), w(w), h(h)
+            RemoveOceanShoreInLand(std::vector<std::vector<CellData>> &tiles, int w, int h) : tiles(tiles), w(w), h(h)
             {
             }
-            void operator()(int x, int y, Tile &tl)
+            void operator()(int x, int y, CellData &tl)
             {
-                TileType type = tl.type;
+                CellType type = tl.type;
 
-                std::unordered_set<TileType> innerTypes;
-                std::unordered_set<TileType> borderTypes;
-                std::unordered_set<Tile *> inners;
+                std::unordered_set<CellType> innerTypes;
+                std::unordered_set<CellType> borderTypes;
+                std::unordered_set<CellData *> inners;
 
-                Region region([&innerTypes, &borderTypes](CellKey cKey, Tile &tile, Region &rg)
+                CellRegion region([&innerTypes, &borderTypes](CellKey cKey, CellData &tile, CellRegion &rg)
                               {
                                   if (tile.type == Type::SHORE || tile.type == Type::OCEAN)
                                   {
@@ -231,12 +231,12 @@ namespace fog::cells
                                   }
                                   return false; //
                               },
-                              [&borderTypes, &innerTypes](CellKey cKey, Tile &tile, Region &rg)
+                              [&borderTypes, &innerTypes](CellKey cKey, CellData &tile, CellRegion &rg)
                               {
                                   borderTypes.insert(tile.type);
                                   return true; //
                               },
-                              [&borderTypes, &innerTypes, &inners](CellKey cKey, Tile &tile, Region &rg)
+                              [&borderTypes, &innerTypes, &inners](CellKey cKey, CellData &tile, CellRegion &rg)
                               {
                                   inners.insert(&tile);
                                   if (inners.size() > 10) // is real ocean.
@@ -249,7 +249,7 @@ namespace fog::cells
                 bool isRegion = forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
                 if (isRegion)
                 {
-                    TileType newType = determineNewTypeForInnerMiddleOcean(borderTypes);
+                    CellType newType = determineNewTypeForInnerMiddleOcean(borderTypes);
                     for (auto it = inners.begin(); it != inners.end(); it++)
                     {
                         (*it)->type = newType;
@@ -258,7 +258,7 @@ namespace fog::cells
             }
         };
 
-        static void makeLake(std::vector<std::vector<Tile>> &tiles, int w, int h)
+        static void makeLake(std::vector<std::vector<CellData>> &tiles, int w, int h)
         {
 
             // mark inner plain ocean as lake:
@@ -266,30 +266,30 @@ namespace fog::cells
             // 2. single tile lake.
             //
             MakeLakeByOceanShore makeLakeOp1(tiles, w, h);
-            Iteration::forEach<Tile>(tiles, w, h, makeLakeOp1);
+            Iteration::forEach<CellData>(tiles, w, h, makeLakeOp1);
 
             if (makeLakeOp1.totalLakes == 0)
             {
-                Iteration::forEach<Tile>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, Type::PLAIN, determineTileTypeForMakeLakeByPlain));
+                Iteration::forEach<CellData>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, Type::PLAIN, determineTileTypeForMakeLakeByPlain));
             }
 
             // remove all other inner ocean/shore
-            Iteration::forEach<Tile>(tiles, w, h, RemoveOceanShoreInLand(tiles, w, h));
+            Iteration::forEach<CellData>(tiles, w, h, RemoveOceanShoreInLand(tiles, w, h));
 
             // remove single ocean.
-            Iteration::forEach<Tile>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, Type::OCEAN, determineNewTypeForSingleOcean));
+            Iteration::forEach<CellData>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, Type::OCEAN, determineNewTypeForSingleOcean));
 
             // remove single shore
-            Iteration::forEach<Tile>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, Type::SHORE, determineNewTypeForSingleShore));
+            Iteration::forEach<CellData>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, Type::SHORE, determineNewTypeForSingleShore));
 
             // resolve single plain
-            Iteration::forEach<Tile>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, Type::PLAIN, determineNewTypeForSingleShore));
+            Iteration::forEach<CellData>(tiles, w, h, ChangeSingleTileTypeOp(tiles, w, h, Type::PLAIN, determineNewTypeForSingleShore));
             /*
              */
 
         } // end of method makeLake tiles.
 
-        static TileType determineTileTypeForMakeLakeByPlain(std::unordered_set<TileType> borderTypes)
+        static CellType determineTileTypeForMakeLakeByPlain(std::unordered_set<CellType> borderTypes)
         {
             // TODO find a random type from border
             if (borderTypes.count(Type::FROZEN) && borderTypes.count(Type::MOUNTAIN) && borderTypes.count(Type::HILL))
@@ -299,19 +299,19 @@ namespace fog::cells
             return Type::PLAIN;
         }
 
-        static TileType determineNewTypeForInnerMiddleOcean(std::unordered_set<TileType> borderTypes)
+        static CellType determineNewTypeForInnerMiddleOcean(std::unordered_set<CellType> borderTypes)
         {
             // TODO find a random type from border
             return *borderTypes.begin();
         }
 
-        static TileType determineNewTypeForSingleShore(std::unordered_set<TileType> borderTypes)
+        static CellType determineNewTypeForSingleShore(std::unordered_set<CellType> borderTypes)
         {
             // TODO find a random type from border
             return *borderTypes.begin();
         }
 
-        static TileType determineNewTypeForSingleOcean(std::unordered_set<TileType> borderTypes)
+        static CellType determineNewTypeForSingleOcean(std::unordered_set<CellType> borderTypes)
         {
             // TODO find a random type from border
             return *borderTypes.begin();
@@ -320,34 +320,34 @@ namespace fog::cells
     private:
         struct VisitCtx
         {
-            std::vector<std::vector<Tile>> &tiles;
+            std::vector<std::vector<CellData>> &tiles;
             int w;
             int h;
-            Region &region;
-            std::unordered_set<Tile *> processed;
-            std::unordered_set<Tile *> border;
+            CellRegion &region;
+            std::unordered_set<CellData *> processed;
+            std::unordered_set<CellData *> border;
             bool goOn;
-            VisitCtx(std::vector<std::vector<Tile>> &tiles,
+            VisitCtx(std::vector<std::vector<CellData>> &tiles,
                      int w,
                      int h,
-                     Region &region) : tiles(tiles), w(w), h(h),
+                     CellRegion &region) : tiles(tiles), w(w), h(h),
                                        region(region),
-                                       processed(std::unordered_set<Tile *>()),
-                                       border(std::unordered_set<Tile *>()),
+                                       processed(std::unordered_set<CellData *>()),
+                                       border(std::unordered_set<CellData *>()),
                                        goOn(true)
             {
             }
         };
 
     public:
-        static bool forEachTileInSameRegion(std::vector<std::vector<Tile>> &tiles, int w, int h, CellKey cKey, Tile &tile, Region &region)
+        static bool forEachTileInSameRegion(std::vector<std::vector<CellData>> &tiles, int w, int h, CellKey cKey, CellData &tile, CellRegion &region)
         {
             VisitCtx ctx(tiles, w, h, region);
             return doForEachTileInSameRegion(0, ctx, cKey, tile);
         }
 
     private:
-        static bool doForEachTileInSameRegion(int depth, VisitCtx &ctx, CellKey cKey, Tile &tile0)
+        static bool doForEachTileInSameRegion(int depth, VisitCtx &ctx, CellKey cKey, CellData &tile0)
         {
             if (ctx.processed.count(&tile0))
             {
@@ -369,7 +369,7 @@ namespace fog::cells
             CellKey neibers[6];
             Cell::getNeibers(cKey.x, cKey.y, neibers);
             // we remember all inner neibers for next recursive calling.
-            std::unordered_map<int, Tile *> inners;
+            std::unordered_map<int, CellData *> inners;
             for (int i = 0; i < 6; i++)
             {
 
@@ -378,7 +378,7 @@ namespace fog::cells
                     continue;
                 }
 
-                Tile &tileI = ctx.tiles[neibers[i].x][neibers[i].y];
+                CellData &tileI = ctx.tiles[neibers[i].x][neibers[i].y];
 
                 if (ctx.region.inner(cKey, tileI, ctx.region))
                 {
@@ -406,7 +406,7 @@ namespace fog::cells
             for (auto it = inners.begin(); it != inners.end(); it++)
             {
                 int i = it->first;
-                Tile *tileI = it->second;
+                CellData *tileI = it->second;
                 if (!doForEachTileInSameRegion(depth + 1, ctx, neibers[i], *tileI))
                 {
                     return false;
