@@ -1,0 +1,21 @@
+{
+  "name": "fog",
+  "version-string": "1.0.0",
+  "dependencies": [
+    {
+      "name": "ogre",
+      "platform": "windows"
+    },
+    {
+      "name": "fmt",
+      "platform": "windows"
+    },
+    {
+      "name": "imgui",
+      "platform": "windows",
+      "features": [
+        "opengl3-binding"
+      ]
+    }
+  ]
+}
