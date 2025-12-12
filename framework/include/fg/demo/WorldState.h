@@ -103,9 +103,14 @@ namespace fog
             Ogre::Root *root = core->getRoot();
 
             this->initTilesAndCostMap();
+            HexTile::Key cKey = findCellToStandOn();//
+
+            Context<FogOfWar>::get()->setHomeCell(cKey);
+            Context<FogOfWar>::get()->init();
 
             // Create frame listener for main loop
             this->tilesState = new TilesState(this->tiles, this->tts);
+            
             this->tilesState->init();
 
             this->addChild(this->tilesState);
@@ -114,7 +119,8 @@ namespace fog
             MovableStateManager *movableStateMgr = Context<MovableStateManager>::get();
             movableStateMgr->init();
             this->addChild(movableStateMgr);
-            movableStateMgr->setCellToStandOn(findCellToStandOn());
+            movableStateMgr->setCellToStandOn(cKey);
+
             //
             
             // Context<MovableStateManager >::set(movableStateMgr);

@@ -29,6 +29,7 @@ namespace fog
         TexturePtr texture;
         Box2<int> bufferBox{0}; // moving around. but keep the width * height, even if the box is moving out the world.
         //
+        HexTile::Key homeCell;
 
     public:
         FogOfWar(int tlsWidth, int tlsHeight, int width, int height, std::string texName) : tlsWidth(tlsWidth), tlsHeight(tlsHeight),
@@ -54,16 +55,21 @@ namespace fog
         }
 
     public:
+        void setHomeCell(HexTile::Key cKey)
+        {
+            this->homeCell = cKey;
+        }
         void init()
         {
+            Box2<int> homeBox = this->getTextureBox(this->homeCell);
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
                     int idx = (y * width + x) * 4;
-                    if (Config::FOG_OF_WAR_EREASE_RANGE.isIn(x, y))
+                    if (Config::FOG_OF_WAR_EREASE_RANGE.isIn(x, y) || homeBox.isIn(x, y))
                     {
-                        data[idx] = 255; // R
+                        data[idx] = 255; // R turn light on.
                     }
                     else
                     {
@@ -108,6 +114,16 @@ namespace fog
 
         } // end init
 
+        Box2<int> getTextureBox(HexTile::Key cKey)
+        {
+            Point2<float> centre = cKey.getCentre().transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
+            centre.scale(width, height);
+            Box2<int> box2 = this->bufferBox;
+            // move to the target position
+            box2.moveCentreTo(Point2<int>(centre.x, centre.y)); //
+            return box2;
+        }
+
         void set(HexTile::Key cKey, bool visible)
         {
 
@@ -115,13 +131,13 @@ namespace fog
             {
                 // std::cout << fmt::format("fogOfWar[{:>2}{:>2}][{:>2},{:>2};{:>2},{:>2}]", cKey.x, cKey.y, x1, y1, x2, y2) << std::endl;
             }
-            //TODO make a new space to transform from ckey to uv.
-            //Point2<float> centreP = Cell::getOriginUV(cKey, tlsWidth, tlsHeight);
+            // TODO make a new space to transform from ckey to uv.
+            // Point2<float> centreP = Cell::getOriginUV(cKey, tlsWidth, tlsHeight);
             //
             Point2<float> centreP = cKey.getCentre().transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
 
             centreP.scale(width, height); // find the position in texture space.
-            //Point2<float> centreP = cKey.getCentre().scale(width,height);
+            // Point2<float> centreP = cKey.getCentre().scale(width,height);
 
             Box2<int> box2 = this->bufferBox;
 
@@ -206,7 +222,7 @@ namespace fog
             //     this->set(cis, true);
             // }
             HexTile::Key cis = HexTile::Key::from(state->getPosition());
-            this->set(cis,true);
+            this->set(cis, true);
         }
 
     private:
