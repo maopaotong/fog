@@ -2,33 +2,9 @@
  * SPDX-FileCopyrightText: 2025 Mao-Pao-Tong Workshop
  * SPDX-License-Identifier: MPL-2.0
  */
-// main.cpp - Complete Ogre A* Hex Grid Visualization System
 #pragma once
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <unordered_map>
-#include <unordered_set>
-#include <cmath>
-#include <utility>
-#include <algorithm>
-#include <functional>
-
-// === Include OgreBites for modern initialization ===
-#include <Bites/OgreApplicationContext.h>
-#include <OgreRoot.h>
-#include <OgreSceneManager.h>
-#include <OgreRenderWindow.h>
-#include <OgreCamera.h>
-#include <OgreViewport.h>
-#include <OgreEntity.h>
-#include <OgreManualObject.h>
-#include <OgreSceneNode.h>
-#include <OgreFrameListener.h>
-#include <OgreRTShaderSystem.h>
-#include <OgreTechnique.h>
+#include "fg/util/Common.h"
 #include "fg/util/Cell.h"
-#include "fg/core/Cells.h"
 namespace fog
 {
 
@@ -45,34 +21,6 @@ namespace fog
     {
 
     public:
-        struct DefaultCost
-        {
-            std::vector<std::vector<CellData>> *tiles;
-            DefaultCost(std::vector<std::vector<CellData>> *tiles) : tiles(tiles)
-            {
-            }
-            int operator()(Point2<int> &cKey)
-            {
-                CellType type = (*tiles)[cKey.x][cKey.y].type;
-                int cost = CostMap::DEFAULT_COST;
-                switch (type)
-                {
-                case CellTypes::OCEAN:
-                case CellTypes::MOUNTAIN:
-                case CellTypes::LAKE:
-
-                    cost = CostMap::OBSTACLE;
-                    break;
-                case CellTypes::HILL:
-                case CellTypes::FROZEN:
-                case CellTypes::RIVER:
-                    cost = 2;
-                    break;
-                }
-                return cost;
-            }
-        };
-
         struct PairHash
         {
             template <typename T, typename U>
@@ -179,7 +127,7 @@ namespace fog
 
             if (!isWalkable(start, costFunc) || !isWalkable(end, costFunc))
             {
-                return {};//empty path
+                return {}; // empty path
             }
 
             std::priority_queue<NavNode, std::vector<NavNode>, std::greater<NavNode>> openList;

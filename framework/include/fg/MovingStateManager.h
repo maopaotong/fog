@@ -13,6 +13,8 @@
 #include "fg/MovableStateManager.h"
 #include "fg/Config.h"
 #include "fg/util.h"
+
+#include "fg/core/CellsCost.h"
 namespace fog
 {
 
@@ -91,7 +93,7 @@ namespace fog
 
             CellKey cKey1 = std::get<CellKey>(stateCellAndPosition);
 
-            CostMap::DefaultCost &costFunc = *Context<CostMap::DefaultCost>::get();
+            CellsCost &costFunc = *Context<CellsCost>::get();
             std::vector<CellKey> pathByCKey = Context<CostMap>::get()-> //
                                                    findPath(cKey1,
                                                             cKey2, //

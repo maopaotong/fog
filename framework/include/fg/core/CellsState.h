@@ -31,10 +31,10 @@ namespace fog
         int tlsHeight;
         int terWidth;
         int terHeight;
-        std::vector<std::vector<Vertex>> vertexs;
+        std::vector<std::vector<CellsVertex>> vertexs;
         TheTerrains(int tlsWidth, int tlsHeight, int terWidth, int terHeight) : tlsWidth(tlsWidth), tlsHeight(tlsHeight),
                                                                                   terWidth(terWidth), terHeight(terHeight),
-                                                                                  vertexs(terWidth, std::vector<Vertex>(terHeight, Vertex()))
+                                                                                  vertexs(terWidth, std::vector<CellsVertex>(terHeight, CellsVertex()))
         {
         }
         Vector3 getOrigin() override

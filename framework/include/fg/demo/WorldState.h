@@ -45,7 +45,7 @@ namespace fog
             // cost map
 
             CostMap *costMap = new CostMap(tsWidth, tsHeight);
-             Context<CostMap::DefaultCost>::set(new CostMap::DefaultCost(&tiles));
+             Context<CellsCost>::set(new CellsCost(&tiles));
             
             Context<CostMap>::set(costMap);
         }

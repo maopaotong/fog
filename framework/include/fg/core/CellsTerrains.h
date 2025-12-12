@@ -26,17 +26,17 @@ namespace fog
 {
 
     static constexpr float UNRESOLVED_HEIGHT = -100;
-    struct Vertex
+    struct CellsVertex
     {
         float height;
         CellKey cKey;
         Vector2 originInTile;
         std::array<CellType, 3> types;
 
-        Vertex() : Vertex(UNRESOLVED_HEIGHT, -1, -1)
+        CellsVertex() : CellsVertex(UNRESOLVED_HEIGHT, -1, -1)
         {
         }
-        Vertex(int tx, int ty, float th) : height(UNRESOLVED_HEIGHT), cKey(tx, ty), types{CellTypes::UNKNOW, CellTypes::UNKNOW, CellTypes::UNKNOW}
+        CellsVertex(int tx, int ty, float th) : height(UNRESOLVED_HEIGHT), cKey(tx, ty), types{CellTypes::UNKNOW, CellTypes::UNKNOW, CellTypes::UNKNOW}
         {
         }
         bool isHeightResolved()
@@ -139,13 +139,13 @@ namespace fog
          * init the sub cell/rect.
          */
 
-        void buildVertexs(std::vector<std::vector<CellData>> &tiles, std::vector<std::vector<Vertex>> &hMap)
+        void buildVertexs(std::vector<std::vector<CellData>> &tiles, std::vector<std::vector<CellsVertex>> &hMap)
         {
 
             // float rectWidth = static_cast<float>(tWidth) * 2.0f / static_cast<float>(width);
             // float rectHeight = static_cast<float>(tHeight) * 2.0f / static_cast<float>(height) * std::sqrt(3) / 2.0f;
             //
-            std::vector<std::vector<Vertex *>> tileCentreMap(tWidth, std::vector<Vertex *>(tHeight, nullptr));
+            std::vector<std::vector<CellsVertex *>> tileCentreMap(tWidth, std::vector<CellsVertex *>(tHeight, nullptr));
             // resove the terrain height of the centre rect for each tile.
             for (int x = 0; x < width; x++)
             {
@@ -279,7 +279,7 @@ namespace fog
                         {
                             int tx = hMap[x][y].cKey.x;
                             int ty = hMap[x][y].cKey.y;
-                            Vertex *centreRect = tileCentreMap[tx][ty];
+                            CellsVertex *centreRect = tileCentreMap[tx][ty];
                             assert(centreRect && "centreRest is missing?");
 
                             hMap[x][y].height = centreRect->height; // use the same height as the centre rect.
@@ -292,7 +292,7 @@ namespace fog
             {
                 for (int y = 0; y < height; y++)
                 {
-                    Vertex &vertex = hMap[x][y];
+                    CellsVertex &vertex = hMap[x][y];
 
                     if (!vertex.isHeightResolved())
                     { // is the centre rect
@@ -304,7 +304,7 @@ namespace fog
                         float sumWeight = 0;
                         auto visit = [&x, &y, &vertex, &validNeibers, &sumHeight, &tileCentreMap, &sumWeight](int idx, int nTX, int nTY)
                         {
-                            Vertex *nTileCentre = tileCentreMap[nTX][nTY];
+                            CellsVertex *nTileCentre = tileCentreMap[nTX][nTY];
                             if (nTileCentre)
                             { // if centre rect exist for this current neiber.
                                 float distance = vertex.distance(nTileCentre->cKey);
@@ -341,12 +341,12 @@ namespace fog
         struct WorldTexOp
         {
 
-            std::vector<std::vector<Vertex>> &hMap;
+            std::vector<std::vector<CellsVertex>> &hMap;
             int typePlot[11] = {0}; // for debug.
             int width;
             int height;
             unsigned char *data;
-            WorldTexOp(std::vector<std::vector<Vertex>> &hMap, int w, int h) : hMap(hMap), width(w), height(h)
+            WorldTexOp(std::vector<std::vector<CellsVertex>> &hMap, int w, int h) : hMap(hMap), width(w), height(h)
             {
                 data = new unsigned char[w * h * 4];
             }
@@ -364,7 +364,7 @@ namespace fog
                     {
 
                         Box2<int> debugRange = Config::DEBUG_PRINT_TERRAINS_TEX_RANGE;
-                        Vertex &v = hMap[x][y];
+                        CellsVertex &v = hMap[x][y];
                         if (v.types[0] < 10)
                         {
                             typePlot[v.types[0]]++;
@@ -396,7 +396,7 @@ namespace fog
         };
 
         // World texture is used as the meta data for the shader to determine the child texture.
-        void createWorldTexture(std::string name, std::vector<std::vector<Vertex>> &hMap)
+        void createWorldTexture(std::string name, std::vector<std::vector<CellsVertex>> &hMap)
         {
             WorldTexOp texOp(hMap, width, height);
             texOp();

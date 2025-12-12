@@ -19,6 +19,7 @@
 #include "fg/util.h"
 #include "fg/CellInstanceManager.h"
 
+#include "fg/core/CellsCost.h"
 namespace fog
 {
     /**
@@ -193,7 +194,7 @@ namespace fog
             // update path
             this->cKey1 = cKey1;
             this->cKey2 = cKey2;
-            auto costFunc = *Context<CostMap::DefaultCost>::get();
+            auto costFunc = *Context<CellsCost>::get();
             std::vector<CellKey> pathByCellKey = Context<CostMap>::get()->findPath(cKey1, cKey2, costFunc);
 
 
