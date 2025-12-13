@@ -16,6 +16,10 @@
       "features": [
         "opengl3-binding"
       ]
+    },
+    {
+      "name": "fruit",
+      "platform": "windows"
     }
   ]
 }

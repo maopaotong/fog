@@ -43,5 +43,6 @@ namespace fog
             func(args...);
             set(previousCtxObj);
         }
+
     };
 };

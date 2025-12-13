@@ -15,5 +15,6 @@
 #include "util/StringUtil.h"
 #include "util/Cell.h"
 #include "util/CostMap.h"
+#include "util/Component.h"
 
 

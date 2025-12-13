@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include <Ogre.h>
-#include <OgreInput.h>
 
 namespace fog
 {
