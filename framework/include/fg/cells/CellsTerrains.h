@@ -82,8 +82,14 @@ namespace fog
 
     struct CellsTerrains
     {
-
-        // rect index in number
+        struct Options
+        {
+            Box2<int> box;
+            int quality;
+            Options(Box2<int> box, int quality) : box(box), quality(quality)
+            {
+            }
+        };
         int width;
         int height;
         // tiles index in number
@@ -95,12 +101,12 @@ namespace fog
         float rectWidth;
         float rectHeight;
         float rectRad; // average rad of the rect.
-        CellsTerrains(Box2<int> box, int quality) : tWidth(box.getWidth()), tHeight(box.getHeight())
+        CellsTerrains(Options options) : tWidth(options.box.getWidth()), tHeight(options.box.getHeight())
         {
-            this->rectWidth = 2.0 / quality;                         // rad of tile = 1 , width of tile = 2;
-            this->rectHeight = rectWidth;                            // rect height == width
-            this->width = tWidth * quality;                          //
-            this->height = tHeight * quality * std::sqrt(3.0) / 2.0; // based on the toploy of cells.
+            this->rectWidth = 2.0 / options.quality;                         // rad of tile = 1 , width of tile = 2;
+            this->rectHeight = rectWidth;                                    // rect height == width
+            this->width = tWidth * options.quality;                          //
+            this->height = tHeight * options.quality * std::sqrt(3.0) / 2.0; // based on the toploy of cells.
             this->rectRad = (rectHeight + rectWidth) / 2.0;
         }
 

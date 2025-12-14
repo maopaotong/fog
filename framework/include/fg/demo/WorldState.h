@@ -25,16 +25,22 @@ namespace fog
         CellsState *tilesState;
         TheTerrains *tts;
         std::vector<std::vector<CellData>> tiles;
-        FogOfWar * fogOfWar;
+        FogOfWar *fogOfWar;
+        EntryController *entryController;
+        CellsTerrains *terrains;
 
     public:
-        INJECT(WorldState(FogOfWar * fogOfWar)):fogOfWar(fogOfWar)
+        INJECT(WorldState(FogOfWar *fogOfWar,
+                          EntryController *entryController,
+                          CellsTerrains *terrains)) : fogOfWar(fogOfWar),
+                                                      entryController(entryController),
+                                                      terrains(terrains)
         {
         }
         void initCellsAndCostMap()
         {
 
-            CellsTerrains *terrains = Context<CellsTerrains>::get();
+            // CellsTerrains *terrains = Context<CellsTerrains>::get();
 
             int tsWidth = terrains->tWidth;
             int tsHeight = terrains->tHeight;
@@ -47,11 +53,10 @@ namespace fog
             // cost map
 
             CostMap *costMap = new CostMap(tsWidth, tsHeight);
-             Context<CellsCost>::set(new CellsCost(&tiles));
-            
+            Context<CellsCost>::set(new CellsCost(&tiles));
+
             Context<CostMap>::set(costMap);
         }
-
 
         CellKey findCellToStandOn()
         {
@@ -83,14 +88,14 @@ namespace fog
             Ogre::Root *root = core->getRoot();
 
             this->initCellsAndCostMap();
-            CellKey cKey = findCellToStandOn();//
+            CellKey cKey = findCellToStandOn(); //
 
-            //Context<FogOfWar>::get()->setHomeCell(cKey);
-            //Context<FogOfWar>::get()->init();
+            // Context<FogOfWar>::get()->setHomeCell(cKey);
+            // Context<FogOfWar>::get()->init();
             fogOfWar->init();
             // Create frame listener for main loop
-            this->tilesState = new CellsState(this->tiles, this->tts, this->fogOfWar);
-            
+            this->tilesState = new CellsState(this->tiles, this->tts, this->fogOfWar, this->terrains);
+
             this->tilesState->init();
 
             this->addChild(this->tilesState);
@@ -102,7 +107,7 @@ namespace fog
             movableStateMgr->setCellToStandOn(cKey);
 
             //
-            
+
             // Context<MovableStateManager >::set(movableStateMgr);
             //
             BuildingStateManager *buildingStateMgr = Context<BuildingStateManager>::get();
@@ -115,7 +120,6 @@ namespace fog
             this->addChild(inventoryStateMgr);
             //
 
-            EntryController *entryController = new EntryController();
             core->getAppContext()->addInputListener(entryController);
             root->addFrameListener(entryController);
         }

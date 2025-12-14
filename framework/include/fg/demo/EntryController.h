@@ -50,7 +50,7 @@ namespace fog
     {
 
     public:
-        EntryController()
+        INJECT(EntryController())
         {
         }
         bool mouseWheelRolled(const MouseWheelEvent &evt)

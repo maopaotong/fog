@@ -89,8 +89,11 @@ namespace fog
         TheTerrains *tts;
         std::vector<std::vector<CellData>> &tiles;
         FogOfWar* fogOfWar;
+        CellsTerrains *terrains;
     public:
-        CellsState(std::vector<std::vector<CellData>> &tiles, TheTerrains * tts, FogOfWar * fogOfWar) : ManualState(), tiles(tiles), tts(tts),fogOfWar(fogOfWar)
+        CellsState(std::vector<std::vector<CellData>> &tiles, TheTerrains * tts, FogOfWar * fogOfWar,
+        CellsTerrains *terrains
+        ) : ManualState(), terrains(terrains),tiles(tiles), tts(tts),fogOfWar(fogOfWar)
         {
             this->material = "Tiles";
         }
@@ -100,7 +103,7 @@ namespace fog
         }
         void rebuildMesh() override
         {
-            CellsTerrains *terrains = Context<CellsTerrains>::get();
+            //CellsTerrains *terrains = Context<CellsTerrains>::get();
 
             //mesh
             terrains->buildVertexs(tiles, tts->vertexs);
@@ -121,7 +124,9 @@ namespace fog
             MaterialPtr mat = MaterialManager::getSingletonPtr()->getByName("Tiles");
             // tex0
             std::string texName0 = "TerrainsTex001";
-            Context<CellsTerrains>::get()->createWorldTexture(texName0, tts->vertexs);
+            //Context<CellsTerrains>::get()->createWorldTexture(texName0, tts->vertexs);
+            terrains->createWorldTexture(texName0, tts->vertexs);
+            
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(texName0);
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
             // tex9
