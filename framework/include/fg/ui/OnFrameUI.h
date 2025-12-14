@@ -5,7 +5,7 @@
 #pragma once
 #include "fg/core/CoreMod.h"
 #include "fg/Mod.h"
-#include "fg/util/CostMap.h"
+#include "fg/util.h"
 #include "fg/core/MaterialFactory.h"
 #include "fg/demo/WorldState.h"
 
@@ -19,7 +19,6 @@
 #include "MainUI.h"
 #include "SceneNodeUI.h"
 #include "EntryUI.h"
-
 namespace fog
 {
     class OnFrameUI : public ImGuiApp::FrameListener
@@ -36,7 +35,7 @@ namespace fog
         EntryUI *entryUI;
 
     public:
-        OnFrameUI()
+        INJECT(OnFrameUI())
         {
             this->core = Context<CoreMod>::get();
 

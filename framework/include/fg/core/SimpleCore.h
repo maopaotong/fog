@@ -45,9 +45,12 @@ namespace fog
         {
             delete appCtx;
         }
-        void setup() override
+        void setup(Component::Injector & injector) override
         {
             Context<CoreMod>::set(this);
+            injector.bind<ImGuiApp>([this](){
+                return this->getImGuiApp();
+            });
         }
 
         void addCallback(Callback *callback)

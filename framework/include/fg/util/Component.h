@@ -17,26 +17,6 @@
 namespace fog
 {
 
-    struct Component
-    {
-        void *obj;
-
-        Component(void *obj) : obj(obj)
-        {
-        }
-        Component(Component &&comp)
-        { // move constructor.
-            this->obj = comp.obj;
-            comp.obj = nullptr; // move
-        }
-
-        template <typename T>
-        T *get()
-        {
-            return static_cast<T *>(obj);
-        }
-    };
-
     template <typename T>
     struct always_false : std::false_type
     {
@@ -63,112 +43,163 @@ namespace fog
     {
     };
 
-    struct Injector
+    struct Component
     {
-        std::unordered_map<std::type_index, std::function<Component()>> factories;
 
-        template <typename T>
-        void bind()
+        struct Injector
         {
-            bind<T, T>();
-        }
-
-        template <typename T, typename Imp>
-        void bind()
-        {
-            static_assert(hasInject<Imp>::value, "macro INJECT missing.");
-            static_assert(!std::is_abstract<Imp>::value);
-            factories[typeid(T)] = [this]() -> Component
+        private:
+        public:
+            Injector()
             {
-                T *obj = getSingleton<Imp>();
-                return Component(obj);
-            };
-        }
+            }
+            std::unordered_map<std::type_index, std::function<std::any()>> factories;
 
-        template <typename T>
-        T *get()
-        {
-            std::type_index tid = typeid(T);
-            auto it = factories.find(tid);
-            if (it == factories.end())
+            std::function<std::any(std::type_index)> defaultBind;
+
+            template <typename T>
+            void bind()
             {
-                throw std::runtime_error("must bond before get the instance by type.");
+                bind<T, T>();
             }
 
-            auto func = factories[typeid(T)];
-
-            Component comp = func();
-            return comp.get<T>();
-        }
-
-        template <typename T>
-        typename std::enable_if<std::is_abstract<T>::value, T *>::type createInstance()
-        {
-            static_assert(always_false<T>::value, "abstract type & no injected impl class.");
-        }
-
-        template <typename T>
-        typename std::enable_if<!std::is_abstract<T>::value && !hasInject<T>::value, T *>::type createInstance()
-        {
-            return new T(); //
-        }
-
-        template <typename T>
-        typename std::enable_if<!std::is_abstract<T>::value && hasInject<T>::value, T *>::type createInstance()
-        {
-
-            using Signature = typename T::Inject;
-            using Traits = ConstructorTraits<Signature>;
-            using ArgsTuple = typename Traits::ArgsTuple;
-            constexpr int N = Traits::arity;
-
-            if constexpr (N == 0)
+            template <typename T>
+            void upbind()
             {
-                return new T(); // same as no inject,injected the default constructor.
+                factories.erase(typeid(T));
             }
 
-            if constexpr (N == 1)
+            template <typename T, typename F>
+            void bind(F &&func)
             {
-                using D0 = std::remove_reference_t<std::tuple_element_t<0, ArgsTuple>>;
-                static_assert(std::is_pointer_v<D0>, "not support non-pointer type as inject args");
-                using T0 = std::remove_pointer_t<D0>;
-                // find bind.
-
-                D0 d0 = get<T0>(); //
-
-                return new T(d0);
+                std::type_index tid = typeid(T);
+                if (factories.find(tid) != factories.end())
+                {
+                    throw std::runtime_error("cannot re-bind,unbind first.");
+                }
+                factories[tid] = [func]()
+                {
+                    return std::make_any<T *>(func());
+                };
             }
 
-            return createInstance<T, ArgsTuple>(std::make_index_sequence<N>{});
+            template <typename T, typename Imp>
+            void bind()
+            {
+                static_assert(hasInject<Imp>::value, "macro INJECT missing or the INJECT constructor is not visible.");
+                static_assert(!std::is_abstract<Imp>::value);
+                bind<T>([this]() -> T *
+                        { T *obj = getSingleton<Imp>(); 
+                        return obj; });
+            }
+            template <typename T>
+            T *get()
+            {
+                return std::any_cast<T *>(get(typeid(T)));
+            }
 
-            // static_assert(N < 2, "todo more than 1 element in args list.");
-        }
-        template <typename Tuple, std::size_t... Is>
-        static constexpr bool allArgsArePointersImpl(std::index_sequence<Is...>)
-        {
-            return (std::is_pointer_v<std::tuple_element_t<Is, Tuple>> && ...);
-        }
+            std::any get(std::type_index tid)
+            {
+                auto it = factories.find(tid);
+                if (it == factories.end())
+                {
+                    if (defaultBind)
+                    {
+                        // call default function.
+                        return defaultBind(tid);
+                    }
+                    throw std::runtime_error("must bond before get the instance by type.");
+                }
+                return (it->second)();
+            }
 
-        template <typename ArgsTuple>
-        static constexpr bool allArgsArePointers = allArgsArePointersImpl<ArgsTuple>(
-            std::make_index_sequence<std::tuple_size_v<std::decay_t<ArgsTuple>>>{});
+            template <typename T>
+            bool hasBind()
+            {
+                auto it = factories.find(typeid(T));
+                return it != factories.end();
+            }
 
-        template <typename T, typename ArgsTuple, std::size_t... Is>
-        T *createInstance(std::index_sequence<Is...>)
-        {
+            template <typename F>
+            void setDefaultBind(F &&func)
+            {
+                this->defaultBind = func;
+            }
 
-            static_assert(allArgsArePointers<ArgsTuple>, "All inject arguments must be pointer types!");
+            Injector &operator=(const Injector &injector)
+            {
+                this->factories = injector.factories;
+                this->defaultBind = injector.defaultBind;
+                return *this;
+            }
 
-            return new T(get<std::remove_pointer_t<std::tuple_element_t<Is, ArgsTuple>>>()...);
-        }
+        private:
+            template <typename T>
+            T *getSingleton()
+            {
+                static T *instance = createInstance<T>();
+                return (instance);
+            }
 
-        template <typename T>
-        T *getSingleton()
-        {
-            static T *instance = createInstance<T>();
-            return (instance);
-        }
+            template <typename T>
+            typename std::enable_if<std::is_abstract<T>::value, T *>::type createInstance()
+            {
+                static_assert(always_false<T>::value, "abstract type & no injected impl class.");
+            }
+
+            template <typename T>
+            typename std::enable_if<!std::is_abstract<T>::value && !hasInject<T>::value, T *>::type createInstance()
+            {
+                return new T(); //
+            }
+
+            template <typename T>
+            typename std::enable_if<!std::is_abstract<T>::value && hasInject<T>::value, T *>::type createInstance()
+            {
+
+                using ArgsTuple = typename ConstructorTraits<T::Inject>::ArgsTuple;
+                constexpr int N = ConstructorTraits<T::Inject>::arity;
+
+                if constexpr (N == 0)
+                {
+                    return new T(); // same as no inject,injected the default constructor.
+                }
+
+                if constexpr (N == 1)
+                {
+                    using D0 = std::remove_reference_t<std::tuple_element_t<0, ArgsTuple>>;
+                    static_assert(std::is_pointer_v<D0>, "not support non-pointer type as inject args");
+                    using T0 = std::remove_pointer_t<D0>;
+                    // find bind.
+
+                    D0 d0 = get<T0>(); //
+
+                    return new T(d0);
+                }
+
+                return createInstance<T, ArgsTuple>(std::make_index_sequence<N>{});
+
+                // static_assert(N < 2, "todo more than 1 element in args list.");
+            }
+            template <typename Tuple, std::size_t... Is>
+            static constexpr bool allArgsArePointersImpl(std::index_sequence<Is...>)
+            {
+                return (std::is_pointer_v<std::tuple_element_t<Is, Tuple>> && ...);
+            }
+
+            template <typename ArgsTuple>
+            static constexpr bool allArgsArePointers = allArgsArePointersImpl<ArgsTuple>(
+                std::make_index_sequence<std::tuple_size_v<std::decay_t<ArgsTuple>>>{});
+
+            template <typename T, typename ArgsTuple, std::size_t... Is>
+            T *createInstance(std::index_sequence<Is...>)
+            {
+
+                static_assert(allArgsArePointers<ArgsTuple>, "All inject arguments must be pointer types!");
+
+                return new T(get<std::remove_pointer_t<std::tuple_element_t<Is, ArgsTuple>>>()...);
+            }
+        };
+        //
     };
-    //
-
 };

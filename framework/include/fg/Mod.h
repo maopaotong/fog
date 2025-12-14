@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-
+#include "util.h"
 namespace fog
 {
 
@@ -23,7 +23,7 @@ namespace fog
     public:
         virtual std::string getName() = 0;
         // befor active, this method allow a mod to register callback into the underlying mod.
-        virtual void setup() = 0;
+        virtual void setup(Component::Injector & injector) = 0;
         virtual void active() = 0;
         virtual void deactive() = 0;
     };

@@ -20,8 +20,8 @@ namespace fog
     private:
         std::vector<Mod *> list;
         std::unordered_map<std::string, Mod *> map;
-
-    public:
+        Component::Injector injector;//
+    public: 
         SimpleApp()
         {
             this->add(new SimpleCore());
@@ -47,7 +47,7 @@ namespace fog
             for (auto it = list.begin(); it != list.end(); it++)
             {
                 Mod *mod = *it;
-                mod->setup();
+                mod->setup(injector);
             } //
             for (auto it = list.begin(); it != list.end(); it++)
             {
