@@ -32,9 +32,11 @@ namespace fog
     public:
         INJECT(WorldState(FogOfWar *fogOfWar,
                           EntryController *entryController,
-                          CellsTerrains *terrains)) : fogOfWar(fogOfWar),
-                                                      entryController(entryController),
-                                                      terrains(terrains)
+                          CellsTerrains *terrains,
+                          TheTerrains *tts)) : fogOfWar(fogOfWar),
+                                               tts(tts),
+                                               entryController(entryController),
+                                               terrains(terrains)
         {
         }
         void initCellsAndCostMap()
@@ -46,7 +48,7 @@ namespace fog
             int tsHeight = terrains->tHeight;
             int terWidth = terrains->width;
             int terHeight = terrains->height;
-            this->tts = new TheTerrains(tsWidth, tsHeight, terWidth, terHeight);
+            // this->tts = new TheTerrains(tsWidth, tsHeight, terWidth, terHeight);
             // std::vector<std::vector<tiles::Vertex>> vertexs(terWidth, std::vector<tiles::Vertex>(terHeight, tiles::Vertex()));
 
             CellsGenerator::generateCells(tiles, tsWidth, tsHeight);

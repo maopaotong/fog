@@ -86,8 +86,19 @@ namespace fog
         {
             Box2<int> box;
             int quality;
-            Options(Box2<int> box, int quality) : box(box), quality(quality)
+
+            int width;
+            int height;
+            float rectWidth;
+            float rectHeight;
+            int tWidth;
+            int tHeight;
+            Options(Box2<int> box, int quality) : box(box), quality(quality), tWidth(box.getWidth()), tHeight(box.getHeight())
             {
+                this->rectWidth = 2.0 / quality;                         // rad of tile = 1 , width of tile = 2;
+                this->rectHeight = rectWidth;                            // rect height == width
+                this->width = tWidth * quality;                          //
+                this->height = tHeight * quality * std::sqrt(3.0) / 2.0; // based on the toploy of cells.
             }
         };
         int width;
