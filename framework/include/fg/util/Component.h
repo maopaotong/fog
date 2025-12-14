@@ -203,7 +203,7 @@ namespace fog
                 static_assert(!std::is_abstract<Imp>::value);
                 using TAdtsTuple = std::tuple<T, Adts...>;
                 std::function<std::any()> func = [this]() -> std::any
-                {                    
+                {
                     return std::make_any<T *>(this->getSingleton<Imp>());
                 };
                 return Component::makeImpl<T, Imp, TAdtsTuple>(func, std::make_index_sequence<std::tuple_size_v<std::decay_t<TAdtsTuple>>>{});
@@ -217,16 +217,30 @@ namespace fog
             }
 
             //
-
-            template <typename T>
-            T *get(std::type_index tid)
-            {
-                return getComponent(tid).get<T>();
-            }
             template <typename T>
             T *get()
             {
-                return get<T>(typeid(T));
+                return get<T, void>(typeid(T));
+            }
+
+            template <typename T>
+            T *get(std::type_index tid)
+            {                
+                return get<T, void>(tid);
+            }
+
+            //
+            template <typename T, typename C>
+            T *get()
+            {
+                return get<T, C>(typeid(T));
+            }
+
+            template <typename T, typename C>
+            T *get(std::type_index tid)
+            {
+                typeid(C);
+                return getComponent(tid).get<T>();
             }
 
             Component getComponent(std::type_index tid)
@@ -283,24 +297,6 @@ namespace fog
 
                 using ArgsTuple = typename ConstructorTraits<T::Inject>::ArgsTuple;
                 constexpr int N = ConstructorTraits<T::Inject>::arity;
-
-                if constexpr (N == 0)
-                {
-                    return new T(); // same as no inject,injected the default constructor.
-                }
-
-                if constexpr (N == 1)
-                {
-                    using D0 = std::remove_reference_t<std::tuple_element_t<0, ArgsTuple>>;
-                    static_assert(std::is_pointer_v<D0>, "not support non-pointer type as inject args");
-                    using T0 = std::remove_pointer_t<D0>;
-                    // find bind.
-
-                    D0 d0 = get<T0>(); //
-
-                    return new T(d0);
-                }
-
                 return createInstance<T, ArgsTuple>(std::make_index_sequence<N>{});
 
                 // static_assert(N < 2, "todo more than 1 element in args list.");
@@ -319,9 +315,20 @@ namespace fog
             T *createInstance(std::index_sequence<Is...>)
             {
 
-                static_assert(allArgsArePointers<ArgsTuple>, "All inject arguments must be pointer types!");
+                // static_assert(allArgsArePointers<ArgsTuple>, "All inject arguments must be pointer types!");
+                return new T(getPtrOrValue<std::tuple_element_t<Is, ArgsTuple>, T::Inject>()...);
+            }
 
-                return new T(get<std::remove_pointer_t<std::tuple_element_t<Is, ArgsTuple>>>()...);
+            template <typename Arg, typename C>
+            typename std::enable_if_t<std::is_pointer_v<Arg>, Arg> getPtrOrValue() // return Arg or Arg *
+            {
+                return get<std::remove_pointer_t<Arg>, C>(); // pointer
+            }
+
+            template <typename Arg, typename C>
+            typename std::enable_if_t<!std::is_pointer_v<Arg>, Arg> getPtrOrValue() // return Arg or Arg *
+            {
+                return *get<Arg, C>(); // pointer
             }
         };
         //
