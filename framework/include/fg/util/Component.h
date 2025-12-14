@@ -45,7 +45,96 @@ namespace fog
 
     struct Component
     {
+        struct Injector;
 
+        using Interface = std::unordered_set<std::type_index>;
+        using Object = std::unordered_map<std::type_index, std::function<std::any()>>;
+        std::type_index typeId; // register the main type of the component.
+        Object obj;             // cast funcs
+
+        Component(std::type_index typeId, Object obj) : typeId(typeId), obj(obj) {};
+
+        template <typename T>
+        T *get()
+        {
+            std::type_index tid = typeid(T);
+            auto it = obj.find(tid);
+            if (it == obj.end())
+            {
+                return nullptr;
+            }
+            return std::any_cast<T *>((it->second)());
+        }
+
+        std::any get(std::type_index tid)
+        {
+            auto it = obj.find(tid);
+            if (it == obj.end())
+            {
+                return nullptr;
+            }
+            return (it->second)();
+        }
+
+        template <typename F>
+        void addType(std::type_index ifType, F &&func) // add a interface type for the component.
+        {
+            auto it = obj.find(typeid(T));
+            if (it != obj.end())
+            {
+                throw std::runtime_error("type already exists, cannot add same type for a component.");
+            }
+            obj.emplace(ifType, func);
+        }
+
+        template <typename F>
+        void forEachInterfaceType(F &&visit)
+        {
+            for (auto it = obj.begin(); it != obj.end(); it++)
+            {
+                visit(it->first);
+            }
+        }
+
+        template <typename T>
+        bool hasType()
+        {
+            std::type_index tid = typeid(T);
+            return this->obj.find(tid) != this->obj.end();
+        }
+
+        // make methods
+        template <typename F>
+        static Component make(std::type_index tid, F &&create)
+        {
+            Object obj;
+            obj.emplace(tid, create);
+            return Component(tid, obj);
+        }
+
+        template <typename T, typename Imp, typename Tuple, std::size_t... Is>
+        static Component makeImpl(std::function<std::any()> create, std::index_sequence<Is...>)
+        {
+            Object obj; // map from type id => function to get/crate the required type of value.
+            ((registerInterface<T, Imp, Tuple, Is>(obj, create)), ...);
+            return Component(typeid(T), obj);
+        }
+
+        template <typename T, typename Imp, typename Tuple, std::size_t I>
+        static void registerInterface(Object &obj, std::function<std::any()> create)
+        {
+            using InterfaceType = std::tuple_element_t<I, Tuple>;
+            std::type_index tid = typeid(InterfaceType);
+            auto func = [create]() -> InterfaceType *
+            {
+                std::any impAny = create();
+                T *main = std::any_cast<T *>(impAny);
+                return static_cast<InterfaceType *>(main); // cast to type.
+            };
+            obj.emplace(tid, func);
+        }
+
+    public:
         struct Injector
         {
         private:
@@ -53,64 +142,106 @@ namespace fog
             Injector()
             {
             }
-            std::unordered_map<std::type_index, std::function<std::any()>> factories;
+            std::unordered_map<std::type_index, Component> components;
 
-            std::function<std::any(std::type_index)> defaultBind;
-
-            template <typename T>
-            void bind()
-            {
-                bind<T, T>();
-            }
+            std::function<Component(std::type_index)> defaultCompFunc;
 
             template <typename T>
             void upbind()
             {
-                factories.erase(typeid(T));
+                components.erase(typeid(T));
             }
 
             template <typename T, typename F>
-            void bind(F &&func)
+            void bindFunc(F &&objFunc)
             {
-                std::type_index tid = typeid(T);
-                if (factories.find(tid) != factories.end())
+                bindComp(Component::make(typeid(T), objFunc));
+            }
+            void bindComp(Component comp)
+            {
+                if (components.find(comp.typeId) != components.end())
                 {
-                    throw std::runtime_error("cannot re-bind,unbind first.");
+                    throw std::runtime_error("type id already bond, cannot bind, you may need rebind method.");
                 }
-                factories[tid] = [func]()
-                {
-                    return std::make_any<T *>(func());
-                };
+                components.emplace(comp.typeId, comp);
+            }
+
+            template <typename T>
+            void bindImpl()
+            {
+                bindComp(makeByImpl<T>());
             }
 
             template <typename T, typename Imp>
-            void bind()
+            void bindImpl()
+            {
+                bindComp(makeByImpl<T, Imp>());
+            }
+            template <typename T, typename Imp, typename T1>
+            void bindImpl()
+            {
+                bindComp(makeByImpl<T, Imp, T1>());
+            }
+
+            template <typename T, typename Imp, typename T1, typename T2>
+            void bindImpl()
+            {
+                bindComp(makeByImpl<T, Imp, T1, T2>());
+            }
+            //
+
+            template <typename T>
+            Component makeByImpl()
+            {
+                return makeByImpl<T, T>();
+            }
+
+            template <typename T, typename Imp, typename... Adts>
+            Component makeByImpl()
             {
                 static_assert(hasInject<Imp>::value, "macro INJECT missing or the INJECT constructor is not visible.");
                 static_assert(!std::is_abstract<Imp>::value);
-                bind<T>([this]() -> T *
-                        { T *obj = getSingleton<Imp>(); 
-                        return obj; });
+                using TAdtsTuple = std::tuple<T, Adts...>;
+                std::function<std::any()> func = [this]() -> std::any
+                {                    
+                    return std::make_any<T *>(this->getSingleton<Imp>());
+                };
+                return Component::makeImpl<T, Imp, TAdtsTuple>(func, std::make_index_sequence<std::tuple_size_v<std::decay_t<TAdtsTuple>>>{});
+            }
+
+            template <typename T>
+            T *getSingleton()
+            {
+                static T *instance = createInstance<T>();
+                return (instance);
+            }
+
+            //
+
+            template <typename T>
+            T *get(std::type_index tid)
+            {
+                return getComponent(tid).get<T>();
             }
             template <typename T>
             T *get()
             {
-                return std::any_cast<T *>(get(typeid(T)));
+                return get<T>(typeid(T));
             }
 
-            std::any get(std::type_index tid)
+            Component getComponent(std::type_index tid)
             {
-                auto it = factories.find(tid);
-                if (it == factories.end())
+                auto it = components.find(tid);
+                if (it == components.end())
                 {
-                    if (defaultBind)
+                    if (defaultCompFunc)
                     {
                         // call default function.
-                        return defaultBind(tid);
+                        return defaultCompFunc(tid);
                     }
                     throw std::runtime_error("must bond before get the instance by type.");
                 }
-                return (it->second)();
+                return it->second;
             }
 
             template <typename T>
@@ -123,22 +254,15 @@ namespace fog
             template <typename F>
             void setDefaultBind(F &&func)
             {
-                this->defaultBind = func;
+
+                this->defaultCompFunc = func;
             }
 
             Injector &operator=(const Injector &injector)
             {
-                this->factories = injector.factories;
-                this->defaultBind = injector.defaultBind;
+                this->components = injector.components;
+                this->defaultCompFunc = injector.defaultCompFunc;
                 return *this;
-            }
-
-        private:
-            template <typename T>
-            T *getSingleton()
-            {
-                static T *instance = createInstance<T>();
-                return (instance);
             }
 
             template <typename T>

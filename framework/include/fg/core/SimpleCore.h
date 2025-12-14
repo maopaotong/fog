@@ -37,7 +37,7 @@ namespace fog
         std::vector<Stairs *> stepListeners;
 
     public:
-        SimpleCore() : CoreMod()
+        INJECT(SimpleCore()) : CoreMod()
         {
             appCtx = new ImGuiAppContext("HexagonalGridVisualizer");
         }
@@ -48,7 +48,7 @@ namespace fog
         void setup(Component::Injector & injector) override
         {
             Context<CoreMod>::set(this);
-            injector.bind<ImGuiApp>([this](){
+            injector.bindFunc<ImGuiApp>([this](){
                 return this->getImGuiApp();
             });
         }

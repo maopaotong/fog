@@ -18,40 +18,27 @@ namespace fog
     class SimpleApp : public App
     {
     private:
-        std::vector<Mod *> list;
-        std::unordered_map<std::string, Mod *> map;
-        Component::Injector injector;//
     public: 
         SimpleApp()
         {
-            this->add(new SimpleCore());
+            
         }
         virtual ~SimpleApp()
         {
         }
 
-        void add(Mod *mod) override
-        {
-
-            std::string name = mod->getName();
-            if (map.find(name) != map.end())
-            {
-                throw std::runtime_error("Module already exists:" + name);
-            }
-            map[name] = mod;
-            list.push_back(mod);
-        }
-
         void setup() override
         {
-            for (auto it = list.begin(); it != list.end(); it++)
-            {
-                Mod *mod = *it;
+
+            for (auto it = modIds.begin(); it != modIds.end(); it++)
+            {                
+                Mod * mod = injector.get<Mod>(*it);
                 mod->setup(injector);
             } //
-            for (auto it = list.begin(); it != list.end(); it++)
+
+            for (auto it = modIds.begin(); it != modIds.end(); it++)
             {
-                Mod *mod = *it;
+                Mod * mod = injector.get<Mod>(*it);
                 mod->active();
             } //
             
@@ -67,9 +54,11 @@ namespace fog
         void close() override
         {
             std::cout << "Closing application.\n";
-            for (auto it = list.rbegin(); it != list.rend(); it++)
+            for (auto it = modIds.rbegin(); it != modIds.rend(); it++)
             {
-                Mod *mod = *it;
+                std::type_index tid = *it;
+                Mod *mod = this->injector.get<Mod>(tid);
+
                 std::cout << "Disactive module:" << mod->getName() << "" << std::endl;
                 mod->deactive();
                 std::cout << "Done of disactive module." << std::endl;
