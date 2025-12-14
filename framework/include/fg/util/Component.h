@@ -171,6 +171,12 @@ namespace fog
             {
                 bindComp(makeByImpl<T>());
             }
+            template <typename T>
+            void bindInstance(T *obj)
+            {
+                bindFunc<T>([obj]() -> T *
+                            { return obj; });
+            }
 
             template <typename T, typename Imp>
             void bindImpl()
@@ -225,7 +231,7 @@ namespace fog
 
             template <typename T>
             T *get(std::type_index tid)
-            {                
+            {
                 return get<T, void>(tid);
             }
 

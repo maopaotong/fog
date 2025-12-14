@@ -84,8 +84,8 @@ namespace fog
     template <>
     Options *Context<Options>::ctxObj = new Options();
 
-    template <>
-    FogOfWar *Context<FogOfWar>::ctxObj = nullptr;
+    // template <>
+    // FogOfWar *Context<FogOfWar>::ctxObj = nullptr;
 
     template<>
     Transform::D2H2D3 * Context<Transform::D2H2D3>::ctxObj = nullptr;

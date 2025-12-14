@@ -15,6 +15,7 @@
 #include "fg/InventoryStateManager.h"
 #include "fg/cells.h"
 #include "fg/util.h"
+#include "fg/core/FogOfWar.h"
 namespace fog
 {
     class WorldState : public State
@@ -24,9 +25,10 @@ namespace fog
         CellsState *tilesState;
         TheTerrains *tts;
         std::vector<std::vector<CellData>> tiles;
+        FogOfWar * fogOfWar;
 
     public:
-        WorldState()
+        INJECT(WorldState(FogOfWar * fogOfWar)):fogOfWar(fogOfWar)
         {
         }
         void initCellsAndCostMap()
@@ -83,11 +85,11 @@ namespace fog
             this->initCellsAndCostMap();
             CellKey cKey = findCellToStandOn();//
 
-            Context<FogOfWar>::get()->setHomeCell(cKey);
-            Context<FogOfWar>::get()->init();
-
+            //Context<FogOfWar>::get()->setHomeCell(cKey);
+            //Context<FogOfWar>::get()->init();
+            fogOfWar->init();
             // Create frame listener for main loop
-            this->tilesState = new CellsState(this->tiles, this->tts);
+            this->tilesState = new CellsState(this->tiles, this->tts, this->fogOfWar);
             
             this->tilesState->init();
 

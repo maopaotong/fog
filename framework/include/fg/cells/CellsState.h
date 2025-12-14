@@ -88,8 +88,9 @@ namespace fog
     public:
         TheTerrains *tts;
         std::vector<std::vector<CellData>> &tiles;
+        FogOfWar* fogOfWar;
     public:
-        CellsState(std::vector<std::vector<CellData>> &tiles, TheTerrains * tts) : ManualState(), tiles(tiles), tts(tts)
+        CellsState(std::vector<std::vector<CellData>> &tiles, TheTerrains * tts, FogOfWar * fogOfWar) : ManualState(), tiles(tiles), tts(tts),fogOfWar(fogOfWar)
         {
             this->material = "Tiles";
         }
@@ -125,7 +126,9 @@ namespace fog
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
             // tex9
             
-            std::string texName9 = Context<FogOfWar>::get()->getTexName();
+            //std::string texName9 = Context<FogOfWar>::get()->getTexName();
+            std::string texName9 = this->fogOfWar->getTexName();
+            
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(9)->setTextureName(texName9);
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(9)->setTextureFiltering(Ogre::TFO_BILINEAR);
 
