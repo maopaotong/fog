@@ -40,19 +40,22 @@ namespace fog
         Camera *camera;
         CellInstanceManager *cellInstMgrState;
         MovableStateManager *movableStateMgr;
+        Event::Bus * eventBus;
     public:
         INJECT(PathingStateManager(CostMap *costMap, Viewport *viewport,
-                                   CellInstanceManager *cellInstMgrState,                                   
+Event::Bus * eventBus,
+                                     CellInstanceManager *cellInstMgrState,                                   
                                    MovableStateManager *movableStateMgr,
                                    Camera *camera)) : viewport(viewport),
                                                       camera(camera),
+                                                      eventBus(eventBus),
                                                       costMap(costMap), sourceState(nullptr), targetCis(nullptr),
                                                       cellInstMgrState(cellInstMgrState),
                                                       movableStateMgr(movableStateMgr),
                                                       path(nullptr)
         {
             std::cout << "PathingStateManager created." << std::endl;
-            Context<Event::Bus>::get()-> //
+            eventBus-> //
                 subscribe<MovableEventType, State *>([this](MovableEventType evtType, State *state)
                                                      {
                                                          if (evtType == MovableEventType::StateUnpicked)
@@ -155,12 +158,12 @@ namespace fog
             if (targetCis)
             {
                 targetCis->popColour();
-                Context<Event::Bus>::get()-> //
+                eventBus-> //
                     emit<MouseCellEventType, CellKey>(MouseCellEventType::MouseLeaveCell, targetCis->getCellKey());
             }
             cis->pushColour(ColourValue::White);
             targetCis = cis;
-            Context<Event::Bus>::get()-> //
+            eventBus-> //
                 emit<MouseCellEventType, CellKey>(MouseCellEventType::MouseEnterCell, targetCis->getCellKey());
 
             return false;

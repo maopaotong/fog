@@ -4,6 +4,7 @@
  */
 #pragma once
 #include "Common.h"
+#include <fg/util/Component.h>
 
 namespace fog
 {
@@ -14,6 +15,9 @@ namespace fog
         class Bus
         {
         public:
+            INJECT(Bus()){
+
+            }
             template <typename... Args, typename F>
             void subscribe(F &&func)
             {

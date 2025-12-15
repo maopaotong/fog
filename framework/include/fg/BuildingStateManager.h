@@ -87,21 +87,25 @@ namespace fog
             if (this->picked)
             {
                 // unpick previous
-                Context<Event::Bus>::get()-> //
+                eventBus-> //
                     emit<BuildingEventType, State *>(BuildingEventType::StateUnpicked, this->picked);
             }
             this->picked = picked;
             if (this->picked)
             {
                 // pick new
-                Context<Event::Bus>::get()-> //
+                eventBus-> //
                     emit<BuildingEventType, State *>(BuildingEventType::StatePicked, this->picked);
             }
         }
+        Event::Bus * eventBus;
 
     public:
-        INJECT(BuildingStateManager(CoreMod *core, SceneManager *sceneManager, InventoryStateManager *inventoryManager))
+        INJECT(BuildingStateManager(CoreMod *core, SceneManager *sceneManager, InventoryStateManager *inventoryManager,
+        Event::Bus * eventBus
+        ))
             : core(core),
+              eventBus(eventBus),
               inventoryManager(inventoryManager),
               sceneManager(sceneManager),
               picked(nullptr), plan(nullptr)
@@ -112,7 +116,7 @@ namespace fog
         }
         void init() override
         {
-            Context<Event::Bus>::get()-> //
+            eventBus-> //
                 subscribe<MouseCellEventType, CellKey>([this](MouseCellEventType type, CellKey cKey)
                                                        {
                                                            if (type == MouseCellEventType::MouseEnterCell)
@@ -125,7 +129,7 @@ namespace fog
 
                                                            return true; //
                                                        });
-            Context<Event::Bus>::get()-> //
+            eventBus-> //
                 subscribe<CellEventType, CellKey>([this](CellEventType type, CellKey cKey)
                                                   {
                                                       if (type == CellEventType::CellAsTarget)

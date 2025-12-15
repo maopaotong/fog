@@ -206,7 +206,7 @@ namespace fog
             // {
 
             //     // Context<ActorPropEC>::get()->emit(this, std::string("active"));
-            //     Context<Event::Bus>::get()->emit<State *, std::string &>(this, std::string("active"));
+            //     eventBus->emit<State *, std::string &>(this, std::string("active"));
             // }
         }
 

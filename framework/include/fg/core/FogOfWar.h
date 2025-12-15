@@ -45,12 +45,14 @@ namespace fog
         Box2<int> bufferBox{0}; // moving around. but keep the width * height, even if the box is moving out the world.
         //
         CellKey homeCell;
+        Event::Bus *eventBus;
 
     public:
-        INJECT(FogOfWar(Options opts)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
-                                         width(opts.width), height(opts.height), // texture width.
-                                         texName(opts.texName),
-                                         buffer(nullptr) //
+        INJECT(FogOfWar(Options opts, Event::Bus *eventBus)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
+                                                               eventBus(eventBus),
+                                                               width(opts.width), height(opts.height), // texture width.
+                                                               texName(opts.texName),
+                                                               buffer(nullptr) //
         {
             this->data = new unsigned char[width * height * 4]; // rgba;
             // to speed up calculation.
@@ -99,7 +101,7 @@ namespace fog
             } // for
             this->texture = TextureFactory::createTexture(texName, width, height, this->data);
 
-            Context<Event::Bus>::get()-> //
+            eventBus-> //
                 subscribe<MovableEventType, State *>([this](MovableEventType evtType, State *state)
                                                      {
                                                          if (evtType == MovableEventType::StateMoved)

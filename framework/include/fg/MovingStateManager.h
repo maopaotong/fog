@@ -35,9 +35,14 @@ namespace fog
         Vector3 prePosition;
 
         CostMap *costMap;
+        Event::Bus *eventBus;
 
     public:
-        MoveToCellTask(State *state, CellKey cKey2, CostMap *costMap) : costMap(costMap), movingState(state), cKey2(cKey2)
+        MoveToCellTask(State *state, CellKey cKey2,
+                       CostMap *costMap,
+                       Event::Bus *eventBus) : costMap(costMap),
+                                               eventBus(eventBus),
+                                               movingState(state), cKey2(cKey2)
         {
         }
         virtual ~MoveToCellTask()
@@ -62,7 +67,7 @@ namespace fog
             Vector3 pos = this->movingState->getSceneNode()->getPosition();
             if (pos.distance(this->prePosition) > Config::STATE_MOVED_EVENT_DISTNACE)
             {
-                Context<Event::Bus>::get()->emit(MovableEventType::StateMoved, this->movingState);
+                eventBus->emit(MovableEventType::StateMoved, this->movingState);
                 this->prePosition = pos;
             }
             return ret;
@@ -176,13 +181,17 @@ namespace fog
         CostMap *costMap;
         Viewport *viewport;
         Camera *camera;
+        Event::Bus *eventBus;
 
     public:
-        INJECT(MovingStateManager(CostMap *cm, Viewport *viewport, Camera *camera)) : viewport(viewport),
-                                                                                      camera(camera),
-                                                                                      costMap(cm), state(nullptr)
+        INJECT(MovingStateManager(CostMap *cm, Viewport *viewport,
+                                  Event::Bus *eventBus,
+                                  Camera *camera)) : viewport(viewport),
+                                                     eventBus(eventBus),
+                                                     camera(camera),
+                                                     costMap(cm), state(nullptr)
         {
-            Context<Event::Bus>::get()-> //
+            eventBus-> //
                 subscribe<MovableEventType, State *>([this](MovableEventType evtType, State *state)
                                                      {
                                                          if (evtType == MovableEventType::StatePicked)
@@ -236,7 +245,7 @@ namespace fog
             // }
             CellKey cKey2 = CellKey::from(pos);
 
-            Context<Event::Bus>::get()->emit<CellEventType, CellKey>(CellEventType::CellAsTarget, cKey2);
+            eventBus->emit<CellEventType, CellKey>(CellEventType::CellAsTarget, cKey2);
 
             // state
             this->movingActiveStateToCell(cKey2);
@@ -266,9 +275,9 @@ namespace fog
             }
 
             //
-            MoveToCellTask *task = new MoveToCellTask(state, cKey2, costMap);
+            MoveToCellTask *task = new MoveToCellTask(state, cKey2, costMap, eventBus);
             this->tasks.push_back(std::unique_ptr<MoveToCellTask>(task));
-            Context<Event::Bus>::get()->emit<MovableEventType, State *>(MovableEventType::StateStartMoving, state);
+            eventBus->emit<MovableEventType, State *>(MovableEventType::StateStartMoving, state);
         }
         template <typename F>
         void forEachTask(F &&f)
@@ -290,7 +299,7 @@ namespace fog
                 MoveToCellTask *task = it->get();
                 if (!task->step(time))
                 {
-                    Context<Event::Bus>::get()->emit<MovableEventType, State *>(MovableEventType::StateStopMoving, task->getState());
+                    eventBus->emit<MovableEventType, State *>(MovableEventType::StateStopMoving, task->getState());
                     it = this->tasks.erase(it);
                     continue;
                 }

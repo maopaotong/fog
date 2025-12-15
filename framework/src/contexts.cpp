@@ -33,8 +33,8 @@ namespace fog
     template <>
     Terrains *Context<Terrains>::ctxObj = nullptr;
 
-    template <>
-    Event::Bus *Context<Event::Bus>::ctxObj = new Event::Bus();
+    // template <>
+    // Event::Bus *Context<Event::Bus>::ctxObj = new Event::Bus();
 
     //template <>
     //Node2D *Context<Node2D>::ctxObj = nullptr;
@@ -48,11 +48,11 @@ namespace fog
     // template <>
     // CostMap *Context<CostMap>::ctxObj = nullptr;
     //
-    template <>
-    State *Context<State>::ctxObj = nullptr;
+    // template <>
+    // State *Context<State>::ctxObj = nullptr;
 
-    template <>
-    Plane *Context<Plane>::ctxObj = nullptr;
+    // template <>
+    // Plane *Context<Plane>::ctxObj = nullptr;
 
     // template <>
     // MovingStateManager *Context<MovingStateManager>::ctxObj = new MovingStateManager();

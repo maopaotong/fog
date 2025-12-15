@@ -20,8 +20,12 @@ namespace fog
         State *state;
         CellInstanceState *cis;
         CellInstanceManager *cisManager;
-        MovingState(CellInstanceManager *cisManager) : state(nullptr), cis(nullptr),
-                                                       cisManager(cisManager)
+        Event::Bus *eventBus;
+        MovingState(CellInstanceManager *cisManager,
+                    Event::Bus *eventBus) : state(nullptr), cis(nullptr),
+                                            eventBus(eventBus),
+                                            cisManager(cisManager)
+
         {
         }
 
@@ -43,7 +47,7 @@ namespace fog
             }
             this->state = state2;
             tryUpdateCis();
-            Context<Event::Bus>::get()-> //
+            eventBus-> //
                 emit<MovableEventType, State *>(state2 ? MovableEventType::StatePicked : MovableEventType::StateUnpicked, state2);
         }
         void tryUpdateCis()
@@ -84,15 +88,19 @@ namespace fog
         std::vector<std::string> aniNames = {"RunBase", "RunTop"};
         CoreMod *core;
         SceneManager *sceneManager;
+        Event::Bus *eventBus;
 
     public:
-        INJECT(MovableStateManager(CoreMod *core, CellInstanceManager *cisManager, SceneManager *sceneManager))
+        INJECT(MovableStateManager(CoreMod *core, CellInstanceManager *cisManager,
+                                   Event::Bus *eventBus,
+                                   SceneManager *sceneManager))
             : core(core),
+              eventBus(eventBus),
               sceneManager(sceneManager),
               actor2(new Sinbad(core)),
-              movingState(cisManager)
+              movingState(cisManager, eventBus)
         {
-            Context<Event::Bus>::get()-> //
+            eventBus-> //
                 subscribe<MovableEventType, State *>([this](MovableEventType evtType, State *state)
                                                      {
                                                          if (evtType == MovableEventType::StateStartMoving)

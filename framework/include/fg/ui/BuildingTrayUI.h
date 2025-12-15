@@ -15,9 +15,12 @@ namespace fog
     class BuildingTrayUI : /* public Listener<State *, std::string &>,*/ public UIState
     {
         State *state;
+        Event::Bus * eventBus;
 
     public:
-        BuildingTrayUI() : UIState("BuildingTray"), state(nullptr)
+        BuildingTrayUI(Event::Bus * eventBus) : UIState("BuildingTray"), 
+        eventBus(eventBus),
+        state(nullptr)
         {
             
         }
@@ -25,7 +28,7 @@ namespace fog
         {
             // actorPosition = this->getProperty<Vector3>("actor1.position", false);
             UIState::init();
-            Context<Event::Bus>::get()-> //
+            eventBus-> //
                 subscribe<BuildingEventType, State *>([this](BuildingEventType et, State *s)
                                               {
                     if (et == BuildingEventType::StatePicked)

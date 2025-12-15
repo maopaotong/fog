@@ -15,16 +15,17 @@ namespace fog
     class ActiveTrayUI : /* public Listener<State *, std::string &>,*/ public UIState
     {
         State *state;
+        Event::Bus * eventBus;
         
     public:
-        ActiveTrayUI() : UIState("ActiveActor"), state(nullptr)
+        ActiveTrayUI(Event::Bus * eventBus) : UIState("ActiveActor"), state(nullptr),eventBus(eventBus)
         {
         }
         void init() override
         {
             // actorPosition = this->getProperty<Vector3>("actor1.position", false);
             UIState::init();
-            Context<Event::Bus>::get()-> //
+            eventBus-> //
                 subscribe<MovableEventType, State *>([this](MovableEventType et, State *s)
                                                      {
                     if (et == MovableEventType::StatePicked)
