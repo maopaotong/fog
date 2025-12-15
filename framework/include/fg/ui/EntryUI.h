@@ -36,14 +36,20 @@ namespace fog
         MovingStateManager *movingStateManager;
         CoreMod *core;
         InventoryStateManager *inventoryManager;
-        Event::Bus * eventBus;
+        Event::Bus *eventBus;
+        State *rootState;
+        MovableStateManager *msm;
+
     public:
         INJECT(EntryUI(MovingStateManager *movingStateManager, CoreMod *core,
-            Event::Bus * eventBus,
-            InventoryStateManager *inventoryManager)) : 
-        inventoryManager(inventoryManager),
-        eventBus(eventBus),
-        movingStateManager(movingStateManager), UIState("EntryUI"), core(core)
+                       MovableStateManager *msm,
+                       Event::Bus *eventBus,
+                       WorldState *rootState,
+                       InventoryStateManager *inventoryManager)) : inventoryManager(inventoryManager),
+                                                                   eventBus(eventBus),
+                                                                   msm(msm),
+                                                                   rootState(rootState),
+                                                                   movingStateManager(movingStateManager), UIState("EntryUI"), core(core)
         {
             this->active = true;
         }
@@ -54,7 +60,7 @@ namespace fog
             this->add(new InventoryUI(inventoryManager));
             this->add(new OptionsUI());
             this->add(new PropertyRefsUI());
-            this->add(new ActiveTrayUI(eventBus));
+            this->add(new ActiveTrayUI(eventBus, rootState, msm));
             this->add(new BuildingTrayUI(eventBus));
             this->add(new StatisticTrayUI(core));
             this->add(new TasksUI(movingStateManager));

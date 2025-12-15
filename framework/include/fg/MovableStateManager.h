@@ -168,5 +168,10 @@ namespace fog
             return picked != nullptr;
         }
 
+        void pick(State *picked)
+        {
+            this->movingState.setState(picked);
+        }
+
     }; // end of class
 }; // end of namespace

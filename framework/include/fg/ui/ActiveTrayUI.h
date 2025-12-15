@@ -10,15 +10,17 @@
 #include "fg/util.h"
 #include <fmt/format.h>
 #include "UIState.h"
+#include "fg/MovableStateManager.h"
 namespace fog
 {
     class ActiveTrayUI : /* public Listener<State *, std::string &>,*/ public UIState
     {
         State *state;
-        Event::Bus * eventBus;
-        
+        Event::Bus *eventBus;
+        State *rootState;
+        MovableStateManager * msm;
     public:
-        ActiveTrayUI(Event::Bus * eventBus) : UIState("ActiveActor"), state(nullptr),eventBus(eventBus)
+        ActiveTrayUI(Event::Bus *eventBus, State *rootState,MovableStateManager *msm) : UIState("ActiveActor"), msm(msm),rootState(rootState), state(nullptr), eventBus(eventBus)
         {
         }
         void init() override
@@ -55,24 +57,24 @@ namespace fog
                 //
                 if (ImGui::Button("Tower Building(1*120-Person-Month)"))
                 {
-                    //Context<BuildingStateManager>::get()->planToBuild(BuildingType::Tower);
+                    // Context<BuildingStateManager>::get()->planToBuild(BuildingType::Tower);
                 }
 
                 if (ImGui::Button("Create Sinbad(1*10-Persen-Month)"))
                 {
 
-                    //Context<MovableStateManager>::get()->createSinbad();
+                    // Context<MovableStateManager>::get()->createSinbad();
                 }
 
                 if (ImGui::Button("Build Farm(1*10-Persen-Month)"))
                 {
 
-                    //Context<BuildingStateManager>::get()->planToBuild(BuildingType::Farm);
+                    // Context<BuildingStateManager>::get()->planToBuild(BuildingType::Farm);
                 }
                 if (ImGui::Button("Build H0085"))
                 {
 
-                   // Context<BuildingStateManager>::get()->planToBuild(BuildingType::H0085);
+                    // Context<BuildingStateManager>::get()->planToBuild(BuildingType::H0085);
                 }
             }
 
@@ -81,6 +83,15 @@ namespace fog
                 ImGui::Text("No Active State");
                 if (ImGui::Button("Active actor"))
                 {
+                    rootState->forEach([this](State *state)
+                                       {
+                        Sinbad *sb = dynamic_cast<Sinbad*>(state);
+                        if(sb){
+                            msm->pick(sb);
+                            return false;
+                        }
+                        return true; 
+                    });
                 }
             }
         }
