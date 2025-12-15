@@ -241,26 +241,12 @@ namespace fog
             template <typename T>
             T *get()
             {
-                return get<T, void>(typeid(T));
+                return get<T>(typeid(T));
             }
 
             template <typename T>
             T *get(std::type_index tid)
-            {
-                return get<T, void>(tid);
-            }
-
-            //
-            template <typename T, typename C>
-            T *get()
-            {
-                return get<T, C>(typeid(T));
-            }
-
-            template <typename T, typename C>
-            T *get(std::type_index tid)
-            {
-                typeid(C);
+            {                
                 return getComponent(tid).get<T>();
             }
 
@@ -336,19 +322,22 @@ namespace fog
             {
 
                 // static_assert(allArgsArePointers<ArgsTuple>, "All inject arguments must be pointer types!");
-                return new T(getPtrOrValue<std::tuple_element_t<Is, ArgsTuple>, T::Inject>()...);
+                return new T(getPtrOrValue<std::tuple_element_t<Is, ArgsTuple>>()...);
             }
 
-            template <typename Arg, typename C>
+            template <typename Arg>
             typename std::enable_if_t<std::is_pointer_v<Arg>, Arg> getPtrOrValue() // return Arg or Arg *
             {
-                return get<std::remove_pointer_t<Arg>, C>(); // pointer
+                return get<std::remove_pointer_t<Arg>>(); // pointer
             }
 
-            template <typename Arg, typename C>
+            template <typename Arg>
             typename std::enable_if_t<!std::is_pointer_v<Arg>, Arg> getPtrOrValue() // return Arg or Arg *
             {
-                return *get<Arg, C>(); // pointer
+                Arg * argPtr = get<Arg>(); // pointer
+                Arg arg = *argPtr;
+
+                return arg;
             }
         };
         //
