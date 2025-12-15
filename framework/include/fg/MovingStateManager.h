@@ -48,6 +48,7 @@ namespace fog
         virtual ~MoveToCellTask()
         {
         }
+        
         State *getState()
         {
             return this->movingState;
@@ -208,6 +209,10 @@ namespace fog
         virtual ~MovingStateManager()
         {
         }
+        // 禁止拷贝
+    MovingStateManager(const MovingStateManager&) = delete;
+    MovingStateManager& operator=(const MovingStateManager&) = delete;
+
         void init() override
         {
         }
