@@ -48,10 +48,12 @@ namespace fog
 
     class EntryController : public OgreBites::InputListener, public FrameListener
     {
-
+        PathingStateManager * pathingStateManager;
+        MovingStateManager * movingStateManager;
     public:
-        INJECT(EntryController())
-        {
+        INJECT(EntryController(PathingStateManager * pathingStateManager,MovingStateManager * movingStateManager)):
+        pathingStateManager(pathingStateManager)
+        ,movingStateManager(movingStateManager){
         }
         bool mouseWheelRolled(const MouseWheelEvent &evt)
         {
@@ -66,7 +68,8 @@ namespace fog
             }
             else if (evt.button == ButtonType::BUTTON_RIGHT)
             {
-                Context<MovingStateManager>::get()->movingActiveStateToCellByMousePosition(evt.x, evt.y);
+                //Context<MovingStateManager>::get()
+                movingStateManager->movingActiveStateToCellByMousePosition(evt.x, evt.y);
             }
             return false;
         }
@@ -94,7 +97,7 @@ namespace fog
 
         CONSUMED mouseMoved(const MouseMotionEvent &evt) override
         {
-            Context<PathingStateManager>::get()->onMouseMoved(evt.x, evt.y);
+            pathingStateManager->onMouseMoved(evt.x, evt.y);
             Context<InputStateController>::get()->mouseMoved(evt);
             return false;
         }
@@ -111,7 +114,7 @@ namespace fog
         }
         GOON frameStarted(const FrameEvent &evt) override
         {
-            Context<PathingStateManager>::get()->step(evt.timeSinceLastFrame);
+            pathingStateManager->step(evt.timeSinceLastFrame);
             Context<MovableStateManager>::get()->step(evt.timeSinceLastFrame);
             Context<CameraState>::get()->step(evt.timeSinceLastFrame);
             return true;

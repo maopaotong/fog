@@ -33,9 +33,10 @@ namespace fog
 
     protected:
         std::vector<ChildInfo> childInfos;
+        MovingStateManager *movingStateManager;
 
     public:
-        EntryUI() : UIState("EntryUI")
+        INJECT(EntryUI(MovingStateManager *movingStateManager)) : movingStateManager(movingStateManager), UIState("EntryUI")
         {
             this->active = true;
         }
@@ -49,9 +50,9 @@ namespace fog
             this->add(new ActiveTrayUI());
             this->add(new BuildingTrayUI());
             this->add(new StatisticTrayUI());
-            this->add(new TasksUI());
+            this->add(new TasksUI(movingStateManager));
 
-            //Quit:
+            // Quit:
             this->add(new QuitUI());
         }
         void add(UIState *child)
@@ -66,7 +67,7 @@ namespace fog
             bool ret = UIState::open();
             if (!ret)
             {
-               return false;
+                return false;
             }
 
             return true;

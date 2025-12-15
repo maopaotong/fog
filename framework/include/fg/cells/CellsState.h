@@ -26,15 +26,25 @@ namespace fog
 
     struct TheTerrains : public Terrains
     {
-
+        struct Options
+        {
+            int tlsWidth;
+            int tlsHeight;
+            int terWidth;
+            int terHeight;
+            INJECT(Options(CellsTerrains::Options opts)) : tlsWidth(Config::TILES_RANGE.getWidth()), tlsHeight(Config::TILES_RANGE.getHeight()),
+                                                           terWidth(opts.width), terHeight(opts.height)
+            {
+            }
+        };
         int tlsWidth;
         int tlsHeight;
         int terWidth;
         int terHeight;
         std::vector<std::vector<CellsVertex>> vertexs;
-        TheTerrains(int tlsWidth, int tlsHeight, int terWidth, int terHeight) : tlsWidth(tlsWidth), tlsHeight(tlsHeight),
-                                                                                  terWidth(terWidth), terHeight(terHeight),
-                                                                                  vertexs(terWidth, std::vector<CellsVertex>(terHeight, CellsVertex()))
+        INJECT(TheTerrains(Options opts)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
+                                    terWidth(opts.terWidth), terHeight(opts.terHeight),
+                                    vertexs(opts.terWidth, std::vector<CellsVertex>(opts.terHeight, CellsVertex()))
         {
         }
         Vector3 getOrigin() override
@@ -43,7 +53,7 @@ namespace fog
         }
         float getHeightWithNormalAtWorldPosition(Vector3 pos, Vector3 *norm) override
         {
-            //Vector2 pIn2DV = Context<Node2D>::get()->to2D(pos);
+            // Vector2 pIn2DV = Context<Node2D>::get()->to2D(pos);
 
             Vector2 pIn2DV = Point2<float>::from(pos, *Context<Transform::D3_NORMAL_D2>::get());
             return getHeight(pIn2DV);
@@ -54,7 +64,7 @@ namespace fog
             Point2<float> pIn2D(pIn2DV.x, pIn2DV.y);
             pIn2D = pIn2D / Config::CELL_SCALE; //
 
-            //Point2<float> pUV = Cell::getPointInUV(pIn2D, tlsWidth, tlsHeight); // UV
+            // Point2<float> pUV = Cell::getPointInUV(pIn2D, tlsWidth, tlsHeight); // UV
             Point2<float> pUV = pIn2D.transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
             Point2<float> p = pUV;
             p.scale(terWidth, terHeight);
@@ -88,12 +98,12 @@ namespace fog
     public:
         TheTerrains *tts;
         std::vector<std::vector<CellData>> &tiles;
-        FogOfWar* fogOfWar;
+        FogOfWar *fogOfWar;
         CellsTerrains *terrains;
+
     public:
-        CellsState(std::vector<std::vector<CellData>> &tiles, TheTerrains * tts, FogOfWar * fogOfWar,
-        CellsTerrains *terrains
-        ) : ManualState(), terrains(terrains),tiles(tiles), tts(tts),fogOfWar(fogOfWar)
+        CellsState(std::vector<std::vector<CellData>> &tiles, TheTerrains *tts, FogOfWar *fogOfWar,
+                   CellsTerrains *terrains) : ManualState(), terrains(terrains), tiles(tiles), tts(tts), fogOfWar(fogOfWar)
         {
             this->material = "Tiles";
         }
@@ -103,37 +113,35 @@ namespace fog
         }
         void rebuildMesh() override
         {
-            //CellsTerrains *terrains = Context<CellsTerrains>::get();
+            // CellsTerrains *terrains = Context<CellsTerrains>::get();
 
-            //mesh
+            // mesh
             terrains->buildVertexs(tiles, tts->vertexs);
 
             auto heightFunc = [this](Vector3 &pos, Vector3 *norm)
             {
                 return this->tts->getHeightWithNormalAtWorldPosition(pos, norm);
             };
-            //Context<Plane>::get()->height = heightFunc; // replace the height func.
+            // Context<Plane>::get()->height = heightFunc; // replace the height func.
 
             Context<Transform::D2H2D3>::get()->setHeight([this](float x, float y)
-                                               {
-                                                   return this->tts->getHeight(Vector2(x, y));
-                                               }//
-                                            );
+                                                         { return this->tts->getHeight(Vector2(x, y)); } //
+            );
 
             // material
             MaterialPtr mat = MaterialManager::getSingletonPtr()->getByName("Tiles");
             // tex0
             std::string texName0 = "TerrainsTex001";
-            //Context<CellsTerrains>::get()->createWorldTexture(texName0, tts->vertexs);
+            // Context<CellsTerrains>::get()->createWorldTexture(texName0, tts->vertexs);
             terrains->createWorldTexture(texName0, tts->vertexs);
-            
+
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(texName0);
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
             // tex9
-            
-            //std::string texName9 = Context<FogOfWar>::get()->getTexName();
+
+            // std::string texName9 = Context<FogOfWar>::get()->getTexName();
             std::string texName9 = this->fogOfWar->getTexName();
-            
+
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(9)->setTextureName(texName9);
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(9)->setTextureFiltering(Ogre::TFO_BILINEAR);
 
@@ -179,7 +187,7 @@ namespace fog
                     // position.y = h;
 
                     // Vector3 position = qP.transform3(Transform::D2_NORMAL_D3(h));
-                    //Vector3 position = ((cis.cast<float>().transform(Transform::CellCentreByKey()) + tts->vertexs[qx][qy].originInTile) * Config::CELL_SCALE).transform3(Transform::D2_NORMAL_D3(h));
+                    // Vector3 position = ((cis.cast<float>().transform(Transform::CellCentreByKey()) + tts->vertexs[qx][qy].originInTile) * Config::CELL_SCALE).transform3(Transform::D2_NORMAL_D3(h));
                     Vector3 position = cKey.transform3(tts->vertexs[qx][qy].originInTile, h);
                     // position.y = h;
 

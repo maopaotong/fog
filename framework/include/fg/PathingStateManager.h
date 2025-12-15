@@ -35,9 +35,9 @@ namespace fog
     protected:
         CellKey cKey2;
         CellKey cKey1;
-
+        CostMap * costMap;
     public:
-        PathingStateManager() : sourceState(nullptr), targetCis(nullptr), path(nullptr)
+        INJECT(PathingStateManager(CostMap *costMap)) :costMap(costMap), sourceState(nullptr), targetCis(nullptr), path(nullptr)
         {
             std::cout << "PathingStateManager created." << std::endl;
             Context<Event::Bus>::get()-> //
@@ -195,7 +195,8 @@ namespace fog
             this->cKey1 = cKey1;
             this->cKey2 = cKey2;
             auto costFunc = *Context<CellsCost>::get();
-            std::vector<CellKey> pathByCellKey = Context<CostMap>::get()->findPath(cKey1, cKey2, costFunc);
+            std::vector<CellKey> pathByCellKey = 
+            costMap->findPath(cKey1, cKey2, costFunc);
 
 
             PathState *pathState2 = new PathState();

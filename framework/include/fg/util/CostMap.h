@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/util/Common.h"
-#include "fg/util/Cell.h"
+#include <fg/util/Common.h>
+#include <fg/util/Cell.h>
+#include <fg/util/Component.h>
 namespace fog
 {
 
@@ -61,7 +62,16 @@ namespace fog
         static const int OBSTACLE = 0;
         static const int DEFAULT_COST = 1;
 
-        CostMap(int w, int h) : width(w), height(h)
+        struct Options
+        {
+            int width;
+            int height;
+            Options(int w, int h) : width(w), height(h)
+            {
+            }
+        };
+        
+        INJECT(CostMap(Options opts)): width(opts.width), height(opts.height)
         {
         }
         template <typename F>

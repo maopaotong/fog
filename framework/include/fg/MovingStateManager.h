@@ -34,8 +34,10 @@ namespace fog
         //
         Vector3 prePosition;
 
+        CostMap * costMap;
+
     public:
-        MoveToCellTask(State *state, CellKey cKey2) : movingState(state), cKey2(cKey2)
+        MoveToCellTask(State *state, CellKey cKey2,CostMap* costMap) :costMap(costMap), movingState(state), cKey2(cKey2)
         {
         }
         virtual ~MoveToCellTask()
@@ -94,7 +96,7 @@ namespace fog
             CellKey cKey1 = std::get<CellKey>(stateCellAndPosition);
 
             CellsCost &costFunc = *Context<CellsCost>::get();
-            std::vector<CellKey> pathByCKey = Context<CostMap>::get()-> //
+            std::vector<CellKey> pathByCKey = costMap-> //
                                                    findPath(cKey1,
                                                             cKey2, //
                                                             costFunc);
@@ -103,7 +105,7 @@ namespace fog
             {
                 //find the nearest cell as the target.
                 //TODO: if the targe is untouchable area, then find the nearest border cell of such area as the new target. 
-                std::vector<CellKey> linePath = Context<CostMap>::get()-> //
+                std::vector<CellKey> linePath = costMap-> //
                                                      findPath(
                                                          cKey2,//reverse simple line path 
                                                          cKey1, //
@@ -115,7 +117,7 @@ namespace fog
                 for (auto it = linePath.begin(); it != linePath.end(); it++)
                 { // try
                     cKey2 = *it;
-                    pathByCKey = Context<CostMap>::get()->findPath(cKey1, cKey2, costFunc);
+                    pathByCKey = costMap->findPath(cKey1, cKey2, costFunc);
 
                     if (!pathByCKey.empty())
                     {
@@ -171,9 +173,9 @@ namespace fog
     {
         std::vector<std::unique_ptr<MoveToCellTask>> tasks;
         State *state;
-
+        CostMap * costMap;
     public:
-        MovingStateManager() : state(nullptr)
+        INJECT(MovingStateManager(CostMap * cm)) :costMap(cm), state(nullptr)
         {
             Context<Event::Bus>::get()-> //
                 subscribe<MovableEventType, State *>([this](MovableEventType evtType, State *state)
@@ -259,7 +261,7 @@ namespace fog
             }
 
             //
-            MoveToCellTask *task = new MoveToCellTask(state, cKey2);
+            MoveToCellTask *task = new MoveToCellTask(state, cKey2,costMap);
             this->tasks.push_back(std::unique_ptr<MoveToCellTask>(task));
             Context<Event::Bus>::get()->emit<MovableEventType, State *>(MovableEventType::StateStartMoving, state);
         }

@@ -93,7 +93,7 @@ namespace fog
             float rectHeight;
             int tWidth;
             int tHeight;
-            Options(Box2<int> box, int quality) : box(box), quality(quality), tWidth(box.getWidth()), tHeight(box.getHeight())
+            INJECT(Options()) : box(Config::TILES_RANGE), quality(Config::TILE_TERRAIN_QUALITY), tWidth(box.getWidth()), tHeight(box.getHeight())
             {
                 this->rectWidth = 2.0 / quality;                         // rad of tile = 1 , width of tile = 2;
                 this->rectHeight = rectWidth;                            // rect height == width
@@ -112,7 +112,7 @@ namespace fog
         float rectWidth;
         float rectHeight;
         float rectRad; // average rad of the rect.
-        CellsTerrains(Options options) : tWidth(options.box.getWidth()), tHeight(options.box.getHeight())
+        INJECT(CellsTerrains(Options options)) : tWidth(options.box.getWidth()), tHeight(options.box.getHeight())
         {
             this->rectWidth = 2.0 / options.quality;                         // rad of tile = 1 , width of tile = 2;
             this->rectHeight = rectWidth;                                    // rect height == width

@@ -13,8 +13,24 @@
 namespace fog
 {
 
-    class FogOfWar
+    struct FogOfWar
     {
+        struct Options
+        {
+
+            int width;
+            int height;
+
+            int tlsWidth;
+            int tlsHeight;
+            std::string texName;
+
+            INJECT(Options()) : tlsWidth(Config::TILES_RANGE.getWidth()), tlsHeight(Config::TILES_RANGE.getHeight()),
+                                width(Config::FOG_OF_WAR_TEX_RANGE.getWidth()), height(Config::FOG_OF_WAR_TEX_RANGE.getHeight()),
+                                texName("FogOfWarTex")
+            {
+            }
+        };
 
         int width;
         int height;
@@ -31,10 +47,10 @@ namespace fog
         CellKey homeCell;
 
     public:
-        FogOfWar(int tlsWidth, int tlsHeight, int width, int height, std::string texName) : tlsWidth(tlsWidth), tlsHeight(tlsHeight),
-                                                                                            width(width), height(height), // texture width.
-                                                                                            texName(texName),
-                                                                                            buffer(nullptr) //
+        INJECT(FogOfWar(Options opts)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
+                                         width(opts.width), height(opts.height), // texture width.
+                                         texName(opts.texName),
+                                         buffer(nullptr) //
         {
             this->data = new unsigned char[width * height * 4]; // rgba;
             // to speed up calculation.
@@ -115,7 +131,8 @@ namespace fog
 
         } // end init
 
-        Box2<int> buildBufferBox(CellKey cKey){
+        Box2<int> buildBufferBox(CellKey cKey)
+        {
             Box2<float> box = cKey.getOuterBoxInUV(tlsWidth, tlsHeight); // cover the entire tile.
             // scale from centre of the box, p1 is (0,0),p2 is very small value some thing like: 1/cells*rad.
             box.expand(3.0); // expand to 3 cell width.

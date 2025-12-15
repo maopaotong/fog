@@ -54,10 +54,10 @@ namespace fog
             CellsGenerator::generateCells(tiles, tsWidth, tsHeight);
             // cost map
 
-            CostMap *costMap = new CostMap(tsWidth, tsHeight);
             Context<CellsCost>::set(new CellsCost(&tiles));
-
-            Context<CostMap>::set(costMap);
+            
+            //CostMap *costMap = new CostMap(tsWidth, tsHeight);
+            //Context<CostMap>::set(costMap);
         }
 
         CellKey findCellToStandOn()
@@ -85,7 +85,7 @@ namespace fog
 
         virtual void init() override
         {
-            CostMap *costMap = Context<CostMap>::get();
+           // CostMap *costMap = Context<CostMap>::get();
             CoreMod *core = Context<CoreMod>::get();
             Ogre::Root *root = core->getRoot();
 

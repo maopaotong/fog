@@ -17,9 +17,9 @@ namespace fog
     {
     protected:
         Options options;
-
+        MovingStateManager * movingStateManager;
     public:
-        TasksUI() : UIState("TasksUI")
+        TasksUI(MovingStateManager * movingStateManager) : UIState("TasksUI"),movingStateManager (movingStateManager)
         {
         }
 
@@ -28,7 +28,8 @@ namespace fog
             int id = 0;
             
             //
-            Context<MovingStateManager>::get()->forEachTask([this, &id](MoveToCellTask* task)
+            //Context<MovingStateManager>::get()
+            movingStateManager->forEachTask([this, &id](MoveToCellTask* task)
             {
                 std::string label = fmt::format("Task##{}", id);
                 if (ImGui::TreeNode(label.c_str()))

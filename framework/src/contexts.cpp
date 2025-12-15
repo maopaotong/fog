@@ -45,8 +45,8 @@ namespace fog
     template <>
     CoreMod *Context<CoreMod>::ctxObj = nullptr;
 
-    template <>
-    CostMap *Context<CostMap>::ctxObj = nullptr;
+    // template <>
+    // CostMap *Context<CostMap>::ctxObj = nullptr;
     //
     template <>
     State *Context<State>::ctxObj = nullptr;
@@ -54,8 +54,8 @@ namespace fog
     template <>
     Plane *Context<Plane>::ctxObj = nullptr;
 
-    template <>
-    MovingStateManager *Context<MovingStateManager>::ctxObj = new MovingStateManager();
+    // template <>
+    // MovingStateManager *Context<MovingStateManager>::ctxObj = new MovingStateManager();
 
     template <>
     CellInstanceManager *Context<CellInstanceManager>::ctxObj = new CellInstanceManager();
@@ -63,8 +63,8 @@ namespace fog
     template <>
     MovableStateManager *Context<MovableStateManager>::ctxObj = new MovableStateManager();
 
-    template <>
-    PathingStateManager *Context<PathingStateManager>::ctxObj = new PathingStateManager();
+    // template <>
+    // PathingStateManager *Context<PathingStateManager>::ctxObj = new PathingStateManager();
 
     template <>
     InputStateController *Context<InputStateController>::ctxObj = new InputStateController();

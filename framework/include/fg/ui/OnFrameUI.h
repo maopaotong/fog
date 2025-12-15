@@ -35,7 +35,7 @@ namespace fog
         EntryUI *entryUI;
 
     public:
-        INJECT(OnFrameUI())
+        INJECT(OnFrameUI(EntryUI* entry)):entryUI(entry)
         {
             this->core = Context<CoreMod>::get();
 
@@ -50,7 +50,7 @@ namespace fog
             // this->sceneNodeUI = new SceneNodeUI(core);
             // this->cmdUI = new CommandUI(core);
             
-            this->entryUI = new EntryUI();
+//            this->entryUI = new EntryUI();
             this->entryUI->init();
         }
 
