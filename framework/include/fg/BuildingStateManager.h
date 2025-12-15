@@ -75,6 +75,7 @@ namespace fog
         CoreMod *core;
         SceneManager *sceneManager;
         std::unordered_map<CellKey, std::vector<State *>, CellKey::Hash> buildingsInCells;
+        InventoryStateManager *inventoryManager;
 
     protected:
         void setPicked(State *picked)
@@ -99,8 +100,9 @@ namespace fog
         }
 
     public:
-        INJECT(BuildingStateManager(CoreMod *core, SceneManager *sceneManager))
+        INJECT(BuildingStateManager(CoreMod *core, SceneManager *sceneManager, InventoryStateManager *inventoryManager))
             : core(core),
+              inventoryManager(inventoryManager),
               sceneManager(sceneManager),
               picked(nullptr), plan(nullptr)
         {
@@ -172,13 +174,13 @@ namespace fog
             if (this->plan)
             {
                 float invAmount = this->plan->getAmount();
-                Context<InventoryStateManager>::get()->returnInventory(InventoryType::BuildingPermit, invAmount);
+                inventoryManager->returnInventory(InventoryType::BuildingPermit, invAmount);
                 delete this->plan;
                 this->plan = nullptr;
             }
 
             float invAmount = 1.0f;
-            bool success = Context<InventoryStateManager>::get()->consumeInventory(InventoryType::BuildingPermit, invAmount);
+            bool success = inventoryManager->consumeInventory(InventoryType::BuildingPermit, invAmount);
 
             if (success)
             {
@@ -217,7 +219,7 @@ namespace fog
             else
             { // failed to build on the target cell.
                 float invAmount = this->plan->getAmount();
-                Context<InventoryStateManager>::get()->returnInventory(InventoryType::BuildingPermit, invAmount);
+                inventoryManager->returnInventory(InventoryType::BuildingPermit, invAmount);
             }
 
             delete this->plan;

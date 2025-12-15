@@ -31,6 +31,8 @@ namespace fog
         CoreMod *core;
         MovableStateManager *movableStateMgr;
         BuildingStateManager *buildingStateMgr;
+        InventoryStateManager *inventoryStateMgr;
+
 
     public:
         INJECT(WorldState(FogOfWar *fogOfWar,
@@ -39,9 +41,11 @@ namespace fog
                           CellsTerrains *terrains,
                           CoreMod *core,
                           MovableStateManager *movableStateMgr,
+                          InventoryStateManager *inventoryStateMgr,
                           TheTerrains *tts)) : fogOfWar(fogOfWar),
                                                core(core),
                                                movableStateMgr(movableStateMgr),
+                                               inventoryStateMgr(inventoryStateMgr),
                                                tts(tts),
                                                buildingStateMgr(buildingStateMgr),
                                                entryController(entryController),
@@ -126,7 +130,6 @@ namespace fog
             this->addChild(buildingStateMgr);
             //
 
-            InventoryStateManager *inventoryStateMgr = Context<InventoryStateManager>::get();
             inventoryStateMgr->init();
             this->addChild(inventoryStateMgr);
             //

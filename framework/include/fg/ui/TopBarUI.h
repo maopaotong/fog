@@ -15,17 +15,20 @@ namespace fog
 {
     class TopBarUI : /* public Listener<State *, std::string &>,*/ public UIState
     {
-        static float getAmount(InventoryType type)
+        static float getAmount(InventoryStateManager *inventoryManager, InventoryType type)
         {
-            return Context<InventoryStateManager>::get()->getAmount(type);
+            return inventoryManager->getAmount(type);
         }
-        static float getCapacity(InventoryType type)
+        static float getCapacity(InventoryStateManager *inventoryManager, InventoryType type)
         {
-            return Context<InventoryStateManager>::get()->getCapacity(type);
+            return inventoryManager->getCapacity(type);
         }
 
+        InventoryStateManager *inventoryManager;
+
     public:
-        TopBarUI() : UIState("TopBar")
+        TopBarUI(InventoryStateManager *inventoryManager) : UIState("TopBar"),
+                                                            inventoryManager(inventoryManager)
         {
         }
         void init() override
@@ -35,14 +38,14 @@ namespace fog
 
         void doOpen() override
         {
-            for(auto it = InventoryTypeToString.begin(); it != InventoryTypeToString.end(); ++it){
+            for (auto it = InventoryTypeToString.begin(); it != InventoryTypeToString.end(); ++it)
+            {
                 InventoryType type = it->first;
                 std::string name = it->second;
-                ImGui::Text("%s: %.0f/%.0f", name.c_str(), getAmount(type), getCapacity(type));
+                ImGui::Text("%s: %.0f/%.0f", name.c_str(), getAmount(inventoryManager, type), getCapacity(inventoryManager, type));
                 ImGui::SameLine();
             }
-            ImGui::NewLine();            
-
+            ImGui::NewLine();
         }
     };
 

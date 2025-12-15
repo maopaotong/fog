@@ -81,7 +81,7 @@ namespace fog
 
     protected:
     public:
-        InventoryStateManager()
+        INJECT(InventoryStateManager())
         {
         }
         virtual ~InventoryStateManager()

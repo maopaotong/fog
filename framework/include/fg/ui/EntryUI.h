@@ -35,17 +35,19 @@ namespace fog
         std::vector<ChildInfo> childInfos;
         MovingStateManager *movingStateManager;
         CoreMod *core;
-
+        InventoryStateManager *inventoryManager;
     public:
-        INJECT(EntryUI(MovingStateManager *movingStateManager, CoreMod *core)) : movingStateManager(movingStateManager), UIState("EntryUI"), core(core)
+        INJECT(EntryUI(MovingStateManager *movingStateManager, CoreMod *core,InventoryStateManager *inventoryManager)) : 
+        inventoryManager(inventoryManager),
+        movingStateManager(movingStateManager), UIState("EntryUI"), core(core)
         {
             this->active = true;
         }
 
         void init() override
         {
-            this->add(new TopBarUI());
-            this->add(new InventoryUI());
+            this->add(new TopBarUI(inventoryManager));
+            this->add(new InventoryUI(inventoryManager));
             this->add(new OptionsUI());
             this->add(new PropertyRefsUI());
             this->add(new ActiveTrayUI());

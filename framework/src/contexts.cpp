@@ -72,8 +72,8 @@ namespace fog
     // template <>
     // BuildingStateManager *Context<BuildingStateManager>::ctxObj = new BuildingStateManager();
 
-    template <>
-    InventoryStateManager *Context<InventoryStateManager>::ctxObj = new InventoryStateManager();
+    // template <>
+    // InventoryStateManager *Context<InventoryStateManager>::ctxObj = new InventoryStateManager();
 
     // template <>
     // CameraState *Context<CameraState>::ctxObj = new CameraState();

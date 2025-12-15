@@ -15,7 +15,7 @@
 #include "fg/InventoryStateManager.h"
 namespace fog
 {
-   
+
     static std::string to_string(InventoryType level)
     {
         auto it = InventoryTypeToString.find(level);
@@ -30,9 +30,11 @@ namespace fog
     {
     protected:
         Options options;
+        InventoryStateManager *inventoryStateMgr;
 
     public:
-        InventoryUI() : UIState("InventoryUI")
+        InventoryUI(InventoryStateManager *inventoryStateMgr) : UIState("InventoryUI"),
+                                                                inventoryStateMgr(inventoryStateMgr)
         {
         }
 
@@ -41,7 +43,7 @@ namespace fog
             int id = 0;
 
             //
-            Context<InventoryStateManager>::get()-> //
+            inventoryStateMgr-> //
                 forEachInventory([this, &id](Inventory *inv)
                                  {
                                      std::string label = fmt::format("Inventory##{}", id);
