@@ -12,19 +12,13 @@ namespace fog
     class Mod
     {
     public:
-        class Active
-        {
-        };
-        class Deactive
-        {
-        };
+       
 
     protected:
     public:
         virtual std::string getName() = 0;
-        // befor active, this method allow a mod to register callback into the underlying mod.
-        virtual void setup(Component::Injector & injector) = 0;
         virtual void active() = 0;
         virtual void deactive() = 0;
+        // befor active, this method allow a mod to register callback into the underlying mod.
     };
 };

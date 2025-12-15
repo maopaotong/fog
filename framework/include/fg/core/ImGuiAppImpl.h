@@ -44,10 +44,9 @@ public:
     ImGuiContext *igc = nullptr;
     bool breakRenderRequested = false;
 public:
-    ImGuiAppImpl(NativeWindowPair &window)
+    ImGuiAppImpl()
     {
-        this->window = window;
-        DispatchInputListener::addInputListener(&this->guiListener);
+        
     }
     virtual ~ImGuiAppImpl()
     {
@@ -61,8 +60,10 @@ public:
         }
     }
 
-    void initApp()
+    void initApp(NativeWindowPair &window)
     {
+        this->window = window;
+        DispatchInputListener::addInputListener(&this->guiListener);
         // Create world state and controls.
         IMGUI_CHECKVERSION();
         igc = ImGui::CreateContext();

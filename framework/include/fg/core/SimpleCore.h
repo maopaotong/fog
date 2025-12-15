@@ -45,13 +45,16 @@ namespace fog
         {
             delete appCtx;
         }
-        void setup(Component::Injector & injector) override
+
+        struct Setup
         {
-            //Context<CoreMod>::set(this);
-            injector.bindFunc<ImGuiApp>([this](){
-                return this->getImGuiApp();
-            });
-        }
+            Mod *operator()(Component::Injector &injector)
+            {
+                injector.bindImpl<CoreMod, SimpleCore>();
+                
+                return injector.get<CoreMod>();
+            };
+        };
 
         void addCallback(Callback *callback)
         {
@@ -208,7 +211,7 @@ namespace fog
         }
         void deactive() override
         {
-            //Context<CoreMod>::set(nullptr);
+            // Context<CoreMod>::set(nullptr);
         }
 
         bool frameStarted(const FrameEvent &evt)

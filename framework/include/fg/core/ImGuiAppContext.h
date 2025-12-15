@@ -40,7 +40,7 @@ namespace fog
     public:
         ImGuiAppContext(std::string name) : ApplicationContextSDL(name)
         {
-            //
+            this->imGuiApp = new ImGuiAppImpl();
         }
         virtual ~ImGuiAppContext() override
         {
@@ -62,8 +62,7 @@ namespace fog
                 throw new std::runtime_error("no window created?");
             }
             NativeWindowPair window = mWindows[0];
-            this->imGuiApp = new ImGuiAppImpl(window);
-            imGuiApp->initApp();
+            imGuiApp->initApp(window);
 
             // not this->addInputListener() ,us the super class to add the only one entry point listener.
             ApplicationContextSDL::addInputListener(window.native, imGuiApp);

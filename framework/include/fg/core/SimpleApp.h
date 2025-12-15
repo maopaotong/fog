@@ -30,17 +30,6 @@ namespace fog
         void setup() override
         {
 
-            for (auto it = modIds.begin(); it != modIds.end(); it++)
-            {                
-                Mod * mod = injector.get<Mod>(*it);
-                mod->setup(injector);
-            } //
-
-            for (auto it = modIds.begin(); it != modIds.end(); it++)
-            {
-                Mod * mod = injector.get<Mod>(*it);
-                mod->active();
-            } //
             
         }
 
@@ -54,11 +43,9 @@ namespace fog
         void close() override
         {
             std::cout << "Closing application.\n";
-            for (auto it = modIds.rbegin(); it != modIds.rend(); it++)
+            for (auto it = mods.rbegin(); it != mods.rend(); it++)
             {
-                std::type_index tid = *it;
-                Mod *mod = this->injector.get<Mod>(tid);
-
+                Mod *mod = it->mod;
                 std::cout << "Disactive module:" << mod->getName() << "" << std::endl;
                 mod->deactive();
                 std::cout << "Done of disactive module." << std::endl;

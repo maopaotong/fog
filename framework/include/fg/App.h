@@ -8,24 +8,27 @@ namespace fog
 {
     class App
     {
+        struct ModHolder
+        {
+            Mod *mod;
+            Component::Injector &injector;
+            ModHolder(Mod *mod, Component::Injector &injector) : mod(mod), injector(injector)
+            {
+            }
+        };
+
     protected:
         Component::Injector injector; //
-        std::vector<std::type_index> modIds;
+
+        std::vector<ModHolder> mods;
 
     public:
-        template <typename T>
-        void add()
+        template <typename F>
+        void add(F &&setup)
         {
-            static_assert(std::is_base_of<Mod, T>::value, "cannot add a type of non-Mod");
-            add<T, T>();
-        }
-
-        template <typename T, typename M>
-        void add()
-        {
-            static_assert(std::is_base_of<Mod, T>::value, "cannot add a type of non-Mod");
-            injector.bindImpl<T, M, Mod>();
-            modIds.push_back(typeid(T));//remember the mod type as id.
+            Mod *mod = setup(injector);
+            mod->active();
+            mods.push_back(ModHolder(mod, injector));
         }
 
         virtual void setup() = 0;
