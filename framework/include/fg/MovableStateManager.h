@@ -83,10 +83,12 @@ namespace fog
         EntityState *actor2;
         std::vector<std::string> aniNames = {"RunBase", "RunTop"};
         CoreMod *core;
+        SceneManager *sceneManager;
 
     public:
-        INJECT(MovableStateManager(CoreMod *core, CellInstanceManager *cisManager))
+        INJECT(MovableStateManager(CoreMod *core, CellInstanceManager *cisManager, SceneManager *sceneManager))
             : core(core),
+              sceneManager(sceneManager),
               actor2(new Sinbad(core)),
               movingState(cisManager)
         {
@@ -132,7 +134,7 @@ namespace fog
         {
 
             // 创建射线查询对象
-            Ogre::RaySceneQuery *rayQuery = core->getSceneManager()->createRayQuery(ray);
+            Ogre::RaySceneQuery *rayQuery = sceneManager->createRayQuery(ray);
             rayQuery->setSortByDistance(true);  // 按距离排序（最近的优先）
             rayQuery->setQueryMask(0x00000001); // 与 Entity 的查询掩码匹配
 
@@ -153,7 +155,7 @@ namespace fog
                 }
             }
             // Context<CoreMod>::get()
-            core->getSceneManager()->destroyQuery(rayQuery);
+            sceneManager->destroyQuery(rayQuery);
             this->movingState.setState(picked);
             return picked != nullptr;
         }

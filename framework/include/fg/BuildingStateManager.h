@@ -73,7 +73,7 @@ namespace fog
         State *picked;
         BuildingPlan *plan;
         CoreMod *core;
-
+        SceneManager *sceneManager;
         std::unordered_map<CellKey, std::vector<State *>, CellKey::Hash> buildingsInCells;
 
     protected:
@@ -99,8 +99,9 @@ namespace fog
         }
 
     public:
-        INJECT(BuildingStateManager(CoreMod *core))
+        INJECT(BuildingStateManager(CoreMod *core, SceneManager *sceneManager))
             : core(core),
+              sceneManager(sceneManager),
               picked(nullptr), plan(nullptr)
         {
         }
@@ -140,7 +141,7 @@ namespace fog
         {
 
             // 创建射线查询对象
-            Ogre::RaySceneQuery *rayQuery = core->getSceneManager()->createRayQuery(ray);
+            Ogre::RaySceneQuery *rayQuery = sceneManager->createRayQuery(ray);
             rayQuery->setSortByDistance(true);  // 按距离排序（最近的优先）
             rayQuery->setQueryMask(0x00000001); // 与 Entity 的查询掩码匹配
 
@@ -161,7 +162,7 @@ namespace fog
                 }
             }
             // Context<CoreMod>::get()
-            core->getSceneManager()->destroyQuery(rayQuery);
+            sceneManager->destroyQuery(rayQuery);
             this->setPicked(picked);
             return picked != nullptr;
         }

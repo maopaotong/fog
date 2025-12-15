@@ -17,12 +17,16 @@ namespace fog
         std::stack<ColourValue> colours;
         ManualObject *obj;
         CellKey cis;
-        CoreMod * core;
+        CoreMod *core;
+        SceneManager *sceneManager;
+
     public:
-        INJECT(CellInstanceState(CellKey cis, CoreMod * core)) : cis(cis),core(core)
+        INJECT(CellInstanceState(CellKey cis, CoreMod *core, SceneManager *sceneManager))
+            : sceneManager(sceneManager),
+              cis(cis), core(core)
         {
-            this->sceNode = core->getSceneManager()->getRootSceneNode()->createChildSceneNode();
-            this->obj = core->getSceneManager()->createManualObject();
+            this->sceNode = sceneManager->getRootSceneNode()->createChildSceneNode();
+            this->obj = sceneManager->createManualObject();
             this->sceNode->attachObject(this->obj);
         }
 
@@ -118,10 +122,15 @@ namespace fog
         std::unordered_map<CellKey, CellInstanceState *, CellKey::Hash> cellInstanceStates;
 
         CoreMod *core;
+                SceneManager *sceneManager;
+
 
     public:
-        INJECT(CellInstanceManager(CoreMod *core))
-            : core(core)
+        INJECT(CellInstanceManager(CoreMod *core,        SceneManager *sceneManager))
+            : 
+            sceneManager (sceneManager),
+            core(core)
+
         {
         }
         virtual ~CellInstanceManager()
@@ -129,14 +138,14 @@ namespace fog
         }
         void init() override
         {
-            this->sceNode = core->getSceneManager()->getRootSceneNode()->createChildSceneNode();
+            this->sceNode = sceneManager->getRootSceneNode()->createChildSceneNode();
 
             for (int x = 0; x < Config::TILES_RANGE.getWidth(); x++)
             {
                 for (int y = 0; y < Config::TILES_RANGE.getHeight(); y++)
                 {
                     CellKey cell(x, y);
-                    CellInstanceState *state = new CellInstanceState(cell,core);
+                    CellInstanceState *state = new CellInstanceState(cell, core, sceneManager);
                     state->init();
                     this->addChild(state); //
                     this->cellInstanceStates[cell] = state;
