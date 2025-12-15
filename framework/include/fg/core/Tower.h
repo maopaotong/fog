@@ -24,7 +24,7 @@ namespace fog
 
     protected:
     public:
-        Tower() : EntityState("watchtower.mesh", ACTOR_SCALE, ACTOR_HEIGHT, {})
+        INJECT(Tower(CoreMod *core)) : EntityState("watchtower.mesh", ACTOR_SCALE, ACTOR_HEIGHT, {}, core)
         {
         }
 

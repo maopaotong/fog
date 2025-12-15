@@ -171,6 +171,11 @@ namespace fog
             {
                 bindComp(makeByImpl<T>());
             }
+            template <typename... T>
+            void bindAllImpl()
+            {
+                ((bindImpl<T>()), ...);
+            }
             template <typename T>
             void bindInstance(T *obj)
             {
@@ -193,6 +198,16 @@ namespace fog
             void bindImpl()
             {
                 bindComp(makeByImpl<T, Imp, T1, T2>());
+            }
+
+            template <typename T, typename OT>
+            void bindMethod(T *(OT::*method)())
+            {
+                bindFunc<T>([this, method]()
+                            {
+                                OT *obj = this->get<OT>();
+                                return (obj->*method)(); //
+                            });
             }
             //
 
@@ -271,11 +286,10 @@ namespace fog
                 return it != factories.end();
             }
 
-            template <typename F>
-            void setDefaultBind(F &&func)
+            void bindDefault(Injector &pInjector)
             {
-
-                this->defaultCompFunc = func;
+                this->defaultCompFunc = [&pInjector](std::type_index tid)
+                { return pInjector.getComponent(tid); };
             }
 
             Injector &operator=(const Injector &injector)

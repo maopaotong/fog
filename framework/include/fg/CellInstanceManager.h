@@ -5,7 +5,7 @@
 #pragma once
 #include "fg/Common.h"
 #include "fg/State.h"
-#include "fg/core/CoreMod.h"//TODO remove this include. 
+#include "fg/core/CoreMod.h" //TODO remove this include.
 #include "fg/MaterialNames.h"
 #include "fg/MeshBuild.h"
 #include "fg/Config.h"
@@ -17,12 +17,12 @@ namespace fog
         std::stack<ColourValue> colours;
         ManualObject *obj;
         CellKey cis;
-
+        CoreMod * core;
     public:
-        CellInstanceState(CellKey cis) : cis(cis)
+        INJECT(CellInstanceState(CellKey cis, CoreMod * core)) : cis(cis),core(core)
         {
-            this->sceNode = Context<CoreMod>::get()->getSceneManager()->getRootSceneNode()->createChildSceneNode();
-            this->obj = Context<CoreMod>::get()->getSceneManager()->createManualObject();
+            this->sceNode = core->getSceneManager()->getRootSceneNode()->createChildSceneNode();
+            this->obj = core->getSceneManager()->createManualObject();
             this->sceNode->attachObject(this->obj);
         }
 
@@ -117,8 +117,11 @@ namespace fog
     {
         std::unordered_map<CellKey, CellInstanceState *, CellKey::Hash> cellInstanceStates;
 
+        CoreMod *core;
+
     public:
-        CellInstanceManager()
+        INJECT(CellInstanceManager(CoreMod *core))
+            : core(core)
         {
         }
         virtual ~CellInstanceManager()
@@ -126,14 +129,14 @@ namespace fog
         }
         void init() override
         {
-            this->sceNode = Context<CoreMod>::get()->getSceneManager()->getRootSceneNode()->createChildSceneNode();
+            this->sceNode = core->getSceneManager()->getRootSceneNode()->createChildSceneNode();
 
             for (int x = 0; x < Config::TILES_RANGE.getWidth(); x++)
             {
                 for (int y = 0; y < Config::TILES_RANGE.getHeight(); y++)
                 {
                     CellKey cell(x, y);
-                    CellInstanceState *state = new CellInstanceState(cell);
+                    CellInstanceState *state = new CellInstanceState(cell,core);
                     state->init();
                     this->addChild(state); //
                     this->cellInstanceStates[cell] = state;

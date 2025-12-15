@@ -25,12 +25,12 @@ namespace fog
         Ogre::ManualObject *obj;
 
         std::string material = MaterialNames::materialNameInUse;
-
+        CoreMod * core;
     public:
-        ManualState()
+        ManualState(CoreMod * core):core(core)
         {
 
-            Ogre::SceneManager *sceneMgr = Context<CoreMod>::get()->getSceneManager();
+            Ogre::SceneManager *sceneMgr = core->getSceneManager();
             obj = sceneMgr->createManualObject();
             obj->setQueryFlags(0x00000001);
 
@@ -40,7 +40,7 @@ namespace fog
         }
         virtual ~ManualState()
         {
-            Ogre::SceneManager *sceneMgr = Context<CoreMod>::get()->getSceneManager();
+            Ogre::SceneManager *sceneMgr = core->getSceneManager();
             sceneMgr->getRootSceneNode()->removeAndDestroyChild(sceNode);
             this->sceNode = nullptr;
         }

@@ -47,7 +47,7 @@ namespace fog
         }
         void setup(Component::Injector & injector) override
         {
-            Context<CoreMod>::set(this);
+            //Context<CoreMod>::set(this);
             injector.bindFunc<ImGuiApp>([this](){
                 return this->getImGuiApp();
             });
@@ -208,7 +208,7 @@ namespace fog
         }
         void deactive() override
         {
-            Context<CoreMod>::set(nullptr);
+            //Context<CoreMod>::set(nullptr);
         }
 
         bool frameStarted(const FrameEvent &evt)

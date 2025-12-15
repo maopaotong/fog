@@ -28,12 +28,15 @@ namespace fog
         float heighOffset;
 
         std::string mesh;
+        CoreMod *core;
 
     public:
-        EntityState(std::string mesh, float scale, float height, std::vector<std::string> aniNames) : mesh(mesh),
-                                                                                                      scale(scale),
-                                                                                                      heigh(height),
-                                                                                                      aniNames(aniNames)
+        EntityState(std::string mesh, float scale, float height, std::vector<std::string> aniNames, CoreMod *core)
+            : mesh(mesh),
+              core(core),
+              scale(scale),
+              heigh(height),
+              aniNames(aniNames)
         {
             this->heighOffset = this->heigh / 2.0f * scale;
         }
@@ -52,7 +55,9 @@ namespace fog
                     throw std::runtime_error("entity already exists,entity state cannot init twice.");
                 }
             }
-            SceneManager *sMgr = Context<CoreMod>::get()->getSceneManager();
+            // Context<CoreMod>::get()
+            SceneManager *sMgr =
+                core->getSceneManager();
 
             entity = sMgr->createEntity(mesh);
             entity->setQueryFlags(0x00000001);
@@ -63,7 +68,7 @@ namespace fog
 
             this->setSceneNode(sceNode);
 
-            float height = 0.0f;// Context<Terrains>::get()->getHeightWithNormalAtWorldPosition(Vector3(0, 0, 0), nullptr);
+            float height = 0.0f; // Context<Terrains>::get()->getHeightWithNormalAtWorldPosition(Vector3(0, 0, 0), nullptr);
 
             sceNode->translate(Vector3(0, height + this->heighOffset, 0));
             // init task owner.

@@ -46,15 +46,16 @@ namespace fog
         bool right = false;
         bool front = false;
         bool back = false;
+        CoreMod *core;
 
     public:
-        InputStateController()
+        INJECT(InputStateController(CoreMod *core)) : core(core)
         {
         }
 
         bool mouseMoved(const MouseMotionEvent &evt)
         {
-            RenderWindow *window = Context<CoreMod>::get()->getWindow();
+            RenderWindow *window = core->getWindow();
 
             int width = window->getWidth();
             int height = window->getHeight();

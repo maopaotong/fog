@@ -19,7 +19,9 @@ namespace fog
     public:
         State *state;
         CellInstanceState *cis;
-        MovingState() : state(nullptr), cis(nullptr)
+        CellInstanceManager *cisManager;
+        MovingState(CellInstanceManager *cisManager) : state(nullptr), cis(nullptr),
+                                                       cisManager(cisManager)
         {
         }
 
@@ -48,7 +50,6 @@ namespace fog
         {
             if (this->state)
             {
-                CellInstanceManager *cisManager = Context<CellInstanceManager>::get();
 
                 CellInstanceState *cis2 = cisManager->getCellInstanceStateByPosition(state->getPosition());
                 this->trySetCis(cis2);
@@ -81,9 +82,13 @@ namespace fog
         MovingState movingState;
         EntityState *actor2;
         std::vector<std::string> aniNames = {"RunBase", "RunTop"};
+        CoreMod *core;
 
     public:
-        MovableStateManager() : actor2(new Sinbad())
+        INJECT(MovableStateManager(CoreMod *core, CellInstanceManager *cisManager))
+            : core(core),
+              actor2(new Sinbad(core)),
+              movingState(cisManager)
         {
             Context<Event::Bus>::get()-> //
                 subscribe<MovableEventType, State *>([this](MovableEventType evtType, State *state)
@@ -127,7 +132,7 @@ namespace fog
         {
 
             // 创建射线查询对象
-            Ogre::RaySceneQuery *rayQuery = Context<CoreMod>::get()->getSceneManager()->createRayQuery(ray);
+            Ogre::RaySceneQuery *rayQuery = core->getSceneManager()->createRayQuery(ray);
             rayQuery->setSortByDistance(true);  // 按距离排序（最近的优先）
             rayQuery->setQueryMask(0x00000001); // 与 Entity 的查询掩码匹配
 
@@ -147,7 +152,8 @@ namespace fog
                     break;
                 }
             }
-            Context<CoreMod>::get()->getSceneManager()->destroyQuery(rayQuery);
+            // Context<CoreMod>::get()
+            core->getSceneManager()->destroyQuery(rayQuery);
             this->movingState.setState(picked);
             return picked != nullptr;
         }

@@ -25,11 +25,10 @@ namespace fog
         Viewport *vp;
         SceneManager *sceMgr;
         ActiveTrayUI *activeTrayUI = nullptr;
-
+        CoreMod * core;
     public:
-        QuitUI() : UIState("Quit")
-        {
-            CoreMod *core = Context<CoreMod>::get();
+        QuitUI(CoreMod * core) : UIState("Quit"),core(core)
+        {            
             this->window = core->getWindow();
             this->vp = core->getViewport();
             this->sceMgr = core->getSceneManager();
@@ -58,7 +57,7 @@ namespace fog
             if (ImGui::Button("Yes"))
             {
                 // 处理“确定”逻辑
-                Context<CoreMod>::get()->getImGuiApp()->breakRender();
+                core->getImGuiApp()->breakRender();
                 ImGui::CloseCurrentPopup(); // 关闭弹窗
             }
             ImGui::SameLine();

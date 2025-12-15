@@ -44,9 +44,10 @@ namespace fog
 
     private:
         bool quit;
-
+    CoreMod* core;
+    InputStateController *inputState;
     public:
-        CameraState() : quit(false)
+        INJECT(CameraState(CoreMod* core, InputStateController *inputState)) : quit(false),core(core),inputState(inputState)
         {
         }
 
@@ -87,7 +88,7 @@ namespace fog
         {
             // std::cout << "Frame started!\n";
 
-            Camera *camera = Context<CoreMod>::get()->getCamera();
+            Camera *camera = core->getCamera();
             // Move camera
             Ogre::SceneNode *node = camera->getParentSceneNode();
             // 获取当前朝向（四元数）
@@ -103,9 +104,7 @@ namespace fog
 
             Vector3 position = node->getPosition();
             Vector3 step = Ogre::Vector3::ZERO;
-
-            InputStateController *inputState = Context<InputStateController>::get();
-
+            
             if (inputState->isFront())
             {
                 // node->translate(-back * speed * evt.timeSinceLastFrame);
@@ -144,7 +143,7 @@ namespace fog
          */
         bool mouseWheelRolled(const MouseWheelEvent &evt)
         {
-            Camera *cam = Context<CoreMod>::get()->getCamera();
+            Camera *cam = core->getCamera();
             Ogre::SceneNode *node = cam->getParentSceneNode();
 
             float height = node->getPosition().y;

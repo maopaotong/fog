@@ -18,10 +18,11 @@ namespace fog
 
     class PathState : public State
     {
-        std::vector<CellKey> currentPath;        
+        std::vector<CellKey> currentPath;
+        CellInstanceManager *cisManager;
 
     public:
-        PathState()
+        PathState(CellInstanceManager *cisManager) : cisManager(cisManager)
         {
         }
         ~PathState()
@@ -32,7 +33,7 @@ namespace fog
         void setPath(const std::vector<CellKey> &path)
         {
             this->resetPathColor(true);
-            currentPath = path;                        
+            currentPath = path;
             this->resetPathColor(false);
         }
 
@@ -41,7 +42,7 @@ namespace fog
             for (auto it = currentPath.begin(); it != currentPath.end(); ++it)
             {
                 CellKey cKey = *it;
-                CellInstanceState *cis = Context<CellInstanceManager>::get()->getCellInstanceStateByCellKey(cKey);
+                CellInstanceState *cis = cisManager ->getCellInstanceStateByCellKey(cKey);
                 if (unset)
                 {
                     cis->popColour();
@@ -53,7 +54,6 @@ namespace fog
                 }
             }
         }
-
     };
 
 }; // end of namespace

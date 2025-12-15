@@ -34,10 +34,10 @@ namespace fog
         //
         Vector3 prePosition;
 
-        CostMap * costMap;
+        CostMap *costMap;
 
     public:
-        MoveToCellTask(State *state, CellKey cKey2,CostMap* costMap) :costMap(costMap), movingState(state), cKey2(cKey2)
+        MoveToCellTask(State *state, CellKey cKey2, CostMap *costMap) : costMap(costMap), movingState(state), cKey2(cKey2)
         {
         }
         virtual ~MoveToCellTask()
@@ -97,22 +97,22 @@ namespace fog
 
             CellsCost &costFunc = *Context<CellsCost>::get();
             std::vector<CellKey> pathByCKey = costMap-> //
-                                                   findPath(cKey1,
-                                                            cKey2, //
-                                                            costFunc);
+                                              findPath(cKey1,
+                                                       cKey2, //
+                                                       costFunc);
 
             if (pathByCKey.empty())
             {
-                //find the nearest cell as the target.
-                //TODO: if the targe is untouchable area, then find the nearest border cell of such area as the new target. 
+                // find the nearest cell as the target.
+                // TODO: if the targe is untouchable area, then find the nearest border cell of such area as the new target.
                 std::vector<CellKey> linePath = costMap-> //
-                                                     findPath(
-                                                         cKey2,//reverse simple line path 
-                                                         cKey1, //
-                                                         [](Point2<int> cKey) -> int
-                                                         {
-                                                             return 1;
-                                                         });
+                                                findPath(
+                                                    cKey2, // reverse simple line path
+                                                    cKey1, //
+                                                    [](Point2<int> cKey) -> int
+                                                    {
+                                                        return 1;
+                                                    });
 
                 for (auto it = linePath.begin(); it != linePath.end(); it++)
                 { // try
@@ -173,9 +173,14 @@ namespace fog
     {
         std::vector<std::unique_ptr<MoveToCellTask>> tasks;
         State *state;
-        CostMap * costMap;
+        CostMap *costMap;
+        Viewport *viewport;
+        Camera *camera;
+
     public:
-        INJECT(MovingStateManager(CostMap * cm)) :costMap(cm), state(nullptr)
+        INJECT(MovingStateManager(CostMap *cm, Viewport *viewport, Camera *camera)) : viewport(viewport),
+                                                                                      camera(camera),
+                                                                                      costMap(cm), state(nullptr)
         {
             Context<Event::Bus>::get()-> //
                 subscribe<MovableEventType, State *>([this](MovableEventType evtType, State *state)
@@ -201,9 +206,9 @@ namespace fog
         // TODO move this function to MouseStateManager
         bool movingActiveStateToCellByMousePosition(int mx, int my)
         {
-            // normalized (0,1)
-            Viewport *viewport = Context<CoreMod>::get()->getViewport();
-            Camera *camera = Context<CoreMod>::get()->getCamera();
+            // // normalized (0,1)
+            // Viewport *viewport = Context<CoreMod>::get()->getViewport();
+            // Camera *camera = Context<CoreMod>::get()->getCamera();
 
             float ndcX = mx / (float)viewport->getActualWidth();
             float ndcY = my / (float)viewport->getActualHeight();
@@ -261,7 +266,7 @@ namespace fog
             }
 
             //
-            MoveToCellTask *task = new MoveToCellTask(state, cKey2,costMap);
+            MoveToCellTask *task = new MoveToCellTask(state, cKey2, costMap);
             this->tasks.push_back(std::unique_ptr<MoveToCellTask>(task));
             Context<Event::Bus>::get()->emit<MovableEventType, State *>(MovableEventType::StateStartMoving, state);
         }
@@ -279,7 +284,6 @@ namespace fog
 
         GOON step(float time) override
         {
-            CellInstanceManager *cisManager = Context<CellInstanceManager>::get();
 
             for (auto it = this->tasks.begin(); it != this->tasks.end();)
             {

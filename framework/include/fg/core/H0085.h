@@ -24,7 +24,7 @@ namespace fog
 
     protected:
     public:
-        H0085() : EntityState("hc28c.mesh", ACTOR_SCALE, ACTOR_HEIGHT, {})
+        H0085(CoreMod * core) : EntityState("hc28c.mesh", ACTOR_SCALE, ACTOR_HEIGHT, {},core)
         {
         }
 

@@ -24,9 +24,11 @@ namespace fog
         CellKey cKey;
         State *building;
         float amount;
+        CoreMod *core;
 
     public:
-        BuildingPlan(State *building, float amount) : building(building), amount(amount)
+        BuildingPlan(State *building, float amount, CoreMod *core) : core(core),
+                                                                     building(building), amount(amount)
         {
         }
 
@@ -58,10 +60,10 @@ namespace fog
         void moveToCell(CellKey cKey)
         {
             this->cKey = cKey;
-            
-            //Vector3 pos3 = Context<Node2D>::get()->to3D(Cell::getOrigin2D(cKey),Config::CELL_SCALE);
-            //Vector3 pos3 = cKey.cast<float>().transform(Transform::CellCentreByKey()).transform3(Config::D2H2D3);
-            //this->building->findSceneNode()->setPosition(pos3);
+
+            // Vector3 pos3 = Context<Node2D>::get()->to3D(Cell::getOrigin2D(cKey),Config::CELL_SCALE);
+            // Vector3 pos3 = cKey.cast<float>().transform(Transform::CellCentreByKey()).transform3(Config::D2H2D3);
+            // this->building->findSceneNode()->setPosition(pos3);
             this->building->findSceneNode()->setPosition(cKey.transform3());
         }
     };
@@ -70,6 +72,7 @@ namespace fog
     {
         State *picked;
         BuildingPlan *plan;
+        CoreMod *core;
 
         std::unordered_map<CellKey, std::vector<State *>, CellKey::Hash> buildingsInCells;
 
@@ -96,7 +99,9 @@ namespace fog
         }
 
     public:
-        BuildingStateManager() : picked(nullptr), plan(nullptr)
+        INJECT(BuildingStateManager(CoreMod *core))
+            : core(core),
+              picked(nullptr), plan(nullptr)
         {
         }
         virtual ~BuildingStateManager()
@@ -135,7 +140,7 @@ namespace fog
         {
 
             // 创建射线查询对象
-            Ogre::RaySceneQuery *rayQuery = Context<CoreMod>::get()->getSceneManager()->createRayQuery(ray);
+            Ogre::RaySceneQuery *rayQuery = core->getSceneManager()->createRayQuery(ray);
             rayQuery->setSortByDistance(true);  // 按距离排序（最近的优先）
             rayQuery->setQueryMask(0x00000001); // 与 Entity 的查询掩码匹配
 
@@ -155,7 +160,8 @@ namespace fog
                     break;
                 }
             }
-            Context<CoreMod>::get()->getSceneManager()->destroyQuery(rayQuery);
+            // Context<CoreMod>::get()
+            core->getSceneManager()->destroyQuery(rayQuery);
             this->setPicked(picked);
             return picked != nullptr;
         }
@@ -178,19 +184,19 @@ namespace fog
                 State *building = nullptr;
                 if (type == BuildingType::Tower)
                 {
-                    building = new Tower();
+                    building = new Tower(core);
                 }
                 else if (type == BuildingType::H0085)
                 {
-                    building = new H0085();
+                    building = new H0085(core);
                 }
                 else
                 {
-                    building = new Building(type);
+                    building = new Building(type, core);
                 }
                 building->init();
 
-                this->plan = new BuildingPlan(building, invAmount);
+                this->plan = new BuildingPlan(building, invAmount, core);
             }
 
             return true;

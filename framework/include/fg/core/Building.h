@@ -23,7 +23,7 @@ namespace fog
         BuildingType type;
 
     public:
-        Building(BuildingType type) : ManualState(), type(type)
+        Building(BuildingType type,CoreMod * core) : ManualState(core), type(type)
         {
             this->material = MaterialNames::materialNameBuilding;
         }

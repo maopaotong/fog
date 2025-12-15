@@ -33,7 +33,7 @@ namespace fog
         // boolRef showOther;
         CostMap * costMap;
     public:
-        CellStateControl(CostMap* costMap) : ManualState(),costMap(costMap)
+        INJECT(CellStateControl(CostMap* costMap,CoreMod * core)) : ManualState(core),costMap(costMap)
         {
         }
         void init() override

@@ -35,9 +35,11 @@ namespace fog
         EntryUI *entryUI;
 
     public:
-        INJECT(OnFrameUI(EntryUI* entry)):entryUI(entry)
+        INJECT(OnFrameUI(EntryUI* entry, CoreMod * core)):
+        core(core),
+        entryUI(entry)
         {
-            this->core = Context<CoreMod>::get();
+            //this->core = Context<CoreMod>::get();
 
             this->window = core->getWindow();
             this->vp = core->getViewport();

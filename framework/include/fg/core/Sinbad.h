@@ -25,7 +25,7 @@ namespace fog
     protected:
 
     public:
-        Sinbad() : EntityState("Sinbad.mesh", ACTOR_SCALE, ACTOR_HEIGHT, {"RunBase", "RunTop"})
+        INJECT(Sinbad(CoreMod * core)) : EntityState("Sinbad.mesh", ACTOR_SCALE, ACTOR_HEIGHT, {"RunBase", "RunTop"},core)
         {
         }
 

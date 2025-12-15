@@ -34,9 +34,10 @@ namespace fog
     protected:
         std::vector<ChildInfo> childInfos;
         MovingStateManager *movingStateManager;
+        CoreMod *core;
 
     public:
-        INJECT(EntryUI(MovingStateManager *movingStateManager)) : movingStateManager(movingStateManager), UIState("EntryUI")
+        INJECT(EntryUI(MovingStateManager *movingStateManager, CoreMod *core)) : movingStateManager(movingStateManager), UIState("EntryUI"), core(core)
         {
             this->active = true;
         }
@@ -49,11 +50,11 @@ namespace fog
             this->add(new PropertyRefsUI());
             this->add(new ActiveTrayUI());
             this->add(new BuildingTrayUI());
-            this->add(new StatisticTrayUI());
+            this->add(new StatisticTrayUI(core));
             this->add(new TasksUI(movingStateManager));
 
             // Quit:
-            this->add(new QuitUI());
+            this->add(new QuitUI(core));
         }
         void add(UIState *child)
         {

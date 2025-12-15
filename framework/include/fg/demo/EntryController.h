@@ -48,16 +48,35 @@ namespace fog
 
     class EntryController : public OgreBites::InputListener, public FrameListener
     {
-        PathingStateManager * pathingStateManager;
-        MovingStateManager * movingStateManager;
+        PathingStateManager *pathingStateManager;
+        MovingStateManager *movingStateManager;
+        InputStateController *inputStateController;
+        MovableStateManager * movableStateManager;
+        BuildingStateManager * buildingStateManager;
+        Viewport *viewport;
+        Camera *camera;
+        CameraState *cameraState;
+
     public:
-        INJECT(EntryController(PathingStateManager * pathingStateManager,MovingStateManager * movingStateManager)):
-        pathingStateManager(pathingStateManager)
-        ,movingStateManager(movingStateManager){
+        INJECT(EntryController(PathingStateManager *pathingStateManager, MovingStateManager *movingStateManager,
+                               InputStateController *inputStateController,
+                               MovableStateManager * movableStateManager,
+                               BuildingStateManager * buildingStateManager,
+                               CameraState *cameraState,
+                               Viewport *viewport, Camera *camera))
+            : viewport(viewport),
+              camera(camera),
+              pathingStateManager(pathingStateManager), 
+              buildingStateManager(buildingStateManager),
+              movingStateManager(movingStateManager),
+              movableStateManager(movableStateManager),
+              cameraState (cameraState),
+              inputStateController(inputStateController)
+        {
         }
         bool mouseWheelRolled(const MouseWheelEvent &evt)
         {
-            Context<CameraState>::get()->mouseWheelRolled(evt);
+            cameraState->mouseWheelRolled(evt);
             return false;
         }
         bool mousePressed(const MouseButtonEvent &evt) override
@@ -68,7 +87,7 @@ namespace fog
             }
             else if (evt.button == ButtonType::BUTTON_RIGHT)
             {
-                //Context<MovingStateManager>::get()
+                // Context<MovingStateManager>::get()
                 movingStateManager->movingActiveStateToCellByMousePosition(evt.x, evt.y);
             }
             return false;
@@ -77,17 +96,17 @@ namespace fog
         bool mouseButtonLeftPressed(const MouseButtonEvent &evt)
         {
             // normalized (0,1)
-            Viewport *viewport = Context<CoreMod>::get()->getViewport();
-            Camera *camera = Context<CoreMod>::get()->getCamera();
+            // Viewport *viewport = Context<CoreMod>::get()->getViewport();
+            // Camera *camera = Context<CoreMod>::get()->getCamera();
             float ndcX = evt.x / (float)viewport->getActualWidth();
             float ndcY = evt.y / (float)viewport->getActualHeight();
             Ogre::Ray ray = camera->getCameraToViewportRay(ndcX, ndcY);
 
-            if (Context<MovableStateManager>::get()->pick(ray))
+            if (movableStateManager->pick(ray))
             {
                 return true;
             }
-            if (Context<BuildingStateManager>::get()->pick(ray))
+            if (buildingStateManager->pick(ray))
             {
                 return true;
             }
@@ -98,25 +117,25 @@ namespace fog
         CONSUMED mouseMoved(const MouseMotionEvent &evt) override
         {
             pathingStateManager->onMouseMoved(evt.x, evt.y);
-            Context<InputStateController>::get()->mouseMoved(evt);
+            inputStateController->mouseMoved(evt);
             return false;
         }
 
         bool keyPressed(const OgreBites::KeyboardEvent &evt) override
         {
-            Context<InputStateController>::get()->keyPressed(evt);
+            inputStateController->keyPressed(evt);
             return true;
         }
         bool keyReleased(const OgreBites::KeyboardEvent &evt) override
         {
-            Context<InputStateController>::get()->keyReleased(evt);
+            inputStateController->keyReleased(evt);
             return true;
         }
         GOON frameStarted(const FrameEvent &evt) override
         {
             pathingStateManager->step(evt.timeSinceLastFrame);
-            Context<MovableStateManager>::get()->step(evt.timeSinceLastFrame);
-            Context<CameraState>::get()->step(evt.timeSinceLastFrame);
+            movableStateManager->step(evt.timeSinceLastFrame);
+            cameraState->step(evt.timeSinceLastFrame);
             return true;
         }
     };

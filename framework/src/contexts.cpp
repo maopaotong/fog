@@ -42,8 +42,8 @@ namespace fog
     // template <>
     // Cell::Center *Context<Cell::Center>::ctxObj = nullptr;
 
-    template <>
-    CoreMod *Context<CoreMod>::ctxObj = nullptr;
+    // template <>
+    // CoreMod *Context<CoreMod>::ctxObj = nullptr;
 
     // template <>
     // CostMap *Context<CostMap>::ctxObj = nullptr;
@@ -57,26 +57,26 @@ namespace fog
     // template <>
     // MovingStateManager *Context<MovingStateManager>::ctxObj = new MovingStateManager();
 
-    template <>
-    CellInstanceManager *Context<CellInstanceManager>::ctxObj = new CellInstanceManager();
+    // template <>
+    // CellInstanceManager *Context<CellInstanceManager>::ctxObj = new CellInstanceManager();
 
-    template <>
-    MovableStateManager *Context<MovableStateManager>::ctxObj = new MovableStateManager();
+    // template <>
+    // MovableStateManager *Context<MovableStateManager>::ctxObj = new MovableStateManager();
 
     // template <>
     // PathingStateManager *Context<PathingStateManager>::ctxObj = new PathingStateManager();
 
-    template <>
-    InputStateController *Context<InputStateController>::ctxObj = new InputStateController();
+    // template <>
+    // InputStateController *Context<InputStateController>::ctxObj = new InputStateController();
 
-    template <>
-    BuildingStateManager *Context<BuildingStateManager>::ctxObj = new BuildingStateManager();
+    // template <>
+    // BuildingStateManager *Context<BuildingStateManager>::ctxObj = new BuildingStateManager();
 
     template <>
     InventoryStateManager *Context<InventoryStateManager>::ctxObj = new InventoryStateManager();
 
-    template <>
-    CameraState *Context<CameraState>::ctxObj = new CameraState();
+    // template <>
+    // CameraState *Context<CameraState>::ctxObj = new CameraState();
     
     // template <>
     // CellsTerrains *Context<CellsTerrains>::ctxObj = nullptr;

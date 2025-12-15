@@ -35,9 +35,21 @@ namespace fog
     protected:
         CellKey cKey2;
         CellKey cKey1;
-        CostMap * costMap;
+        CostMap *costMap;
+        Viewport *viewport;
+        Camera *camera;
+        CellInstanceManager *cellInstMgrState;
+        MovableStateManager *movableStateMgr;
     public:
-        INJECT(PathingStateManager(CostMap *costMap)) :costMap(costMap), sourceState(nullptr), targetCis(nullptr), path(nullptr)
+        INJECT(PathingStateManager(CostMap *costMap, Viewport *viewport,
+                                   CellInstanceManager *cellInstMgrState,                                   
+                                   MovableStateManager *movableStateMgr,
+                                   Camera *camera)) : viewport(viewport),
+                                                      camera(camera),
+                                                      costMap(costMap), sourceState(nullptr), targetCis(nullptr),
+                                                      cellInstMgrState(cellInstMgrState),
+                                                      movableStateMgr(movableStateMgr),
+                                                      path(nullptr)
         {
             std::cout << "PathingStateManager created." << std::endl;
             Context<Event::Bus>::get()-> //
@@ -99,7 +111,7 @@ namespace fog
             }
         }
 
-        //TODO move this function to MouseStateManager
+        // TODO move this function to MouseStateManager
         CONSUMED onMouseMoved(int x, int y)
         {
             if (!this->sourceState)
@@ -107,8 +119,8 @@ namespace fog
                 return false;
             }
 
-            Viewport *viewport = Context<CoreMod>::get()->getViewport();
-            Camera *camera = Context<CoreMod>::get()->getCamera();
+            // Viewport *viewport = Context<CoreMod>::get()->getViewport();
+            // Camera *camera = Context<CoreMod>::get()->getCamera();
 
             float ndcX = x / (float)viewport->getActualWidth();
             float ndcY = y / (float)viewport->getActualHeight();
@@ -127,10 +139,9 @@ namespace fog
             }
 
             pos2 = ray.getPoint(hitGrd.second);
-            CellInstanceManager *cellInstMgrState = Context<CellInstanceManager>::get();
 
-            //Point2<float> p2 = Point2<float>::from(pos2, Transform::D3_NORMAL_D2(Config::D2H2D3));            
-            Point2<float> p2 = Point2<float>::from(pos2, *Context<Transform::D3_NORMAL_D2>::get());            
+            // Point2<float> p2 = Point2<float>::from(pos2, Transform::D3_NORMAL_D2(Config::D2H2D3));
+            Point2<float> p2 = Point2<float>::from(pos2, *Context<Transform::D3_NORMAL_D2>::get());
 
             CellInstanceState *cis = cellInstMgrState->getCellInstanceStateByPosition(p2);
             if (!cis)
@@ -168,12 +179,13 @@ namespace fog
 
             CellInstanceState *sourceCis = nullptr;
             // find source cell
-            MovableStateManager *movableStateMgr = Context<MovableStateManager>::get();
-            movableStateMgr->forEach([&sourceCis](State *state)
+            //MovableStateManager *movableStateMgr = Context<MovableStateManager>::get();
+            movableStateMgr->forEach([&sourceCis, this](State *state)
                                      {
                                          if (state->isActive())
                                          {
-                                             sourceCis = Context<CellInstanceManager>::get()->getCellInstanceStateByPosition(state->getPosition());
+                                             //Context<CellInstanceManager>::get()
+                                             sourceCis = this->cellInstMgrState->getCellInstanceStateByPosition(state->getPosition());
                                              if (sourceCis)
                                              {
                                                  return false; // break
@@ -195,11 +207,10 @@ namespace fog
             this->cKey1 = cKey1;
             this->cKey2 = cKey2;
             auto costFunc = *Context<CellsCost>::get();
-            std::vector<CellKey> pathByCellKey = 
-            costMap->findPath(cKey1, cKey2, costFunc);
+            std::vector<CellKey> pathByCellKey =
+                costMap->findPath(cKey1, cKey2, costFunc);
 
-
-            PathState *pathState2 = new PathState();
+            PathState *pathState2 = new PathState(cellInstMgrState);
             pathState2->init();
             pathState2->setPath(pathByCellKey);
             this->setPath(pathState2);

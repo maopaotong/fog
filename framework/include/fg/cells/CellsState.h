@@ -103,7 +103,9 @@ namespace fog
 
     public:
         CellsState(std::vector<std::vector<CellData>> &tiles, TheTerrains *tts, FogOfWar *fogOfWar,
-                   CellsTerrains *terrains) : ManualState(), terrains(terrains), tiles(tiles), tts(tts), fogOfWar(fogOfWar)
+                   CellsTerrains *terrains,
+                   CoreMod * core
+                ) : ManualState(core), terrains(terrains), tiles(tiles), tts(tts), fogOfWar(fogOfWar)
         {
             this->material = "Tiles";
         }

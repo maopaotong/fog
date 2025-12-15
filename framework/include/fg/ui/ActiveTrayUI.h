@@ -15,7 +15,7 @@ namespace fog
     class ActiveTrayUI : /* public Listener<State *, std::string &>,*/ public UIState
     {
         State *state;
-
+        
     public:
         ActiveTrayUI() : UIState("ActiveActor"), state(nullptr)
         {
@@ -54,24 +54,24 @@ namespace fog
                 //
                 if (ImGui::Button("Tower Building(1*120-Person-Month)"))
                 {
-                    Context<BuildingStateManager>::get()->planToBuild(BuildingType::Tower);
+                    //Context<BuildingStateManager>::get()->planToBuild(BuildingType::Tower);
                 }
 
                 if (ImGui::Button("Create Sinbad(1*10-Persen-Month)"))
                 {
 
-                    Context<MovableStateManager>::get()->createSinbad();
+                    //Context<MovableStateManager>::get()->createSinbad();
                 }
 
                 if (ImGui::Button("Build Farm(1*10-Persen-Month)"))
                 {
 
-                    Context<BuildingStateManager>::get()->planToBuild(BuildingType::Farm);
+                    //Context<BuildingStateManager>::get()->planToBuild(BuildingType::Farm);
                 }
                 if (ImGui::Button("Build H0085"))
                 {
 
-                    Context<BuildingStateManager>::get()->planToBuild(BuildingType::H0085);
+                   // Context<BuildingStateManager>::get()->planToBuild(BuildingType::H0085);
                 }
             }
 
