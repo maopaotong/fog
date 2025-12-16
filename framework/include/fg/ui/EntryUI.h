@@ -35,7 +35,7 @@ namespace fog
         std::vector<ChildInfo> childInfos;
         MovingStateManager *movingStateManager;
         CoreMod *core;
-        InventoryStateManager *inventoryManager;
+        InventoryManager *inventoryManager;
         Event::Bus *eventBus;
         State *rootState;
         MovableStateManager *msm;
@@ -45,7 +45,7 @@ namespace fog
                        MovableStateManager *msm,
                        Event::Bus *eventBus,
                        WorldState *rootState,
-                       InventoryStateManager *inventoryManager)) : inventoryManager(inventoryManager),
+                       InventoryManager *inventoryManager)) : inventoryManager(inventoryManager),
                                                                    eventBus(eventBus),
                                                                    msm(msm),
                                                                    rootState(rootState),

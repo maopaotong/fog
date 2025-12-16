@@ -9,7 +9,7 @@
 #include "fg/MaterialNames.h"
 #include "fg/util/CostMap.h"
 #include "fg/util/HexGridPrinter.h"
-#include "fg/CellInstanceManager.h"
+#include "fg/CellInstanceStateManager.h"
 namespace fog
 {
     using namespace Ogre;
@@ -19,10 +19,10 @@ namespace fog
     class PathState : public State
     {
         std::vector<CellKey> currentPath;
-        CellInstanceManager *cisManager;
+        CellInstanceStateManager *cisManager;
 
     public:
-        PathState(CellInstanceManager *cisManager) : cisManager(cisManager)
+        PathState(CellInstanceStateManager *cisManager) : cisManager(cisManager)
         {
         }
         ~PathState()

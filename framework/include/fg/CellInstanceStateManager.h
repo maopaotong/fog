@@ -9,6 +9,7 @@
 #include "fg/MaterialNames.h"
 #include "fg/MeshBuild.h"
 #include "fg/Config.h"
+#include "fg/Manager.h"
 namespace fog
 {
 
@@ -117,7 +118,7 @@ namespace fog
 
     }; // end of class
 
-    class CellInstanceManager : public State
+    class CellInstanceStateManager : public Manager<CellInstanceState>
     {
         std::unordered_map<CellKey, CellInstanceState *, CellKey::Hash> cellInstanceStates;
 
@@ -126,14 +127,14 @@ namespace fog
 
         Config* config;
     public:
-        INJECT(CellInstanceManager(CoreMod *core,        SceneManager *sceneManager,Config* config))
+        INJECT(CellInstanceStateManager(CoreMod *core,        SceneManager *sceneManager,Config* config))
             : 
             config(config),
             sceneManager (sceneManager),
             core(core)
 
         {
-            this->sceNode = sceneManager->getRootSceneNode()->createChildSceneNode();
+            //this->sceNode = sceneManager->getRootSceneNode()->createChildSceneNode();
 
             for (int x = 0; x < config->TILES_RANGE.getWidth(); x++)
             {
@@ -142,19 +143,15 @@ namespace fog
                     CellKey cell(x, y);
                     CellInstanceState *state = new CellInstanceState(cell, core, sceneManager);
                     state->init();
-                    this->addChild(state); //
+                    this->add(state); //
                     this->cellInstanceStates[cell] = state;
                 }
             }
         }
-        virtual ~CellInstanceManager()
+        virtual ~CellInstanceStateManager()
         {
         }
-        void init() override
-        {
-            
-        }
-
+      
         // CellInstanceState *getCellInstanceStateByPosition(Vector2 posIn2D)
         // {
         //     Vector3 pos3D = Context<Node2D>::get()->to3D(posIn2D,1);//

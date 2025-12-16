@@ -8,7 +8,7 @@
 #include "fg/core/CoreMod.h"
 #include "fg/MaterialNames.h"
 #include "fg/MeshBuild.h"
-#include "fg/CellInstanceManager.h"
+#include "fg/CellInstanceStateManager.h"
 #include "fg/core/MoveToCellTask.h"
 #include "fg/MovableStateManager.h"
 #include "fg/Config.h"
@@ -18,7 +18,7 @@
 namespace fog
 {
 
-    class MoveToCellTask : public State, public Stairs
+    class MoveToCellTask : public Stairs
     {
         std::vector<std::string> aniNames = {"RunBase", "RunTop"};
 
@@ -176,12 +176,12 @@ namespace fog
             mission->init();
             // delete missionState;
             // this->addChild(missionState);
-            this->addChild(mission);
+            // this->addChild(mission);
         }
 
     }; // end of class
 
-    class MovingStateManager : public State, public Stairs
+    class MovingStateManager : public Manager<State>, public Stairs
     {
         std::vector<std::unique_ptr<MoveToCellTask>> tasks;
         State *state;
@@ -224,10 +224,6 @@ namespace fog
         // 禁止拷贝
         MovingStateManager(const MovingStateManager &) = delete;
         MovingStateManager &operator=(const MovingStateManager &) = delete;
-
-        void init() override
-        {
-        }
 
         // TODO move this function to MouseStateManager
         bool movingActiveStateToCellByMousePosition(int mx, int my)

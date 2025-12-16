@@ -8,7 +8,7 @@
 #include "fg/CameraState.h"
 #include "fg/core/EntityState.h"
 #include "fg/MovingStateManager.h"
-#include "fg/CellInstanceManager.h"
+#include "fg/CellInstanceStateManager.h"
 #include "fg/demo/EntryController.h"
 #include "fg/MovableStateManager.h"
 #include "fg/BuildingStateManager.h"
@@ -34,7 +34,7 @@ namespace fog
         CoreMod *core;
         MovableStateManager *movableStateMgr;
         BuildingStateManager *buildingStateMgr;
-        InventoryStateManager *inventoryStateMgr;
+        InventoryManager *inventoryStateMgr;
         HomeCellKey * homeCell;
 
     public:
@@ -44,7 +44,7 @@ namespace fog
                           CellsTerrains *terrains,
                           CoreMod *core,
                           MovableStateManager *movableStateMgr,
-                          InventoryStateManager *inventoryStateMgr,
+                          InventoryManager *inventoryStateMgr,
                           TheTerrains *tts,
                           HomeCellKey * homeCell,
                           CellsState * cellsState,
@@ -80,8 +80,8 @@ namespace fog
             //
 
             //            MovableStateManager *movableStateMgr = Context<MovableStateManager>::get();
-            movableStateMgr->init();
-            this->addChild(movableStateMgr);
+            // movableStateMgr->init();
+            // this->addChild(movableStateMgr);
 
             movableStateMgr->setCellToStandOn(homeCell->cKey);
 
@@ -90,12 +90,12 @@ namespace fog
             // Context<MovableStateManager >::set(movableStateMgr);
             //
             // BuildingStateManager *buildingStateMgr = Context<BuildingStateManager>::get();
-            buildingStateMgr->init();
-            this->addChild(buildingStateMgr);
+            //buildingStateMgr->init();
+            //this->addChild(buildingStateMgr);
             //
 
-            inventoryStateMgr->init();
-            this->addChild(inventoryStateMgr);
+            // inventoryStateMgr->init();
+            //this->addChild(inventoryStateMgr);
             //
 
             core->getAppContext()->addInputListener(entryController);

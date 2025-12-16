@@ -39,7 +39,7 @@ namespace fog
     using namespace Ogre;
 
     // === Frame Listener class for main loop ===
-    class CameraState : public State, public Stairs
+    class CameraState : public Stairs
     {
 
     private:

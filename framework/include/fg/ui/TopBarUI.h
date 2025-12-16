@@ -15,19 +15,19 @@ namespace fog
 {
     class TopBarUI : /* public Listener<State *, std::string &>,*/ public UIState
     {
-        static float getAmount(InventoryStateManager *inventoryManager, InventoryType type)
+        static float getAmount(InventoryManager *inventoryManager, InventoryType type)
         {
             return inventoryManager->getAmount(type);
         }
-        static float getCapacity(InventoryStateManager *inventoryManager, InventoryType type)
+        static float getCapacity(InventoryManager *inventoryManager, InventoryType type)
         {
             return inventoryManager->getCapacity(type);
         }
 
-        InventoryStateManager *inventoryManager;
+        InventoryManager *inventoryManager;
 
     public:
-        TopBarUI(InventoryStateManager *inventoryManager) : UIState("TopBar"),
+        TopBarUI(InventoryManager *inventoryManager) : UIState("TopBar"),
                                                             inventoryManager(inventoryManager)
         {
         }

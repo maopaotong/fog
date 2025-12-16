@@ -17,7 +17,7 @@
 #include "fg/core/PathState.h"
 #include "fg/core/PathFollow2MissionState.h"
 #include "fg/util.h"
-#include "fg/CellInstanceManager.h"
+#include "fg/CellInstanceStateManager.h"
 
 #include "fg/cells/CellsCost.h"
 namespace fog
@@ -38,14 +38,14 @@ namespace fog
         CostMap *costMap;
         Viewport *viewport;
         Camera *camera;
-        CellInstanceManager *cellInstMgrState;
+        CellInstanceStateManager *cellInstMgrState;
         MovableStateManager *movableStateMgr;
         Event::Bus * eventBus;
         CellsCost * cellsCost;
     public:
         INJECT(PathingStateManager(CostMap *costMap, Viewport *viewport,
 Event::Bus * eventBus,
-                                     CellInstanceManager *cellInstMgrState,                                   
+                                     CellInstanceStateManager *cellInstMgrState,                                   
                                    MovableStateManager *movableStateMgr,
                                    Camera *camera,
                                 CellsCost * cellsCost)) : viewport(viewport),

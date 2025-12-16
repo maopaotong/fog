@@ -12,17 +12,18 @@
 #include "fg/core/Sinbad.h"
 #include "fg/core/Tower.h"
 #include "fg/core/HomeCellKey.h"
+#include "fg/Manager.h"
 
 namespace fog
 {
-    class MovingState : public State, public Stairs
+    class MovingState : public Stairs
     {
     public:
         State *state;
         CellInstanceState *cis;
-        CellInstanceManager *cisManager;
+        CellInstanceStateManager *cisManager;
         Event::Bus *eventBus;
-        MovingState(CellInstanceManager *cisManager,
+        MovingState(CellInstanceStateManager *cisManager,
                     Event::Bus *eventBus) : state(nullptr), cis(nullptr),
                                             eventBus(eventBus),
                                             cisManager(cisManager)
@@ -82,7 +83,7 @@ namespace fog
         }
     };
 
-    class MovableStateManager : public State, public Stairs
+    class MovableStateManager : public Manager<State>, public Stairs
     {
         MovingState movingState;
         EntityState *actor2;
@@ -90,10 +91,10 @@ namespace fog
         CoreMod *core;
         SceneManager *sceneManager;
         Event::Bus *eventBus;
-        HomeCellKey * home;
+        HomeCellKey *home;
 
     public:
-        INJECT(MovableStateManager(CoreMod *core, CellInstanceManager *cisManager,
+        INJECT(MovableStateManager(CoreMod *core, CellInstanceStateManager *cisManager,
                                    Event::Bus *eventBus,
                                    SceneManager *sceneManager))
             : core(core),
@@ -116,16 +117,11 @@ namespace fog
         virtual ~MovableStateManager()
         {
         }
-        void init() override
-        {
-        }
 
         void createSinbad()
         {
-
             actor2->init();
-            this->addChild(actor2);
-
+            this->add(actor2);
             // find a position.
         }
 
@@ -157,7 +153,8 @@ namespace fog
             {
                 Node *node = it.movable->getParentNode();
                 State *s = State::get(node);
-                if (s && s->pickable() && s->getParent() == this)
+                // if (s && s->pickable() && s->getParent() == this)
+                if (s && s->pickable() && s == actor2)
                 {
 
                     picked = s;

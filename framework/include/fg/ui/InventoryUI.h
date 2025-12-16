@@ -30,10 +30,10 @@ namespace fog
     {
     protected:
         Options options;
-        InventoryStateManager *inventoryStateMgr;
+        InventoryManager *inventoryStateMgr;
 
     public:
-        InventoryUI(InventoryStateManager *inventoryStateMgr) : UIState("InventoryUI"),
+        InventoryUI(InventoryManager *inventoryStateMgr) : UIState("InventoryUI"),
                                                                 inventoryStateMgr(inventoryStateMgr)
         {
         }
@@ -44,19 +44,19 @@ namespace fog
 
             //
             inventoryStateMgr-> //
-                forEachInventory([this, &id](Inventory *inv)
-                                 {
-                                     std::string label = fmt::format("Inventory##{}", id);
-                                     if (ImGui::TreeNode(label.c_str()))
-                                     {
-                                         ImGui::Text(to_string(inv->getType()).c_str());
-                                         ImGui::SameLine();
-                                         ImGui::Text(std::to_string(inv->getAmount()).c_str());
-                                         ImGui::TreePop();
-                                     }
-                                     id++;
-                                     return true; //
-                                 });
+                forEach([this, &id](Inventory *inv) -> bool
+                        {
+                            std::string label = fmt::format("Inventory##{}", id);
+                            if (ImGui::TreeNode(label.c_str()))
+                            {
+                                ImGui::Text(to_string(inv->getType()).c_str());
+                                ImGui::SameLine();
+                                ImGui::Text(std::to_string(inv->getAmount()).c_str());
+                                ImGui::TreePop();
+                            }
+                            id++;
+                            return true; //
+                        });
 
             if (ImGui::Button("Return"))
             {

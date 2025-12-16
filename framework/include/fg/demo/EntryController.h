@@ -33,7 +33,7 @@
 #include "fg/util/CellUtil.h"
 #include "fg/core/CoreMod.h"
 #include "fg/core/MoveToCellTask.h"
-#include "fg/CellInstanceManager.h"
+#include "fg/CellInstanceStateManager.h"
 #include "fg/PathingStateManager.h"
 #include "fg/demo/InputStateController.h"
 #include "fg/MovingStateManager.h"

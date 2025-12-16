@@ -68,14 +68,14 @@ namespace fog
         }
     };
 
-    class BuildingStateManager : public State
+    class BuildingStateManager : public Manager<State>
     {
         State *picked;
         BuildingPlan *plan;
         CoreMod *core;
         SceneManager *sceneManager;
         std::unordered_map<CellKey, std::vector<State *>, CellKey::Hash> buildingsInCells;
-        InventoryStateManager *inventoryManager;
+        InventoryManager *inventoryManager;
 
     protected:
         void setPicked(State *picked)
@@ -101,7 +101,7 @@ namespace fog
         Event::Bus *eventBus;
 
     public:
-        INJECT(BuildingStateManager(CoreMod *core, SceneManager *sceneManager, InventoryStateManager *inventoryManager,
+        INJECT(BuildingStateManager(CoreMod *core, SceneManager *sceneManager, InventoryManager *inventoryManager,
                                     Event::Bus *eventBus))
             : core(core),
               eventBus(eventBus),
@@ -138,28 +138,25 @@ namespace fog
         virtual ~BuildingStateManager()
         {
         }
-        void init() override
-        {
-        }
-
+       
         bool pick(Ray &ray) // pick a building.
         {
 
-            // 创建射线查询对象
+            // 
             Ogre::RaySceneQuery *rayQuery = sceneManager->createRayQuery(ray);
-            rayQuery->setSortByDistance(true);  // 按距离排序（最近的优先）
-            rayQuery->setQueryMask(0x00000001); // 与 Entity 的查询掩码匹配
+            rayQuery->setSortByDistance(true);  // 
+            rayQuery->setQueryMask(0x00000001); // 
 
-            // 执行查询
+            // 
             Ogre::RaySceneQueryResult &result = rayQuery->execute();
 
             State *picked = nullptr;
-            // 遍历结果
+            // 
             for (auto &it : result)
             {
                 Node *node = it.movable->getParentNode();
                 State *s = State::get(node);
-                if (s && s->pickable() && s->getParent() == this)
+                if (s && s->pickable())//TODO
                 {
 
                     picked = s;
@@ -216,7 +213,7 @@ namespace fog
             {
 
                 State *building = this->plan->exchangeBuilding(nullptr);
-                this->addChild(building);
+                this->add(building);
                 this->buildingsInCells[cKey].push_back(building);
             }
             else

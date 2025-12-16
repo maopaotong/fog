@@ -11,11 +11,11 @@
 #include "fg/core/EntityState.h"
 #include "fg/core/Sinbad.h"
 #include "fg/core/Tower.h"
-
+#include "fg/Manager.h"
 namespace fog
 {
 
-    class Inventory : public State
+    class Inventory
     {
         InventoryType type;
         float amount;
@@ -68,51 +68,33 @@ namespace fog
         virtual ~InventoryMonitor()
         {
         }
-       
+
         bool step(float time) override
         {
-            
+
             return true;
         }
     };
 
-    class InventoryStateManager : public State
+    struct InventoryManager : public Manager<Inventory>
     {
 
     protected:
     public:
-        INJECT(InventoryStateManager())
+        INJECT(InventoryManager())
         {
             this->add(InventoryType::BuildingPermit, 100.0f);
             this->add(InventoryType::Population, 10.0f);
         }
-        virtual ~InventoryStateManager()
-        {
-        }
-        void init() override
+        virtual ~InventoryManager()
         {
         }
 
         void add(InventoryType type, float amount)
         {
             Inventory *inv = new Inventory(type);
-            inv->init();
             inv->add(amount); //
-            this->addChild(inv);
-        }
-
-        template <typename F>
-        void forEachInventory(F &&func)
-        {
-            this->forEachChild([&func](State *state)
-                               {
-                                   Inventory *inv = dynamic_cast<Inventory *>(state);
-                                   if (inv)
-                                   {
-                                       return func(inv);
-                                   }
-                                   return true; //
-                               });
+            this->Manager::add(inv);
         }
 
         void returnInventory(InventoryType type, float amount)
@@ -157,15 +139,15 @@ namespace fog
         Inventory *getInventory(InventoryType type)
         {
             Inventory *result = nullptr;
-            this->forEachInventory([&](Inventory *inv)
-                                   {
-                                       if (inv->getType() == type)
-                                       {
-                                           result = inv;
-                                           return false; // stop
-                                       }
-                                       return true; // continue
-                                   });
+            this->forEach([&](Inventory *inv) -> bool
+                          {
+                              if (inv->getType() == type)
+                              {
+                                  result = inv;
+                                  return false; // stop
+                              }
+                              return true; // continue
+                          });
             return result;
         }
 
