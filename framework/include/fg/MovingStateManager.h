@@ -37,15 +37,17 @@ namespace fog
         CostMap *costMap;
         Event::Bus *eventBus;
         CellsCost *cellsCost;
+        Config *config;
 
     public:
         MoveToCellTask(State *state, CellKey cKey2,
                        CostMap *costMap,
                        Event::Bus *eventBus,
-                       CellsCost *cellsCost) : costMap(costMap),
-                                               eventBus(eventBus),
-                                               cellsCost(cellsCost),
-                                               movingState(state), cKey2(cKey2)
+                       CellsCost *cellsCost,
+                       Config *config) : costMap(costMap),
+                                         eventBus(eventBus),
+                                         cellsCost(cellsCost),
+                                         movingState(state), cKey2(cKey2), config(config)
         {
         }
         virtual ~MoveToCellTask()
@@ -69,7 +71,7 @@ namespace fog
             }
             bool ret = mission->step(time);
             Vector3 pos = this->movingState->getSceneNode()->getPosition();
-            if (pos.distance(this->prePosition) > Config::STATE_MOVED_EVENT_DISTNACE)
+            if (pos.distance(this->prePosition) > config->STATE_MOVED_EVENT_DISTNACE)
             {
                 eventBus->emit(MovableEventType::StateMoved, this->movingState);
                 this->prePosition = pos;
@@ -86,7 +88,7 @@ namespace fog
             // Node2D *root2D = cells->getRoot2D();
             // Vector2 actorPosIn2D = root2D->to2D(aPos3);
 
-            // Vector2 actorPosIn2D = Point2<float>::from(aPos3, Transform::D3_NORMAL_D2(Config::D2_NORMAL_D3));
+            // Vector2 actorPosIn2D = Point2<float>::from(aPos3, Transform::D3_NORMAL_D2(config->D2_NORMAL_D3));
 
             // HexTile::Key cell;
             // // bool hitCell = CellUtil::findCellByPoint(costMap, aPos2, aHexTile::Key);
@@ -170,7 +172,7 @@ namespace fog
             float aniSpeed = Context<Var<float>::Bag>::get()->getVarVal(".aniSpeed", 1.0f);
 
             // new child state.
-            mission = new PathFollow2MissionState(this->movingState, path2D, anisSet, movingState->getAnimationNames(), aniSpeed, movingState->getActorHighOffset()); //
+            mission = new PathFollow2MissionState(this->movingState, path2D, anisSet, movingState->getAnimationNames(), aniSpeed, config, movingState->getActorHighOffset()); //
             mission->init();
             // delete missionState;
             // this->addChild(missionState);
@@ -188,12 +190,15 @@ namespace fog
         Camera *camera;
         Event::Bus *eventBus;
         CellsCost *cellsCost;
+        Config *config;
 
     public:
         INJECT(MovingStateManager(CostMap *cm, Viewport *viewport,
                                   Event::Bus *eventBus,
                                   Camera *camera,
+                                  Config *config,
                                   CellsCost *cellsCost)) : viewport(viewport),
+                                                           config(config),
                                                            eventBus(eventBus),
                                                            camera(camera),
                                                            cellsCost(cellsCost),
@@ -287,7 +292,7 @@ namespace fog
             }
 
             //
-            MoveToCellTask *task = new MoveToCellTask(state, cKey2, costMap, eventBus, cellsCost);
+            MoveToCellTask *task = new MoveToCellTask(state, cKey2, costMap, eventBus, cellsCost, config);
             this->tasks.push_back(std::unique_ptr<MoveToCellTask>(task));
             eventBus->emit<MovableEventType, State *>(MovableEventType::StateStartMoving, state);
         }

@@ -147,7 +147,7 @@ Event::Bus * eventBus,
 
             pos2 = ray.getPoint(hitGrd.second);
 
-            // Point2<float> p2 = Point2<float>::from(pos2, Transform::D3_NORMAL_D2(Config::D2H2D3));
+            // Point2<float> p2 = Point2<float>::from(pos2, Transform::D3_NORMAL_D2(config->D2H2D3));
             Point2<float> p2 = Point2<float>::from(pos2, *Context<Transform::D3_NORMAL_D2>::get());
 
             CellInstanceState *cis = cellInstMgrState->getCellInstanceStateByPosition(p2);

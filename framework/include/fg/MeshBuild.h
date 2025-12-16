@@ -28,7 +28,8 @@ namespace fog
         public:
             ManualObject *obj;
             int baseIndex;
-            PointOnCircle(ManualObject *obj) : obj(obj) {}
+            Config *config;
+            PointOnCircle(ManualObject *obj, Config *config) : obj(obj), config(config) {}
             void begin(std::string material)
             {
                 obj->clear();
@@ -38,8 +39,8 @@ namespace fog
 
             void operator()(CellKey &cell, ColourValue color)
             {
-                //Vector2 origin = Cell::getOrigin2D(cell, Config::CELL_SCALE);
-                Vector2 origin = cell.getCentre().scale(Config::CELL_SCALE);
+                // Vector2 origin = Cell::getOrigin2D(cell, config->CELL_SCALE);
+                Vector2 origin = cell.getCentre().scale(config->CELL_SCALE);
                 Vector3 nom3(0, 1, 0);
 
                 struct Visit
@@ -52,7 +53,7 @@ namespace fog
                     int layer;
                     void operator()(int pIdx, Vector2 &pointOnCircle)
                     {
-                        //Vector3 pos = Context<Node2D>::get()->to3D(origin, pointOnCircle, &nom3);
+                        // Vector3 pos = Context<Node2D>::get()->to3D(origin, pointOnCircle, &nom3);
                         Vector3 pos = cell.transform3(pointOnCircle);
                         obj->position(pos);
                         obj->normal(nom3);
@@ -231,9 +232,8 @@ namespace fog
                     }
 
                     obj->colour(vertices[i].colour);
-                    
+
                     obj->textureCoord(vertices[i].textureCoord.u, vertices[i].textureCoord.v);
-                    
                 }
 
                 // flush index
@@ -339,10 +339,9 @@ namespace fog
             {
                 operator()([&cell, this](Vector2 & pointOnCircle, int layer, int totalLayer)
                            {
-                               Vector2 pointOnLayer = pointOnCircle * (float)layer / ((float)totalLayer -1);
-                               //return Context<Node2D>::get()->to3D(Cell::getOrigin2D(cell, Config::CELL_SCALE), pointOnLayer, useDefaultNorm ? &defaultNorm : nullptr); //
+                               Vector2 pointOnLayer = pointOnCircle * (float)layer / ((float)totalLayer - 1);
+                               // return Context<Node2D>::get()->to3D(Cell::getOrigin2D(cell, config->CELL_SCALE), pointOnLayer, useDefaultNorm ? &defaultNorm : nullptr); //
                                return cell.transform3(pointOnLayer);
-
                            },
                            color //
                 );

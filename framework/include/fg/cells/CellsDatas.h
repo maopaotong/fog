@@ -10,15 +10,15 @@ namespace fog
         {
             int tsWidth;
             int tsHeight;
-            INJECT(Options()) : tsWidth(Config::TILES_RANGE.getWidth()), tsHeight(Config::TILES_RANGE.getHeight())
+            INJECT(Options(Config *config)) : tsWidth(config->TILES_RANGE.getWidth()), tsHeight(config->TILES_RANGE.getHeight())
             {
             }
         };
         std::vector<std::vector<CellData>> tiles;
-
-        INJECT(CellsDatas(Options pts))
+        Config *config;
+        INJECT(CellsDatas(Options pts, Config *config)) : config(config)
         {
-            CellsGenerator::generateCells(tiles, pts.tsWidth, pts.tsHeight);
+            CellsGenerator::generateCells(tiles, pts.tsWidth, pts.tsHeight, config);
         }
     };
 

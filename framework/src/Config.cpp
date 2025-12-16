@@ -10,117 +10,47 @@
 namespace fog
 {
 
-    float Config::HEIGHT_SCALE = 100;
-    Box2<int> Config::TILES_RANGE = Box2<int>(128 + 1);
-    int Config::TILE_TERRAIN_QUALITY = 4;
-    int Config::TILE_MESH_QUALITY = 2;
-    float Config::CELL_SCALE = 30.0f;
-    float Config::WORLD_WIDTH = CELL_SCALE * 2.0 * TILES_RANGE.getWidth();
-    float Config::WORLD_HEIGHT = WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
+    float Config::DEF_HEIGHT_SCALE = 100;
+    Box2<int> Config::DEF_TILES_RANGE = Box2<int>(128 + 1);
+    int Config::DEF_TILE_TERRAIN_QUALITY = 4;
+    int Config::DEF_TILE_MESH_QUALITY = 2;
+    float Config::DEF_CELL_SCALE = 30.0f;
+    float Config::DEF_WORLD_WIDTH = DEF_CELL_SCALE * 2.0 * DEF_TILES_RANGE.getWidth();
+    float Config::DEF_WORLD_HEIGHT = DEF_WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
 
     //
-    float Config::HEIGHT_OCEAN = 0.49f * 0.9f;
-    float Config::HEIGHT_SHORE = 0.50f * 0.9f;
-    float Config::HEIGHT_PLAIN = 0.51f * 1.1f;
-    float Config::HEIGHT_HILL = 0.52f * 1.2f;
-    float Config::HEIGHT_MOUNTAIN = 0.53f * 1.f;
-    float Config::HEIGHT_FROZEN = 0.54f * 1.f;
+    float Config::DEF_HEIGHT_OCEAN = 0.49f * 0.9f;
+    float Config::DEF_HEIGHT_SHORE = 0.50f * 0.9f;
+    float Config::DEF_HEIGHT_PLAIN = 0.51f * 1.1f;
+    float Config::DEF_HEIGHT_HILL = 0.52f * 1.2f;
+    float Config::DEF_HEIGHT_MOUNTAIN = 0.53f * 1.f;
+    float Config::DEF_HEIGHT_FROZEN = 0.54f * 1.f;
     // map generator.
-    int Config::GENERATOR1_SEED = 8151245;
-    int Config::GENERATOR2_SEED = 2359812;
-    float Config::GENERATOR1_ROUGHNESS = 0.45;
-    float Config::GENERATOR2_ROUGHNESS = 0.65;
-    float Config::GENERATOR1_OCEAN_RATIO = 0.35;
-    float Config::GENERATOR1_SHORE_RATIO = 0.50;
-    float Config::GENERATOR1_PLAIN_RATIO = 0.85;
-    float Config::GENERATOR1_HILL_RATIO = 0.90;
-    float Config::GENERATOR1_MOUNTAIN_RATIO = 0.95;
-    float Config ::GENERATOR1_RATIO_LAKE_OF_PLAIN = 0.05; //
-    bool Config::GENERATOR1_MAKE_LAKE = false;
-    bool Config::FRAG_SHOW_EDGE = false;
-    Box2<int> Config::FOG_OF_WAR_TEX_RANGE = Box2<int>(32);
-    std::string Config::FOG_OF_WAR_TEX_NAME = "FogOfWarTex";
+    int Config::DEF_GENERATOR1_SEED = 8151245;
+    int Config::DEF_GENERATOR2_SEED = 2359812;
+    float Config::DEF_GENERATOR1_ROUGHNESS = 0.45;
+    float Config::DEF_GENERATOR2_ROUGHNESS = 0.65;
+    float Config::DEF_GENERATOR1_OCEAN_RATIO = 0.35;
+    float Config::DEF_GENERATOR1_SHORE_RATIO = 0.50;
+    float Config::DEF_GENERATOR1_PLAIN_RATIO = 0.85;
+    float Config::DEF_GENERATOR1_HILL_RATIO = 0.90;
+    float Config::DEF_GENERATOR1_MOUNTAIN_RATIO = 0.95;
+    float Config::DEF_GENERATOR1_RATIO_LAKE_OF_PLAIN = 0.05; //
+    bool Config::DEF_GENERATOR1_MAKE_LAKE = false;
+    bool Config::DEF_FRAG_SHOW_EDGE = false;
+    Box2<int> Config::DEF_FOG_OF_WAR_TEX_RANGE = Box2<int>(32);
+    std::string Config::DEF_FOG_OF_WAR_TEX_NAME = "FogOfWarTex";
 
-    Box2<int> Config::FOG_OF_WAR_EREASE_RANGE = Box2<int>(0);
-    float Config::STATE_MOVED_EVENT_DISTNACE = CELL_SCALE / 2.0; //
+    Box2<int> Config::DEF_FOG_OF_WAR_EREASE_RANGE = Box2<int>(0);
+    float Config::DEF_STATE_MOVED_EVENT_DISTNACE = DEF_CELL_SCALE / 2.0; //
     // debug
-    bool Config::DEBUG_COUT = false;
-    bool Config::DEBUG_MOVING_POSITION = false;
-    bool Config::DEBUG_FOG_OF_WAR = false;
+    bool Config::DEF_DEBUG_COUT = false;
+    bool Config::DEF_DEBUG_MOVING_POSITION = false;
+    bool Config::DEF_DEBUG_FOG_OF_WAR = false;
 
-    Box2<int> Config::DEBUG_PRINT_TERRAINS_TEX_RANGE = Box2<int>(0, 0, 0, 0);
+    Box2<int> Config::DEF_DEBUG_PRINT_TERRAINS_TEX_RANGE = Box2<int>(0, 0, 0, 0);
 
-    void Config::init(std::vector<std::string> files)
-    {
-        Options opts;
-        for (auto it = files.begin(); it != files.end(); it++)
-        {
-            load(*it, opts, false);
-        }
-        HEIGHT_SCALE = Options::get<float>(opts, "HEIGHT_SCALE", HEIGHT_SCALE);
-        TILES_RANGE = Options::get<Box2<int>>(opts, "TILES_RANGE", TILES_RANGE);
-
-        TILE_TERRAIN_QUALITY = Options::get<int>(opts, "TILE_TERRAIN_QUALITY", TILE_TERRAIN_QUALITY);
-        TILE_MESH_QUALITY = Options::get<int>(opts, "TILE_MESH_QUALITY", TILE_MESH_QUALITY);
-        if (TILE_MESH_QUALITY > TILE_TERRAIN_QUALITY)
-        {
-            TILE_MESH_QUALITY = TILE_TERRAIN_QUALITY;
-        }
-        CELL_SCALE = Options::get<float>(opts, "CELL_SCALE", CELL_SCALE);
-
-        WORLD_WIDTH = CELL_SCALE * 2.0 * TILES_RANGE.getWidth();
-        WORLD_HEIGHT = WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
-        //
-
-        HEIGHT_OCEAN = Options::get<float>(opts, "HEIGHT_OCEAN", HEIGHT_OCEAN);
-        HEIGHT_SHORE = Options::get<float>(opts, "HEIGHT_SHORE", HEIGHT_SHORE);
-        HEIGHT_PLAIN = Options::get<float>(opts, "HEIGHT_PLAIN", HEIGHT_PLAIN);
-        HEIGHT_HILL = Options::get<float>(opts, "HEIGHT_HILL", HEIGHT_HILL);
-        HEIGHT_MOUNTAIN = Options::get<float>(opts, "HEIGHT_MOUNTAIN", HEIGHT_MOUNTAIN);
-        HEIGHT_FROZEN = Options::get<float>(opts, "HEIGHT_FROZEN", HEIGHT_FROZEN);
-        //
-        getConfigByOption<int>("GENERATOR1_SEED", opts, GENERATOR1_SEED);
-        getConfigByOption<int>("GENERATOR2_SEED", opts, GENERATOR2_SEED);
-        getConfigByOption<float>("GENERATOR1_OCEAN_RATIO", opts, GENERATOR1_OCEAN_RATIO);
-        getConfigByOption<float>("GENERATOR1_SHORE_RATIO", opts, GENERATOR1_SHORE_RATIO);
-        getConfigByOption<float>("GENERATOR1_PLAIN_RATIO", opts, GENERATOR1_PLAIN_RATIO);
-        getConfigByOption<float>("GENERATOR1_HILL_RATIO", opts, GENERATOR1_HILL_RATIO);
-        getConfigByOption<float>("GENERATOR1_MOUNTAIN_RATIO", opts, GENERATOR1_MOUNTAIN_RATIO);
-        getConfigByOption<float>("GENERATOR1_RATIO_LAKE_OF_PLAIN", opts, GENERATOR1_RATIO_LAKE_OF_PLAIN);
-        getConfigByOption<bool>("GENERATOR1_MAKE_LAKE", opts, GENERATOR1_MAKE_LAKE);
-        getConfigByOption<Box2<int>>("DEBUG_PRINT_TERRAINS_TEX_RANGE", opts, DEBUG_PRINT_TERRAINS_TEX_RANGE);
-        getConfigByOption<bool>("FRAG_SHOW_EDGE", opts, FRAG_SHOW_EDGE);
-        getConfigByOption<Box2<int>>("FOG_OF_WAR_TEX_RANGE", opts, FOG_OF_WAR_TEX_RANGE);
-        getConfigByOption<Box2<int>>("FOG_OF_WAR_EREASE_RANGE", opts, FOG_OF_WAR_EREASE_RANGE);
-        getConfigByOption<float>("STATE_MOVED_EVENT_DISTNACE", opts, STATE_MOVED_EVENT_DISTNACE);
-        getConfigByOption<bool>("DEBUG_COUT", opts, DEBUG_COUT);
-        getConfigByOption<bool>("DEBUG_MOVING_POSITION", opts, DEBUG_MOVING_POSITION);
-        getConfigByOption<bool>("DEBUG_FOG_OF_WAR", opts, DEBUG_FOG_OF_WAR);
-        // getConfigByOption<bool>("", opts, );
-        // getConfigByOption<bool>("", opts, );
-        // getConfigByOption<bool>("", opts, );
-        // getConfigByOption<bool>("", opts, );
-        // getConfigByOption<bool>("", opts, );
-        // getConfigByOption<bool>("", opts, );
-        // getConfigByOption<bool>("", opts, );
-        // getConfigByOption<bool>("", opts, );
-        // getConfigByOption<bool>("", opts, );
-        // getConfigByOption<bool>("", opts, );
-
-        // // transform
-        // TF_CELL_SCALE = {CELL_SCALE};
-        // CELLKEY_2_UV = {TILES_RANGE.getWidth(), TILES_RANGE.getHeight()};
-
-        Context<Transform::D2H2D3>::set(new Transform::D2H2D3(CELL_SCALE, [](float x, float y) -> float
-                                                              {
-                                                                  // see TilesTerrains.h
-                                                                  return 0.0f; // TODO provide the right height function, instead of one for init and update it in another place.
-                                                              }));
-
-        Context<Transform::D3_NORMAL_D2>::set(new Transform::D3_NORMAL_D2(1.0f / CELL_SCALE));
-
-        // Config::D2H2D3 = {};
-    }
+    
 
     void Config::load(std::string file, Options &opts, bool strict)
     {

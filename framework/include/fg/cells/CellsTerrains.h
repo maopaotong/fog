@@ -93,7 +93,7 @@ namespace fog
             float rectHeight;
             int tWidth;
             int tHeight;
-            INJECT(Options()) : box(Config::TILES_RANGE), quality(Config::TILE_TERRAIN_QUALITY), tWidth(box.getWidth()), tHeight(box.getHeight())
+            INJECT(Options(Config *config)) : box(config->TILES_RANGE), quality(config->TILE_TERRAIN_QUALITY), tWidth(box.getWidth()), tHeight(box.getHeight())
             {
                 this->rectWidth = 2.0 / quality;                         // rad of tile = 1 , width of tile = 2;
                 this->rectHeight = rectWidth;                            // rect height == width
@@ -112,7 +112,8 @@ namespace fog
         float rectWidth;
         float rectHeight;
         float rectRad; // average rad of the rect.
-        INJECT(CellsTerrains(Options options)) : tWidth(options.box.getWidth()), tHeight(options.box.getHeight())
+        Config *config;
+        INJECT(CellsTerrains(Options options, Config *config)) : tWidth(options.box.getWidth()), tHeight(options.box.getHeight()), config(config)
         {
             this->rectWidth = 2.0 / options.quality;                         // rad of tile = 1 , width of tile = 2;
             this->rectHeight = rectWidth;                                    // rect height == width
@@ -363,7 +364,8 @@ namespace fog
             int width;
             int height;
             unsigned char *data;
-            WorldTexOp(std::vector<std::vector<CellsVertex>> &hMap, int w, int h) : hMap(hMap), width(w), height(h)
+            Config* config;
+            WorldTexOp(std::vector<std::vector<CellsVertex>> &hMap, int w, int h, Config* config) : hMap(hMap), width(w), height(h),config(config)
             {
                 data = new unsigned char[w * h * 4];
             }
@@ -380,7 +382,7 @@ namespace fog
                     for (int y = 0; y < height; y++)
                     {
 
-                        Box2<int> debugRange = Config::DEBUG_PRINT_TERRAINS_TEX_RANGE;
+                        Box2<int> debugRange = config->DEBUG_PRINT_TERRAINS_TEX_RANGE;
                         CellsVertex &v = hMap[x][y];
                         if (v.types[0] < 10)
                         {
@@ -415,7 +417,7 @@ namespace fog
         // World texture is used as the meta data for the shader to determine the child texture.
         void createWorldTexture(std::string name, std::vector<std::vector<CellsVertex>> &hMap)
         {
-            WorldTexOp texOp(hMap, width, height);
+            WorldTexOp texOp(hMap, width, height, config);
             texOp();
             TextureFactory::createTexture(name, width, height, texOp.data);
 
@@ -436,26 +438,26 @@ namespace fog
             switch (tl.type)
             {
             case (CellTypes::OCEAN):
-                tlHeight = Config::HEIGHT_OCEAN;
+                tlHeight = config->HEIGHT_OCEAN;
                 break;
             case (CellTypes::SHORE):
             case (CellTypes::LAKE):
-                tlHeight = Config::HEIGHT_SHORE;
+                tlHeight = config->HEIGHT_SHORE;
                 break;
             case (CellTypes::PLAIN):
-                tlHeight = Config::HEIGHT_PLAIN;
+                tlHeight = config->HEIGHT_PLAIN;
                 break;
             case (CellTypes::HILL):
-                tlHeight = Config::HEIGHT_HILL;
+                tlHeight = config->HEIGHT_HILL;
                 break;
             case (CellTypes::MOUNTAIN):
-                tlHeight = Config::HEIGHT_MOUNTAIN;
+                tlHeight = config->HEIGHT_MOUNTAIN;
                 break;
             case (CellTypes::FROZEN):
-                tlHeight = Config::HEIGHT_FROZEN;
+                tlHeight = config->HEIGHT_FROZEN;
                 break;
             default:
-                tlHeight = Config::HEIGHT_FROZEN;
+                tlHeight = config->HEIGHT_FROZEN;
                 break;
             }
             return tlHeight;

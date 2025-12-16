@@ -14,7 +14,8 @@ namespace fog
 
         CellsDatas *cDatas;
         CellKey cKey;
-        INJECT(HomeCellKey(CellsDatas *cDatas)) : cDatas(cDatas)
+        Config *config;
+        INJECT(HomeCellKey(CellsDatas *cDatas, Config *config)) : cDatas(cDatas), config(config)
         {
             cKey = this->findCellToStandOn();
         }
@@ -25,8 +26,8 @@ namespace fog
             std::random_device rd;
             std::mt19937 gen(rd());
 
-            std::uniform_int_distribution<int> rPosX(0, Config::TILES_RANGE.getWidth() - 1);  //
-            std::uniform_int_distribution<int> rPosY(0, Config::TILES_RANGE.getHeight() - 1); //
+            std::uniform_int_distribution<int> rPosX(0, config->TILES_RANGE.getWidth() - 1);  //
+            std::uniform_int_distribution<int> rPosY(0, config->TILES_RANGE.getHeight() - 1); //
 
             for (int i = 0; i < 100; i++)
             {
@@ -42,5 +43,5 @@ namespace fog
 
             return CellKey(0, 0);
         }
-    };//end class
+    }; // end class
 };

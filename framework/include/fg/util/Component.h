@@ -174,16 +174,18 @@ namespace fog
                 components.erase(typeid(T));
             }
 
-            template <typename T, typename F>
-            void bindFunc(F &&objFunc)
+            template <Usage usg, typename T, typename F>
+            typename std::enable_if_t<usg == AsPointer, void>
+            bindFunc(F &&objFunc)
             {
                 std::function<std::any()> valueFunc = []() -> std::any
                 { throw std::runtime_error("Usage as value not implemented for the type to be injected."); };
                 bindComp(Component::make(typeid(T), objFunc, valueFunc));
             }
 
-            template <typename T, typename F>
-            void bindFuncAsValue(F &&valueFunc)
+            template <Usage usg, typename T, typename F>
+            typename std::enable_if_t<usg == AsValue, void>
+            bindFunc(F &&valueFunc)
             {
                 std::function<std::any()> ptrFunc = []() -> std::any
                 { throw std::runtime_error("Usage as value not implemented for the type to be injected."); };
@@ -247,11 +249,19 @@ namespace fog
             {
                 ((bindImplAsValue<T>([](T &) -> void {})), ...);
             }
+
             template <typename T>
             void bindInstance(T *obj)
             {
                 bindFunc<AsPointer, T>([obj]() -> T *
                                        { return obj; });
+            }
+
+            template <typename T>
+            void bindValue(T obj)
+            {
+                bindFunc<AsValue, T>([obj]() -> T
+                                     { return obj; });
             }
             //
             template <typename T, typename Imp>
@@ -293,7 +303,7 @@ namespace fog
             template <typename T, typename OT>
             void bindMethod(T *(OT::*method)())
             {
-                bindFunc<T>([this, method]()
+                bindFunc<AsPointer, T>([this, method]()
                             {
                                 OT *obj = this->get<OT>();
                                 return (obj->*method)(); //
@@ -463,7 +473,7 @@ namespace fog
             // C<1>:As Pointer
             template <Usage usg, typename T, typename ArgsTuple, std::size_t... Is>
             typename std::enable_if_t<usg == AsPointer, T *>
-            createInstanceByConstructor(std::index_sequence<Is...>, std::function<void(T&)> initF)
+            createInstanceByConstructor(std::index_sequence<Is...>, std::function<void(T &)> initF)
             {
                 // static_assert(allArgsArePointers<ArgsTuple>, "All inject arguments must be pointer types!");
                 T *ret = new T(getPtrOrValue<std::tuple_element_t<Is, ArgsTuple>>()...);

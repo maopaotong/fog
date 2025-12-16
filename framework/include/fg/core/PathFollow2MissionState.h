@@ -28,17 +28,20 @@ namespace fog
         // Vector3Ref actorPosition;
         State *state;
         bool done;
+        Config *config;
 
     public:
         PathFollow2MissionState(State *state, PathFollow2 path,                     //
                                 AnimationStateSet *aniSet,                          //
                                 std::vector<std::string> &aniNames, float aniSpeed, //
-                                float heightOffset = 0.0f)                          //
-            : state(state),                                                         //
-              path(path),                                                           //
-              aniSet(aniSet),                                                       //
-              animateTimeSpeedFactor(aniSpeed),                                     //
-              done(false)                                                           //
+                                Config *config,
+                                float heightOffset = 0.0f) //
+            : state(state),                                //
+              path(path),                                  //
+              aniSet(aniSet),                              //
+              animateTimeSpeedFactor(aniSpeed),            //
+              config(config),
+              done(false) //
         {
             this->aniSet = aniSet;
             this->offset = Vector3(0, heightOffset, 0);
@@ -63,7 +66,8 @@ namespace fog
             return this->path;
         }
 
-        Vector3 to3D(Point2<float> p){
+        Vector3 to3D(Point2<float> p)
+        {
 
             return p.transform3(*Context<Transform::D2H2D3>::get()) + this->offset;
         }
@@ -96,7 +100,7 @@ namespace fog
                 for (auto it = pathFollow.path.begin(); it != pathFollow.path.end(); it++)
                 {
                     std::cout << fmt::format("path[{:>2}]:{:>3.1f},{:>3.1f}", i, (*it).x, (*it).y) << std::endl;
-                    
+
                     i++;
                 }
                 return false;
@@ -108,8 +112,8 @@ namespace fog
 
             float terH = 0.0f; // Context<Terrains>::get()->getHeightAtPosition(currentPos2D); // TODO in a common place to translate all .
 
-            //Vector3 currentPos = this->to3D(currentPos2D, Config::CELL_SCALE);//
-            Vector3 currentPos = this->to3D(currentPos2D);//
+            // Vector3 currentPos = this->to3D(currentPos2D, config->CELL_SCALE);//
+            Vector3 currentPos = this->to3D(currentPos2D); //
 
             // position
             Vector3 delta = currentPos - prevPos;
@@ -129,7 +133,7 @@ namespace fog
 
             // delta.y = 0;
             target->translate(delta); // new position
-            if (Config::DEBUG_MOVING_POSITION && Config::DEBUG_COUT)
+            if (config->DEBUG_MOVING_POSITION && config->DEBUG_COUT)
             {
                 std::cout << fmt::format("stateMoving: ({:>5.1},{:>5.1},{:>5.1}),({:>5.1},{:>5.1},{:>5.1}),({:>5.1},{:>5.1},{:>5.1})", delta.x, delta.y, delta.z, prevPos.x, prevPos.y, prevPos.z, prevPos.x, prevPos.y, prevPos.z) << std::endl;
             }

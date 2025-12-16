@@ -33,45 +33,45 @@ namespace fog
         {
             std::unordered_map<CellType, int> plot;
             Iteration::forEach<CellData>(tiles, w, h, [&tiles, &w, &h, &plot, &region, &toType](int x, int y, CellData &tl)
-                                     { bool isRegion = forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); });
+                                         { bool isRegion = forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); });
         }
-        static void generateCells(std::vector<std::vector<CellData>> &tiles, int w, int h)
+        static void generateCells(std::vector<std::vector<CellData>> &tiles, int w, int h, Config *config)
         {
             assert(w == h && "cannot generate tiles because w<>h.");
             Iteration::forEachAsTable<std::vector<std::vector<CellData>> &>(w, h, //
-                                                                        [](int row, std::vector<std::vector<CellData>> &tiles)
-                                                                        { tiles.push_back(std::vector<CellData>()); }, //
-                                                                        [](int row, int col, std::vector<std::vector<CellData>> &tiles)
-                                                                        { tiles[row].emplace_back(); }, //
-                                                                        tiles                           //
+                                                                            [](int row, std::vector<std::vector<CellData>> &tiles)
+                                                                            { tiles.push_back(std::vector<CellData>()); }, //
+                                                                            [](int row, int col, std::vector<std::vector<CellData>> &tiles)
+                                                                            { tiles[row].emplace_back(); }, //
+                                                                            tiles                           //
             );
 
             std::vector<std::vector<float>> heightmap(w, std::vector<float>(w, 0.0f));
-            // DiamondSquare::generateAndNormalise(heightmap, w, Config::GENERATOR_ROUGHNESS1, Config::GENERATOR_SEED1);
-            DiamondSquare::generateAndNormalise(heightmap, w, Config::GENERATOR2_ROUGHNESS, Config::GENERATOR2_SEED);
+            // DiamondSquare::generateAndNormalise(heightmap, w, config->GENERATOR_ROUGHNESS1, config->GENERATOR_SEED1);
+            DiamondSquare::generateAndNormalise(heightmap, w, config->GENERATOR2_ROUGHNESS, config->GENERATOR2_SEED);
 
             // statistic
             std::unordered_map<CellType, int> plot;
-            Iteration::forEach<float>(heightmap, w, w, [&tiles, &plot](int x, int y, float h)
+            Iteration::forEach<float>(heightmap, w, w, [&tiles, &plot,config](int x, int y, float h)
                                       {
                                               CellType type = CellTypes::UNKNOW;
-                                              if (h < Config::GENERATOR1_OCEAN_RATIO) // TODo calculate the actual ratio instead of the height.
+                                              if (h < config->GENERATOR1_OCEAN_RATIO) // TODo calculate the actual ratio instead of the height.
                                               {
                                                   type = CellTypes::OCEAN;
                                               }
-                                              else if (h < Config::GENERATOR1_SHORE_RATIO)
+                                              else if (h < config->GENERATOR1_SHORE_RATIO)
                                               {
                                                   type = CellTypes::SHORE;
                                               }
-                                              else if (h < Config::GENERATOR1_PLAIN_RATIO)
+                                              else if (h < config->GENERATOR1_PLAIN_RATIO)
                                               {
                                                   type = CellTypes::PLAIN;
                                               }
-                                              else if (h < Config::GENERATOR1_HILL_RATIO)
+                                              else if (h < config->GENERATOR1_HILL_RATIO)
                                               {
                                                   type = CellTypes::HILL;
                                               }
-                                              else if (h < Config::GENERATOR1_MOUNTAIN_RATIO)
+                                              else if (h < config->GENERATOR1_MOUNTAIN_RATIO)
                                               {
                                                   type = CellTypes::MOUNTAIN;
                                               }
@@ -92,7 +92,7 @@ namespace fog
                                               } });
 
             // make lakes
-            if (Config::GENERATOR1_MAKE_LAKE)
+            if (config->GENERATOR1_MAKE_LAKE)
             {
                 makeLake(tiles, w, h);
             }
@@ -121,21 +121,21 @@ namespace fog
                 std::unordered_set<CellData *> inners;
 
                 CellRegion region([&borderTypes, this](CellKey cKey, CellData &tile, CellRegion &rg)
-                              { return tile.type == this->type; },
-                              [&borderTypes](CellKey cKey, CellData &tile, CellRegion &rg)
-                              {
-                                  borderTypes.insert(tile.type);
-                                  return true; //
-                              },
-                              [&borderTypes, &inners](CellKey cKey, CellData &tile, CellRegion &rg)
-                              {
-                                  inners.insert(&tile);
-                                  if (inners.size() > 1) // do not change it ; 1. in case it link to deep ocean. 2. large ocean near land or shore is ok?
+                                  { return tile.type == this->type; },
+                                  [&borderTypes](CellKey cKey, CellData &tile, CellRegion &rg)
                                   {
-                                      return false;
-                                  }
-                                  return true; //
-                              });
+                                      borderTypes.insert(tile.type);
+                                      return true; //
+                                  },
+                                  [&borderTypes, &inners](CellKey cKey, CellData &tile, CellRegion &rg)
+                                  {
+                                      inners.insert(&tile);
+                                      if (inners.size() > 1) // do not change it ; 1. in case it link to deep ocean. 2. large ocean near land or shore is ok?
+                                      {
+                                          return false;
+                                      }
+                                      return true; //
+                                  });
 
                 bool isRegion = forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
                 if (isRegion)
@@ -169,32 +169,32 @@ namespace fog
                 std::unordered_set<CellData *> inners;
 
                 CellRegion region([&innerTypes, &borderTypes](CellKey cKey, CellData &tile, CellRegion &rg)
-                              {
-                                  if (tile.type == CellTypes::SHORE || tile.type == CellTypes::OCEAN)
                                   {
-                                      innerTypes.insert(tile.type);
+                                      if (tile.type == CellTypes::SHORE || tile.type == CellTypes::OCEAN)
+                                      {
+                                          innerTypes.insert(tile.type);
+                                          return true; //
+                                      }
+                                      return false; //
+                                  },
+                                  [&borderTypes, &innerTypes](CellKey cKey, CellData &tile, CellRegion &rg)
+                                  {
+                                      borderTypes.insert(tile.type);
                                       return true; //
-                                  }
-                                  return false; //
-                              },
-                              [&borderTypes, &innerTypes](CellKey cKey, CellData &tile, CellRegion &rg)
-                              {
-                                  borderTypes.insert(tile.type);
-                                  return true; //
-                              },
-                              [&borderTypes, &innerTypes, &inners](CellKey cKey, CellData &tile, CellRegion &rg)
-                              {
-                                  inners.insert(&tile);
-                                  if (inners.size() > 1)
+                                  },
+                                  [&borderTypes, &innerTypes, &inners](CellKey cKey, CellData &tile, CellRegion &rg)
                                   {
-                                      return false;
-                                  }
-                                  if (borderTypes.count(CellTypes::FROZEN) == 0)
-                                  {
-                                      return false;
-                                  }
-                                  return true; //
-                              });
+                                      inners.insert(&tile);
+                                      if (inners.size() > 1)
+                                      {
+                                          return false;
+                                      }
+                                      if (borderTypes.count(CellTypes::FROZEN) == 0)
+                                      {
+                                          return false;
+                                      }
+                                      return true; //
+                                  });
 
                 bool isLake = forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
                 if (isLake)
@@ -223,28 +223,28 @@ namespace fog
                 std::unordered_set<CellData *> inners;
 
                 CellRegion region([&innerTypes, &borderTypes](CellKey cKey, CellData &tile, CellRegion &rg)
-                              {
-                                  if (tile.type == CellTypes::SHORE || tile.type == CellTypes::OCEAN)
                                   {
-                                      innerTypes.insert(tile.type);
+                                      if (tile.type == CellTypes::SHORE || tile.type == CellTypes::OCEAN)
+                                      {
+                                          innerTypes.insert(tile.type);
+                                          return true; //
+                                      }
+                                      return false; //
+                                  },
+                                  [&borderTypes, &innerTypes](CellKey cKey, CellData &tile, CellRegion &rg)
+                                  {
+                                      borderTypes.insert(tile.type);
                                       return true; //
-                                  }
-                                  return false; //
-                              },
-                              [&borderTypes, &innerTypes](CellKey cKey, CellData &tile, CellRegion &rg)
-                              {
-                                  borderTypes.insert(tile.type);
-                                  return true; //
-                              },
-                              [&borderTypes, &innerTypes, &inners](CellKey cKey, CellData &tile, CellRegion &rg)
-                              {
-                                  inners.insert(&tile);
-                                  if (inners.size() > 10) // is real ocean.
+                                  },
+                                  [&borderTypes, &innerTypes, &inners](CellKey cKey, CellData &tile, CellRegion &rg)
                                   {
-                                      return false;
-                                  }
-                                  return true; //
-                              });
+                                      inners.insert(&tile);
+                                      if (inners.size() > 10) // is real ocean.
+                                      {
+                                          return false;
+                                      }
+                                      return true; //
+                                  });
 
                 bool isRegion = forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
                 if (isRegion)
@@ -331,10 +331,10 @@ namespace fog
                      int w,
                      int h,
                      CellRegion &region) : tiles(tiles), w(w), h(h),
-                                       region(region),
-                                       processed(std::unordered_set<CellData *>()),
-                                       border(std::unordered_set<CellData *>()),
-                                       goOn(true)
+                                           region(region),
+                                           processed(std::unordered_set<CellData *>()),
+                                           border(std::unordered_set<CellData *>()),
+                                           goOn(true)
             {
             }
         };

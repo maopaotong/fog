@@ -48,7 +48,7 @@ namespace fog
 
         Vector3 getOrigin3D()
         {
-            // return Context<Node2D>::get()->to3D(Cell::getOrigin2D(cis),Config::CELL_SCALE);
+            // return Context<Node2D>::get()->to3D(Cell::getOrigin2D(cis),config->CELL_SCALE);
             return cis.transform3();
         }
 
@@ -124,19 +124,20 @@ namespace fog
         CoreMod *core;
                 SceneManager *sceneManager;
 
-
+        Config* config;
     public:
-        INJECT(CellInstanceManager(CoreMod *core,        SceneManager *sceneManager))
+        INJECT(CellInstanceManager(CoreMod *core,        SceneManager *sceneManager,Config* config))
             : 
+            config(config),
             sceneManager (sceneManager),
             core(core)
 
         {
             this->sceNode = sceneManager->getRootSceneNode()->createChildSceneNode();
 
-            for (int x = 0; x < Config::TILES_RANGE.getWidth(); x++)
+            for (int x = 0; x < config->TILES_RANGE.getWidth(); x++)
             {
-                for (int y = 0; y < Config::TILES_RANGE.getHeight(); y++)
+                for (int y = 0; y < config->TILES_RANGE.getHeight(); y++)
                 {
                     CellKey cell(x, y);
                     CellInstanceState *state = new CellInstanceState(cell, core, sceneManager);

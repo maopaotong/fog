@@ -32,8 +32,8 @@ namespace fog
             int tlsHeight;
             int terWidth;
             int terHeight;
-            INJECT(Options(CellsTerrains::Options opts)) : tlsWidth(Config::TILES_RANGE.getWidth()), tlsHeight(Config::TILES_RANGE.getHeight()),
-                                                           terWidth(opts.width), terHeight(opts.height)
+            INJECT(Options(CellsTerrains::Options opts, Config *config)) : tlsWidth(config->TILES_RANGE.getWidth()), tlsHeight(config->TILES_RANGE.getHeight()),
+                                                                           terWidth(opts.width), terHeight(opts.height)
             {
             }
         };
@@ -42,9 +42,11 @@ namespace fog
         int terWidth;
         int terHeight;
         std::vector<std::vector<CellsVertex>> vertexs;
-        INJECT(TheTerrains(Options opts)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
-                                    terWidth(opts.terWidth), terHeight(opts.terHeight),
-                                    vertexs(opts.terWidth, std::vector<CellsVertex>(opts.terHeight, CellsVertex()))
+        Config* config;
+        INJECT(TheTerrains(Options opts,Config* config)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
+                                            terWidth(opts.terWidth), terHeight(opts.terHeight),
+                                            config(config),
+                                            vertexs(opts.terWidth, std::vector<CellsVertex>(opts.terHeight, CellsVertex()))
         {
         }
         Vector3 getOrigin() override
@@ -62,7 +64,7 @@ namespace fog
         {
 
             Point2<float> pIn2D(pIn2DV.x, pIn2DV.y);
-            pIn2D = pIn2D / Config::CELL_SCALE; //
+            pIn2D = pIn2D / config->CELL_SCALE; //
 
             // Point2<float> pUV = Cell::getPointInUV(pIn2D, tlsWidth, tlsHeight); // UV
             Point2<float> pUV = pIn2D.transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
@@ -82,8 +84,8 @@ namespace fog
                 y = y + terHeight;
                 y = 0;
             }
-            float ret = vertexs[x][y].height * Config::HEIGHT_SCALE;
-            if (Config::DEBUG_COUT)
+            float ret = vertexs[x][y].height * config->HEIGHT_SCALE;
+            if (config->DEBUG_COUT)
             {
                 std::cout << fmt::format(":[{:>.2f},{:>.2f}],[{:>3},{:>3}].h={:>3.1f}", pUV.x, pUV.y, x, y, ret) << std::endl;
             }
@@ -96,23 +98,27 @@ namespace fog
     {
 
     public:
-        struct Options{
-            std::string texName = Config::FOG_OF_WAR_TEX_NAME;
-            INJECT(Options()){
-                
+        struct Options
+        {
+            std::string texName;
+            INJECT(Options(Config *config)) : texName(config->FOG_OF_WAR_TEX_NAME)
+            {
             }
         };
         TheTerrains *tts;
-        std::vector<std::vector<CellData>> &tiles;        
+        std::vector<std::vector<CellData>> &tiles;
         CellsTerrains *terrains;
         Options options;
+        Config* config;
+
     public:
-        INJECT(CellsState(CellsDatas * cDatas, TheTerrains *tts, Options options,
-                   CellsTerrains *terrains,
-                   CoreMod * core
-                )) : ManualState(core), terrains(terrains), tiles(cDatas->tiles), 
-                options(options),
-                tts(tts)
+        INJECT(CellsState(CellsDatas *cDatas, TheTerrains *tts, Options options,
+                          CellsTerrains *terrains,
+                          Config * config,
+                          CoreMod *core)) : ManualState(core), terrains(terrains), tiles(cDatas->tiles),
+                                            options(options),
+                                            config(config),
+                                            tts(tts)
         {
             this->material = "Tiles";
         }
@@ -149,16 +155,16 @@ namespace fog
             // tex9
 
             // std::string texName9 = Context<FogOfWar>::get()->getTexName();
-            //std::string texName9 = this->fogOfWar->getTexName();
+            // std::string texName9 = this->fogOfWar->getTexName();
             std::string texName9 = options.texName;
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(9)->setTextureName(texName9);
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(9)->setTextureFiltering(Ogre::TFO_BILINEAR);
 
             GpuProgramParametersSharedPtr vParams = mat->getTechnique(0)->getPass(0)->getVertexProgramParameters();
-            vParams->setNamedConstant("tlsWidthInNum", Config::TILES_RANGE.getWidth());
-            vParams->setNamedConstant("tlsHeightInNum", Config::TILES_RANGE.getHeight());
+            vParams->setNamedConstant("tlsWidthInNum", config->TILES_RANGE.getWidth());
+            vParams->setNamedConstant("tlsHeightInNum", config->TILES_RANGE.getHeight());
 
-            int step = Config::TILE_TERRAIN_QUALITY / Config::TILE_MESH_QUALITY;
+            int step = config->TILE_TERRAIN_QUALITY / config->TILE_MESH_QUALITY;
 
             int qWidth = terrains->width / step;
             int qHeight = terrains->height / step;
@@ -190,13 +196,13 @@ namespace fog
                     // Vector2 qP = tP + tts->vertexs[qx][qy].originInTile * scale;
                     // Point2<float> qP = tP + tts->vertexs[qx][qy].originInTile * scale;
                     //  scale
-                    float h = tts->vertexs[qx][qy].height * Config::HEIGHT_SCALE;
+                    float h = tts->vertexs[qx][qy].height * config->HEIGHT_SCALE;
 
                     // Vector3 position3 = Context<Node2D>::get()->to3D(qP, 1);
                     // position.y = h;
 
                     // Vector3 position = qP.transform3(Transform::D2_NORMAL_D3(h));
-                    // Vector3 position = ((cis.cast<float>().transform(Transform::CellCentreByKey()) + tts->vertexs[qx][qy].originInTile) * Config::CELL_SCALE).transform3(Transform::D2_NORMAL_D3(h));
+                    // Vector3 position = ((cis.cast<float>().transform(Transform::CellCentreByKey()) + tts->vertexs[qx][qy].originInTile) * config->CELL_SCALE).transform3(Transform::D2_NORMAL_D3(h));
                     Vector3 position = cKey.transform3(tts->vertexs[qx][qy].originInTile, h);
                     // position.y = h;
 

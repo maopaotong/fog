@@ -25,9 +25,9 @@ namespace fog
             int tlsHeight;
             std::string texName;
 
-            INJECT(Options()) : tlsWidth(Config::TILES_RANGE.getWidth()), tlsHeight(Config::TILES_RANGE.getHeight()),
-                                width(Config::FOG_OF_WAR_TEX_RANGE.getWidth()), height(Config::FOG_OF_WAR_TEX_RANGE.getHeight()),
-                                texName(Config::FOG_OF_WAR_TEX_NAME)
+            INJECT(Options(Config * cfg)) : tlsWidth(cfg->TILES_RANGE.getWidth()), tlsHeight(cfg->TILES_RANGE.getHeight()),
+                                width(cfg->FOG_OF_WAR_TEX_RANGE.getWidth()), height(cfg->FOG_OF_WAR_TEX_RANGE.getHeight()),
+                                texName(cfg->FOG_OF_WAR_TEX_NAME)
             {
             }
         };
@@ -44,34 +44,35 @@ namespace fog
         TexturePtr texture;
         Box2<int> bufferBox{0}; // moving around. but keep the width * height, even if the box is moving out the world.
         //
-        HomeCellKey * homeCellKey;
+        HomeCellKey *homeCellKey;
         Event::Bus *eventBus;
-
+        Config* config;
     public:
-        INJECT(FogOfWar(Options opts, Event::Bus *eventBus,HomeCellKey * homeCellKey)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
-                                                               eventBus(eventBus),
-                                                            homeCellKey(homeCellKey),
-                                                               width(opts.width), height(opts.height), // texture width.
-                                                               texName(opts.texName),
-                                                               buffer(nullptr) //
+        INJECT(FogOfWar(Options opts, Event::Bus *eventBus, HomeCellKey *homeCellKey, Config* config))
+            : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
+              eventBus(eventBus),
+              config(config),
+              homeCellKey(homeCellKey),
+              width(opts.width), height(opts.height), // texture width.
+              texName(opts.texName),
+              buffer(nullptr) //
         {
             this->data = new unsigned char[width * height * 4]; // rgba;
             // to speed up calculation.
-           
-            
+
             // Box2<float> box = HexTile::Key(0, 0).getOuterBoxInUV(tlsWidth, tlsHeight); // cover the entire tile.
             // // scale from centre of the box, p1 is (0,0),p2 is very small value some thing like: 1/cells*rad.
             // box.expand(3.0); // expand to 3 cell width.
-            
+
             // // find the position of p2 in texture, and the width now is the numbers of pixels.
             // box.scale(width, height);
-            
+
             // int bW = box.getWidth();
             // int bH = box.getHeight();
             // // now the box is ready for moving, do not change the width and height.
             // this->bufferBox = Box2<int>(bW, bH); // fixed width height.
             // // prepare the buffer for texture update.
-            
+
             this->bufferBox = buildBufferBox(homeCellKey->cKey);
 
             Box2<int> homeBox = bufferBox;
@@ -80,7 +81,7 @@ namespace fog
                 for (int y = 0; y < height; y++)
                 {
                     int idx = (y * width + x) * 4;
-                    if (Config::FOG_OF_WAR_EREASE_RANGE.isIn(x, y) || homeBox.isIn(x, y))
+                    if (config->FOG_OF_WAR_EREASE_RANGE.isIn(x, y) || homeBox.isIn(x, y))
                     {
                         data[idx] = 255; // R turn light on.
                     }
@@ -92,12 +93,10 @@ namespace fog
                     data[idx + 2] = 0; // B
                     data[idx + 3] = 0; // A
                 } // for
-            } // for            
-            this->buffer = new unsigned char[bufferBox.getWidth() * bufferBox.getHeight() * 4]; // fixed capacity.                            
+            } // for
+            this->buffer = new unsigned char[bufferBox.getWidth() * bufferBox.getHeight() * 4]; // fixed capacity.
 
             this->texture = TextureFactory::createTexture(texName, width, height, this->data);
-
-            
 
             eventBus-> //
                 subscribe<MovableEventType, State *>([this](MovableEventType evtType, State *state)
@@ -114,24 +113,22 @@ namespace fog
 
                                                          return true; //
                                                      });
-
         }
-        
+
         ~FogOfWar()
         {
-            delete[] this->data;            
-            if(this->buffer){
+            delete[] this->data;
+            if (this->buffer)
+            {
                 delete[] this->buffer;
             }
-            
         }
         std::string getTexName()
         {
             return texName;
         }
-        
-        public:
-        
+
+    public:
         Box2<int> buildBufferBox(CellKey cKey)
         {
             Box2<float> box = cKey.getOuterBoxInUV(tlsWidth, tlsHeight); // cover the entire tile.
@@ -146,7 +143,7 @@ namespace fog
         void set(CellKey cKey, bool visible)
         {
 
-            if (Config::DEBUG_FOG_OF_WAR && Config::DEBUG_COUT)
+            if (config->DEBUG_FOG_OF_WAR && config->DEBUG_COUT)
             {
                 // std::cout << fmt::format("fogOfWar[{:>2}{:>2}][{:>2},{:>2};{:>2},{:>2}]", cKey.x, cKey.y, x1, y1, x2, y2) << std::endl;
             }
