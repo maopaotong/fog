@@ -97,15 +97,15 @@ namespace fog
 
     public:
         TheTerrains *tts;
-        std::vector<std::vector<CellData>> &tiles;
+        std::vector<std::vector<CellData>> &tiles;        
         FogOfWar *fogOfWar;
         CellsTerrains *terrains;
 
     public:
-        CellsState(std::vector<std::vector<CellData>> &tiles, TheTerrains *tts, FogOfWar *fogOfWar,
+        INJECT(CellsState(CellsDatas * cDatas, TheTerrains *tts, FogOfWar *fogOfWar,
                    CellsTerrains *terrains,
                    CoreMod * core
-                ) : ManualState(core), terrains(terrains), tiles(tiles), tts(tts), fogOfWar(fogOfWar)
+                )) : ManualState(core), terrains(terrains), tiles(cDatas->tiles), tts(tts), fogOfWar(fogOfWar)
         {
             this->material = "Tiles";
         }

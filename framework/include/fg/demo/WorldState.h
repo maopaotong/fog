@@ -48,8 +48,10 @@ namespace fog
                           InventoryStateManager *inventoryStateMgr,
                           TheTerrains *tts,
                           HomeCellKey * homeCell,
+                          CellsState * cellsState,
                           CellsDatas *cDatas)) : fogOfWar(fogOfWar),
                                                  core(core),
+                                                 tilesState(cellsState),
                                                  movableStateMgr(movableStateMgr),
                                                  inventoryStateMgr(inventoryStateMgr),
                                                  tts(tts),
@@ -71,7 +73,7 @@ namespace fog
             // SetHomeCellOfFogWar{cellsDatas}(*fogOfWar);
             //fogOfWar->init();
             // Create frame listener for main loop
-            this->tilesState = new CellsState(cellsDatas->tiles, this->tts, this->fogOfWar, this->terrains, core);
+            //this->tilesState = new CellsState(cellsDatas, this->tts, this->fogOfWar, this->terrains, core);
 
             this->tilesState->init();
 
