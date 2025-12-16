@@ -18,13 +18,11 @@ namespace fog
         };
 
     protected:
-        Component::Injector injector; //
-
         std::vector<ModHolder> mods;
 
     public:
         template <typename F>
-        void add(F &&setup)
+        void add(Component::Injector &injector, F &&setup)
         {
             Mod *mod = setup(injector);
             mod->active();
@@ -32,7 +30,6 @@ namespace fog
         }
 
         virtual void setup() = 0;
-        virtual void startRendering() = 0;
         virtual void close() = 0;
     };
 };

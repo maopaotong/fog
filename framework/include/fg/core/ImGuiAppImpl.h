@@ -44,7 +44,7 @@ public:
     ImGuiContext *igc = nullptr;
     bool breakRenderRequested = false;
 public:
-    ImGuiAppImpl()
+    INJECT(ImGuiAppImpl())
     {
         
     }

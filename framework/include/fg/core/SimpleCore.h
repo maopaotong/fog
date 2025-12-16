@@ -37,21 +37,24 @@ namespace fog
         std::vector<Stairs *> stepListeners;
 
     public:
-        INJECT(SimpleCore()) : CoreMod()
+        INJECT(SimpleCore(ImGuiAppContext *igac)) : appCtx(igac), CoreMod()
         {
-            appCtx = new ImGuiAppContext("HexagonalGridVisualizer");
         }
         virtual ~SimpleCore()
         {
             delete appCtx;
         }
+        // HexagonalGridVisualizer
 
         struct Setup
         {
             Mod *operator()(Component::Injector &injector)
             {
                 injector.bindImpl<CoreMod, SimpleCore>();
-                
+                injector.bindAllImplAsValue<>();
+                injector.bindAllImpl<ImGuiAppContext,
+                                     ImGuiAppImpl>();
+
                 return injector.get<CoreMod>();
             };
         };

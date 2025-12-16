@@ -19,7 +19,7 @@ namespace fog
     {
     private:
     public: 
-        SimpleApp()
+        INJECT(SimpleApp())
         {
             
         }
@@ -33,12 +33,6 @@ namespace fog
             
         }
 
-        void startRendering() override
-        {
-
-            Ogre::Root *root = injector.get<CoreMod>()->getRoot();
-            root->startRendering(); //
-        }
 
         void close() override
         {

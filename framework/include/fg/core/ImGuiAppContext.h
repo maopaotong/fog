@@ -28,6 +28,7 @@ namespace fog
 
     class ImGuiAppContext : public ApplicationContextSDL
     {
+
     protected:
         ImGuiAppImpl *imGuiApp = nullptr;
 
@@ -36,11 +37,14 @@ namespace fog
     public:
         std::function<void()> beforeResourceLoad;
         std::function<void()> afterResourceLoad;
+        struct Options
+        {
+            std::string name;
+        };
 
     public:
-        ImGuiAppContext(std::string name) : ApplicationContextSDL(name)
+        INJECT(ImGuiAppContext(Options opts, ImGuiAppImpl *imGuiApp)) : imGuiApp(imGuiApp), ApplicationContextSDL(opts.name)
         {
-            this->imGuiApp = new ImGuiAppImpl();
         }
         virtual ~ImGuiAppContext() override
         {
@@ -103,7 +107,8 @@ namespace fog
                 beforeResourceLoad();
             }
             ApplicationContextBase::loadResources();
-            if(afterResourceLoad){
+            if (afterResourceLoad)
+            {
                 afterResourceLoad();
             }
         }
