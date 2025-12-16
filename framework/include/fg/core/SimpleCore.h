@@ -107,12 +107,12 @@ namespace fog
         {
             Mod *operator()(Component::Injector &injector)
             {
-                injector.bindImpl<CoreMod, SimpleCore>([](CoreMod &core)
+                injector.bindImplPtr<CoreMod, SimpleCore>([](CoreMod &core)
                                                        {
                                                            // core.init();
                                                        });
                 injector.bindAllImplAsValue<>();
-                injector.bindAllImpl<ImGuiAppContext,
+                injector.bindAllImplAsPtr<ImGuiAppContext,
                                      ImGuiAppImpl>();
 
                 return injector.get<CoreMod>();

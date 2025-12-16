@@ -23,12 +23,37 @@
 namespace fog
 {
 
-    class EntryUI : public UIState
+    struct EntryUI : public UIState
     {
         struct ChildInfo
         {
             UIState *ui;
             std::string name;
+        };
+        
+    public:
+        struct Children
+        {
+            TopBarUI *ui0;
+            InventoryUI *ui1;
+            OptionsUI *ui2;
+            PropertyRefsUI *ui3;
+            ActiveTrayUI *ui4;
+            BuildingTrayUI *ui5;
+            StatisticTrayUI *ui6;
+            TasksUI *ui7;
+            QuitUI *ui8;
+            INJECT(Children(TopBarUI *ui0,
+                            InventoryUI *ui1,
+                            OptionsUI *ui2,
+                            PropertyRefsUI *ui3,
+                            ActiveTrayUI *ui4,
+                            BuildingTrayUI *ui5,
+                            StatisticTrayUI *ui6,
+                            TasksUI *ui7,
+                            QuitUI *ui8)) : ui0(ui0), ui1(ui1), ui2(ui2), ui3(ui3), ui4(ui4), ui5(ui5), ui6(ui6), ui7(ui7), ui8(ui8)
+            {
+            }
         };
 
     protected:
@@ -36,35 +61,36 @@ namespace fog
         MovingStateManager *movingStateManager;
         CoreMod *core;
         InventoryManager *inventoryManager;
-        Event::Bus *eventBus;        
+        Event::Bus *eventBus;
         MovableStateManager *msm;
+        Children cs;
 
     public:
         INJECT(EntryUI(MovingStateManager *movingStateManager, CoreMod *core,
                        MovableStateManager *msm,
                        Event::Bus *eventBus,
                        WorldManager *rootState,
+                       Children *cs,
                        InventoryManager *inventoryManager)) : inventoryManager(inventoryManager),
-                                                                   eventBus(eventBus),
-                                                                   msm(msm),
-                                                                   movingStateManager(movingStateManager), UIState("EntryUI"), core(core)
+                                                              eventBus(eventBus),
+                                                              cs(*cs), msm(msm),
+                                                              movingStateManager(movingStateManager), UIState("EntryUI"), core(core)
         {
             this->active = true;
         }
 
         void init() override
         {
-            this->add(new TopBarUI(inventoryManager));
-            this->add(new InventoryUI(inventoryManager));
-            this->add(new OptionsUI());
-            this->add(new PropertyRefsUI());
-            this->add(new ActiveTrayUI(eventBus, msm));
-            this->add(new BuildingTrayUI(eventBus));
-            this->add(new StatisticTrayUI(core));
-            this->add(new TasksUI(movingStateManager));
 
-            // Quit:
-            this->add(new QuitUI(core));
+            this->add(cs.ui0);
+            this->add(cs.ui1);
+            this->add(cs.ui2);
+            this->add(cs.ui3);
+            this->add(cs.ui4);
+            this->add(cs.ui5);
+            this->add(cs.ui6);
+            this->add(cs.ui7);
+            this->add(cs.ui8);
         }
         void add(UIState *child)
         {

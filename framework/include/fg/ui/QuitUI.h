@@ -27,7 +27,7 @@ namespace fog
         ActiveTrayUI *activeTrayUI = nullptr;
         CoreMod * core;
     public:
-        QuitUI(CoreMod * core) : UIState("Quit"),core(core)
+        INJECT(QuitUI(CoreMod * core)) : UIState("Quit"),core(core)
         {            
             this->window = core->getWindow();
             this->vp = core->getViewport();

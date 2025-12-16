@@ -20,7 +20,7 @@ namespace fog
         Actor *rootState;
         MovableStateManager * msm;
     public:
-        ActiveTrayUI(Event::Bus *eventBus, MovableStateManager *msm) : UIState("ActiveActor"), msm(msm),state(nullptr), eventBus(eventBus)
+        INJECT(ActiveTrayUI(Event::Bus *eventBus, MovableStateManager *msm)) : UIState("ActiveActor"), msm(msm),state(nullptr), eventBus(eventBus)
         {
         }
         void init() override

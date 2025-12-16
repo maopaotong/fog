@@ -174,18 +174,16 @@ namespace fog
                 components.erase(typeid(T));
             }
 
-            template <Usage usg, typename T, typename F>
-            typename std::enable_if_t<usg == AsPointer, void>
-            bindFunc(F &&objFunc)
+            template <typename T, typename F>
+            void bindFuncAsPtr(F &&ptrFunc)
             {
                 std::function<std::any()> valueFunc = []() -> std::any
                 { throw std::runtime_error("Usage as value not implemented for the type to be injected."); };
-                bindComp(Component::make(typeid(T), objFunc, valueFunc));
+                bindComp(Component::make(typeid(T), ptrFunc, valueFunc));
             }
 
-            template <Usage usg, typename T, typename F>
-            typename std::enable_if_t<usg == AsValue, void>
-            bindFunc(F &&valueFunc)
+            template <typename T, typename F>
+            void bindFuncAsValue(F &&valueFunc)
             {
                 std::function<std::any()> ptrFunc = []() -> std::any
                 { throw std::runtime_error("Usage as value not implemented for the type to be injected."); };
@@ -202,7 +200,7 @@ namespace fog
             }
 
             template <typename T>
-            void bindImpl()
+            void bindImplAsPtr()
             {
                 bindComp(makeByImpl<AsPointer, T, T>([](T &) -> void {}));
             }
@@ -221,7 +219,7 @@ namespace fog
 
             //
             template <typename T>
-            void bindImpl(std::function<void(T &)> initF)
+            void bindImplPtr(std::function<void(T &)> initF)
             {
                 bindComp(makeByImpl<AsPointer, T, T>(initF));
             }
@@ -239,9 +237,9 @@ namespace fog
             }
 
             template <typename... T>
-            void bindAllImpl()
+            void bindAllImplAsPtr()
             {
-                ((bindImpl<T>([](T &) -> void {})), ...);
+                ((bindImplPtr<T>([](T &) -> void {})), ...);
             }
 
             template <typename... T>
@@ -253,49 +251,49 @@ namespace fog
             template <typename T>
             void bindInstance(T *obj)
             {
-                bindFunc<AsPointer, T>([obj]() -> T *
+                bindFuncAsPtr<AsPointer, T>([obj]() -> T *
                                        { return obj; });
             }
 
             template <typename T>
             void bindValue(T obj)
             {
-                bindFunc<AsValue, T>([obj]() -> T
+                bindFuncAsValue<T>([obj]() -> T
                                      { return obj; });
             }
             //
             template <typename T, typename Imp>
-            void bindImpl()
+            void bindImplAsPtr()
             {
                 bindComp(makeByImpl<AsPointer, T, Imp>([](T &) -> void {}));
             }
 
             template <typename T, typename Imp, typename T1>
-            void bindImpl()
+            void bindImplAsPtr()
             {
                 bindComp(makeByImpl<AsPointer, T, Imp, T1>([](T &) -> void {}));
             }
 
             template <typename T, typename Imp, typename T1, typename T2>
-            void bindImpl()
+            void bindImplAsPtr()
             {
                 bindComp(makeByImpl<AsPointer, T, Imp, T1, T2>([](T &) -> void {}));
             }
             //
             template <typename T, typename Imp>
-            void bindImpl(std::function<void(T &)> initF)
+            void bindImplPtr(std::function<void(T &)> initF)
             {
                 bindComp(makeByImpl<AsPointer, T, Imp>(initF));
             }
 
             template <typename T, typename Imp, typename T1>
-            void bindImpl(std::function<void(T &)> initF)
+            void bindImplPtr(std::function<void(T &)> initF)
             {
                 bindComp(makeByImpl<AsPointer, T, Imp, T1>(initF));
             }
 
             template <typename T, typename Imp, typename T1, typename T2>
-            void bindImpl(std::function<void(T &)> initF)
+            void bindImplPtr(std::function<void(T &)> initF)
             {
                 bindComp(makeByImpl<AsPointer, T, Imp, T1, T2>(initF));
             }
@@ -303,7 +301,7 @@ namespace fog
             template <typename T, typename OT>
             void bindMethod(T *(OT::*method)())
             {
-                bindFunc<AsPointer, T>([this, method]()
+                bindFuncAsPtr<T>([this, method]()
                             {
                                 OT *obj = this->get<OT>();
                                 return (obj->*method)(); //
@@ -390,7 +388,7 @@ namespace fog
                         // call default function.
                         return defaultCompFunc(tid);
                     }
-                    throw std::runtime_error("must bond before get the instance by type.");
+                    throw std::runtime_error("must bind before get the instance by type from Component::Injector.");
                 }
                 return it->second;
             }

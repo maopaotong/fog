@@ -19,7 +19,7 @@ namespace fog
     protected:
 
     public:
-        PropertyRefsUI() : UIState("PropertyRefs")
+        INJECT(PropertyRefsUI()) : UIState("PropertyRefs")
         {
         }
 

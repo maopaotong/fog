@@ -19,7 +19,7 @@ namespace fog
         Options options;
 
     public:
-        OptionsUI() : UIState("Options")
+        INJECT(OptionsUI()) : UIState("Options")
         {
             options.add("Show-plain-cell?", false);
             options.add("Video-Mode", "1024 x 768");

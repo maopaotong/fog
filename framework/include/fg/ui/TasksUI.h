@@ -19,7 +19,7 @@ namespace fog
         Options options;
         MovingStateManager * movingStateManager;
     public:
-        TasksUI(MovingStateManager * movingStateManager) : UIState("TasksUI"),movingStateManager (movingStateManager)
+        INJECT(TasksUI(MovingStateManager * movingStateManager)) : UIState("TasksUI"),movingStateManager (movingStateManager)
         {
         }
 

@@ -18,7 +18,7 @@ namespace fog
         Event::Bus * eventBus;
 
     public:
-        BuildingTrayUI(Event::Bus * eventBus) : UIState("BuildingTray"), 
+        INJECT(BuildingTrayUI(Event::Bus * eventBus)) : UIState("BuildingTray"), 
         eventBus(eventBus),
         state(nullptr)
         {

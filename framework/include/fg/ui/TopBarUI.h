@@ -27,7 +27,7 @@ namespace fog
         InventoryManager *inventoryManager;
 
     public:
-        TopBarUI(InventoryManager *inventoryManager) : UIState("TopBar"),
+        INJECT(TopBarUI(InventoryManager *inventoryManager)) : UIState("TopBar"),
                                                             inventoryManager(inventoryManager)
         {
         }

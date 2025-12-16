@@ -42,6 +42,7 @@ target_link_libraries(framework
 #target_include_directories(framework PRIVATE "lib")
 target_compile_options(framework PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
+    $<$<CXX_COMPILER_ID:MSVC>:/bigobj>
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-finput-charset=UTF-8 -fexec-charset=UTF-8>
 )
 

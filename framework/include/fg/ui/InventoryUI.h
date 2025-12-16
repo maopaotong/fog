@@ -33,7 +33,7 @@ namespace fog
         InventoryManager *inventoryStateMgr;
 
     public:
-        InventoryUI(InventoryManager *inventoryStateMgr) : UIState("InventoryUI"),
+        INJECT(InventoryUI(InventoryManager *inventoryStateMgr)) : UIState("InventoryUI"),
                                                                 inventoryStateMgr(inventoryStateMgr)
         {
         }
