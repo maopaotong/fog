@@ -19,65 +19,18 @@
 #include "fg/demo/CellsDatas.h"
 namespace fog
 {
-    class WorldState : public State
+
+    struct HomeCellKey
     {
-    protected:
-        // CellStateControl *cells;
-        CellsState *tilesState;
-        TheTerrains *tts;
-        //std::vector<std::vector<CellData>> tiles;
-        CellsDatas * cellsDatas;
-        FogOfWar *fogOfWar;
-        EntryController *entryController;
-        CellsTerrains *terrains;
-        CoreMod *core;
-        MovableStateManager *movableStateMgr;
-        BuildingStateManager *buildingStateMgr;
-        InventoryStateManager *inventoryStateMgr;
 
-
-    public:
-        INJECT(WorldState(FogOfWar *fogOfWar,
-                          EntryController *entryController,
-                          BuildingStateManager *buildingStateMgr,
-                          CellsTerrains *terrains,
-                          CoreMod *core,
-                          MovableStateManager *movableStateMgr,
-                          InventoryStateManager *inventoryStateMgr,
-                          TheTerrains *tts,
-                          CellsDatas * cDatas
-                        )) : fogOfWar(fogOfWar),
-                                               core(core),
-                                               movableStateMgr(movableStateMgr),
-                                               inventoryStateMgr(inventoryStateMgr),
-                                               tts(tts),
-                                               buildingStateMgr(buildingStateMgr),
-                                               entryController(entryController),
-                                               terrains(terrains),
-                                               cellsDatas(cDatas)
+        CellsDatas *cDatas;
+        CellKey cKey;
+        INJECT(HomeCellKey(CellsDatas *cDatas)) : cDatas(cDatas)
         {
-        }
-        void initCellsAndCostMap()
-        {
-
-            // CellsTerrains *terrains = Context<CellsTerrains>::get();
-
-            int tsWidth = terrains->tWidth;
-            int tsHeight = terrains->tHeight;
-            int terWidth = terrains->width;
-            int terHeight = terrains->height;
-            // this->tts = new TheTerrains(tsWidth, tsHeight, terWidth, terHeight);
-            // std::vector<std::vector<tiles::Vertex>> vertexs(terWidth, std::vector<tiles::Vertex>(terHeight, tiles::Vertex()));
-
-            //CellsGenerator::generateCells(tiles, tsWidth, tsHeight);
-            // cost map
-
-            //Context<CellsCost>::set(new CellsCost(&cellsDatas->tiles));
-
-            // CostMap *costMap = new CostMap(tsWidth, tsHeight);
-            // Context<CostMap>::set(costMap);
+            cKey = this->findCellToStandOn();
         }
 
+    private:
         CellKey findCellToStandOn()
         {
             std::random_device rd;
@@ -90,7 +43,7 @@ namespace fog
             {
                 int x = rPosX(gen);
                 int y = rPosX(gen);
-                CellType type = cellsDatas->tiles[x][y].type;
+                CellType type = cDatas->tiles[x][y].type;
                 if (type == CellTypes::OCEAN || type == CellTypes::MOUNTAIN)
                 {
                     continue;
@@ -100,6 +53,47 @@ namespace fog
 
             return CellKey(0, 0);
         }
+    };
+
+    class WorldState : public State
+    {
+    protected:
+        // CellStateControl *cells;
+        CellsState *tilesState;
+        TheTerrains *tts;
+        // std::vector<std::vector<CellData>> tiles;
+        CellsDatas *cellsDatas;
+        FogOfWar *fogOfWar;
+        EntryController *entryController;
+        CellsTerrains *terrains;
+        CoreMod *core;
+        MovableStateManager *movableStateMgr;
+        BuildingStateManager *buildingStateMgr;
+        InventoryStateManager *inventoryStateMgr;
+        HomeCellKey * homeCell;
+
+    public:
+        INJECT(WorldState(FogOfWar *fogOfWar,
+                          EntryController *entryController,
+                          BuildingStateManager *buildingStateMgr,
+                          CellsTerrains *terrains,
+                          CoreMod *core,
+                          MovableStateManager *movableStateMgr,
+                          InventoryStateManager *inventoryStateMgr,
+                          TheTerrains *tts,
+                          HomeCellKey * homeCell,
+                          CellsDatas *cDatas)) : fogOfWar(fogOfWar),
+                                                 core(core),
+                                                 movableStateMgr(movableStateMgr),
+                                                 inventoryStateMgr(inventoryStateMgr),
+                                                 tts(tts),
+                                                 buildingStateMgr(buildingStateMgr),
+                                                 entryController(entryController),
+                                                 terrains(terrains),
+                                                 homeCell(homeCell),
+                                                 cellsDatas(cDatas)
+        {
+        }
 
         virtual void init() override
         {
@@ -107,12 +101,8 @@ namespace fog
             // CoreMod *core = Context<CoreMod>::get();
             Ogre::Root *root = core->getRoot();
 
-            this->initCellsAndCostMap();
-            CellKey cKey = findCellToStandOn(); //
-
-            // Context<FogOfWar>::get()
-            fogOfWar->setHomeCell(cKey);
             // Context<FogOfWar>::get()->init();
+            // SetHomeCellOfFogWar{cellsDatas}(*fogOfWar);
             fogOfWar->init();
             // Create frame listener for main loop
             this->tilesState = new CellsState(cellsDatas->tiles, this->tts, this->fogOfWar, this->terrains, core);
@@ -122,16 +112,17 @@ namespace fog
             this->addChild(this->tilesState);
             //
 
-//            MovableStateManager *movableStateMgr = Context<MovableStateManager>::get();
+            //            MovableStateManager *movableStateMgr = Context<MovableStateManager>::get();
             movableStateMgr->init();
             this->addChild(movableStateMgr);
-            movableStateMgr->setCellToStandOn(cKey);
+
+            movableStateMgr->setCellToStandOn(homeCell->cKey);
 
             //
 
             // Context<MovableStateManager >::set(movableStateMgr);
             //
-            //BuildingStateManager *buildingStateMgr = Context<BuildingStateManager>::get();
+            // BuildingStateManager *buildingStateMgr = Context<BuildingStateManager>::get();
             buildingStateMgr->init();
             this->addChild(buildingStateMgr);
             //
