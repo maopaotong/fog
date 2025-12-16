@@ -42,11 +42,11 @@ namespace fog
         int terWidth;
         int terHeight;
         std::vector<std::vector<CellsVertex>> vertexs;
-        Config* config;
-        INJECT(TheTerrains(Options opts,Config* config)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
-                                            terWidth(opts.terWidth), terHeight(opts.terHeight),
-                                            config(config),
-                                            vertexs(opts.terWidth, std::vector<CellsVertex>(opts.terHeight, CellsVertex()))
+        Config *config;
+        INJECT(TheTerrains(Options opts, Config *config)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
+                                                            terWidth(opts.terWidth), terHeight(opts.terHeight),
+                                                            config(config),
+                                                            vertexs(opts.terWidth, std::vector<CellsVertex>(opts.terHeight, CellsVertex()))
         {
         }
         Vector3 getOrigin() override
@@ -93,43 +93,18 @@ namespace fog
         }
     };
 
-    //
-    class CellsState : public ManualState
+    struct TheTerrains2
     {
-
-    public:
-        struct Options
-        {
-            std::string texName;
-            INJECT(Options(Config *config)) : texName(config->FOG_OF_WAR_TEX_NAME)
-            {
-            }
-        };
         TheTerrains *tts;
         std::vector<std::vector<CellData>> &tiles;
         CellsTerrains *terrains;
-        Options options;
-        Config* config;
-
-    public:
-        INJECT(CellsState(CellsDatas *cDatas, TheTerrains *tts, Options options,
-                          CellsTerrains *terrains,
-                          Config * config,
-                          CoreMod *core)) : ManualState(core), terrains(terrains), tiles(cDatas->tiles),
-                                            options(options),
-                                            config(config),
-                                            tts(tts)
+        INJECT(TheTerrains2(CellsDatas *cDatas,
+                            TheTerrains *tts,
+                            CellsTerrains *terrains))
+            : terrains(terrains),
+              tiles(cDatas->tiles),
+              tts(tts)
         {
-            this->material = "Tiles";
-        }
-        void init() override
-        {
-            ManualState::init();
-        }
-        void rebuildMesh() override
-        {
-            // CellsTerrains *terrains = Context<CellsTerrains>::get();
-
             // mesh
             terrains->buildVertexs(tiles, tts->vertexs);
 
@@ -142,6 +117,50 @@ namespace fog
             Context<Transform::D2H2D3>::get()->setHeight([this](float x, float y)
                                                          { return this->tts->getHeight(Vector2(x, y)); } //
             );
+        }
+    };
+
+    //
+    class CellsState : public ManualState
+    {
+
+    public:
+        struct Options
+        {
+            std::string texName;
+            INJECT(Options(Config *config)) : texName(config->FOG_OF_WAR_TEX_NAME)
+            {
+
+            }
+        };
+        TheTerrains *tts;
+        std::vector<std::vector<CellData>> &tiles;
+        CellsTerrains *terrains;
+        Options options;
+        Config *config;
+        TheTerrains2 *tts2;//TODO merge All terrains types.
+
+    public:
+        INJECT(CellsState(CellsDatas *cDatas,
+                          TheTerrains *tts,
+                          TheTerrains2 *tts2,
+                          Options options,
+                          CellsTerrains *terrains,
+                          Config *config,
+                          CoreMod *core)) : ManualState(core), terrains(terrains), tiles(cDatas->tiles),
+                                            options(options),
+                                            config(config),
+                                            tts(tts),
+                                            tts2(tts2)
+        {
+            this->material = "Tiles";
+        }
+        void init() override
+        {
+            ManualState::init();
+        }
+        void rebuildMesh() override
+        {                        
 
             // material
             MaterialPtr mat = MaterialManager::getSingletonPtr()->getByName("Tiles");

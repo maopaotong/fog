@@ -7,7 +7,7 @@
 #include "fg/Mod.h"
 #include "fg/util.h"
 #include "fg/core/MaterialFactory.h"
-#include "fg/demo/WorldState.h"
+#include "fg/demo/WorldManager.h"
 
 #include "imgui.h"
 #include <fmt/format.h>

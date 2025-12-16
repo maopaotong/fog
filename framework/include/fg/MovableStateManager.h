@@ -92,15 +92,20 @@ namespace fog
         SceneManager *sceneManager;
         Event::Bus *eventBus;
         HomeCellKey *home;
+        TheTerrains2 *tts2;
 
     public:
         INJECT(MovableStateManager(CoreMod *core, CellInstanceStateManager *cisManager,
                                    Event::Bus *eventBus,
+                                   TheTerrains2 *tts2,
+                                   HomeCellKey *homeCellKey,
                                    SceneManager *sceneManager))
             : core(core),
+              tts2(tts2),
               eventBus(eventBus),
               sceneManager(sceneManager),
               actor2(new Sinbad(core)),
+              home(homeCellKey),
               movingState(cisManager, eventBus)
         {
             eventBus-> //
@@ -122,12 +127,14 @@ namespace fog
         {
             actor2->init();
             this->add(actor2);
-            // find a position.
+            // actor2->setPosition(home->cKey );
+            //  find a position.
+            actor2->setPosition(home->cKey);
         }
 
         void setCellToStandOn(CellKey cKey)
         {
-            actor2->setPosition(cKey);
+            //actor2->setPosition(cKey);
         }
 
         bool step(float time) override

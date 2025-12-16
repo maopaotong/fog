@@ -20,11 +20,11 @@
 namespace fog
 {
 
-    class WorldState : public Actor
+    class WorldManager
     {
     protected:
         // CellStateControl *cells;
-        CellsState *tilesState;
+        CellsState *cellsState;
         TheTerrains *tts;
         // std::vector<std::vector<CellData>> tiles;
         CellsDatas *cellsDatas;
@@ -38,7 +38,7 @@ namespace fog
         HomeCellKey * homeCell;
 
     public:
-        INJECT(WorldState(FogOfWar *fogOfWar,
+        INJECT(WorldManager(FogOfWar *fogOfWar,
                           EntryController *entryController,
                           BuildingStateManager *buildingStateMgr,
                           CellsTerrains *terrains,
@@ -50,7 +50,7 @@ namespace fog
                           CellsState * cellsState,
                           CellsDatas *cDatas)) : fogOfWar(fogOfWar),
                                                  core(core),
-                                                 tilesState(cellsState),
+                                                 cellsState(cellsState),
                                                  movableStateMgr(movableStateMgr),
                                                  inventoryStateMgr(inventoryStateMgr),
                                                  tts(tts),
@@ -60,43 +60,11 @@ namespace fog
                                                  homeCell(homeCell),
                                                  cellsDatas(cDatas)
         {
-        }
-
-        virtual void init() override
-        {
-            // CostMap *costMap = Context<CostMap>::get();
-            // CoreMod *core = Context<CoreMod>::get();
+                   
             Ogre::Root *root = core->getRoot();
 
-            // Context<FogOfWar>::get()->init();
-            // SetHomeCellOfFogWar{cellsDatas}(*fogOfWar);
-            //fogOfWar->init();
-            // Create frame listener for main loop
-            //this->tilesState = new CellsState(cellsDatas, this->tts, this->fogOfWar, this->terrains, core);
 
-            this->tilesState->init();
-
-            this->addChild(this->tilesState);
-            //
-
-            //            MovableStateManager *movableStateMgr = Context<MovableStateManager>::get();
-            // movableStateMgr->init();
-            // this->addChild(movableStateMgr);
-
-            movableStateMgr->setCellToStandOn(homeCell->cKey);
-
-            //
-
-            // Context<MovableStateManager >::set(movableStateMgr);
-            //
-            // BuildingStateManager *buildingStateMgr = Context<BuildingStateManager>::get();
-            //buildingStateMgr->init();
-            //this->addChild(buildingStateMgr);
-            //
-
-            // inventoryStateMgr->init();
-            //this->addChild(inventoryStateMgr);
-            //
+            this->cellsState->init();
 
             core->getAppContext()->addInputListener(entryController);
             root->addFrameListener(entryController);
