@@ -4,7 +4,7 @@
  */
 #pragma once
 #include "fg/Common.h"
-#include "fg/State.h"
+#include "fg/Actor.h"
 #include "fg/core/CoreMod.h"
 #include "fg/MaterialNames.h"
 #include "fg/MeshBuild.h"
@@ -26,7 +26,7 @@ namespace fog
 
     protected:
         CellKey cKey2; // target cell key.
-        State *movingState;
+        Actor *movingState;
         //
         PathFollow2MissionState *mission = nullptr;
         bool failed = false;
@@ -40,7 +40,7 @@ namespace fog
         Config *config;
 
     public:
-        MoveToCellTask(State *state, CellKey cKey2,
+        MoveToCellTask(Actor *state, CellKey cKey2,
                        CostMap *costMap,
                        Event::Bus *eventBus,
                        CellsCost *cellsCost,
@@ -54,7 +54,7 @@ namespace fog
         {
         }
 
-        State *getState()
+        Actor *getState()
         {
             return this->movingState;
         }
@@ -181,10 +181,10 @@ namespace fog
 
     }; // end of class
 
-    class MovingStateManager : public Manager<State>, public Stairs
+    class MovingStateManager : public Manager<Actor>, public Stairs
     {
         std::vector<std::unique_ptr<MoveToCellTask>> tasks;
-        State *state;
+        Actor *state;
         CostMap *costMap;
         Viewport *viewport;
         Camera *camera;
@@ -205,7 +205,7 @@ namespace fog
                                                            costMap(cm), state(nullptr)
         {
             eventBus-> //
-                subscribe<MovableEventType, State *>([this](MovableEventType evtType, State *state)
+                subscribe<MovableEventType, Actor *>([this](MovableEventType evtType, Actor *state)
                                                      {
                                                          if (evtType == MovableEventType::StatePicked)
                                                          {
@@ -290,7 +290,7 @@ namespace fog
             //
             MoveToCellTask *task = new MoveToCellTask(state, cKey2, costMap, eventBus, cellsCost, config);
             this->tasks.push_back(std::unique_ptr<MoveToCellTask>(task));
-            eventBus->emit<MovableEventType, State *>(MovableEventType::StateStartMoving, state);
+            eventBus->emit<MovableEventType, Actor *>(MovableEventType::StateStartMoving, state);
         }
         template <typename F>
         void forEachTask(F &&f)
@@ -312,7 +312,7 @@ namespace fog
                 MoveToCellTask *task = it->get();
                 if (!task->step(time))
                 {
-                    eventBus->emit<MovableEventType, State *>(MovableEventType::StateStopMoving, task->getState());
+                    eventBus->emit<MovableEventType, Actor *>(MovableEventType::StateStopMoving, task->getState());
                     it = this->tasks.erase(it);
                     continue;
                 }

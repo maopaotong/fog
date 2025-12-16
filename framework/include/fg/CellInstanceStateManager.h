@@ -4,7 +4,7 @@
  */
 #pragma once
 #include "fg/Common.h"
-#include "fg/State.h"
+#include "fg/Actor.h"
 #include "fg/core/CoreMod.h" //TODO remove this include.
 #include "fg/MaterialNames.h"
 #include "fg/MeshBuild.h"
@@ -13,7 +13,7 @@
 namespace fog
 {
 
-    class CellInstanceState : public State
+    class CellInstanceState : public Actor
     {
         std::stack<ColourValue> colours;
         ManualObject *obj;

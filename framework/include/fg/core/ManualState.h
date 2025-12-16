@@ -6,7 +6,7 @@
 #include <vector>
 #include <Ogre.h>
 #include <OgreColourValue.h>
-#include "fg/State.h"
+#include "fg/Actor.h"
 #include "fg/core/CoreMod.h"
 #include "fg/util/Cell.h"
 #include "fg/MaterialNames.h"
@@ -18,7 +18,7 @@ namespace fog
     using namespace Ogre;
 
     //
-    class ManualState : public State
+    class ManualState : public Actor
     {
 
     protected:

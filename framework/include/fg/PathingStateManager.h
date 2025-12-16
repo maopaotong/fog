@@ -25,10 +25,10 @@ namespace fog
     /**
      * PathingStateManager find a path from current state position to mouse position.
      */
-    class PathingStateManager : public State, public Stairs
+    class PathingStateManager : public Actor, public Stairs
     {
         //
-        State *sourceState;
+        Actor *sourceState;
         CellInstanceState *targetCis;
         PathState *path;
 
@@ -60,7 +60,7 @@ Event::Bus * eventBus,
         {
             std::cout << "PathingStateManager created." << std::endl;
             eventBus-> //
-                subscribe<MovableEventType, State *>([this](MovableEventType evtType, State *state)
+                subscribe<MovableEventType, Actor *>([this](MovableEventType evtType, Actor *state)
                                                      {
                                                          if (evtType == MovableEventType::StateUnpicked)
                                                          {
@@ -95,7 +95,7 @@ Event::Bus * eventBus,
             }
         }
 
-        void setSource(State *state)
+        void setSource(Actor *state)
         {
             if (this->sourceState)
             {
@@ -187,7 +187,7 @@ Event::Bus * eventBus,
             CellInstanceState *sourceCis = nullptr;
             // find source cell
             //MovableStateManager *movableStateMgr = Context<MovableStateManager>::get();
-            movableStateMgr->forEach([&sourceCis, this](State *state)
+            movableStateMgr->forEach([&sourceCis, this](Actor *state)
                                      {
                                          if (state->isActive())
                                          {

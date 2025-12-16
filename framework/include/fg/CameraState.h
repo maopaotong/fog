@@ -30,7 +30,7 @@
 #include "fg/InputState.h"
 #include "fg/util/CameraUtil.h"
 #include "fg/util/Polygon2.h"
-#include "fg/State.h"
+#include "fg/Actor.h"
 #include "fg/demo/InputStateController.h"
 
 namespace fog

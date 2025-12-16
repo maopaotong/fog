@@ -10,7 +10,7 @@
 #include <OgreSceneManager.h>
 #include <OgreSharedPtr.h>
 #include <stb_image_write.h>
-#include <fg/State.h>
+#include <fg/Actor.h>
 #include <OgreShaderSubRenderState.h>
 #include <OgreShaderRenderState.h>
 #include <OgreShaderGenerator.h>
@@ -32,7 +32,7 @@ namespace fog
     //- Do not delete the pointer by shared pointer.
     //- We need to detroy it before app closing.
 
-    class GameTerrains : public State, public Terrains
+    class GameTerrains : public Actor, public Terrains
     {
         const String FFP_Transform = "FFP_Transform";
         const float flatHight = 0.0f;

@@ -6,7 +6,7 @@
 #include "imgui.h"
 #include <string>
 #include "fg/core.h"
-#include "fg/State.h"
+#include "fg/Actor.h"
 #include "fg/util.h"
 #include <fmt/format.h>
 #include "UIState.h"
@@ -14,7 +14,7 @@ namespace fog
 {
     class StatisticTrayUI : public UIState
     {
-        State *state = nullptr;
+        Actor *state = nullptr;
         CoreMod * core;
     public:
         INJECT(StatisticTrayUI(CoreMod * core)) : UIState("StatisticTray"),core(core)

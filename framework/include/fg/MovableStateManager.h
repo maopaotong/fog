@@ -4,7 +4,7 @@
  */
 #pragma once
 #include "fg/Common.h"
-#include "fg/State.h"
+#include "fg/Actor.h"
 #include "fg/core/CoreMod.h"
 #include "fg/MaterialNames.h"
 #include "fg/MeshBuild.h"
@@ -19,7 +19,7 @@ namespace fog
     class MovingState : public Stairs
     {
     public:
-        State *state;
+        Actor *state;
         CellInstanceState *cis;
         CellInstanceStateManager *cisManager;
         Event::Bus *eventBus;
@@ -41,7 +41,7 @@ namespace fog
             tryUpdateCis();
             return true;
         }
-        void setState(State *state2)
+        void setState(Actor *state2)
         {
             if (this->state)
             {
@@ -50,7 +50,7 @@ namespace fog
             this->state = state2;
             tryUpdateCis();
             eventBus-> //
-                emit<MovableEventType, State *>(state2 ? MovableEventType::StatePicked : MovableEventType::StateUnpicked, state2);
+                emit<MovableEventType, Actor *>(state2 ? MovableEventType::StatePicked : MovableEventType::StateUnpicked, state2);
         }
         void tryUpdateCis()
         {
@@ -83,7 +83,7 @@ namespace fog
         }
     };
 
-    class MovableStateManager : public Manager<State>, public Stairs
+    class MovableStateManager : public Manager<Actor>, public Stairs
     {
         MovingState movingState;
         EntityState *actor2;
@@ -104,7 +104,7 @@ namespace fog
               movingState(cisManager, eventBus)
         {
             eventBus-> //
-                subscribe<MovableEventType, State *>([this](MovableEventType evtType, State *state)
+                subscribe<MovableEventType, Actor *>([this](MovableEventType evtType, Actor *state)
                                                      {
                                                          if (evtType == MovableEventType::StateStartMoving)
                                                          {
@@ -147,12 +147,12 @@ namespace fog
             // 执行查询
             Ogre::RaySceneQueryResult &result = rayQuery->execute();
 
-            State *picked = nullptr;
+            Actor *picked = nullptr;
             // 遍历结果
             for (auto &it : result)
             {
                 Node *node = it.movable->getParentNode();
-                State *s = State::get(node);
+                Actor *s = Actor::get(node);
                 // if (s && s->pickable() && s->getParent() == this)
                 if (s && s->pickable() && s == actor2)
                 {
@@ -167,7 +167,7 @@ namespace fog
             return picked != nullptr;
         }
 
-        void pick(State *picked)
+        void pick(Actor *picked)
         {
             this->movingState.setState(picked);
         }

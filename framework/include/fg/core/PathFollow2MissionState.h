@@ -16,7 +16,7 @@ namespace fog
     /**
      * Move a node to a destination.
      */
-    class PathFollow2MissionState : public State, public Stairs
+    class PathFollow2MissionState : public Actor, public Stairs
     {
         PathFollow2 path;
 
@@ -26,12 +26,12 @@ namespace fog
 
         float animateTimeSpeedFactor;
         // Vector3Ref actorPosition;
-        State *state;
+        Actor *state;
         bool done;
         Config *config;
 
     public:
-        PathFollow2MissionState(State *state, PathFollow2 path,                     //
+        PathFollow2MissionState(Actor *state, PathFollow2 path,                     //
                                 AnimationStateSet *aniSet,                          //
                                 std::vector<std::string> &aniNames, float aniSpeed, //
                                 Config *config,

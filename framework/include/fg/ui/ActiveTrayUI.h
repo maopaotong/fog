@@ -6,7 +6,7 @@
 #include "imgui.h"
 #include <string>
 #include "fg/core/CoreMod.h"
-#include "fg/State.h"
+#include "fg/Actor.h"
 #include "fg/util.h"
 #include <fmt/format.h>
 #include "UIState.h"
@@ -15,12 +15,12 @@ namespace fog
 {
     class ActiveTrayUI : /* public Listener<State *, std::string &>,*/ public UIState
     {
-        State *state;
+        Actor *state;
         Event::Bus *eventBus;
-        State *rootState;
+        Actor *rootState;
         MovableStateManager * msm;
     public:
-        ActiveTrayUI(Event::Bus *eventBus, State *rootState,MovableStateManager *msm) : UIState("ActiveActor"), msm(msm),rootState(rootState), state(nullptr), eventBus(eventBus)
+        ActiveTrayUI(Event::Bus *eventBus, Actor *rootState,MovableStateManager *msm) : UIState("ActiveActor"), msm(msm),rootState(rootState), state(nullptr), eventBus(eventBus)
         {
         }
         void init() override
@@ -28,7 +28,7 @@ namespace fog
             // actorPosition = this->getProperty<Vector3>("actor1.position", false);
             UIState::init();
             eventBus-> //
-                subscribe<MovableEventType, State *>([this](MovableEventType et, State *s)
+                subscribe<MovableEventType, Actor *>([this](MovableEventType et, Actor *s)
                                                      {
                     if (et == MovableEventType::StatePicked)
                     {
@@ -83,7 +83,7 @@ namespace fog
                 ImGui::Text("No Active State");
                 if (ImGui::Button("Active actor"))
                 {
-                    rootState->forEach([this](State *state)
+                    rootState->forEach([this](Actor *state)
                                        {
                         Sinbad *sb = dynamic_cast<Sinbad*>(state);
                         if(sb){

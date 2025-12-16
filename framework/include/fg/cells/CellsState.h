@@ -6,7 +6,7 @@
 #include <vector>
 #include <Ogre.h>
 #include <OgreColourValue.h>
-#include "fg/State.h"
+#include "fg/Actor.h"
 #include "fg/core/CoreMod.h"
 #include "fg/MeshBuild.h"
 

@@ -7,7 +7,7 @@
 #include "fg/Common.h"
 #include <string>
 #include "fg/core.h"
-#include "fg/State.h"
+#include "fg/Actor.h"
 #include "fmt/format.h"
 #include "fg/util/ImGuiUtil.h"
 #include "UIState.h"

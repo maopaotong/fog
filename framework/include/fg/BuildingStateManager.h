@@ -4,7 +4,7 @@
  */
 #pragma once
 #include "fg/Common.h"
-#include "fg/State.h"
+#include "fg/Actor.h"
 #include "fg/core/CoreMod.h"
 #include "fg/MaterialNames.h"
 #include "fg/MeshBuild.h"
@@ -22,20 +22,20 @@ namespace fog
     {
     protected:
         CellKey cKey;
-        State *building;
+        Actor *building;
         float amount;
         CoreMod *core;
 
     public:
-        BuildingPlan(State *building, float amount, CoreMod *core) : core(core),
+        BuildingPlan(Actor *building, float amount, CoreMod *core) : core(core),
                                                                      building(building), amount(amount)
         {
         }
 
-        State *exchangeBuilding(State *state)
+        Actor *exchangeBuilding(Actor *state)
         {
 
-            State *ret = std::exchange(this->building, state);
+            Actor *ret = std::exchange(this->building, state);
 
             return ret;
         }
@@ -44,7 +44,7 @@ namespace fog
             return this->amount;
         }
 
-        State *getBuilding()
+        Actor *getBuilding()
         {
             return this->building;
         }
@@ -68,17 +68,17 @@ namespace fog
         }
     };
 
-    class BuildingStateManager : public Manager<State>
+    class BuildingStateManager : public Manager<Actor>
     {
-        State *picked;
+        Actor *picked;
         BuildingPlan *plan;
         CoreMod *core;
         SceneManager *sceneManager;
-        std::unordered_map<CellKey, std::vector<State *>, CellKey::Hash> buildingsInCells;
+        std::unordered_map<CellKey, std::vector<Actor *>, CellKey::Hash> buildingsInCells;
         InventoryManager *inventoryManager;
 
     protected:
-        void setPicked(State *picked)
+        void setPicked(Actor *picked)
         {
             if (this->picked == picked)
             {
@@ -88,14 +88,14 @@ namespace fog
             {
                 // unpick previous
                 eventBus-> //
-                    emit<BuildingEventType, State *>(BuildingEventType::StateUnpicked, this->picked);
+                    emit<BuildingEventType, Actor *>(BuildingEventType::StateUnpicked, this->picked);
             }
             this->picked = picked;
             if (this->picked)
             {
                 // pick new
                 eventBus-> //
-                    emit<BuildingEventType, State *>(BuildingEventType::StatePicked, this->picked);
+                    emit<BuildingEventType, Actor *>(BuildingEventType::StatePicked, this->picked);
             }
         }
         Event::Bus *eventBus;
@@ -150,12 +150,12 @@ namespace fog
             // 
             Ogre::RaySceneQueryResult &result = rayQuery->execute();
 
-            State *picked = nullptr;
+            Actor *picked = nullptr;
             // 
             for (auto &it : result)
             {
                 Node *node = it.movable->getParentNode();
-                State *s = State::get(node);
+                Actor *s = Actor::get(node);
                 if (s && s->pickable())//TODO
                 {
 
@@ -184,7 +184,7 @@ namespace fog
 
             if (success)
             {
-                State *building = nullptr;
+                Actor *building = nullptr;
                 if (type == BuildingType::Tower)
                 {
                     building = new Tower(core);
@@ -212,7 +212,7 @@ namespace fog
             if (it == this->buildingsInCells.end()) // cannot build two at the same cell
             {
 
-                State *building = this->plan->exchangeBuilding(nullptr);
+                Actor *building = this->plan->exchangeBuilding(nullptr);
                 this->add(building);
                 this->buildingsInCells[cKey].push_back(building);
             }

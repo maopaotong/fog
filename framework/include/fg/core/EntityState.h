@@ -6,7 +6,7 @@
 
 #include <Ogre.h>
 #include "fg/util.h"
-#include "fg/State.h"
+#include "fg/Actor.h"
 #include "PathState.h"
 #include "fg/Pickable.h"
 #include "fg/core/PathFollow2MissionState.h"
@@ -16,7 +16,7 @@ namespace fog
     using namespace Ogre;
     using Vector3Ref = Property::Ref<Vector3>;
 
-    class EntityState : public State
+    class EntityState : public Actor
     {
 
     protected:

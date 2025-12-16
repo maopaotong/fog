@@ -99,7 +99,7 @@ namespace fog
             this->texture = TextureFactory::createTexture(texName, width, height, this->data);
 
             eventBus-> //
-                subscribe<MovableEventType, State *>([this](MovableEventType evtType, State *state)
+                subscribe<MovableEventType, Actor *>([this](MovableEventType evtType, Actor *state)
                                                      {
                                                          if (evtType == MovableEventType::StateMoved)
                                                          {
@@ -230,7 +230,7 @@ namespace fog
             TextureFactory::updateTexture(texture, dWidth, dHeight, buffer, dBox); //, Range2<int>(x1, y1, x2, y2));
         }
 
-        void onMoving(State *state)
+        void onMoving(Actor *state)
         {
             // HexTile::Key cis;
             // if (Context<Cell::Center>::get()->findCellByPosition(state->getPosition(), cis))

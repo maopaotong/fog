@@ -6,7 +6,7 @@
 #include "imgui.h"
 #include <string>
 #include "fg/core.h"
-#include "fg/State.h"
+#include "fg/Actor.h"
 #include "fg/util.h"
 #include <fmt/format.h>
 #include "UIState.h"
@@ -14,7 +14,7 @@ namespace fog
 {
     class BuildingTrayUI : /* public Listener<State *, std::string &>,*/ public UIState
     {
-        State *state;
+        Actor *state;
         Event::Bus * eventBus;
 
     public:
@@ -29,7 +29,7 @@ namespace fog
             // actorPosition = this->getProperty<Vector3>("actor1.position", false);
             UIState::init();
             eventBus-> //
-                subscribe<BuildingEventType, State *>([this](BuildingEventType et, State *s)
+                subscribe<BuildingEventType, Actor *>([this](BuildingEventType et, Actor *s)
                                               {
                     if (et == BuildingEventType::StatePicked)
                     {

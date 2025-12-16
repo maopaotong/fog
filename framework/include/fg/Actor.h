@@ -25,10 +25,10 @@ namespace fog
 {
     using namespace Ogre;
 
-    class State
+    class Actor
     {
     public:
-        static State *get(Node *node)
+        static Actor *get(Node *node)
         {
             const Any &any = node->getUserAny();
             if (any.isEmpty())
@@ -36,15 +36,15 @@ namespace fog
                 return nullptr;
             }
 
-            State *state = Ogre::any_cast<State *>(any);
+            Actor *state = Ogre::any_cast<Actor *>(any);
             return state;
         }
-        static void set(SceneNode *node, State *state)
+        static void set(SceneNode *node, Actor *state)
         {
             node->setUserAny(state);
         }
 
-        static State *getState(MovableObject *mo)
+        static Actor *get(MovableObject *mo)
         {
             const Any &any = mo->getUserAny();
             if (any.isEmpty())
@@ -52,16 +52,16 @@ namespace fog
                 return nullptr;
             }
 
-            State *state = Ogre::any_cast<State *>(any);
+            Actor *state = Ogre::any_cast<Actor *>(any);
             return state;
         }
 
     protected:
-        State *parent = nullptr;
+        Actor *parent = nullptr;
         FrameListener *frameListener = nullptr;
         SceneNode *sceNode = nullptr;
         //
-        List<UniquePtr<State>> children;
+        List<UniquePtr<Actor>> children;
         bool active = false;
         Options options;
         std::string name;
@@ -80,16 +80,16 @@ namespace fog
         }
 
     public:
-        State()
+        Actor()
         {
             // std::cout << "new State()" << this << "" << std::endl;
         }
-        virtual ~State()
+        virtual ~Actor()
         {
             // children no need to delete , unique ptr will help.
             // 
             if(this->sceNode){
-                State::set(this->sceNode, nullptr);
+                Actor::set(this->sceNode, nullptr);
                 Node * pNode = this->sceNode->getParent();
                 pNode->removeChild(this->sceNode);
                 this->sceNode = nullptr;
@@ -106,7 +106,7 @@ namespace fog
             this->getSceneNode()->setPosition(v3);
         }
         
-        State * getParent(){
+        Actor * getParent(){
             return this->parent;
         }
 
@@ -153,7 +153,7 @@ namespace fog
 
         SceneNode *findSceneNode()
         {
-            State *s = this;
+            Actor *s = this;
             while (s)
             {
                 if (s->sceNode)
@@ -166,24 +166,24 @@ namespace fog
         }
         void setSceneNode(SceneNode *sNode)
         {
-            State::set(sNode, this);
+            Actor::set(sNode, this);
             this->sceNode = sNode;
         }
 
-        void addChild(State *s)
+        void addChild(Actor *s)
         {
             if (s->parent)
             {
                 throw std::runtime_error("Already has a parent state.");
             }
-            children.push_back(UniquePtr<State>(s));
+            children.push_back(UniquePtr<Actor>(s));
             s->parent = this;
         }
 
-        void removeChild(State *cs)
+        void removeChild(Actor *cs)
         {
             children.erase(
-                std::remove_if(children.begin(), children.end(), [cs](const UniquePtr<State> &state)
+                std::remove_if(children.begin(), children.end(), [cs](const UniquePtr<Actor> &state)
                                { return cs == state.get(); }),
                 children.end());
         }
@@ -238,7 +238,7 @@ namespace fog
             bool goOn = true;
             for (auto &it = children.begin(); it != children.end(); ++it)
             {
-                State *s = it->get();
+                Actor *s = it->get();
                 goOn = func(s);
                 if (goOn && recursive)
                 {
@@ -253,12 +253,12 @@ namespace fog
         }
 
         template <typename... Args>
-        void forEachChild(bool recursive, void (*func)(State *, Args...), Args... args)
+        void forEachChild(bool recursive, void (*func)(Actor *, Args...), Args... args)
         {
-            std::vector<State *> *tmp = this->children;
+            std::vector<Actor *> *tmp = this->children;
             for (auto it = tmp->begin(); it != tmp->end(); ++it)
             {
-                State *s = *it;
+                Actor *s = *it;
                 func(s, args...);
                 if (recursive)
                 {
@@ -270,10 +270,10 @@ namespace fog
         {
             this->name = name;
         }
-        State *getChildByName(std::string name)
+        Actor *getChildByName(std::string name)
         {
-            State *ret = nullptr;
-            forEachChild([&name, &ret](State *s)
+            Actor *ret = nullptr;
+            forEachChild([&name, &ret](Actor *s)
                          {
                 if(s->name == name){
                     ret = s;

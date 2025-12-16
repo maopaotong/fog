@@ -4,7 +4,7 @@
  */
 #pragma once
 #include "fg/Common.h"
-#include "fg/State.h"
+#include "fg/Actor.h"
 #include "fg/core/CoreMod.h"
 #include "fg/MaterialNames.h"
 #include "fg/MeshBuild.h"

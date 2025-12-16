@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/State.h"
+#include "fg/Actor.h"
 #include "CellStateControl.h"
 #include "fg/CameraState.h"
 #include "fg/core/EntityState.h"
@@ -20,7 +20,7 @@
 namespace fog
 {
 
-    class WorldState : public State
+    class WorldState : public Actor
     {
     protected:
         // CellStateControl *cells;

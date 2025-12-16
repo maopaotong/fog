@@ -6,7 +6,7 @@
 #include "imgui.h"
 #include <string>
 #include "fg/core.h"
-#include "fg/State.h"
+#include "fg/Actor.h"
 #include "fmt/format.h"
 #include "fg/util/ImGuiUtil.h"
 #include "UIState.h"
@@ -37,7 +37,7 @@ namespace fog
         CoreMod *core;
         InventoryManager *inventoryManager;
         Event::Bus *eventBus;
-        State *rootState;
+        Actor *rootState;
         MovableStateManager *msm;
 
     public:
