@@ -56,6 +56,7 @@ namespace fog
         {
             this->data = new unsigned char[width * height * 4]; // rgba;
             // to speed up calculation.
+            //init();
         }
 
         ~FogOfWar()

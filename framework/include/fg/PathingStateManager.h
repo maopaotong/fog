@@ -41,18 +41,22 @@ namespace fog
         CellInstanceManager *cellInstMgrState;
         MovableStateManager *movableStateMgr;
         Event::Bus * eventBus;
+        CellsCost * cellsCost;
     public:
         INJECT(PathingStateManager(CostMap *costMap, Viewport *viewport,
 Event::Bus * eventBus,
                                      CellInstanceManager *cellInstMgrState,                                   
                                    MovableStateManager *movableStateMgr,
-                                   Camera *camera)) : viewport(viewport),
+                                   Camera *camera,
+                                CellsCost * cellsCost)) : viewport(viewport),
                                                       camera(camera),
                                                       eventBus(eventBus),
                                                       costMap(costMap), sourceState(nullptr), targetCis(nullptr),
                                                       cellInstMgrState(cellInstMgrState),
                                                       movableStateMgr(movableStateMgr),
+                                                      cellsCost(cellsCost),
                                                       path(nullptr)
+
         {
             std::cout << "PathingStateManager created." << std::endl;
             eventBus-> //
@@ -209,7 +213,7 @@ Event::Bus * eventBus,
             // update path
             this->cKey1 = cKey1;
             this->cKey2 = cKey2;
-            auto costFunc = *Context<CellsCost>::get();
+            auto costFunc = *cellsCost;
             std::vector<CellKey> pathByCellKey =
                 costMap->findPath(cKey1, cKey2, costFunc);
 

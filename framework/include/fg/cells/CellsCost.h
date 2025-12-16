@@ -5,13 +5,15 @@
 #pragma once
 #include "fg/util/Common.h"
 #include "fg/cells/Cells.h"
+#include "fg/demo/CellsDatas.h"
 namespace fog
 {
 
     struct CellsCost
     {
         std::vector<std::vector<CellData>> *tiles;
-        CellsCost(std::vector<std::vector<CellData>> *tiles) : tiles(tiles)
+
+        INJECT(CellsCost(CellsDatas *cDatas)) : tiles(&cDatas->tiles)
         {
         }
         int operator()(Point2<int> &cKey)

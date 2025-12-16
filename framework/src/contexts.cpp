@@ -93,6 +93,6 @@ namespace fog
     template<>
     Transform::D3_NORMAL_D2 * Context<Transform::D3_NORMAL_D2>::ctxObj = nullptr;
     
-    template<>
-    CellsCost * Context<CellsCost>::ctxObj = nullptr;
+    // template<>
+    // CellsCost * Context<CellsCost>::ctxObj = nullptr;
 };

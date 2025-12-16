@@ -16,6 +16,7 @@
 #include "fg/cells.h"
 #include "fg/util.h"
 #include "fg/core/FogOfWar.h"
+#include "fg/demo/CellsDatas.h"
 namespace fog
 {
     class WorldState : public State
@@ -24,7 +25,8 @@ namespace fog
         // CellStateControl *cells;
         CellsState *tilesState;
         TheTerrains *tts;
-        std::vector<std::vector<CellData>> tiles;
+        //std::vector<std::vector<CellData>> tiles;
+        CellsDatas * cellsDatas;
         FogOfWar *fogOfWar;
         EntryController *entryController;
         CellsTerrains *terrains;
@@ -42,14 +44,17 @@ namespace fog
                           CoreMod *core,
                           MovableStateManager *movableStateMgr,
                           InventoryStateManager *inventoryStateMgr,
-                          TheTerrains *tts)) : fogOfWar(fogOfWar),
+                          TheTerrains *tts,
+                          CellsDatas * cDatas
+                        )) : fogOfWar(fogOfWar),
                                                core(core),
                                                movableStateMgr(movableStateMgr),
                                                inventoryStateMgr(inventoryStateMgr),
                                                tts(tts),
                                                buildingStateMgr(buildingStateMgr),
                                                entryController(entryController),
-                                               terrains(terrains)
+                                               terrains(terrains),
+                                               cellsDatas(cDatas)
         {
         }
         void initCellsAndCostMap()
@@ -64,10 +69,10 @@ namespace fog
             // this->tts = new TheTerrains(tsWidth, tsHeight, terWidth, terHeight);
             // std::vector<std::vector<tiles::Vertex>> vertexs(terWidth, std::vector<tiles::Vertex>(terHeight, tiles::Vertex()));
 
-            CellsGenerator::generateCells(tiles, tsWidth, tsHeight);
+            //CellsGenerator::generateCells(tiles, tsWidth, tsHeight);
             // cost map
 
-            Context<CellsCost>::set(new CellsCost(&tiles));
+            //Context<CellsCost>::set(new CellsCost(&cellsDatas->tiles));
 
             // CostMap *costMap = new CostMap(tsWidth, tsHeight);
             // Context<CostMap>::set(costMap);
@@ -85,7 +90,7 @@ namespace fog
             {
                 int x = rPosX(gen);
                 int y = rPosX(gen);
-                CellType type = tiles[x][y].type;
+                CellType type = cellsDatas->tiles[x][y].type;
                 if (type == CellTypes::OCEAN || type == CellTypes::MOUNTAIN)
                 {
                     continue;
@@ -105,11 +110,12 @@ namespace fog
             this->initCellsAndCostMap();
             CellKey cKey = findCellToStandOn(); //
 
-            // Context<FogOfWar>::get()->setHomeCell(cKey);
+            // Context<FogOfWar>::get()
+            fogOfWar->setHomeCell(cKey);
             // Context<FogOfWar>::get()->init();
             fogOfWar->init();
             // Create frame listener for main loop
-            this->tilesState = new CellsState(this->tiles, this->tts, this->fogOfWar, this->terrains, core);
+            this->tilesState = new CellsState(cellsDatas->tiles, this->tts, this->fogOfWar, this->terrains, core);
 
             this->tilesState->init();
 

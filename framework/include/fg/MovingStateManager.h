@@ -36,19 +36,22 @@ namespace fog
 
         CostMap *costMap;
         Event::Bus *eventBus;
+        CellsCost *cellsCost;
 
     public:
         MoveToCellTask(State *state, CellKey cKey2,
                        CostMap *costMap,
-                       Event::Bus *eventBus) : costMap(costMap),
+                       Event::Bus *eventBus,
+                       CellsCost *cellsCost) : costMap(costMap),
                                                eventBus(eventBus),
+                                               cellsCost(cellsCost),
                                                movingState(state), cKey2(cKey2)
         {
         }
         virtual ~MoveToCellTask()
         {
         }
-        
+
         State *getState()
         {
             return this->movingState;
@@ -101,7 +104,7 @@ namespace fog
 
             CellKey cKey1 = std::get<CellKey>(stateCellAndPosition);
 
-            CellsCost &costFunc = *Context<CellsCost>::get();
+            CellsCost &costFunc = *cellsCost;
             std::vector<CellKey> pathByCKey = costMap-> //
                                               findPath(cKey1,
                                                        cKey2, //
@@ -175,6 +178,7 @@ namespace fog
         }
 
     }; // end of class
+
     class MovingStateManager : public State, public Stairs
     {
         std::vector<std::unique_ptr<MoveToCellTask>> tasks;
@@ -183,14 +187,17 @@ namespace fog
         Viewport *viewport;
         Camera *camera;
         Event::Bus *eventBus;
+        CellsCost *cellsCost;
 
     public:
         INJECT(MovingStateManager(CostMap *cm, Viewport *viewport,
                                   Event::Bus *eventBus,
-                                  Camera *camera)) : viewport(viewport),
-                                                     eventBus(eventBus),
-                                                     camera(camera),
-                                                     costMap(cm), state(nullptr)
+                                  Camera *camera,
+                                  CellsCost *cellsCost)) : viewport(viewport),
+                                                           eventBus(eventBus),
+                                                           camera(camera),
+                                                           cellsCost(cellsCost),
+                                                           costMap(cm), state(nullptr)
         {
             eventBus-> //
                 subscribe<MovableEventType, State *>([this](MovableEventType evtType, State *state)
@@ -210,8 +217,8 @@ namespace fog
         {
         }
         // 禁止拷贝
-    MovingStateManager(const MovingStateManager&) = delete;
-    MovingStateManager& operator=(const MovingStateManager&) = delete;
+        MovingStateManager(const MovingStateManager &) = delete;
+        MovingStateManager &operator=(const MovingStateManager &) = delete;
 
         void init() override
         {
@@ -280,7 +287,7 @@ namespace fog
             }
 
             //
-            MoveToCellTask *task = new MoveToCellTask(state, cKey2, costMap, eventBus);
+            MoveToCellTask *task = new MoveToCellTask(state, cKey2, costMap, eventBus, cellsCost);
             this->tasks.push_back(std::unique_ptr<MoveToCellTask>(task));
             eventBus->emit<MovableEventType, State *>(MovableEventType::StateStartMoving, state);
         }
