@@ -39,58 +39,6 @@ namespace fog
     public:
         INJECT(SimpleCore(ImGuiAppContext *igac)) : appCtx(igac), CoreMod()
         {
-        }
-        virtual ~SimpleCore()
-        {
-            delete appCtx;
-        }
-        // HexagonalGridVisualizer
-
-        struct Setup
-        {
-            Mod *operator()(Component::Injector &injector)
-            {
-                injector.bindImpl<CoreMod, SimpleCore>();
-                injector.bindAllImplAsValue<>();
-                injector.bindAllImpl<ImGuiAppContext,
-                                     ImGuiAppImpl>();
-
-                return injector.get<CoreMod>();
-            };
-        };
-
-        void addCallback(Callback *callback)
-        {
-            {
-
-                std::function<void()> func = appCtx->beforeResourceLoad;
-
-                appCtx->beforeResourceLoad = [func, callback]()
-                {
-                    if (func)
-                    {
-                        func();
-                    }
-                    callback->beforeResourceLoad();
-                };
-            }
-            {
-
-                std::function<void()> func = appCtx->afterResourceLoad;
-
-                appCtx->afterResourceLoad = [func, callback]()
-                {
-                    if (func)
-                    {
-                        func();
-                    }
-                    callback->afterResourceLoad();
-                };
-            }
-        }
-
-        void init()
-        {
             appCtx->initApp();
             this->matMgr = MaterialManager::getSingletonPtr();
             this->root = appCtx->getRoot();
@@ -148,6 +96,57 @@ namespace fog
             vp = window->addViewport(camera);
             vp->setBackgroundColour(Ogre::ColourValue(0.2f, 0.2f, 0.2f));
             this->root->addFrameListener(this);
+        }
+        virtual ~SimpleCore()
+        {
+            delete appCtx;
+        }
+        // HexagonalGridVisualizer
+
+        struct Setup
+        {
+            Mod *operator()(Component::Injector &injector)
+            {
+                injector.bindImpl<CoreMod, SimpleCore>([](CoreMod &core)
+                                                       {
+                                                           // core.init();
+                                                       });
+                injector.bindAllImplAsValue<>();
+                injector.bindAllImpl<ImGuiAppContext,
+                                     ImGuiAppImpl>();
+
+                return injector.get<CoreMod>();
+            };
+        };
+
+        void addCallback(Callback *callback)
+        {
+            {
+
+                std::function<void()> func = appCtx->beforeResourceLoad;
+
+                appCtx->beforeResourceLoad = [func, callback]()
+                {
+                    if (func)
+                    {
+                        func();
+                    }
+                    callback->beforeResourceLoad();
+                };
+            }
+            {
+
+                std::function<void()> func = appCtx->afterResourceLoad;
+
+                appCtx->afterResourceLoad = [func, callback]()
+                {
+                    if (func)
+                    {
+                        func();
+                    }
+                    callback->afterResourceLoad();
+                };
+            }
         }
 
         ApplicationContext *getAppContext() override { return this->appCtx; }
@@ -208,10 +207,6 @@ namespace fog
             return "core";
         }
 
-        void active() override
-        {
-            this->init();
-        }
         void deactive() override
         {
             // Context<CoreMod>::set(nullptr);

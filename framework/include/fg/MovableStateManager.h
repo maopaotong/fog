@@ -109,13 +109,13 @@ namespace fog
                                                          }
                                                          return true; //
                                                      });
+            this->createSinbad();
         }
         virtual ~MovableStateManager()
         {
         }
         void init() override
         {
-            this->createSinbad();
         }
 
         void createSinbad()

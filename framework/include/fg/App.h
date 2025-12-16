@@ -25,7 +25,6 @@ namespace fog
         void add(Component::Injector &injector, F &&setup)
         {
             Mod *mod = setup(injector);
-            mod->active();
             mods.push_back(ModHolder(mod, injector));
         }
 

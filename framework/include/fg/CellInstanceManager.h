@@ -132,12 +132,6 @@ namespace fog
             core(core)
 
         {
-        }
-        virtual ~CellInstanceManager()
-        {
-        }
-        void init() override
-        {
             this->sceNode = sceneManager->getRootSceneNode()->createChildSceneNode();
 
             for (int x = 0; x < Config::TILES_RANGE.getWidth(); x++)
@@ -151,6 +145,13 @@ namespace fog
                     this->cellInstanceStates[cell] = state;
                 }
             }
+        }
+        virtual ~CellInstanceManager()
+        {
+        }
+        void init() override
+        {
+            
         }
 
         // CellInstanceState *getCellInstanceStateByPosition(Vector2 posIn2D)

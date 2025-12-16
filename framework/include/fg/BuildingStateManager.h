@@ -98,23 +98,16 @@ namespace fog
                     emit<BuildingEventType, State *>(BuildingEventType::StatePicked, this->picked);
             }
         }
-        Event::Bus * eventBus;
+        Event::Bus *eventBus;
 
     public:
         INJECT(BuildingStateManager(CoreMod *core, SceneManager *sceneManager, InventoryStateManager *inventoryManager,
-        Event::Bus * eventBus
-        ))
+                                    Event::Bus *eventBus))
             : core(core),
               eventBus(eventBus),
               inventoryManager(inventoryManager),
               sceneManager(sceneManager),
               picked(nullptr), plan(nullptr)
-        {
-        }
-        virtual ~BuildingStateManager()
-        {
-        }
-        void init() override
         {
             eventBus-> //
                 subscribe<MouseCellEventType, CellKey>([this](MouseCellEventType type, CellKey cKey)
@@ -141,6 +134,12 @@ namespace fog
                                                       }
                                                       return true; //
                                                   });
+        }
+        virtual ~BuildingStateManager()
+        {
+        }
+        void init() override
+        {
         }
 
         bool pick(Ray &ray) // pick a building.
