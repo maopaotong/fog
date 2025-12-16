@@ -16,8 +16,7 @@
 #include "fg/cells.h"
 #include "fg/util.h"
 #include "fg/core/FogOfWar.h"
-#include "fg/demo/CellsDatas.h"
-#include "fg/demo/HomeCellKey.h"
+#include "fg/core/HomeCellKey.h"
 namespace fog
 {
 

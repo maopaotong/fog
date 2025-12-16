@@ -17,9 +17,9 @@
 #include "fg/cells/CellsTerrains.h"
 #include "fg/cells/CellsGenerator.h"
 #include "fg/Config.h"
-#include "fg/core/FogOfWar.h"
 #include "fg/Terrains.h"
 #include "fg/util/Box2.h"
+#include "CellsDatas.h"
 namespace fog
 {
     using namespace Ogre;
@@ -96,16 +96,23 @@ namespace fog
     {
 
     public:
+        struct Options{
+            std::string texName = Config::FOG_OF_WAR_TEX_NAME;
+            INJECT(Options()){
+                
+            }
+        };
         TheTerrains *tts;
         std::vector<std::vector<CellData>> &tiles;        
-        FogOfWar *fogOfWar;
         CellsTerrains *terrains;
-
+        Options options;
     public:
-        INJECT(CellsState(CellsDatas * cDatas, TheTerrains *tts, FogOfWar *fogOfWar,
+        INJECT(CellsState(CellsDatas * cDatas, TheTerrains *tts, Options options,
                    CellsTerrains *terrains,
                    CoreMod * core
-                )) : ManualState(core), terrains(terrains), tiles(cDatas->tiles), tts(tts), fogOfWar(fogOfWar)
+                )) : ManualState(core), terrains(terrains), tiles(cDatas->tiles), 
+                options(options),
+                tts(tts)
         {
             this->material = "Tiles";
         }
@@ -142,8 +149,8 @@ namespace fog
             // tex9
 
             // std::string texName9 = Context<FogOfWar>::get()->getTexName();
-            std::string texName9 = this->fogOfWar->getTexName();
-
+            //std::string texName9 = this->fogOfWar->getTexName();
+            std::string texName9 = options.texName;
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(9)->setTextureName(texName9);
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(9)->setTextureFiltering(Ogre::TFO_BILINEAR);
 

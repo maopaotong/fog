@@ -11,6 +11,7 @@
 #include "fg/core/EntityState.h"
 #include "fg/core/Sinbad.h"
 #include "fg/core/Tower.h"
+#include "fg/core/HomeCellKey.h"
 
 namespace fog
 {
@@ -89,6 +90,7 @@ namespace fog
         CoreMod *core;
         SceneManager *sceneManager;
         Event::Bus *eventBus;
+        HomeCellKey * home;
 
     public:
         INJECT(MovableStateManager(CoreMod *core, CellInstanceManager *cisManager,

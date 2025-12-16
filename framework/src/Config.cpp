@@ -39,6 +39,7 @@ namespace fog
     bool Config::GENERATOR1_MAKE_LAKE = false;
     bool Config::FRAG_SHOW_EDGE = false;
     Box2<int> Config::FOG_OF_WAR_TEX_RANGE = Box2<int>(32);
+    std::string Config::FOG_OF_WAR_TEX_NAME = "FogOfWarTex";
 
     Box2<int> Config::FOG_OF_WAR_EREASE_RANGE = Box2<int>(0);
     float Config::STATE_MOVED_EVENT_DISTNACE = CELL_SCALE / 2.0; //

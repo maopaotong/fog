@@ -1,7 +1,6 @@
 #pragma once
-#include <fg/util.h>
-#include <fg/cells.h>
-#include "fg/cells/CellsGenerator.h"
+#include "fg/util.h"
+#include "CellsGenerator.h"
 namespace fog
 {
 

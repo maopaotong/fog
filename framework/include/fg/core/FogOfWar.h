@@ -9,7 +9,7 @@
 #include "fg/util/Box2.h"
 #include "Ogre.h"
 #include "fg/util.h"
-#include "fg/demo/HomeCellKey.h"
+#include "fg/core/HomeCellKey.h"
 namespace fog
 {
 
@@ -27,7 +27,7 @@ namespace fog
 
             INJECT(Options()) : tlsWidth(Config::TILES_RANGE.getWidth()), tlsHeight(Config::TILES_RANGE.getHeight()),
                                 width(Config::FOG_OF_WAR_TEX_RANGE.getWidth()), height(Config::FOG_OF_WAR_TEX_RANGE.getHeight()),
-                                texName("FogOfWarTex")
+                                texName(Config::FOG_OF_WAR_TEX_NAME)
             {
             }
         };

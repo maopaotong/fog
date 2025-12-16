@@ -41,6 +41,7 @@ namespace fog
         static bool FRAG_SHOW_EDGE;
         // fog of war
         static Box2<int> FOG_OF_WAR_TEX_RANGE;
+        static std::string FOG_OF_WAR_TEX_NAME;
         static Box2<int> FOG_OF_WAR_EREASE_RANGE;
         static float STATE_MOVED_EVENT_DISTNACE;
         // debug
