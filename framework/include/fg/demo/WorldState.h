@@ -17,43 +17,9 @@
 #include "fg/util.h"
 #include "fg/core/FogOfWar.h"
 #include "fg/demo/CellsDatas.h"
+#include "fg/demo/HomeCellKey.h"
 namespace fog
 {
-
-    struct HomeCellKey
-    {
-
-        CellsDatas *cDatas;
-        CellKey cKey;
-        INJECT(HomeCellKey(CellsDatas *cDatas)) : cDatas(cDatas)
-        {
-            cKey = this->findCellToStandOn();
-        }
-
-    private:
-        CellKey findCellToStandOn()
-        {
-            std::random_device rd;
-            std::mt19937 gen(rd());
-
-            std::uniform_int_distribution<int> rPosX(0, Config::TILES_RANGE.getWidth() - 1);  //
-            std::uniform_int_distribution<int> rPosY(0, Config::TILES_RANGE.getHeight() - 1); //
-
-            for (int i = 0; i < 100; i++)
-            {
-                int x = rPosX(gen);
-                int y = rPosX(gen);
-                CellType type = cDatas->tiles[x][y].type;
-                if (type == CellTypes::OCEAN || type == CellTypes::MOUNTAIN)
-                {
-                    continue;
-                }
-                return CellKey(x, y);
-            }
-
-            return CellKey(0, 0);
-        }
-    };
 
     class WorldState : public State
     {
@@ -103,7 +69,7 @@ namespace fog
 
             // Context<FogOfWar>::get()->init();
             // SetHomeCellOfFogWar{cellsDatas}(*fogOfWar);
-            fogOfWar->init();
+            //fogOfWar->init();
             // Create frame listener for main loop
             this->tilesState = new CellsState(cellsDatas->tiles, this->tts, this->fogOfWar, this->terrains, core);
 
