@@ -83,7 +83,7 @@ namespace fog
                 ImGui::Text("No Active State");
                 if (ImGui::Button("Active actor"))
                 {
-                    rootState->forEach([this](Actor *state)
+                    msm->forEach([this](Actor *state)
                                        {
                         Sinbad *sb = dynamic_cast<Sinbad*>(state);
                         if(sb){
