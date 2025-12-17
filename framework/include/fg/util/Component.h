@@ -195,22 +195,7 @@ namespace fog
                 func();
                 (*it).pop();
             }
-            template <typename T, typename F>
-            void bindFuncAsPtr(F &&ptrFunc)
-            {
-                AnyFunc valueFunc = []() -> std::any
-                { throw std::runtime_error("Usage as value not implemented for the type to be injected."); };
-                bindComp(Component::make(typeid(T), ptrFunc, valueFunc));
-            }
-
-            template <typename T, typename F>
-            void bindFuncAsVal(F &&valueFunc)
-            {
-                AnyFunc ptrFunc = []() -> std::any
-                { throw std::runtime_error("Usage as value not implemented for the type to be injected."); };
-                bindComp(Component::make(typeid(T), ptrFunc, valueFunc));
-            }
-            
+                        
             template <typename T>
             T *getPtr(std::type_index tid)
             {
@@ -264,6 +249,22 @@ namespace fog
                     throw std::runtime_error("type id already bond, cannot bind, you may need rebind method.");
                 }
                 components.emplace(comp.typeId, comp);
+            }
+
+            template <typename T, typename F>
+            void bindFuncAsPtr(F &&ptrFunc)
+            {
+                AnyFunc valueFunc = []() -> std::any
+                { throw std::runtime_error("Usage as value not implemented for the type to be injected."); };
+                bindComp(Component::make(typeid(T), ptrFunc, valueFunc));
+            }
+
+            template <typename T, typename F>
+            void bindFuncAsVal(F &&valueFunc)
+            {
+                AnyFunc ptrFunc = []() -> std::any
+                { throw std::runtime_error("Usage as value not implemented for the type to be injected."); };
+                bindComp(Component::make(typeid(T), ptrFunc, valueFunc));
             }
 
             template <typename T, Usage usg = AsPtrStatic>

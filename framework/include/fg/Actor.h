@@ -57,22 +57,26 @@ namespace fog
         std::string name;
         CellKey cKey;
 
-        template <typename T>
-        Property::Ref<T> createProperty(std::string name, T defaultValue)
-        {
-            return Context<Property::Bag>::get()->createProperty<T>(name, defaultValue);
-        }
+        // template <typename T>
+        // Property::Ref<T> createProperty(std::string name, T defaultValue)
+        // {
+        //     return Context<Property::Bag>::get()->createProperty<T>(name, defaultValue);
+        // }
 
-        template <typename T>
-        Property::Ref<T> getProperty(std::string name)
-        {
-            return Context<Property::Bag>::get()->getProperty<T>(name);
-        }
+        // template <typename T>
+        // Property::Ref<T> getProperty(std::string name)
+        // {
+        //     return Context<Property::Bag>::get()->getProperty<T>(name);
+        // }
 
     public:
-        Actor()
+        Actor(){
+
+        }
+        Actor(SceneNode * sceNode):sceNode(sceNode)
         {
             // std::cout << "new State()" << this << "" << std::endl;
+            Actor::set(sceNode, this);            
         }
         virtual ~Actor()
         {
@@ -117,9 +121,9 @@ namespace fog
             return true;
         }
         
-        virtual void init() {
+        // virtual void init() {
 
-        };
+        // };
 
         virtual void collectProperties()
         {
@@ -160,23 +164,23 @@ namespace fog
             this->sceNode = sNode;
         }
 
-        void addChild(Actor *s)
-        {
-            if (s->parent)
-            {
-                throw std::runtime_error("Already has a parent state.");
-            }
-            children.push_back(UniquePtr<Actor>(s));
-            s->parent = this;
-        }
+        // void addChild(Actor *s)
+        // {
+        //     if (s->parent)
+        //     {
+        //         throw std::runtime_error("Already has a parent state.");
+        //     }
+        //     children.push_back(UniquePtr<Actor>(s));
+        //     s->parent = this;
+        // }
 
-        void removeChild(Actor *cs)
-        {
-            children.erase(
-                std::remove_if(children.begin(), children.end(), [cs](const UniquePtr<Actor> &state)
-                               { return cs == state.get(); }),
-                children.end());
-        }
+        // void removeChild(Actor *cs)
+        // {
+        //     children.erase(
+        //         std::remove_if(children.begin(), children.end(), [cs](const UniquePtr<Actor> &state)
+        //                        { return cs == state.get(); }),
+        //         children.end());
+        // }
 
         FrameListener *getFrameListener()
         {

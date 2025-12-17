@@ -19,22 +19,14 @@ namespace fog
         SceneManager *sceneManager;
         Config* config;
     public:
-        INJECT(CellInstanceState(CellKey cis, CoreMod *core, SceneManager *sceneManager,Config* config))
-            : sceneManager(sceneManager),
+        INJECT(CellInstanceState(CellKey cis, CoreMod *core, SceneManager *sceneManager,Config* config,SceneNode * sNode))
+            :Actor(sNode), sceneManager(sceneManager),
             config(config),
               cis(cis), core(core)
         {
-            this->sceNode = sceneManager->getRootSceneNode()->createChildSceneNode();
+            this->sceNode = sNode;//sceneManager->getRootSceneNode()->createChildSceneNode();
             this->obj = sceneManager->createManualObject();
             this->sceNode->attachObject(this->obj);
-        }
-
-        virtual ~CellInstanceState()
-        {
-        }
-
-        void init() override
-        {
             ColourValue bottomColour;
             bool hasBottomColor = getCostColor(cis, bottomColour);
             if (hasBottomColor)
@@ -43,6 +35,10 @@ namespace fog
             }
 
             buildMesh();
+        }
+
+        virtual ~CellInstanceState()
+        {
         }
 
         Vector3 getOrigin3D()
@@ -70,27 +66,7 @@ namespace fog
         // Get color based on cost
         bool getCostColor(CellKey &cell, Ogre::ColourValue &color) const
         {
-            // CostMap *costMap = Context<CostMap>::get();
-            // const int cost = costMap->getCost(cell);
-            // switch (cost)
-            // {
-            // case CostMap::OBSTACLE:
-            //     color = Ogre::ColourValue::Red;
-            //     return true;
-            // case CostMap::DEFAULT_COST:
-            //     color = Ogre::ColourValue(0.8f, 0.6f, 0.2f); // light Sand color
-            //     return false;
-            // case 2:
-            //     color = Ogre::ColourValue(0.6f, 0.4f, 0.1f); // Dark Sand color
-            //     return true;
-            // case 3:
-            //     color = Ogre::ColourValue(0.2f, 0.4f, 0.8f); // Water color
-            //     return true;
-            // default:
-            //     color = Ogre::ColourValue(0.7f, 0.7f, 0.7f); // light gray
-
-            //     return true;
-            // }
+            
             return false;
         }
 
@@ -142,7 +118,7 @@ namespace fog
                 {
                     cell = CellKey(x, y);
                     CellInstanceState *state = injector->getPtr<CellInstanceState>();
-                    state->init();
+                    //state->init();
 
                     this->add(state); //
                     this->cellInstanceStates[cell] = state;

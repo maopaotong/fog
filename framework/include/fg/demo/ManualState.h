@@ -37,6 +37,8 @@ namespace fog
             this->sceNode = sceneMgr->getRootSceneNode()->createChildSceneNode();
             sceNode->attachObject(obj);
             //
+            //
+            this->setSceneNode(sceNode);
         }
         virtual ~ManualState()
         {
@@ -45,10 +47,9 @@ namespace fog
             this->sceNode = nullptr;
         }
 
-        virtual void init() override
+        virtual void init() 
         {
             rebuildMesh();            
-            this->setSceneNode(sceNode);
         }
 
         virtual void rebuildMesh() = 0;

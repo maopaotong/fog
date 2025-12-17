@@ -24,11 +24,12 @@ namespace fog
         Actor *building;
         float amount;
         CoreMod *core;
-        Config* config;
+        Config *config;
+
     public:
-        BuildingPlan(Actor *building, float amount, CoreMod *core,Config* config) : core(core),
-            config(config),
-                                                                     building(building), amount(amount)
+        BuildingPlan(Actor *building, float amount, CoreMod *core, Config *config) : core(core),
+                                                                                     config(config),
+                                                                                     building(building), amount(amount)
         {
         }
 
@@ -100,12 +101,15 @@ namespace fog
             }
         }
         Event::Bus *eventBus;
+        Component::Injector *injector;
 
     public:
         INJECT(BuildingStateManager(CoreMod *core, SceneManager *sceneManager, InventoryManager *inventoryManager,
                                     Config *config,
+                                    Component::Injector *injector,
                                     Event::Bus *eventBus))
             : core(core),
+              injector(injector),
               config(config),
               eventBus(eventBus),
               inventoryManager(inventoryManager),
@@ -190,19 +194,19 @@ namespace fog
                 Actor *building = nullptr;
                 if (type == BuildingType::Tower)
                 {
-                    building = new Tower(core);
+                    building = injector->getPtr<Tower>();
                 }
                 else if (type == BuildingType::H0085)
                 {
-                    building = new H0085(core);
+                    building = injector->getPtr<H0085>();
                 }
                 else
                 {
                     building = new Building(type, core, config);
                 }
-                building->init();
+                //building->init();
 
-                this->plan = new BuildingPlan(building, invAmount, core,config);
+                this->plan = new BuildingPlan(building, invAmount, core, config);
             }
 
             return true;

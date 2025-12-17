@@ -14,7 +14,7 @@ namespace fog
 
 #define DEFAULT_HIGH_OFFSET 1.1f
 
-    class PathState : public Actor
+    class PathState
     {
         std::vector<CellKey> currentPath;
         CellInstanceStateManager *cisManager;

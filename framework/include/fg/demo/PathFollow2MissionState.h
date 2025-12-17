@@ -55,7 +55,7 @@ namespace fog
             //
             // this->setFrameListener(this);
         }
-        void init() override
+        void init() 
         {
             // actorPosition = this->getProperty<Vector3>("actor1"
             //                  ".actor.position");

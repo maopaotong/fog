@@ -102,13 +102,13 @@ namespace fog
                                    TheTerrains2 *tts2,
                                    HomeCellKey *homeCellKey,
                                    Config *config,
+                                   Component::Injector * injector,
                                    SceneManager *sceneManager))
             : core(core),
               tts2(tts2),
               config(config),
               eventBus(eventBus),
-              sceneManager(sceneManager),
-              actor2(new Sinbad(core)),
+              sceneManager(sceneManager),                
               home(homeCellKey),
               movingState{cisManager, eventBus, config}
         {
@@ -121,6 +121,7 @@ namespace fog
                                                          }
                                                          return true; //
                                                      });
+        this->actor2= injector->getPtr<Sinbad>();                                                     
             this->createSinbad();
         }
         virtual ~MovableStateManager()

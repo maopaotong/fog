@@ -25,7 +25,7 @@ namespace fog
     /**
      * PathingStateManager find a path from current state position to mouse position.
      */
-    class PathingStateManager : public Actor, public Stairs
+    class PathingStateManager : public Stairs
     {
         //
         Actor *sourceState;
@@ -88,15 +88,15 @@ namespace fog
 
         void setPath(PathState *path2)
         {
-            if (this->path)
-            {
-                this->removeChild(this->path);
-            }
+            // if (this->path)
+            // {
+            //     this->removeChild(this->path);
+            // }
             this->path = path2;
-            if (this->path)
-            {
-                this->addChild(path);
-            }
+            // if (this->path)
+            // {
+            //     this->addChild(path);
+            // }
         }
 
         void setSource(Actor *state)
@@ -222,7 +222,7 @@ namespace fog
                 costMap->findPath(cKey1, cKey2, costFunc);
 
             PathState *pathState2 = new PathState(cellInstMgrState);
-            pathState2->init();
+            //pathState2->init();
             pathState2->setPath(pathByCellKey);
             this->setPath(pathState2);
             return true;
