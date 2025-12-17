@@ -49,7 +49,7 @@ namespace fog
             if (state)
             {
 
-                SceneNode *sNode = state->findSceneNode();
+                SceneNode *sNode = state->getSceneNode();
                 ImGui::Text(("Building State: " + std::to_string((uintptr_t)state)).c_str());
                 ImGui::SameLine();
                 ImGuiUtil::Text(sNode->getPosition());

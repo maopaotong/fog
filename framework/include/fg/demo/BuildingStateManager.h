@@ -65,7 +65,7 @@ namespace fog
             // Vector3 pos3 = Context<Node2D>::get()->to3D(Cell::getOrigin2D(cKey),config->CELL_SCALE);
             // Vector3 pos3 = cKey.cast<float>().transform(Transform::CellCentreByKey()).transform3(config->D2H2D3);
             // this->building->findSceneNode()->setPosition(pos3);
-            this->building->findSceneNode()->setPosition(cKey.transform3(*config->transformFromD2HToD3));
+            this->building->getSceneNode()->setPosition(cKey.transform3(*config->transformFromD2HToD3));
         }
     };
 

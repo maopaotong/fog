@@ -49,7 +49,7 @@ namespace fog
     protected:
         Actor *parent = nullptr;
         FrameListener *frameListener = nullptr;
-        SceneNode *sceNode = nullptr;
+        SceneNode *sceNode;
         //
         List<UniquePtr<Actor>> children;
         bool active = false;
@@ -70,37 +70,36 @@ namespace fog
         // }
 
     public:
-        Actor(){
-
-        }
-        Actor(SceneNode * sceNode):sceNode(sceNode)
+        Actor(SceneNode *sceNode) : sceNode(sceNode)
         {
             // std::cout << "new State()" << this << "" << std::endl;
-            Actor::set(sceNode, this);            
+            Actor::set(sceNode, this);
         }
         virtual ~Actor()
         {
             // children no need to delete , unique ptr will help.
-            // 
-            if(this->sceNode){
-                Actor::set(this->sceNode, nullptr);
-                Node * pNode = this->sceNode->getParent();
-                pNode->removeChild(this->sceNode);
-                this->sceNode = nullptr;
-            }            
+            //
+
+            Actor::set(this->sceNode, nullptr);
+            Node *pNode = this->sceNode->getParent();
+            pNode->removeChild(this->sceNode);
+            this->sceNode = nullptr;
         }
 
-        Point2<float> getPosition(Transform::D3_NORMAL_D2 & d3_normal_d2){
+        Point2<float> getPosition(Transform::D3_NORMAL_D2 &d3_normal_d2)
+        {
             Vector3 positionIn3D = this->getSceneNode()->getPosition();
             return Point2<float>::from(positionIn3D, d3_normal_d2);
         }
 
-        void setPosition(CellKey cKey,Transform::D2H2D3 &d2h2d3){
+        void setPosition(CellKey cKey, Transform::D2H2D3 &d2h2d3)
+        {
             Vector3 v3 = cKey.transform3(d2h2d3);
             this->getSceneNode()->setPosition(v3);
         }
-        
-        Actor * getParent(){
+
+        Actor *getParent()
+        {
             return this->parent;
         }
 
@@ -111,7 +110,7 @@ namespace fog
         void setCellKey(CellKey ckey)
         {
             this->cKey = ckey;
-        }   
+        }
         bool pickable()
         {
             if (this->active)
@@ -120,7 +119,7 @@ namespace fog
             }
             return true;
         }
-        
+
         // virtual void init() {
 
         // };
@@ -132,7 +131,7 @@ namespace fog
         // Vector3 to3D(Vector2 point, float scale)
         // {
         //     return Context<Node2D>::get()->to3D(point, scale);
-            
+
         // }
 
         // bool findCell(Vector2 aPos3, HexTile::Key &cell)
@@ -145,24 +144,24 @@ namespace fog
             return this->sceNode;
         }
 
-        SceneNode *findSceneNode()
-        {
-            Actor *s = this;
-            while (s)
-            {
-                if (s->sceNode)
-                {
-                    return s->sceNode;
-                }
-                s = s->parent;
-            }
-            return nullptr;
-        }
-        void setSceneNode(SceneNode *sNode)
-        {
-            Actor::set(sNode, this);
-            this->sceNode = sNode;
-        }
+        // SceneNode *findSceneNode()
+        // {
+        //     Actor *s = this;
+        //     while (s)
+        //     {
+        //         if (s->sceNode)
+        //         {
+        //             return s->sceNode;
+        //         }
+        //         s = s->parent;
+        //     }
+        //     return nullptr;
+        // }
+        // void setSceneNode(SceneNode *sNode)
+        // {
+        //     Actor::set(sNode, this);
+        //     this->sceNode = sNode;
+        // }
 
         // void addChild(Actor *s)
         // {
@@ -208,16 +207,16 @@ namespace fog
         {
             return this->active;
         }
-        template <typename F>
-        bool forEach(F &&func)
-        {
-            bool goOn = func(this);
-            if (goOn)
-            {
-                return forEachChild(func);
-            }
-            return false;
-        }
+        // template <typename F>
+        // bool forEach(F &&func)
+        // {
+        //     bool goOn = func(this);
+        //     if (goOn)
+        //     {
+        //         return forEachChild(func);
+        //     }
+        //     return false;
+        // }
 
         // template <typename... Args>
         // void forEachChild(void (*func)(State *, Args...), Args... args)
@@ -225,57 +224,57 @@ namespace fog
         //     forEachChild<Args...>(true, func, args...);
         // }
 
-        template <typename F>
-        bool forEachChild(F &&func, bool recursive = true)
-        {
+        // template <typename F>
+        // bool forEachChild(F &&func, bool recursive = true)
+        // {
 
-            bool goOn = true;
-            for (auto &it = children.begin(); it != children.end(); ++it)
-            {
-                Actor *s = it->get();
-                goOn = func(s);
-                if (goOn && recursive)
-                {
-                    goOn = s->forEachChild(func);
-                }
-                if (!goOn)
-                {
-                    break;
-                }
-            }
-            return goOn;
-        }
+        //     bool goOn = true;
+        //     for (auto &it = children.begin(); it != children.end(); ++it)
+        //     {
+        //         Actor *s = it->get();
+        //         goOn = func(s);
+        //         if (goOn && recursive)
+        //         {
+        //             goOn = s->forEachChild(func);
+        //         }
+        //         if (!goOn)
+        //         {
+        //             break;
+        //         }
+        //     }
+        //     return goOn;
+        // }
 
-        template <typename... Args>
-        void forEachChild(bool recursive, void (*func)(Actor *, Args...), Args... args)
-        {
-            std::vector<Actor *> *tmp = this->children;
-            for (auto it = tmp->begin(); it != tmp->end(); ++it)
-            {
-                Actor *s = *it;
-                func(s, args...);
-                if (recursive)
-                {
-                    s->forEachChild<Args...>(true, func, args...);
-                }
-            }
-        }
+        // template <typename... Args>
+        // void forEachChild(bool recursive, void (*func)(Actor *, Args...), Args... args)
+        // {
+        //     std::vector<Actor *> *tmp = this->children;
+        //     for (auto it = tmp->begin(); it != tmp->end(); ++it)
+        //     {
+        //         Actor *s = *it;
+        //         func(s, args...);
+        //         if (recursive)
+        //         {
+        //             s->forEachChild<Args...>(true, func, args...);
+        //         }
+        //     }
+        // }
         void setName(std::string name)
         {
             this->name = name;
         }
-        Actor *getChildByName(std::string name)
-        {
-            Actor *ret = nullptr;
-            forEachChild([&name, &ret](Actor *s)
-                         {
-                if(s->name == name){
-                    ret = s;
-                    return false;
-                }
-                return true; }, false);
-            return ret;
-        }
+        // Actor *getChildByName(std::string name)
+        // {
+        //     Actor *ret = nullptr;
+        //     forEachChild([&name, &ret](Actor *s)
+        //                  {
+        //         if(s->name == name){
+        //             ret = s;
+        //             return false;
+        //         }
+        //         return true; }, false);
+        //     return ret;
+        // }
 
         virtual AnimationStateSet *getAllAnimationStates()
         {

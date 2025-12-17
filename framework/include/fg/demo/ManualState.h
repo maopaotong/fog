@@ -38,7 +38,7 @@ namespace fog
             sceNode->attachObject(obj);
             //
             //
-            this->setSceneNode(sceNode);
+            // this->setSceneNode(sceNode);
         }
         virtual ~ManualState()
         {

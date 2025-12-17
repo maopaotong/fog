@@ -16,7 +16,7 @@ namespace fog
     /**
      * Move a node to a destination.
      */
-    class PathFollow2MissionState : public Actor, public Stairs
+    class PathFollow2MissionState : public Stairs
     {
         PathFollow2 path;
 
@@ -107,7 +107,7 @@ namespace fog
             }
 
             //
-            SceneNode *target = this->state->findSceneNode();
+            SceneNode *target = this->state->getSceneNode();
             Vector3 prevPos = target->getPosition();
 
             float terH = 0.0f; // Context<Terrains>::get()->getHeightAtPosition(currentPos2D); // TODO in a common place to translate all .

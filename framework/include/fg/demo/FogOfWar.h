@@ -22,15 +22,22 @@ namespace fog
             int tlsHeight;
             std::string texName;
 
-            INJECT(Options(Config * cfg)) : tlsWidth(cfg->cellsRange.getWidth()), tlsHeight(cfg->cellsRange.getHeight()),
-                                width(cfg->fogOfWarTextRange.getWidth()), height(cfg->fogOfWarTextRange.getHeight()),
-                                texName(cfg->FOG_OF_WAR_TEX_NAME)
+            INJECT(Options(Config *cfg)) : tlsWidth(cfg->cellsRange.getWidth()), tlsHeight(cfg->cellsRange.getHeight()),
+                                           width(cfg->fogOfWarTextRange.getWidth()), height(cfg->fogOfWarTextRange.getHeight()),
+                                           texName(cfg->FOG_OF_WAR_TEX_NAME)
             {
             }
         };
 
-        
-      
+        struct Texture
+        {
+            Options opts;
+            Ogre::TexturePtr texture;
+            INJECT(Texture(Options opts)) : opts(opts)
+            {
+                this->texture = TextureFactory::createTexture(opts.texName, opts.width, opts.height);
+            };
+        };
 
         int width;
         int height;
@@ -41,15 +48,18 @@ namespace fog
         unsigned char *data;   // background.
         unsigned char *buffer; // buffer capacity is defined by bufferBox, in edige of the world the buffer is not fully used.
         std::string texName;
-        TexturePtr texture;
+        Texture *texture;
         Box2<int> bufferBox{0}; // moving around. but keep the width * height, even if the box is moving out the world.
         //
         HomeCellKey *homeCellKey;
         Event::Bus *eventBus;
-        Config* config;
+        Config *config;
+
     public:
-        INJECT(FogOfWar(Options opts, Event::Bus *eventBus, HomeCellKey *homeCellKey, Config* config))
-            : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
+        INJECT(FogOfWar(Options opts, Event::Bus *eventBus, HomeCellKey *homeCellKey, Config *config,
+                        Texture *texture))
+            : texture(texture),
+              tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
               eventBus(eventBus),
               config(config),
               homeCellKey(homeCellKey),
@@ -59,22 +69,22 @@ namespace fog
         {
             this->data = new unsigned char[width * height * 4]; // rgba;
             // to speed up calculation.
-            
+
             // Box2<float> box = HexTile::Key(0, 0).getOuterBoxInUV(tlsWidth, tlsHeight); // cover the entire tile.
             // // scale from centre of the box, p1 is (0,0),p2 is very small value some thing like: 1/cells*rad.
             // box.expand(3.0); // expand to 3 cell width.
-            
+
             // // find the position of p2 in texture, and the width now is the numbers of pixels.
             // box.scale(width, height);
-            
+
             // int bW = box.getWidth();
             // int bH = box.getHeight();
             // // now the box is ready for moving, do not change the width and height.
             // this->bufferBox = Box2<int>(bW, bH); // fixed width height.
             // // prepare the buffer for texture update.
-            
+
             this->bufferBox = buildBufferBox(homeCellKey->cKey);
-            
+
             Box2<int> homeBox = bufferBox;
             for (int x = 0; x < width; x++)
             {
@@ -94,10 +104,8 @@ namespace fog
                     data[idx + 3] = 0; // A
                 } // for
             } // for
-            this->texture = TextureFactory::createTexture(texName, width, height, this->data);
-
+            TextureFactory::updateTexture(texture->texture, width, height, data);
             this->buffer = new unsigned char[bufferBox.getWidth() * bufferBox.getHeight() * 4]; // fixed capacity.
-
 
             eventBus-> //
                 subscribe<MovableEventType, Actor *>([this](MovableEventType evtType, Actor *state)
@@ -228,7 +236,7 @@ namespace fog
             // this is the centre index in texture data.
             // caculate the outer box to cover entire tile.
 
-            TextureFactory::updateTexture(texture, dWidth, dHeight, buffer, dBox); //, Range2<int>(x1, y1, x2, y2));
+            TextureFactory::updateTexture(texture->texture, dWidth, dHeight, buffer, dBox); //, Range2<int>(x1, y1, x2, y2));
         }
 
         void onMoving(Actor *state)
@@ -251,7 +259,7 @@ namespace fog
 
         void updateTexture()
         {
-            TextureFactory::updateTexture(texture, width, height, data);
+            TextureFactory::updateTexture(texture->texture, width, height, data);
         }
     };
 }

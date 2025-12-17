@@ -129,7 +129,7 @@ namespace fog
 
         INJECT(CellsMaterial(CellsTerrains *terrains,
                       TheTerrains *tts,
-                      FogOfWar *fogOfWar,
+                      FogOfWar::Texture *ftexture,
                       TheTerrains2 *tts2,
                       Config *config,
                       Options options))
@@ -149,7 +149,7 @@ namespace fog
 
             // std::string texName9 = Context<FogOfWar>::get()->getTexName();
             // std::string texName9 = this->fogOfWar->getTexName();
-            std::string texName9 = options.texName;
+            std::string texName9 = ftexture->opts.texName;
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(9)->setTextureName(texName9);
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(9)->setTextureFiltering(Ogre::TFO_BILINEAR);
 

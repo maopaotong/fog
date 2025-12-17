@@ -44,7 +44,7 @@ namespace fog
     {
     private:
     public:
-        static TexturePtr createTexture(std::string name, int width, int height, unsigned char *data, PixelFormat format = Ogre::PF_BYTE_RGBA)
+        static TexturePtr createTexture(std::string name, int width, int height, PixelFormat format = Ogre::PF_BYTE_RGBA)
         {
 
             // 上传到 GPU 纹理
@@ -68,7 +68,7 @@ namespace fog
                 // Ogre::TU_STATIC_WRITE_ONLY
             );
 
-            updateTexture(tex, width, height, data, format);
+            // updateTexture(tex, width, height, data, format);
             return tex;
         }
 

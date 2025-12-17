@@ -355,8 +355,8 @@ namespace fog
             int width;
             int height;
             unsigned char *data;
-            Config* config;
-            WorldTexOp(std::vector<std::vector<CellsVertex>> &hMap, int w, int h, Config* config) : hMap(hMap), width(w), height(h),config(config)
+            Config *config;
+            WorldTexOp(std::vector<std::vector<CellsVertex>> &hMap, int w, int h, Config *config) : hMap(hMap), width(w), height(h), config(config)
             {
                 data = new unsigned char[w * h * 4];
             }
@@ -405,14 +405,16 @@ namespace fog
             }
         };
 
-        // TODO create texture by a texture manager. 
+        // TODO create texture by a texture manager.
         // TODO as well as the FogOfWar Texture creation.
         // World texture is used as the meta data for the shader to determine the child texture.
         void createWorldTexture(std::string name, std::vector<std::vector<CellsVertex>> &hMap)
         {
             WorldTexOp texOp(hMap, width, height, config);
             texOp();
-            TextureFactory::createTexture(name, width, height, texOp.data);
+            Ogre::TexturePtr texture = TextureFactory::createTexture(name, width, height);
+
+            TextureFactory::updateTexture(texture, width, height, texOp.data);
 
             for (int i = 0; i < 11; i++)
             {
