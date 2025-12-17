@@ -11,7 +11,7 @@
 #include "fg/cells.h"
 #include "ManualState.h"
 #include "Terrains.h"
-
+#include "FogOfWar.h"
 
 namespace fog
 {
@@ -138,24 +138,18 @@ namespace fog
     public:
         INJECT(CellsState(CellsDatas *cDatas,
                           TheTerrains *tts,
+                          FogOfWar * fogOfWar,
                           TheTerrains2 *tts2,
                           Options options,
                           CellsTerrains *terrains,
                           Config *config,
-                          CoreMod *core)) : ManualState(core), terrains(terrains), tiles(cDatas->tiles),
+                          CoreMod *core)) : ManualState(core), terrains(terrains), tiles(cDatas->tiles),                                            
                                             options(options),
                                             config(config),
                                             tts(tts),
                                             tts2(tts2)
         {
-            this->material = "Tiles";
-        }
-        void init() override
-        {
-            ManualState::init();
-        }
-        void rebuildMesh() override
-        {
+            this->material = "Tiles";           
 
             // material
             MaterialPtr mat = MaterialManager::getSingletonPtr()->getByName("Tiles");

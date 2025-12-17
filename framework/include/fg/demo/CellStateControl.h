@@ -28,16 +28,10 @@ namespace fog
     public:
         INJECT(CellStateControl(CostMap* costMap,CoreMod * core)) : ManualState(core),costMap(costMap)
         {
+            this->rebuildMesh();
         }
-        void init() override
-        {
-            // this->showCost0 = createProperty("showCost0", false);
-            // this->showCost1 = createProperty("showCost1", false);
-            // this->showCost2 = createProperty("showCost2", false);
-            // this->showCost3 = createProperty("showCost3", false);
-            ManualState::init();
-        }
-        void rebuildMesh() override
+       
+        void rebuildMesh() 
         {
 
             // Cell::Center *cc = Context<Cell::Center>::get();

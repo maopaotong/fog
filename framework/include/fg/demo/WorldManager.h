@@ -64,7 +64,7 @@ namespace fog
             Ogre::Root *root = core->getRoot();
 
 
-            this->cellsState->init();
+            //this->cellsState->rebuildMesh();
 
             core->getAppContext()->addInputListener(entryController);
             root->addFrameListener(entryController);

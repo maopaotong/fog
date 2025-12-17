@@ -31,12 +31,7 @@ namespace fog
         {
         }
 
-        virtual void init() override
-        {
-            ManualState::init();
-        }
-
-        void rebuildMesh() override
+        void rebuildMesh() 
         {
             MeshBuild::SpiderNet buildMesh(obj);
             buildMesh.begin(this->material); //
