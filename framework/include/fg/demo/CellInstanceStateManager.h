@@ -20,10 +20,11 @@ namespace fog
         CellKey cis;
         CoreMod *core;
         SceneManager *sceneManager;
-
+        Config* config;
     public:
-        INJECT(CellInstanceState(CellKey cis, CoreMod *core, SceneManager *sceneManager))
+        INJECT(CellInstanceState(CellKey cis, CoreMod *core, SceneManager *sceneManager,Config* config))
             : sceneManager(sceneManager),
+            config(config),
               cis(cis), core(core)
         {
             this->sceNode = sceneManager->getRootSceneNode()->createChildSceneNode();
@@ -50,7 +51,7 @@ namespace fog
         Vector3 getOrigin3D()
         {
             // return Context<Node2D>::get()->to3D(Cell::getOrigin2D(cis),config->CELL_SCALE);
-            return cis.transform3();
+            return cis.transform3(*config->d2h2d3);
         }
 
         void buildMesh()

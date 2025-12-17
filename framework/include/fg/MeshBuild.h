@@ -50,11 +50,12 @@ namespace fog
                     CellKey &cell;
                     Vector2 origin;
                     Vector3 nom3;
+                    Transform::D2H2D3& d2h2d3;
                     int layer;
                     void operator()(int pIdx, Vector2 &pointOnCircle)
                     {
                         // Vector3 pos = Context<Node2D>::get()->to3D(origin, pointOnCircle, &nom3);
-                        Vector3 pos = cell.transform3(pointOnCircle);
+                        Vector3 pos = cell.transform3(pointOnCircle,d2h2d3);
                         obj->position(pos);
                         obj->normal(nom3);
                         obj->colour(color);
@@ -73,6 +74,7 @@ namespace fog
                     cell,
                     origin,
                     nom3,
+                    *config->d2h2d3
                 };
 
                 int LAYERS = 1;
@@ -335,13 +337,13 @@ namespace fog
                 visitPoint.idx = baseIndex;
             }
 
-            void operator()(CellKey &cell, ColourValue color)
+            void operator()(CellKey &cell, ColourValue color,Transform::D2H2D3 & transform)
             {
-                operator()([&cell, this](Vector2 & pointOnCircle, int layer, int totalLayer)
+                operator()([&cell, this,&transform](Vector2 & pointOnCircle, int layer, int totalLayer)
                            {
                                Vector2 pointOnLayer = pointOnCircle * (float)layer / ((float)totalLayer - 1);
                                // return Context<Node2D>::get()->to3D(Cell::getOrigin2D(cell, config->CELL_SCALE), pointOnLayer, useDefaultNorm ? &defaultNorm : nullptr); //
-                               return cell.transform3(pointOnLayer);
+                               return cell.transform3(pointOnLayer,transform);
                            },
                            color //
                 );

@@ -44,19 +44,19 @@ namespace fog
             }
         };
 
-        Vector3 transform3()
+        Vector3 transform3(Transform::D2H2D3 & d2h2d3)
         {
-            return this->cast<float>().transform(Transform::CellCentreByKey()).transform3(*Context<Transform::D2H2D3>::get());
+            return this->cast<float>().transform(Transform::CellCentreByKey()).transform3(d2h2d3);
         }
 
-        Vector3 transform3(Point2<float> pointInCell)
+        Vector3 transform3(Point2<float> pointInCell,Transform::D2H2D3 & d2h2d3)
         {
-            return (this->cast<float>().transform(Transform::CellCentreByKey()) + pointInCell).transform3(*Context<Transform::D2H2D3>::get());
+            return (this->cast<float>().transform(Transform::CellCentreByKey()) + pointInCell).transform3(d2h2d3);
         }
 
-        Vector3 transform3(Point2<float> pointInCell, float h)
+        Vector3 transform3(Point2<float> pointInCell, float h, Transform::D2H2D3 & d2h2d3)
         {
-            return (this->cast<float>().transform(Transform::CellCentreByKey()) + pointInCell).transform3(Transform::D2_HV_D3(*Context<Transform::D2H2D3>::get(), h));
+            return (this->cast<float>().transform(Transform::CellCentreByKey()) + pointInCell).transform3(Transform::D2_HV_D3(d2h2d3, h));
         }
 
         static CellKey from(Point2<float> p)

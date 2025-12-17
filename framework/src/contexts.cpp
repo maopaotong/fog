@@ -12,14 +12,14 @@ namespace fog
     // If the var here not initialised, app must provide the value.
     //
 
-    template <>
-    Var<float>::Bag *Context<Var<float>::Bag>::ctxObj = new Var<float>::Bag();
+    // template <>
+    // Var<float>::Bag *Context<Var<float>::Bag>::ctxObj = new Var<float>::Bag();
 
-    template <>
-    Var<Vector3>::Bag *Context<Var<Vector3>::Bag>::ctxObj = new Var<Vector3>::Bag();
+    // template <>
+    // Var<Vector3>::Bag *Context<Var<Vector3>::Bag>::ctxObj = new Var<Vector3>::Bag();
 
-    template <>
-    Property::Bag *Context<Property::Bag>::ctxObj = new Property::Bag();
+    // template <>
+    // Property::Bag *Context<Property::Bag>::ctxObj = new Property::Bag();
 
     // template <>
     // Terrains *Context<Terrains>::ctxObj = nullptr;
@@ -72,17 +72,17 @@ namespace fog
     // template <>
     // CellsTerrains *Context<CellsTerrains>::ctxObj = nullptr;
 
-    template <>
-    Options *Context<Options>::ctxObj = new Options();
+    // template <>
+    // Options *Context<Options>::ctxObj = new Options();
 
     // template <>
     // FogOfWar *Context<FogOfWar>::ctxObj = nullptr;
 
-    template<>
-    Transform::D2H2D3 * Context<Transform::D2H2D3>::ctxObj = nullptr;
+    // template<>
+    // Transform::D2H2D3 * Context<Transform::D2H2D3>::ctxObj = nullptr;
     
-    template<>
-    Transform::D3_NORMAL_D2 * Context<Transform::D3_NORMAL_D2>::ctxObj = nullptr;
+    // template<>
+    // Transform::D3_NORMAL_D2 * Context<Transform::D3_NORMAL_D2>::ctxObj = nullptr;
     
     // template<>
     // CellsCost * Context<CellsCost>::ctxObj = nullptr;

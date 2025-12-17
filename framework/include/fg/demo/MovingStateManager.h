@@ -84,7 +84,7 @@ namespace fog
             }
             Ogre::Vector3 pos3D = ray.getPoint(hitGrd.second);
 
-            Point2<float> pos = Point2<float>::from(pos3D, *Context<Transform::D3_NORMAL_D2>::get());
+            Point2<float> pos = Point2<float>::from(pos3D, *config->d3_normal_d2);
 
             // bool hitCell = CellUtil::findCellByPoint(costMap, Vector2(pos.x, pos.z), cKey);
             // bool hitCell = CellUtil::findCellByPoint(costMap, Ground::Transfer::to2D(pos), cKey);

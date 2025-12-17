@@ -23,10 +23,13 @@ namespace fog
         CellInstanceState *cis;
         CellInstanceStateManager *cisManager;
         Event::Bus *eventBus;
+        Config *config;
         MovingState(CellInstanceStateManager *cisManager,
-                    Event::Bus *eventBus) : state(nullptr), cis(nullptr),
-                                            eventBus(eventBus),
-                                            cisManager(cisManager)
+                    Event::Bus *eventBus,
+                    Config *config) : state(nullptr), cis(nullptr),
+                                      eventBus(eventBus),
+                                      config(config),
+                                      cisManager(cisManager)
 
         {
         }
@@ -57,7 +60,7 @@ namespace fog
             if (this->state)
             {
 
-                CellInstanceState *cis2 = cisManager->getCellInstanceStateByPosition(state->getPosition());
+                CellInstanceState *cis2 = cisManager->getCellInstanceStateByPosition(state->getPosition(*config->d3_normal_d2));
                 this->trySetCis(cis2);
             }
             else
@@ -93,20 +96,23 @@ namespace fog
         Event::Bus *eventBus;
         HomeCellKey *home;
         TheTerrains2 *tts2;
+        Config *config;
 
     public:
         INJECT(MovableStateManager(CoreMod *core, CellInstanceStateManager *cisManager,
                                    Event::Bus *eventBus,
                                    TheTerrains2 *tts2,
                                    HomeCellKey *homeCellKey,
+                                   Config *config,
                                    SceneManager *sceneManager))
             : core(core),
               tts2(tts2),
+              config(config),
               eventBus(eventBus),
               sceneManager(sceneManager),
               actor2(new Sinbad(core)),
               home(homeCellKey),
-              movingState(cisManager, eventBus)
+              movingState{cisManager, eventBus, config}
         {
             eventBus-> //
                 subscribe<MovableEventType, Actor *>([this](MovableEventType evtType, Actor *state)
@@ -129,12 +135,12 @@ namespace fog
             this->add(actor2);
             // actor2->setPosition(home->cKey );
             //  find a position.
-            actor2->setPosition(home->cKey);
+            actor2->setPosition(home->cKey, *config->d2h2d3);
         }
 
         void setCellToStandOn(CellKey cKey)
         {
-            //actor2->setPosition(cKey);
+            // actor2->setPosition(cKey);
         }
 
         bool step(float time) override

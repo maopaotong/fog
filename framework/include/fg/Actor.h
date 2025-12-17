@@ -96,13 +96,13 @@ namespace fog
             }            
         }
 
-        Point2<float> getPosition(){
+        Point2<float> getPosition(Transform::D3_NORMAL_D2 & d3_normal_d2){
             Vector3 positionIn3D = this->getSceneNode()->getPosition();
-            return Point2<float>::from(positionIn3D, *Context<Transform::D3_NORMAL_D2>::get());
+            return Point2<float>::from(positionIn3D, d3_normal_d2);
         }
 
-        void setPosition(CellKey cKey){
-            Vector3 v3 = cKey.transform3();
+        void setPosition(CellKey cKey,Transform::D2H2D3 &d2h2d3){
+            Vector3 v3 = cKey.transform3(d2h2d3);
             this->getSceneNode()->setPosition(v3);
         }
         

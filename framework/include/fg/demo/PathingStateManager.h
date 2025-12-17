@@ -40,22 +40,26 @@ namespace fog
         Camera *camera;
         CellInstanceStateManager *cellInstMgrState;
         MovableStateManager *movableStateMgr;
-        Event::Bus * eventBus;
-        CellsCost * cellsCost;
+        Event::Bus *eventBus;
+        CellsCost *cellsCost;
+        Config *config;
+
     public:
         INJECT(PathingStateManager(CostMap *costMap, Viewport *viewport,
-Event::Bus * eventBus,
-                                     CellInstanceStateManager *cellInstMgrState,                                   
+                                   Event::Bus *eventBus,
+                                   Config *config,
+                                   CellInstanceStateManager *cellInstMgrState,
                                    MovableStateManager *movableStateMgr,
                                    Camera *camera,
-                                CellsCost * cellsCost)) : viewport(viewport),
-                                                      camera(camera),
-                                                      eventBus(eventBus),
-                                                      costMap(costMap), sourceState(nullptr), targetCis(nullptr),
-                                                      cellInstMgrState(cellInstMgrState),
-                                                      movableStateMgr(movableStateMgr),
-                                                      cellsCost(cellsCost),
-                                                      path(nullptr)
+                                   CellsCost *cellsCost)) : viewport(viewport),
+                                                            camera(camera),
+                                                            config(config),
+                                                            eventBus(eventBus),
+                                                            costMap(costMap), sourceState(nullptr), targetCis(nullptr),
+                                                            cellInstMgrState(cellInstMgrState),
+                                                            movableStateMgr(movableStateMgr),
+                                                            cellsCost(cellsCost),
+                                                            path(nullptr)
 
         {
             std::cout << "PathingStateManager created." << std::endl;
@@ -148,7 +152,7 @@ Event::Bus * eventBus,
             pos2 = ray.getPoint(hitGrd.second);
 
             // Point2<float> p2 = Point2<float>::from(pos2, Transform::D3_NORMAL_D2(config->D2H2D3));
-            Point2<float> p2 = Point2<float>::from(pos2, *Context<Transform::D3_NORMAL_D2>::get());
+            Point2<float> p2 = Point2<float>::from(pos2, *config->d3_normal_d2);
 
             CellInstanceState *cis = cellInstMgrState->getCellInstanceStateByPosition(p2);
             if (!cis)
@@ -186,13 +190,13 @@ Event::Bus * eventBus,
 
             CellInstanceState *sourceCis = nullptr;
             // find source cell
-            //MovableStateManager *movableStateMgr = Context<MovableStateManager>::get();
+            // MovableStateManager *movableStateMgr = Context<MovableStateManager>::get();
             movableStateMgr->forEach([&sourceCis, this](Actor *state)
                                      {
                                          if (state->isActive())
                                          {
                                              //Context<CellInstanceManager>::get()
-                                             sourceCis = this->cellInstMgrState->getCellInstanceStateByPosition(state->getPosition());
+                                             sourceCis = this->cellInstMgrState->getCellInstanceStateByPosition(state->getPosition(*config->d3_normal_d2));
                                              if (sourceCis)
                                              {
                                                  return false; // break

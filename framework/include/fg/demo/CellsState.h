@@ -54,7 +54,7 @@ namespace fog
         {
             // Vector2 pIn2DV = Context<Node2D>::get()->to2D(pos);
 
-            Vector2 pIn2DV = Point2<float>::from(pos, *Context<Transform::D3_NORMAL_D2>::get());
+            Vector2 pIn2DV = Point2<float>::from(pos, *config->d3_normal_d2);
             return getHeight(pIn2DV);
         }
         float getHeight(Vector2 pIn2DV)
@@ -95,10 +95,13 @@ namespace fog
         TheTerrains *tts;
         std::vector<std::vector<CellData>> &tiles;
         CellsTerrains *terrains;
+        Config *config;
         INJECT(TheTerrains2(CellsDatas *cDatas,
                             TheTerrains *tts,
+                            Config *config,
                             CellsTerrains *terrains))
             : terrains(terrains),
+              config(config),
               tiles(cDatas->tiles),
               tts(tts)
         {
@@ -110,9 +113,9 @@ namespace fog
                 return this->tts->getHeightWithNormalAtWorldPosition(pos, norm);
             };
             // Context<Plane>::get()->height = heightFunc; // replace the height func.
-
-            Context<Transform::D2H2D3>::get()->setHeight([this](float x, float y)
-                                                         { return this->tts->getHeight(Vector2(x, y)); } //
+            //TODO move to other place.
+            config->d2h2d3->setHeight([this](float x, float y)
+                                      { return this->tts->getHeight(Vector2(x, y)); } //
             );
         }
     };
@@ -127,7 +130,6 @@ namespace fog
             std::string texName;
             INJECT(Options(Config *config)) : texName(config->FOG_OF_WAR_TEX_NAME)
             {
-
             }
         };
         TheTerrains *tts;
@@ -135,7 +137,7 @@ namespace fog
         CellsTerrains *terrains;
         Options options;
         Config *config;
-        TheTerrains2 *tts2;//TODO merge All terrains types.
+        TheTerrains2 *tts2; // TODO merge All terrains types.
 
     public:
         INJECT(CellsState(CellsDatas *cDatas,
@@ -157,7 +159,7 @@ namespace fog
             ManualState::init();
         }
         void rebuildMesh() override
-        {                        
+        {
 
             // material
             MaterialPtr mat = MaterialManager::getSingletonPtr()->getByName("Tiles");
@@ -219,7 +221,7 @@ namespace fog
 
                     // Vector3 position = qP.transform3(Transform::D2_NORMAL_D3(h));
                     // Vector3 position = ((cis.cast<float>().transform(Transform::CellCentreByKey()) + tts->vertexs[qx][qy].originInTile) * config->CELL_SCALE).transform3(Transform::D2_NORMAL_D3(h));
-                    Vector3 position = cKey.transform3(tts->vertexs[qx][qy].originInTile, h);
+                    Vector3 position = cKey.transform3(tts->vertexs[qx][qy].originInTile, h, *config->d2h2d3);
                     // position.y = h;
 
                     positions[x][y] = position;

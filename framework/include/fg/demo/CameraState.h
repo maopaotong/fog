@@ -44,10 +44,12 @@ namespace fog
 
     private:
         bool quit;
-    CoreMod* core;
-    InputStateController *inputState;
+        CoreMod *core;
+        InputStateController *inputState;
+        Config *config;
+
     public:
-        INJECT(CameraState(CoreMod* core, InputStateController *inputState)) : quit(false),core(core),inputState(inputState)
+        INJECT(CameraState(CoreMod *core, InputStateController *inputState, Config *config)) : quit(false), core(core), inputState(inputState), config(config)
         {
         }
 
@@ -68,14 +70,14 @@ namespace fog
             }
             Vector3 viewCenterOnGround = ray.getPoint(hitGrd.second);
 
-            auto p2 = Point2<float>::from(viewCenterOnGround,*Context<Transform::D3_NORMAL_D2>::get());
+            auto p2 = Point2<float>::from(viewCenterOnGround, *config->d3_normal_d2);
             CellKey cell = CellKey::from(p2);
             // if (Context<Cell::Center>::get()->findCellByPosition(p2, cell))
             // {
             //     return true;
             // }
 
-            return true;//TODO false?
+            return true; // TODO false?
         }
 
         static float map(float fValue, float minValue, float maxValue, float outMin, float outMax)
@@ -104,7 +106,7 @@ namespace fog
 
             Vector3 position = node->getPosition();
             Vector3 step = Ogre::Vector3::ZERO;
-            
+
             if (inputState->isFront())
             {
                 // node->translate(-back * speed * evt.timeSinceLastFrame);
@@ -160,10 +162,9 @@ namespace fog
 
             node->setPosition(posTarget);
 
-            Context<Var<Vector3>::Bag>::get()->setVar(".camera.position", posTarget);
+            //Context<Var<Vector3>::Bag>::get()->setVar(".camera.position", posTarget);
 
-             
-            float distance = map(height, DEFAULT_CAMERA_HEIGHT_MIN, DEFAULT_CAMERA_HEIGHT_MAX, CAMERA_FAR_DISTANCE_MIN,CAMERA_FAR_DISTANCE_MAX);
+            float distance = map(height, DEFAULT_CAMERA_HEIGHT_MIN, DEFAULT_CAMERA_HEIGHT_MAX, CAMERA_FAR_DISTANCE_MIN, CAMERA_FAR_DISTANCE_MAX);
             // if (distance < posTarget.y)
             // {
             //     distance = posTarget.y + 10;

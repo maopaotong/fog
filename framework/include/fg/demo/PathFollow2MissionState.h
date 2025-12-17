@@ -69,7 +69,7 @@ namespace fog
         Vector3 to3D(Point2<float> p)
         {
 
-            return p.transform3(*Context<Transform::D2H2D3>::get()) + this->offset;
+            return p.transform3(*config->d2h2d3) + this->offset;
         }
 
         // Vector3 to3D(Vector2 pointIn2D, float scale)

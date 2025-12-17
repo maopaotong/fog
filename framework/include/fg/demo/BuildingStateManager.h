@@ -24,9 +24,10 @@ namespace fog
         Actor *building;
         float amount;
         CoreMod *core;
-
+        Config* config;
     public:
-        BuildingPlan(Actor *building, float amount, CoreMod *core) : core(core),
+        BuildingPlan(Actor *building, float amount, CoreMod *core,Config* config) : core(core),
+            config(config),
                                                                      building(building), amount(amount)
         {
         }
@@ -63,7 +64,7 @@ namespace fog
             // Vector3 pos3 = Context<Node2D>::get()->to3D(Cell::getOrigin2D(cKey),config->CELL_SCALE);
             // Vector3 pos3 = cKey.cast<float>().transform(Transform::CellCentreByKey()).transform3(config->D2H2D3);
             // this->building->findSceneNode()->setPosition(pos3);
-            this->building->findSceneNode()->setPosition(cKey.transform3());
+            this->building->findSceneNode()->setPosition(cKey.transform3(*config->d2h2d3));
         }
     };
 
@@ -75,6 +76,7 @@ namespace fog
         SceneManager *sceneManager;
         std::unordered_map<CellKey, std::vector<Actor *>, CellKey::Hash> buildingsInCells;
         InventoryManager *inventoryManager;
+        Config *config;
 
     protected:
         void setPicked(Actor *picked)
@@ -101,8 +103,10 @@ namespace fog
 
     public:
         INJECT(BuildingStateManager(CoreMod *core, SceneManager *sceneManager, InventoryManager *inventoryManager,
+                                    Config *config,
                                     Event::Bus *eventBus))
             : core(core),
+              config(config),
               eventBus(eventBus),
               inventoryManager(inventoryManager),
               sceneManager(sceneManager),
@@ -137,25 +141,25 @@ namespace fog
         virtual ~BuildingStateManager()
         {
         }
-       
+
         bool pick(Ray &ray) // pick a building.
         {
 
-            // 
+            //
             Ogre::RaySceneQuery *rayQuery = sceneManager->createRayQuery(ray);
-            rayQuery->setSortByDistance(true);  // 
-            rayQuery->setQueryMask(0x00000001); // 
+            rayQuery->setSortByDistance(true);  //
+            rayQuery->setQueryMask(0x00000001); //
 
-            // 
+            //
             Ogre::RaySceneQueryResult &result = rayQuery->execute();
 
             Actor *picked = nullptr;
-            // 
+            //
             for (auto &it : result)
             {
                 Node *node = it.movable->getParentNode();
                 Actor *s = Actor::get(node);
-                if (s && s->pickable())//TODO
+                if (s && s->pickable()) // TODO
                 {
 
                     picked = s;
@@ -194,11 +198,11 @@ namespace fog
                 }
                 else
                 {
-                    building = new Building(type, core);
+                    building = new Building(type, core, config);
                 }
                 building->init();
 
-                this->plan = new BuildingPlan(building, invAmount, core);
+                this->plan = new BuildingPlan(building, invAmount, core,config);
             }
 
             return true;
