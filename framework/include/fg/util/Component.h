@@ -3,13 +3,8 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include <unordered_map>
-#include <unordered_set>
-#include <functional>
-#include <string>
-#include <tuple>
-#include <fg/util/Common.h>
 
+#include "Common.h"
 #define INJECT(Sig)     \
     using Inject = Sig; \
     Sig

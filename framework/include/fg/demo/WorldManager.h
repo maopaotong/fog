@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/Actor.h"
+#include "fg/core.h"
 #include "CellStateControl.h"
 #include "CameraState.h"
 #include "EntityState.h"

@@ -15,9 +15,14 @@
 #include <any>
 #include <fmt/format.h>
 #include <iostream>
-#include "fg/util/Point2.h"
+#include <unordered_map>
+#include <unordered_set>
+#include <functional>
+#include <string>
+#include <tuple>
 #include <Ogre.h>
 #include <OgreColourValue.h>
+#include <OgreVector.h>
 
 namespace fog
 {
@@ -60,7 +65,7 @@ namespace fog
 
     //using Vector2 = Ogre::Vector2;
     
-    using Vector2 = Point2<float>;
+    //using Vector2 = Point2<float>;
 
     using Vector3 = Ogre::Vector3;
 

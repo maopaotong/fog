@@ -3,12 +3,6 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-namespace fog
-{
+#include "ui/OnFrameUI.h"
 
-    struct Stairs
-    {
-        virtual bool step(float time) = 0;
-    };
 
-}

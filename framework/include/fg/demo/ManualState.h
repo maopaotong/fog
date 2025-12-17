@@ -6,11 +6,11 @@
 #include <vector>
 #include <Ogre.h>
 #include <OgreColourValue.h>
-#include "fg/Actor.h"
-#include "fg/core/CoreMod.h"
-#include "fg/util/Cell.h"
-#include "fg/MaterialNames.h"
-#include "fg/MeshBuild.h"
+#include "fg/core.h"
+#include "fg/ogre.h"
+#include "fg/util.h"
+
+#include "MaterialNames.h"
 #define DEFAULT_CELL_HIGH_OFFSET .08f
 
 namespace fog

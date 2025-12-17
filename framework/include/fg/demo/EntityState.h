@@ -4,11 +4,11 @@
  */
 #pragma once
 
-#include <Ogre.h>
 #include "fg/util.h"
-#include "fg/Actor.h"
+#include "fg/core.h"
+//
+#include "Common.h"
 #include "PathState.h"
-#include "fg/Pickable.h"
 #include "PathFollow2MissionState.h"
 
 namespace fog

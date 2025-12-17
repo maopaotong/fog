@@ -9,11 +9,9 @@
 #include "fg/util/CostMap.h"
 #include <OgreManualObject.h>
 #include <OgreColourValue.h>
-#include "fg/Terrains.h"
-#include "fg/Config.h"
 #define FG_REPORT_ERROR_INDEX_OUT_OF_RANGE 0
 #define FG_SPIDER_TOTAL_LAYER 3
-
+#define FG_TEXTURE_COORD_SCALE 1.0f
 using namespace Ogre;
 
 namespace fog
@@ -28,8 +26,9 @@ namespace fog
         public:
             ManualObject *obj;
             int baseIndex;
-            Config *config;
-            PointOnCircle(ManualObject *obj, Config *config) : obj(obj), config(config) {}
+            float scale;
+            Transform::D2H2D3* d2h2d3;
+            PointOnCircle(ManualObject *obj, float scale, Transform::D2H2D3* d2h2d3) : obj(obj), scale(scale),d2h2d3(d2h2d3) {}
             void begin(std::string material)
             {
                 obj->clear();
@@ -40,7 +39,7 @@ namespace fog
             void operator()(CellKey &cell, ColourValue color)
             {
                 // Vector2 origin = Cell::getOrigin2D(cell, config->CELL_SCALE);
-                Vector2 origin = cell.getCentre().scale(config->CELL_SCALE);
+                Vector2 origin = cell.getCentre().scale(this->scale);
                 Vector3 nom3(0, 1, 0);
 
                 struct Visit
@@ -74,7 +73,7 @@ namespace fog
                     cell,
                     origin,
                     nom3,
-                    *config->d2h2d3
+                    *d2h2d3
                 };
 
                 int LAYERS = 1;
@@ -277,7 +276,7 @@ namespace fog
                     Vector3 pos = positionFunc(pointOnCircle, layer, totalLayer);
                     obj->position(pos);
                     // obj->textureCoord(pointOnCircle.x, pointOnCircle.y);
-                    obj->textureCoord(pos.x / TEXTURE_COORD_SCALE, -pos.z / TEXTURE_COORD_SCALE);
+                    obj->textureCoord(pos.x / FG_TEXTURE_COORD_SCALE, -pos.z / FG_TEXTURE_COORD_SCALE);
                     obj->colour(color);
 
                     //

@@ -4,7 +4,7 @@
  */
 #include "fg/util/Context.h"
 #include "fg/util.h"
-#include "fg/core/CoreMod.h"
+#include "fg/ogre.h"
 #include "fg/demo/InputStateController.h"
 #include "fg/util/CostMap.h"
 namespace fog

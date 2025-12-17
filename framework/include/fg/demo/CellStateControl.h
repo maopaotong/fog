@@ -3,17 +3,10 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include <vector>
-#include <Ogre.h>
-#include <OgreColourValue.h>
-#include "fg/Actor.h"
-#include "fg/core/CoreMod.h"
-#include "fg/util/CostMap.h"
-#include "fg/util/Cell.h"
-#include "fg/util/CostMap.h"
-#include "fg/MeshBuild.h"
-
-#include "fg/util/Property.h"
+#include <fg/ogre.h>
+#include "fg/core.h"
+#include "fg/ogre.h"
+#include "fg/util.h"
 #include "ManualState.h"
 
 namespace fog

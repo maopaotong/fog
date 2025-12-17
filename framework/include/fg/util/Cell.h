@@ -6,10 +6,13 @@
 #include "fg/util/Common.h"
 #include <cmath>
 #include <algorithm>
-#include "fg/util/Box2.h"
-#include "fg/util/Context.h"
-#include "fg/util/CollectionUtil.h"
-#include "fg/util/Transform.h"
+#include "Common.h"
+
+#include "Point2.h"
+#include "Box2.h"
+#include "Context.h"
+#include "CollectionUtil.h"
+#include "Transform.h"
 using namespace Ogre;
 
 namespace fog

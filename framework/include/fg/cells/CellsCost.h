@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/util/Common.h"
-#include "fg/cells/Cells.h"
-#include "CellsDatas.h"
+#include "fg/util.h"
+#include "fg/cells/CellsDatas.h"
 namespace fog
 {
 

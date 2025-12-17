@@ -3,15 +3,14 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/Common.h"
-#include "fg/Actor.h"
 #include "fg/core.h"
-#include "fg/MaterialNames.h"
-#include "fg/MeshBuild.h"
+#include "fg/ogre.h"
+#include "fg/util.h"
+//
+#include "Common.h"
 #include "EntityState.h"
 #include "Sinbad.h"
 #include "Tower.h"
-#include "fg/Manager.h"
 namespace fog
 {
 

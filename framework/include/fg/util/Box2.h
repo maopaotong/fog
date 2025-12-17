@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "fg/util/Point2.h"
+#include "Point2.h"
 namespace fog
 {
     using namespace Ogre;

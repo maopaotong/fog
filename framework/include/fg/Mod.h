@@ -3,21 +3,13 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "util.h"
+#include "Common.h"
 namespace fog
 {
 
-    using namespace Ogre;
-    using namespace OgreBites;
-    class Mod
+    struct Mod
     {
-    public:
-       
-
-    protected:
-    public:
         virtual std::string getName() = 0;
         virtual void deactive() = 0;
-        // befor active, this method allow a mod to register callback into the underlying mod.
     };
 };

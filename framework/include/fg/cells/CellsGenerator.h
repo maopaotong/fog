@@ -4,14 +4,10 @@
  */
 #pragma once
 #include <vector>
-#include <Ogre.h>
-#include <OgreColourValue.h>
-#include "fg/Actor.h"
-#include "fg/core/CoreMod.h"
+#include "fg/ogre.h"
+#include "fg/core.h"
+#include "fg/ogre.h"
 #include "fg/util.h"
-#include "fg/MeshBuild.h"
-#include "fg/Common.h"
-#include "fg/Config.h"
 #include "Cells.h"
 namespace fog
 {

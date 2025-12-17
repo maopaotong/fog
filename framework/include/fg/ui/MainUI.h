@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/core/CoreMod.h"
-#include "fg/Mod.h"
+#include "fg/ogre.h"
+#include "fg/core.h"
 #include "fg/util.h"
 #include "fg/demo.h"
 

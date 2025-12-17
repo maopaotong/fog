@@ -15,22 +15,11 @@
 #include <functional>
 
 // === Include OgreBites for modern initialization ===
-#include <Bites/OgreApplicationContext.h>
-#include <OgreRoot.h>
-#include <OgreSceneManager.h>
-#include <OgreRenderWindow.h>
-#include <OgreCamera.h>
-#include <OgreViewport.h>
-#include <OgreEntity.h>
-#include <OgreManualObject.h>
-#include <OgreSceneNode.h>
-#include <OgreFrameListener.h>
-#include <OgreRTShaderSystem.h>
-#include <OgreTechnique.h>
-#include "fg/InputState.h"
-#include "fg/util/CameraUtil.h"
-#include "fg/util/Polygon2.h"
-#include "fg/Actor.h"
+
+#include "fg/core.h"
+#include "fg/util.h"
+#include "fg/ogre.h"
+#include "InputState.h"
 #include "InputStateController.h"
 
 namespace fog

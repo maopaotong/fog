@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
+//util have no dependence, especailly does not based on the header files under parent folder.
+//inversely the parent folder can be built on part of util.
 #include "util/Video.h"
 #include "util/VarBag.h"
-#include "util/Box2.h"
-#include "util/Point2.h"
 #include "util/Event.h"
 #include "util/Property.h"
 #include "util/PathFollow2.h"
@@ -21,6 +21,7 @@
 #include "util/Iteration.h"
 #include "util/Rect.h"
 #include "util/TextureFactory.h"
+#include "util/MeshBuild.h"
 
 
 

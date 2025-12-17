@@ -4,10 +4,10 @@
  */
 #pragma once
 #include "imgui.h"
-#include "fg/Common.h"
+#include "Common.h"
 #include <string>
+#include "fg/ogre.h"
 #include "fg/core.h"
-#include "fg/Actor.h"
 #include "fmt/format.h"
 #include "fg/util/ImGuiUtil.h"
 #include "UIState.h"

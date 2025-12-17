@@ -15,19 +15,8 @@
 #include <functional>
 
 // === Include OgreBites for modern initialization ===
-#include <Bites/OgreApplicationContext.h>
-#include <OgreRoot.h>
-#include <OgreSceneManager.h>
-#include <OgreRenderWindow.h>
-#include <OgreCamera.h>
-#include <OgreViewport.h>
-#include <OgreEntity.h>
-#include <OgreManualObject.h>
-#include <OgreSceneNode.h>
-#include <OgreFrameListener.h>
-#include <OgreRTShaderSystem.h>
-#include <OgreTechnique.h>
-#include "fg/MaterialNames.h"
+#include "fg/ogre.h"
+#include "MaterialNames.h"
 #include "stb_truetype.h"
 
 namespace fog

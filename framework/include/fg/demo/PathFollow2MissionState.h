@@ -8,7 +8,7 @@
 #include <OgreAnimationState.h>
 #include <vector>
 #include "fg/util.h"
-#include "fg/Config.h"
+#include "fg/core.h"
 
 namespace fog
 {

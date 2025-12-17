@@ -3,18 +3,16 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include <OgreApplicationContext.h>
-#include <OgreLogManager.h>
 
-#include "fg/util/HexGridPrinter.h"
-#include "fg/Mod.h"
-#include "fg/App.h"
-#include "fg/core/SimpleCore.h"
+//fg modules
+#include "fg/util.h"
+#include "fg/core.h"
+//Same folder.
+#include "Common.h"
+#include "SimpleCore.h"
 namespace fog
 {
 
-    using namespace OgreBites;
-    using namespace Ogre;
     class SimpleApp : public App
     {
     private:

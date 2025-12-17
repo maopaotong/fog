@@ -6,10 +6,10 @@
 #include <OgreInput.h>
 #include <OgreApplicationContext.h>
 #include <any>
-#include "fg/ImGuiApp.h"
-#include "fg/Stairs.h"
+#include "ImGuiApp.h"
+#include "fg.h"
+#include "fg/core.h"
 #include "fg/util.h"
-#include "fg/Mod.h"
 
 using namespace Ogre;
 using namespace OgreBites;

@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include <string>
+
+#include "Common.h"
 
 namespace fog
 {

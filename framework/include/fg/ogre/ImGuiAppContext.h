@@ -9,10 +9,10 @@
 #include <Bites/OgreWindowEventUtilities.h>
 
 #include <fmt/format.h>
+
 #include "DispatchInputListener.h"
 #include "ImGuiInputListener.h"
 #include "ImGuiFPSCounter.h"
-#include "fg/ImGuiApp.h"
 #include "ImGuiAppImpl.h"
 #include "fg/util.h"
 #include <functional>

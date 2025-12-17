@@ -4,7 +4,6 @@
  */
 #pragma once
 #include "Common.h"
-#include "OgreVector.h"
 namespace fog
 {
 

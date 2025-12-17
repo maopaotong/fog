@@ -6,11 +6,10 @@
 #include <vector>
 #include <Ogre.h>
 #include <OgreColourValue.h>
-#include "fg/Actor.h"
-#include "fg/core/CoreMod.h"
-#include "fg/MeshBuild.h"
-#include "fg/Common.h"
-#include "fg/Config.h"
+#include "fg/core.h"
+#include "fg/ogre.h"
+#include "Common.h"
+#include "fg/core.h"
 #include "Cells.h"
 #include "fg/util.h"
 

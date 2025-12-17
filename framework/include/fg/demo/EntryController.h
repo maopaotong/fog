@@ -30,7 +30,7 @@
 #include <OgreRenderWindow.h>
 #include <iostream>
 #include "fg/util.h"
-#include "fg/core/CoreMod.h"
+#include "fg/ogre.h"
 #include "MoveToCellTask.h"
 #include "CellInstanceStateManager.h"
 #include "PathingStateManager.h"

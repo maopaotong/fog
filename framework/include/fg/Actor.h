@@ -3,20 +3,10 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/Common.h"
-#include <Ogre.h>
-#include <OgreNode.h>
-#include <type_traits>
-#include <stack>
-#include <functional>
-#include <iostream>
-#include "Pickable.h"
-#include "OgreFrameListener.h"
+
+#include "Common.h"
 #include "fg/util.h"
-#include "fg/util/Context.h"
-#include "fg/MeshBuild.h"
-#include "fg/util/Property.h"
-#include "fg/util/Options.h"
+#include "Pickable.h"
 
 #define WATCH_PROPERTY(monitor, obj_ptr, member_name) \
     (monitor).add((obj_ptr), &std::remove_pointer_t<decltype(obj_ptr)>::member_name, #member_name)

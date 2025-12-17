@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/util/Options.h"
-#include "fg/util/Box2.h"
-#include "fg/util.h"
+
+
+#include "util.h"
 namespace fog
 {
     class Config

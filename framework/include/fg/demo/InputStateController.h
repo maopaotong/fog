@@ -4,21 +4,10 @@
  */
 // main.cpp - Complete Ogre A* Hex Grid Visualization System
 #pragma once
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <unordered_map>
-#include <unordered_set>
-#include <cmath>
-#include <utility>
-#include <algorithm>
-#include <functional>
 
-// === Include OgreBites for modern initialization ===
-
-#include <iostream>
 #include "fg/util.h"
-#include "fg/InputState.h"
+#include "fg/ogre.h"
+#include "InputState.h"
 #include "Common.h"
 
 namespace fog

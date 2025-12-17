@@ -3,25 +3,20 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include <OgreApplicationContext.h>
-#include <OgreLogManager.h>
-#include <OgreMaterialManager.h>
+
 #include <imgui.h>
 // #include "imgui/imgui_impl_sdl2.h"
 // #include "imgui_impl_opengl3.h"
+#include "Common.h"
 #include "ImGuiAppContext.h"
-#include "fg/util/HexGridPrinter.h"
-#include "fg/Mod.h"
-#include <unordered_map>
+
+
 #define FG_LIGHT_DIRECTION_X 300
 #define FG_LIGHT_DIRECTION_Y 500
 #define FG_LIGHT_DIRECTION_Z 0
 
 namespace fog
 {
-    using namespace OgreBites;
-    using namespace Ogre;
-
     class SimpleCore : public CoreMod, public FrameListener
     {
     private:
