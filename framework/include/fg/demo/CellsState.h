@@ -10,16 +10,13 @@
 #include "fg/core/CoreMod.h"
 #include "fg/MeshBuild.h"
 
-#include "fg/util/Property.h"
-#include "fg/core/ManualState.h"
-#include "fg/util/DiamondSquare.h"
+#include "fg/util.h"
+#include "fg/cells.h"
+#include "ManualState.h"
 #include "fg/Common.h"
-#include "fg/cells/CellsTerrains.h"
-#include "fg/cells/CellsGenerator.h"
 #include "fg/Config.h"
 #include "fg/Terrains.h"
-#include "fg/util/Box2.h"
-#include "CellsDatas.h"
+
 namespace fog
 {
     using namespace Ogre;

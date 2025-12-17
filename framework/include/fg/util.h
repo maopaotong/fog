@@ -14,7 +14,13 @@
 #include "util/Cell.h"
 #include "util/StringUtil.h"
 #include "util/Cell.h"
+#include "util/CellUtil.h"
 #include "util/CostMap.h"
 #include "util/Component.h"
+#include "util/DiamondSquare.h"
+#include "util/Iteration.h"
+#include "util/Rect.h"
+#include "util/TextureFactory.h"
+
 
 

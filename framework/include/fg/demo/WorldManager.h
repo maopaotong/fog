@@ -5,18 +5,18 @@
 #pragma once
 #include "fg/Actor.h"
 #include "CellStateControl.h"
-#include "fg/CameraState.h"
-#include "fg/core/EntityState.h"
-#include "fg/MovingStateManager.h"
-#include "fg/CellInstanceStateManager.h"
-#include "fg/demo/EntryController.h"
-#include "fg/MovableStateManager.h"
-#include "fg/BuildingStateManager.h"
-#include "fg/InventoryStateManager.h"
+#include "CameraState.h"
+#include "EntityState.h"
+#include "MovingStateManager.h"
+#include "CellInstanceStateManager.h"
+#include "EntryController.h"
+#include "MovableStateManager.h"
+#include "BuildingStateManager.h"
+#include "InventoryStateManager.h"
 #include "fg/cells.h"
 #include "fg/util.h"
-#include "fg/core/FogOfWar.h"
-#include "fg/core/HomeCellKey.h"
+#include "FogOfWar.h"
+#include "HomeCellKey.h"
 namespace fog
 {
 

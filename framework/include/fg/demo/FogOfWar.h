@@ -4,12 +4,9 @@
  */
 #pragma once
 
-#include "fg/core/TextureFactory.h"
-#include "fg/util/CollectionUtil.h"
-#include "fg/util/Box2.h"
-#include "Ogre.h"
 #include "fg/util.h"
-#include "fg/core/HomeCellKey.h"
+#include "Ogre.h"
+#include "HomeCellKey.h"
 namespace fog
 {
 

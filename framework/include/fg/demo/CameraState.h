@@ -31,7 +31,7 @@
 #include "fg/util/CameraUtil.h"
 #include "fg/util/Polygon2.h"
 #include "fg/Actor.h"
-#include "fg/demo/InputStateController.h"
+#include "InputStateController.h"
 
 namespace fog
 {

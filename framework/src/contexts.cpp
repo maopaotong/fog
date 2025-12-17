@@ -5,16 +5,7 @@
 #include "fg/util/Context.h"
 #include "fg/util.h"
 #include "fg/core/CoreMod.h"
-#include "fg/CellInstanceStateManager.h"
-#include "fg/MovingStateManager.h"
-#include "fg/MovableStateManager.h"
-#include "fg/PathingStateManager.h"
 #include "fg/demo/InputStateController.h"
-#include "fg/BuildingStateManager.h"
-#include "fg/InventoryStateManager.h"
-#include "fg/CameraState.h"
-#include "fg/cells.h"
-#include "fg/core/FogOfWar.h"
 #include "fg/util/CostMap.h"
 namespace fog
 {
@@ -30,8 +21,8 @@ namespace fog
     template <>
     Property::Bag *Context<Property::Bag>::ctxObj = new Property::Bag();
 
-    template <>
-    Terrains *Context<Terrains>::ctxObj = nullptr;
+    // template <>
+    // Terrains *Context<Terrains>::ctxObj = nullptr;
 
     // template <>
     // Event::Bus *Context<Event::Bus>::ctxObj = new Event::Bus();

@@ -8,8 +8,8 @@
 #include "fg/util.h"
 #include "fg/Actor.h"
 #include "fg/Pickable.h"
-#include "fg/core/PathFollow2MissionState.h"
-#include "fg/core/ManualState.h"
+#include "PathFollow2MissionState.h"
+#include "ManualState.h"
 #include "fg/MeshBuild.h"
 namespace fog
 {

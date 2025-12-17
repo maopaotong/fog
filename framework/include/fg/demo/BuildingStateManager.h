@@ -8,13 +8,12 @@
 #include "fg/core/CoreMod.h"
 #include "fg/MaterialNames.h"
 #include "fg/MeshBuild.h"
-#include "fg/core/EntityState.h"
-#include "fg/core/Sinbad.h"
-#include "fg/core/Tower.h"
-#include "fg/InventoryStateManager.h"
-#include "fg/core/Building.h"
-#include "fg/core/H0085.h"
-#include "fg/Config.h"
+#include "EntityState.h"
+#include "Sinbad.h"
+#include "Tower.h"
+#include "InventoryStateManager.h"
+#include "Building.h"
+#include "H0085.h"
 namespace fog
 {
 

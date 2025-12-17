@@ -9,8 +9,8 @@
 #include "fg/Actor.h"
 #include "PathState.h"
 #include "fg/Pickable.h"
-#include "fg/core/PathFollow2MissionState.h"
-#include "fg/core/EntityState.h"
+#include "PathFollow2MissionState.h"
+#include "EntityState.h"
 namespace fog
 {
     using namespace Ogre;

@@ -5,12 +5,12 @@
 #pragma once
 #include "fg/Common.h"
 #include "fg/Actor.h"
-#include "fg/core/CoreMod.h"
+#include "fg/core.h"
 #include "fg/MaterialNames.h"
 #include "fg/MeshBuild.h"
-#include "fg/core/EntityState.h"
-#include "fg/core/Sinbad.h"
-#include "fg/core/Tower.h"
+#include "EntityState.h"
+#include "Sinbad.h"
+#include "Tower.h"
 #include "fg/Manager.h"
 namespace fog
 {

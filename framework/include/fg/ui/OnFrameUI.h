@@ -6,14 +6,13 @@
 #include "fg/core/CoreMod.h"
 #include "fg/Mod.h"
 #include "fg/util.h"
-#include "fg/core/MaterialFactory.h"
-#include "fg/demo/WorldManager.h"
+#include "fg/demo.h"
+
 
 #include "imgui.h"
 #include <fmt/format.h>
 #include <random>
 #include <OgreRenderWindow.h>
-#include "fg/demo/GameTerrain.h"
 #include "ActiveTrayUI.h"
 #include "CommandUI.h"
 #include "MainUI.h"

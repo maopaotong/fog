@@ -15,27 +15,14 @@
 #include <functional>
 
 // === Include OgreBites for modern initialization ===
-#include <Bites/OgreApplicationContext.h>
-#include <OgreRoot.h>
-#include <OgreSceneManager.h>
-#include <OgreRenderWindow.h>
-#include <OgreCamera.h>
-#include <OgreViewport.h>
-#include <OgreEntity.h>
-#include <OgreManualObject.h>
-#include <OgreSceneNode.h>
-#include <OgreFrameListener.h>
-#include <OgreRTShaderSystem.h>
-#include <OgreTechnique.h>
-#include <OgreRenderWindow.h>
+
 #include <iostream>
 #include "fg/util.h"
 #include "fg/InputState.h"
-#include "fg/core/CoreMod.h"
+#include "Common.h"
+
 namespace fog
 {
-    using namespace OgreBites;
-    using namespace Ogre;
     // === Custom hash function ===
     //
     // === Input handler for closing application ===
@@ -47,13 +34,13 @@ namespace fog
         bool front = false;
         bool back = false;
         CoreMod *core;
-
+        Config * config;
     public:
-        INJECT(InputStateController(CoreMod *core)) : core(core)
+        INJECT(InputStateController(CoreMod *core,Config * config)) : core(core),config(config)
         {
         }
 
-        bool mouseMoved(const MouseMotionEvent &evt)
+        bool mouseMoved(const OgreBites::MouseMotionEvent &evt)
         {
             RenderWindow *window = core->getWindow();
 
@@ -67,7 +54,7 @@ namespace fog
             this->right = (x >= width - edgeSize && x <= width);
             this->front = (y >= 0 && y <= edgeSize);
             this->back = (y >= height - edgeSize && y <= height);
-            if (DEBUG_COUT)
+            if (config->DEBUG_COUT)
             {
 
                 if (this->isMoving())

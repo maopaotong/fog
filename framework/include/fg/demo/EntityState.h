@@ -9,7 +9,7 @@
 #include "fg/Actor.h"
 #include "PathState.h"
 #include "fg/Pickable.h"
-#include "fg/core/PathFollow2MissionState.h"
+#include "PathFollow2MissionState.h"
 
 namespace fog
 {

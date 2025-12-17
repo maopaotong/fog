@@ -30,14 +30,14 @@
 #include <OgreRenderWindow.h>
 #include <iostream>
 #include "fg/util.h"
-#include "fg/util/CellUtil.h"
 #include "fg/core/CoreMod.h"
-#include "fg/core/MoveToCellTask.h"
-#include "fg/CellInstanceStateManager.h"
-#include "fg/PathingStateManager.h"
-#include "fg/demo/InputStateController.h"
-#include "fg/MovingStateManager.h"
-#include "fg/BuildingStateManager.h"
+#include "MoveToCellTask.h"
+#include "CellInstanceStateManager.h"
+#include "PathingStateManager.h"
+#include "InputStateController.h"
+#include "MovingStateManager.h"
+#include "BuildingStateManager.h"
+#include "CameraState.h"
 namespace fog
 {
     using namespace OgreBites;

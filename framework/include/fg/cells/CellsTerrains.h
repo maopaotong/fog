@@ -8,18 +8,10 @@
 #include <OgreColourValue.h>
 #include "fg/Actor.h"
 #include "fg/core/CoreMod.h"
-#include "fg/util.h"
 #include "fg/MeshBuild.h"
-
-#include "fg/util/Property.h"
-#include "fg/core/ManualState.h"
-#include "fg/util/DiamondSquare.h"
 #include "fg/Common.h"
-#include "fg/util/Iteration.h"
-#include "fg/util/Rect.h"
 #include "fg/Config.h"
-#include "fg/cells/Cells.h"
-#include "fg/core/TextureFactory.h"
+#include "Cells.h"
 #include "fg/util.h"
 
 namespace fog

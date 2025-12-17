@@ -8,10 +8,10 @@
 #include "fg/core/CoreMod.h"
 #include "fg/MaterialNames.h"
 #include "fg/MeshBuild.h"
-#include "fg/core/EntityState.h"
-#include "fg/core/Sinbad.h"
-#include "fg/core/Tower.h"
-#include "fg/core/HomeCellKey.h"
+#include "EntityState.h"
+#include "Sinbad.h"
+#include "Tower.h"
+#include "HomeCellKey.h"
 #include "fg/Manager.h"
 
 namespace fog

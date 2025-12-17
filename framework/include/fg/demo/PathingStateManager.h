@@ -11,15 +11,15 @@
 #include <type_traits>
 #include <utility>
 #include <Ogre.h>
-#include "fg/util/Context.h"
+#include "fg/util.h"
 #include "OgreSceneNode.h"
 #include "fg/util/CostMap.h"
-#include "fg/core/PathState.h"
-#include "fg/core/PathFollow2MissionState.h"
+#include "PathState.h"
+#include "PathFollow2MissionState.h"
 #include "fg/util.h"
-#include "fg/CellInstanceStateManager.h"
+#include "fg/cells.h"
+#include "CellInstanceStateManager.h"
 
-#include "fg/cells/CellsCost.h"
 namespace fog
 {
     /**

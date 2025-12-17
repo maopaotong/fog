@@ -10,7 +10,7 @@
 #include "fg/util.h"
 #include <fmt/format.h>
 #include "UIState.h"
-#include "fg/MovableStateManager.h"
+
 namespace fog
 {
     class ActiveTrayUI : /* public Listener<State *, std::string &>,*/ public UIState

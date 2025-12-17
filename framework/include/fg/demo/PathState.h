@@ -9,7 +9,7 @@
 #include "fg/MaterialNames.h"
 #include "fg/util/CostMap.h"
 #include "fg/util/HexGridPrinter.h"
-#include "fg/CellInstanceStateManager.h"
+#include "CellInstanceStateManager.h"
 namespace fog
 {
     using namespace Ogre;

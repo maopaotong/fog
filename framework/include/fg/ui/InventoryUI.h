@@ -12,7 +12,7 @@
 #include "fg/util/ImGuiUtil.h"
 #include "UIState.h"
 #include "fg/util/Options.h"
-#include "fg/InventoryStateManager.h"
+#include "fg/demo.h"
 namespace fog
 {
 

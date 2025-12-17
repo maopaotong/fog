@@ -27,7 +27,6 @@
 #include <OgreFrameListener.h>
 #include <OgreRTShaderSystem.h>
 #include <OgreTechnique.h>
-#include "fg/MaterialNames.h"
 #include "stb_truetype.h"
 #include <OgreTextureManager.h>
 #include <OgreHardwarePixelBuffer.h>

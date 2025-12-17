@@ -10,7 +10,7 @@
 #include "fg/util.h"
 #include <fmt/format.h>
 #include "UIState.h"
-#include "fg/InventoryStateManager.h"
+#include "fg/demo.h"
 namespace fog
 {
     class TopBarUI : /* public Listener<State *, std::string &>,*/ public UIState

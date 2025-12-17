@@ -14,7 +14,7 @@
 #include "fg/MeshBuild.h"
 
 #include "fg/util/Property.h"
-#include "fg/core/ManualState.h"
+#include "ManualState.h"
 
 namespace fog
 {
