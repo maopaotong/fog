@@ -111,7 +111,7 @@ namespace fog
                                                        {
                                                            // core.init();
                                                        });
-                injector.bindAllImplAsValue<>();
+                injector.bindAllImplAsVal<>();
                 injector.bindAllImplAsPtr<ImGuiAppContext,
                                      ImGuiAppImpl>();
 
