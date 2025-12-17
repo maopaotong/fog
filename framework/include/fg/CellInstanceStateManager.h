@@ -128,36 +128,29 @@ namespace fog
         Config *config;
 
     public:
-        INJECT(CellInstanceStateManager(CoreMod *core, SceneManager *sceneManager, Config *config))
+        INJECT(CellInstanceStateManager(CoreMod *core, SceneManager *sceneManager, Config *config,Component::Injector* injector))
             : config(config),
               sceneManager(sceneManager),
               core(core)
 
         {
-            // this->sceNode = sceneManager->getRootSceneNode()->createChildSceneNode();
-            Component::Injector injector;
-            injector.bindInstance<CoreMod>(core);
-            injector.bindInstance<SceneManager>(sceneManager);
-            injector.bindImpl<CellInstanceState, Component::AsPtrDynamic>();
-            injector.bindCtx<CellKey>();
 
             CellKey cell;
-            injector.push<CellKey>(nullptr, [&cell]()
+            injector->push<CellKey>(nullptr, [&cell]()
                                    { return cell; });
             for (int x = 0; x < config->TILES_RANGE.getWidth(); x++)
             {
                 for (int y = 0; y < config->TILES_RANGE.getHeight(); y++)
                 {
-                    // CellInstanceState *state = new CellInstanceState(cell, core, sceneManager);
                     cell = CellKey(x, y);
-                    CellInstanceState *state = injector.getPtr<CellInstanceState>();
+                    CellInstanceState *state = injector->getPtr<CellInstanceState>();
                     state->init();
 
                     this->add(state); //
                     this->cellInstanceStates[cell] = state;
                 }
             }
-            injector.pop<CellKey>();
+            injector->pop<CellKey>();
         }
         virtual ~CellInstanceStateManager()
         {
