@@ -10,7 +10,7 @@ namespace fog
         {
             int tsWidth;
             int tsHeight;
-            INJECT(Options(Config *config)) : tsWidth(config->TILES_RANGE.getWidth()), tsHeight(config->TILES_RANGE.getHeight())
+            INJECT(Options(Config *config)) : tsWidth(config->cellsRange.getWidth()), tsHeight(config->cellsRange.getHeight())
             {
             }
         };

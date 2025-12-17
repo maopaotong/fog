@@ -84,7 +84,7 @@ namespace fog
             float rectHeight;
             int tWidth;
             int tHeight;
-            INJECT(Options(Config *config)) : box(config->TILES_RANGE), quality(config->TILE_TERRAIN_QUALITY), tWidth(box.getWidth()), tHeight(box.getHeight())
+            INJECT(Options(Config *config)) : box(config->cellsRange), quality(config->cellsTerrainQuality), tWidth(box.getWidth()), tHeight(box.getHeight())
             {
                 this->rectWidth = 2.0 / quality;                         // rad of tile = 1 , width of tile = 2;
                 this->rectHeight = rectWidth;                            // rect height == width
@@ -373,7 +373,7 @@ namespace fog
                     for (int y = 0; y < height; y++)
                     {
 
-                        Box2<int> debugRange = config->DEBUG_PRINT_TERRAINS_TEX_RANGE;
+                        Box2<int> debugRange = config->debugPrintTerrainsTexRange;
                         CellsVertex &v = hMap[x][y];
                         if (v.types[0] < 10)
                         {
@@ -429,26 +429,26 @@ namespace fog
             switch (tl.type)
             {
             case (CellTypes::OCEAN):
-                tlHeight = config->HEIGHT_OCEAN;
+                tlHeight = config->heightOfOcean;
                 break;
             case (CellTypes::SHORE):
             case (CellTypes::LAKE):
-                tlHeight = config->HEIGHT_SHORE;
+                tlHeight = config->heightOfShore;
                 break;
             case (CellTypes::PLAIN):
-                tlHeight = config->HEIGHT_PLAIN;
+                tlHeight = config->heightOfPlain;
                 break;
             case (CellTypes::HILL):
-                tlHeight = config->HEIGHT_HILL;
+                tlHeight = config->heightOfHill;
                 break;
             case (CellTypes::MOUNTAIN):
-                tlHeight = config->HEIGHT_MOUNTAIN;
+                tlHeight = config->heightOfMountain;
                 break;
             case (CellTypes::FROZEN):
-                tlHeight = config->HEIGHT_FROZEN;
+                tlHeight = config->heightOfFrozen;
                 break;
             default:
-                tlHeight = config->HEIGHT_FROZEN;
+                tlHeight = config->heightOfFrozen;
                 break;
             }
             return tlHeight;

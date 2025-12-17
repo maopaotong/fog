@@ -26,8 +26,8 @@ namespace fog
             std::random_device rd;
             std::mt19937 gen(rd());
 
-            std::uniform_int_distribution<int> rPosX(0, config->TILES_RANGE.getWidth() - 1);  //
-            std::uniform_int_distribution<int> rPosY(0, config->TILES_RANGE.getHeight() - 1); //
+            std::uniform_int_distribution<int> rPosX(0, config->cellsRange.getWidth() - 1);  //
+            std::uniform_int_distribution<int> rPosY(0, config->cellsRange.getHeight() - 1); //
 
             for (int i = 0; i < 100; i++)
             {

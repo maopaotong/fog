@@ -9,7 +9,5 @@ namespace fog
 
     struct Mod
     {
-        virtual std::string getName() = 0;
-        virtual void deactive() = 0;
     };
 };

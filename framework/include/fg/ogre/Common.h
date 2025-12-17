@@ -20,7 +20,9 @@
 #include <OgreApplicationContext.h>
 #include <OgreLogManager.h>
 #include <OgreMaterialManager.h>
+#include <OgreInput.h>
 #include <unordered_map>
+
 #include <fg/core.h>
 
 namespace fog

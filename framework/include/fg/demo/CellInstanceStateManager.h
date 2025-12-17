@@ -48,7 +48,7 @@ namespace fog
         Vector3 getOrigin3D()
         {
             // return Context<Node2D>::get()->to3D(Cell::getOrigin2D(cis),config->CELL_SCALE);
-            return cis.transform3(*config->d2h2d3);
+            return cis.transform3(*config->transformFromD2HToD3);
         }
 
         void buildMesh()
@@ -136,9 +136,9 @@ namespace fog
             CellKey cell;
             injector->push<CellKey>(nullptr, [&cell]()
                                    { return cell; });
-            for (int x = 0; x < config->TILES_RANGE.getWidth(); x++)
+            for (int x = 0; x < config->cellsRange.getWidth(); x++)
             {
-                for (int y = 0; y < config->TILES_RANGE.getHeight(); y++)
+                for (int y = 0; y < config->cellsRange.getHeight(); y++)
                 {
                     cell = CellKey(x, y);
                     CellInstanceState *state = injector->getPtr<CellInstanceState>();

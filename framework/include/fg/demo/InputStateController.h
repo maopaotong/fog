@@ -43,7 +43,7 @@ namespace fog
             this->right = (x >= width - edgeSize && x <= width);
             this->front = (y >= 0 && y <= edgeSize);
             this->back = (y >= height - edgeSize && y <= height);
-            if (config->DEBUG_COUT)
+            if (config->debugCout)
             {
 
                 if (this->isMoving())

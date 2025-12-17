@@ -197,16 +197,6 @@ namespace fog
             return false;
         }
 
-        std::string getName()
-        {
-            return "core";
-        }
-
-        void deactive() override
-        {
-            // Context<CoreMod>::set(nullptr);
-        }
-
         bool frameStarted(const FrameEvent &evt)
         {
             for (Stairs *listener : this->stepListeners)

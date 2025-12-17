@@ -22,8 +22,8 @@ namespace fog
             int tlsHeight;
             std::string texName;
 
-            INJECT(Options(Config * cfg)) : tlsWidth(cfg->TILES_RANGE.getWidth()), tlsHeight(cfg->TILES_RANGE.getHeight()),
-                                width(cfg->FOG_OF_WAR_TEX_RANGE.getWidth()), height(cfg->FOG_OF_WAR_TEX_RANGE.getHeight()),
+            INJECT(Options(Config * cfg)) : tlsWidth(cfg->cellsRange.getWidth()), tlsHeight(cfg->cellsRange.getHeight()),
+                                width(cfg->fogOfWarTextRange.getWidth()), height(cfg->fogOfWarTextRange.getHeight()),
                                 texName(cfg->FOG_OF_WAR_TEX_NAME)
             {
             }
@@ -78,7 +78,7 @@ namespace fog
                 for (int y = 0; y < height; y++)
                 {
                     int idx = (y * width + x) * 4;
-                    if (config->FOG_OF_WAR_EREASE_RANGE.isIn(x, y) || homeBox.isIn(x, y))
+                    if (config->fogOfWarEreaseRange.isIn(x, y) || homeBox.isIn(x, y))
                     {
                         data[idx] = 255; // R turn light on.
                     }
@@ -140,7 +140,7 @@ namespace fog
         void set(CellKey cKey, bool visible)
         {
 
-            if (config->DEBUG_FOG_OF_WAR && config->DEBUG_COUT)
+            if (config->debugFogOfWar && config->debugCout)
             {
                 // std::cout << fmt::format("fogOfWar[{:>2}{:>2}][{:>2},{:>2};{:>2},{:>2}]", cKey.x, cKey.y, x1, y1, x2, y2) << std::endl;
             }
@@ -234,7 +234,7 @@ namespace fog
             // {
             //     this->set(cis, true);
             // }
-            CellKey cis = CellKey::from(state->getPosition(*config->d3_normal_d2));
+            CellKey cis = CellKey::from(state->getPosition(*config->transformD3NormalToD2));
             this->set(cis, true);
         }
 

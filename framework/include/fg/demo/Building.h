@@ -63,7 +63,7 @@ namespace fog
                 // Vector2 pointIn2D = pointOnLayer * scale;
                 // Vector3 positionIn3D = node2D->plane->to3DInPlane(pointIn2D);
                 Point2<float> p2d = pointOnLayer;
-                Vector3 positionIn3D = p2d.transform3(*config->d2h2d3);
+                Vector3 positionIn3D = p2d.transform3(*config->transformFromD2HToD3);
                 positionIn3D.y = layerHeight;
 
                 return positionIn3D;

@@ -58,7 +58,7 @@ namespace fog
             if (this->state)
             {
 
-                CellInstanceState *cis2 = cisManager->getCellInstanceStateByPosition(state->getPosition(*config->d3_normal_d2));
+                CellInstanceState *cis2 = cisManager->getCellInstanceStateByPosition(state->getPosition(*config->transformD3NormalToD2));
                 this->trySetCis(cis2);
             }
             else
@@ -133,7 +133,7 @@ namespace fog
             this->add(actor2);
             // actor2->setPosition(home->cKey );
             //  find a position.
-            actor2->setPosition(home->cKey, *config->d2h2d3);
+            actor2->setPosition(home->cKey, *config->transformFromD2HToD3);
         }
 
         void setCellToStandOn(CellKey cKey)

@@ -25,7 +25,7 @@ namespace fog
             int tlsHeight;
             int terWidth;
             int terHeight;
-            INJECT(Options(CellsTerrains::Options opts, Config *config)) : tlsWidth(config->TILES_RANGE.getWidth()), tlsHeight(config->TILES_RANGE.getHeight()),
+            INJECT(Options(CellsTerrains::Options opts, Config *config)) : tlsWidth(config->cellsRange.getWidth()), tlsHeight(config->cellsRange.getHeight()),
                                                                            terWidth(opts.width), terHeight(opts.height)
             {
             }
@@ -50,14 +50,14 @@ namespace fog
         {
             // Vector2 pIn2DV = Context<Node2D>::get()->to2D(pos);
 
-            Vector2 pIn2DV = Point2<float>::from(pos, *config->d3_normal_d2);
+            Vector2 pIn2DV = Point2<float>::from(pos, *config->transformD3NormalToD2);
             return getHeight(pIn2DV);
         }
         float getHeight(Vector2 pIn2DV)
         {
 
             Point2<float> pIn2D(pIn2DV.x, pIn2DV.y);
-            pIn2D = pIn2D / config->CELL_SCALE; //
+            pIn2D = pIn2D / config->cellScale; //
 
             // Point2<float> pUV = Cell::getPointInUV(pIn2D, tlsWidth, tlsHeight); // UV
             Point2<float> pUV = pIn2D.transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
@@ -77,8 +77,8 @@ namespace fog
                 y = y + terHeight;
                 y = 0;
             }
-            float ret = vertexs[x][y].height * config->HEIGHT_SCALE;
-            if (config->DEBUG_COUT)
+            float ret = vertexs[x][y].height * config->heightScale;
+            if (config->debugCout)
             {
                 std::cout << fmt::format(":[{:>.2f},{:>.2f}],[{:>3},{:>3}].h={:>3.1f}", pUV.x, pUV.y, x, y, ret) << std::endl;
             }
@@ -110,7 +110,7 @@ namespace fog
             };
             // Context<Plane>::get()->height = heightFunc; // replace the height func.
             //TODO move to other place.
-            config->d2h2d3->setHeight([this](float x, float y)
+            config->transformFromD2HToD3->setHeight([this](float x, float y)
                                       { return this->tts->getHeight(Vector2(x, y)); } //
             );
         }
@@ -175,10 +175,10 @@ namespace fog
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(9)->setTextureFiltering(Ogre::TFO_BILINEAR);
 
             GpuProgramParametersSharedPtr vParams = mat->getTechnique(0)->getPass(0)->getVertexProgramParameters();
-            vParams->setNamedConstant("tlsWidthInNum", config->TILES_RANGE.getWidth());
-            vParams->setNamedConstant("tlsHeightInNum", config->TILES_RANGE.getHeight());
+            vParams->setNamedConstant("tlsWidthInNum", config->cellsRange.getWidth());
+            vParams->setNamedConstant("tlsHeightInNum", config->cellsRange.getHeight());
 
-            int step = config->TILE_TERRAIN_QUALITY / config->TILE_MESH_QUALITY;
+            int step = config->cellsTerrainQuality / config->cellsMeshQuality;
 
             int qWidth = terrains->width / step;
             int qHeight = terrains->height / step;
@@ -210,14 +210,14 @@ namespace fog
                     // Vector2 qP = tP + tts->vertexs[qx][qy].originInTile * scale;
                     // Point2<float> qP = tP + tts->vertexs[qx][qy].originInTile * scale;
                     //  scale
-                    float h = tts->vertexs[qx][qy].height * config->HEIGHT_SCALE;
+                    float h = tts->vertexs[qx][qy].height * config->heightScale;
 
                     // Vector3 position3 = Context<Node2D>::get()->to3D(qP, 1);
                     // position.y = h;
 
                     // Vector3 position = qP.transform3(Transform::D2_NORMAL_D3(h));
                     // Vector3 position = ((cis.cast<float>().transform(Transform::CellCentreByKey()) + tts->vertexs[qx][qy].originInTile) * config->CELL_SCALE).transform3(Transform::D2_NORMAL_D3(h));
-                    Vector3 position = cKey.transform3(tts->vertexs[qx][qy].originInTile, h, *config->d2h2d3);
+                    Vector3 position = cKey.transform3(tts->vertexs[qx][qy].originInTile, h, *config->transformFromD2HToD3);
                     // position.y = h;
 
                     positions[x][y] = position;

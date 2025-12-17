@@ -67,7 +67,7 @@ namespace fog
             }
             bool ret = mission->step(time);
             Vector3 pos = this->movingState->getSceneNode()->getPosition();
-            if (pos.distance(this->prePosition) > config->STATE_MOVED_EVENT_DISTNACE)
+            if (pos.distance(this->prePosition) > config->actorMovedEventDistance)
             {
                 eventBus->emit(MovableEventType::StateMoved, this->movingState);
                 this->prePosition = pos;
@@ -80,7 +80,7 @@ namespace fog
             // Cell::Center *cells = Context<Cell::Center>::get();
 
             // check if this state's position on the target cell
-            Point2<float> actorPosIn2D = this->movingState->getPosition(*config->d3_normal_d2);
+            Point2<float> actorPosIn2D = this->movingState->getPosition(*config->transformD3NormalToD2);
             // Node2D *root2D = cells->getRoot2D();
             // Vector2 actorPosIn2D = root2D->to2D(aPos3);
 

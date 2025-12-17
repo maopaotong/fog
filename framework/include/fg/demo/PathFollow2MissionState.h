@@ -69,7 +69,7 @@ namespace fog
         Vector3 to3D(Point2<float> p)
         {
 
-            return p.transform3(*config->d2h2d3) + this->offset;
+            return p.transform3(*config->transformFromD2HToD3) + this->offset;
         }
 
         // Vector3 to3D(Vector2 pointIn2D, float scale)
@@ -133,7 +133,7 @@ namespace fog
 
             // delta.y = 0;
             target->translate(delta); // new position
-            if (config->DEBUG_MOVING_POSITION && config->DEBUG_COUT)
+            if (config->debugMovingPosition && config->debugCout)
             {
                 std::cout << fmt::format("stateMoving: ({:>5.1},{:>5.1},{:>5.1}),({:>5.1},{:>5.1},{:>5.1}),({:>5.1},{:>5.1},{:>5.1})", delta.x, delta.y, delta.z, prevPos.x, prevPos.y, prevPos.z, prevPos.x, prevPos.y, prevPos.z) << std::endl;
             }
