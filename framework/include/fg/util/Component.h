@@ -176,19 +176,14 @@ namespace fog
             template <typename F>
             void runWithCtx(CtxFunc ptr, CtxFunc val, F &&func)
             {
-                ptrs.push(CtxFuncPair(ptr, val));
+                stack.push(CtxFuncPair(ptr, val));
                 func();
-                ptrs.pop();
+                stack.pop();
             }
 
         public:
             Injector()
             {
-                stack.push(CtxFuncPair([](std::type_index, std::any &) -> bool
-                                       { return false; },
-                                       [](std::type_index, std::any &) -> bool
-                                       { return false; } //
-                                       ));
             }
 
             std::unordered_map<std::type_index, Component> components;
@@ -410,18 +405,17 @@ namespace fog
             template <typename T>
             T *getPtr()
             {
-
-                T *ret = getComponent(typeid(T)).getPtr<T>();
-                if (!ret)
+                if (!this->stack.empty())//trying to get ptr from context func.
                 {
                     std::any aV;
                     CtxFunc cFunc = this->stack.top().first;
                     if (cFunc(typeid(T), aV))
                     {
-                        ret = std::any_cast<T *>(aV);
+                        return std::any_cast<T *>(aV);
                     }
                 }
-                return ret;
+
+                return getComponent(typeid(T)).getPtr<T>();
             }
 
             template <typename T, typename CT>
@@ -430,7 +424,7 @@ namespace fog
                 T *ret;
                 this->runWithCtx([ptrCtx](std::type_index tid, std::any &aV) -> bool
                                  {
-                                     if (tid == typeid(CT))
+                                     if (ptrCtx && tid == typeid(CT))
                                      {
                                          aV = std::make_any<CT*>(ptrCtx());
                                          return true;
@@ -438,14 +432,14 @@ namespace fog
                                      return false; },
                                  [valCtx](std::type_index tid, std::any &aV) -> bool
                                  {
-                                     if (tid == typeid(CT))
+                                     if (valCtx && tid == typeid(CT))
                                      {
-                                         aV = std::make_any<CT>(ptrCtx());
+                                         aV = std::make_any<CT>(valCtx());
                                          return true;
                                      } //
                                      return false;
                                  },
-                                 [&ret]() -> void
+                                 [&ret, this]() -> void
                                  { ret = getComponent(typeid(T)).getPtr<T>(); });
                 return ret;
             }
@@ -453,6 +447,15 @@ namespace fog
             template <typename T>
             T getValue()
             {
+                if (!this->stack.empty())//trying to get value from context func.
+                {
+                    std::any aV;
+                    CtxFunc cFunc = this->stack.top().second;
+                    if (cFunc(typeid(T), aV))
+                    {
+                        return std::any_cast<T>(aV);
+                    }
+                }
                 return getComponent(typeid(T)).getValue<T>();
             }
 

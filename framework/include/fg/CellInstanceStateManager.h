@@ -145,9 +145,13 @@ namespace fog
                 for (int y = 0; y < config->TILES_RANGE.getHeight(); y++)
                 {
                     CellKey cell(x, y);
-                    CellInstanceState *state = new CellInstanceState(cell, core, sceneManager);
-                    //CellInstanceState *state = injector.getPtr<CellInstanceState,CellKey>(cell);
+                    //CellInstanceState *state = new CellInstanceState(cell, core, sceneManager);
+                    CellInstanceState *state = injector.getPtr<CellInstanceState, CellKey>(nullptr, [cell]()
+                                                                { return cell; } //
+                    );
+
                     state->init();
+
                     this->add(state); //
                     this->cellInstanceStates[cell] = state;
                 }
