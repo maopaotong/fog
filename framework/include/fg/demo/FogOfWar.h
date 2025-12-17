@@ -29,6 +29,9 @@ namespace fog
             }
         };
 
+        
+      
+
         int width;
         int height;
 
@@ -56,22 +59,22 @@ namespace fog
         {
             this->data = new unsigned char[width * height * 4]; // rgba;
             // to speed up calculation.
-
+            
             // Box2<float> box = HexTile::Key(0, 0).getOuterBoxInUV(tlsWidth, tlsHeight); // cover the entire tile.
             // // scale from centre of the box, p1 is (0,0),p2 is very small value some thing like: 1/cells*rad.
             // box.expand(3.0); // expand to 3 cell width.
-
+            
             // // find the position of p2 in texture, and the width now is the numbers of pixels.
             // box.scale(width, height);
-
+            
             // int bW = box.getWidth();
             // int bH = box.getHeight();
             // // now the box is ready for moving, do not change the width and height.
             // this->bufferBox = Box2<int>(bW, bH); // fixed width height.
             // // prepare the buffer for texture update.
-
+            
             this->bufferBox = buildBufferBox(homeCellKey->cKey);
-
+            
             Box2<int> homeBox = bufferBox;
             for (int x = 0; x < width; x++)
             {
@@ -91,9 +94,10 @@ namespace fog
                     data[idx + 3] = 0; // A
                 } // for
             } // for
+            this->texture = TextureFactory::createTexture(texName, width, height, this->data);
+
             this->buffer = new unsigned char[bufferBox.getWidth() * bufferBox.getHeight() * 4]; // fixed capacity.
 
-            this->texture = TextureFactory::createTexture(texName, width, height, this->data);
 
             eventBus-> //
                 subscribe<MovableEventType, Actor *>([this](MovableEventType evtType, Actor *state)

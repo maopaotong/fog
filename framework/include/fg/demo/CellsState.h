@@ -109,18 +109,15 @@ namespace fog
                 return this->tts->getHeightWithNormalAtWorldPosition(pos, norm);
             };
             // Context<Plane>::get()->height = heightFunc; // replace the height func.
-            //TODO move to other place.
+            // TODO move to other place.
             config->transformFromD2HToD3->setHeight([this](float x, float y)
-                                      { return this->tts->getHeight(Vector2(x, y)); } //
+                                                    { return this->tts->getHeight(Vector2(x, y)); } //
             );
         }
     };
 
-    //
-    class CellsState : public ManualState
+    struct CellsMaterial
     {
-
-    public:
         struct Options
         {
             std::string texName;
@@ -128,35 +125,23 @@ namespace fog
             {
             }
         };
-        TheTerrains *tts;
-        std::vector<std::vector<CellData>> &tiles;
-        CellsTerrains *terrains;
-        Options options;
-        Config *config;
-        TheTerrains2 *tts2; // TODO merge All terrains types.
+        std::string material;
 
-    public:
-        INJECT(CellsState(CellsDatas *cDatas,
-                          TheTerrains *tts,
-                          FogOfWar * fogOfWar,
-                          TheTerrains2 *tts2,
-                          Options options,
-                          CellsTerrains *terrains,
-                          Config *config,
-                          CoreMod *core)) : ManualState(core), terrains(terrains), tiles(cDatas->tiles),                                            
-                                            options(options),
-                                            config(config),
-                                            tts(tts),
-                                            tts2(tts2)
+        INJECT(CellsMaterial(CellsTerrains *terrains,
+                      TheTerrains *tts,
+                      FogOfWar *fogOfWar,
+                      TheTerrains2 *tts2,
+                      Config *config,
+                      Options options))
         {
-            this->material = "Tiles";           
+            this->material = "Tiles";
 
             // material
             MaterialPtr mat = MaterialManager::getSingletonPtr()->getByName("Tiles");
             // tex0
             std::string texName0 = "TerrainsTex001";
             // Context<CellsTerrains>::get()->createWorldTexture(texName0, tts->vertexs);
-            terrains->createWorldTexture(texName0, tts->vertexs);
+            terrains->createWorldTexture(texName0, tts->vertexs); // TODO texture create by a manager.
 
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(texName0);
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
@@ -171,6 +156,34 @@ namespace fog
             GpuProgramParametersSharedPtr vParams = mat->getTechnique(0)->getPass(0)->getVertexProgramParameters();
             vParams->setNamedConstant("tlsWidthInNum", config->cellsRange.getWidth());
             vParams->setNamedConstant("tlsHeightInNum", config->cellsRange.getHeight());
+        }
+    };
+
+    //
+    class CellsState : public ManualState
+    {
+
+    public:
+        TheTerrains *tts;
+        std::vector<std::vector<CellData>> &tiles;
+        CellsTerrains *terrains;
+        Config *config;
+        TheTerrains2 *tts2; // TODO merge All terrains types.
+
+    public:
+        INJECT(CellsState(CellsDatas *cDatas,
+                          TheTerrains *tts,
+                          TheTerrains2 *tts2,
+                          CellsMaterial *cMaterial,
+                          CellsTerrains *terrains,
+                          Config *config,
+                          CoreMod *core)) : ManualState(core), terrains(terrains), tiles(cDatas->tiles),
+                                            config(config),
+                                            tts(tts),
+                                            tts2(tts2)
+        {
+
+            this->material = cMaterial->material;
 
             int step = config->cellsTerrainQuality / config->cellsMeshQuality;
 

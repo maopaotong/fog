@@ -405,6 +405,8 @@ namespace fog
             }
         };
 
+        // TODO create texture by a texture manager. 
+        // TODO as well as the FogOfWar Texture creation.
         // World texture is used as the meta data for the shader to determine the child texture.
         void createWorldTexture(std::string name, std::vector<std::vector<CellsVertex>> &hMap)
         {
