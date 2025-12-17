@@ -123,18 +123,22 @@ namespace fog
         std::unordered_map<CellKey, CellInstanceState *, CellKey::Hash> cellInstanceStates;
 
         CoreMod *core;
-                SceneManager *sceneManager;
+        SceneManager *sceneManager;
 
-        Config* config;
+        Config *config;
+
     public:
-        INJECT(CellInstanceStateManager(CoreMod *core,        SceneManager *sceneManager,Config* config))
-            : 
-            config(config),
-            sceneManager (sceneManager),
-            core(core)
+        INJECT(CellInstanceStateManager(CoreMod *core, SceneManager *sceneManager, Config *config))
+            : config(config),
+              sceneManager(sceneManager),
+              core(core)
 
         {
-            //this->sceNode = sceneManager->getRootSceneNode()->createChildSceneNode();
+            // this->sceNode = sceneManager->getRootSceneNode()->createChildSceneNode();
+            Component::Injector injector;
+            injector.bindInstance<CoreMod>(core);
+            injector.bindInstance<SceneManager>(sceneManager);
+            injector.bindImpl<CellInstanceState, Component::AsPtrDynamic>();
 
             for (int x = 0; x < config->TILES_RANGE.getWidth(); x++)
             {
@@ -142,6 +146,7 @@ namespace fog
                 {
                     CellKey cell(x, y);
                     CellInstanceState *state = new CellInstanceState(cell, core, sceneManager);
+                    //CellInstanceState *state = injector.getPtr<CellInstanceState,CellKey>(cell);
                     state->init();
                     this->add(state); //
                     this->cellInstanceStates[cell] = state;
@@ -151,7 +156,7 @@ namespace fog
         virtual ~CellInstanceStateManager()
         {
         }
-      
+
         // CellInstanceState *getCellInstanceStateByPosition(Vector2 posIn2D)
         // {
         //     Vector3 pos3D = Context<Node2D>::get()->to3D(posIn2D,1);//

@@ -22,6 +22,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <fmt/format.h>
+#include <stack>
 #include <OgreVector.h>
 namespace fog{
     using Vector3 = Ogre::Vector3;
