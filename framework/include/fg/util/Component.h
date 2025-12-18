@@ -38,9 +38,15 @@ namespace fog
     {
     };
 
-    template <typename C, typename T, int aIdx>
-    struct ConstructorArg
+    template <typename T, typename C>
+    struct ArgOfConstructor
     {
+        using UsageFunc = std::function<std::any()>;
+        UsageFunc valFunc;
+        UsageFunc ptrFunc;
+        ArgOfConstructor(UsageFunc ptrFunc, UsageFunc valFunc) : ptrFunc(ptrFunc), valFunc(valFunc)
+        {
+        }
     };
 
     struct Component
@@ -326,7 +332,7 @@ namespace fog
 
             std::unordered_map<std::type_index, Component> components;
 
-            std::function<Component(std::type_index)> defaultCompFunc;
+            // std::function<Component(std::type_index)> defaultCompFunc;
 
             template <typename T>
             void upbind()
@@ -359,10 +365,12 @@ namespace fog
                 bindComp(Component::make(typeid(T), ptrFuncS, valueFuncS));
             }
 
-            template <typename C, typename A, int I = 0, typename F>
-            void bindConstructorArgAsVal(F &&func)
+            template <typename T, typename C , typename F>
+            void bindArgOfConstructorAsVal(F &&func)
             {
-                bindFuncAsVal<ConstructorArg<C, A, I>>(func);
+
+                bindFuncAsVal<ArgOfConstructor<T, C>>([func]() -> ArgOfConstructor<T, C>
+                                                       { return ArgOfConstructor<T, C>(nullptr, func); });
             }
 
             template <typename T, Usage usg = AsPtrStatic>
@@ -644,6 +652,18 @@ namespace fog
             }
 
             template <typename T>
+            bool tryGetVal(T &val, Usage usgR = AsStaticFirst)
+            {
+                Component *cPtr = tryGetComponent(typeid(T));
+                if (cPtr)
+                {
+                    val = cPtr->getVal<T>();
+                    return true;
+                }
+                return false;
+            }
+
+            template <typename T>
             void push(std::function<T *()> ptrCtx, std::function<T()> valCtx)
             {
                 if (auto it = this->contexts.find(typeid(T)); it != this->contexts.end())
@@ -679,19 +699,28 @@ namespace fog
                 return getComponent(tid).getVal<T>(usgR);
             }
 
-            Component getComponent(std::type_index tid)
+            Component &getComponent(std::type_index tid)
             {
-                auto it = components.find(tid);
-                if (it == components.end())
+                Component *cPtr = this->tryGetComponent(tid);
+                if (!cPtr)
                 {
-                    if (defaultCompFunc)
-                    {
-                        // call default function.
-                        return defaultCompFunc(tid);
-                    }
                     throw std::runtime_error("must bind before get the instance by type from Component::Injector.");
                 }
-                return it->second;
+                return *cPtr;
+            }
+
+            template<typename T>
+            Component *tryGetComponent(){
+                return tryGetComponent(typeid(T));
+            }
+
+            Component *tryGetComponent(std::type_index tid)
+            {
+                if (auto it = components.find(tid); it != components.end())
+                {
+                    return &it->second;
+                }
+                return nullptr;
             }
 
             template <typename T>
@@ -701,16 +730,16 @@ namespace fog
                 return it != factories.end();
             }
 
-            void bindDefault(Injector &pInjector)
-            {
-                this->defaultCompFunc = [&pInjector](std::type_index tid)
-                { return pInjector.getComponent(tid); };
-            }
+            // void bindDefault(Injector &pInjector)
+            // {
+            //     this->defaultCompFunc = [&pInjector](std::type_index tid)
+            //     { return pInjector.getComponent(tid); };
+            // }
 
             Injector &operator=(const Injector &injector)
             {
                 this->components = injector.components;
-                this->defaultCompFunc = injector.defaultCompFunc;
+                // this->defaultCompFunc = injector.defaultCompFunc;
                 return *this;
             }
 
@@ -775,7 +804,7 @@ namespace fog
                 // usgR is the runtime arg provided by the top most getPtr(usgR), this argument control only the outer most object creation.
                 // do dynamic usge, do not propagate to deep layer, may be useful for other usage after unset the AsDynamic mask.
                 //
-                T *ret = new T(getPtrOrValue<std::tuple_element_t<Is, ArgsTuple>>()...);
+                T *ret = new T(getAsConstructorArg<T, Is, std::tuple_element_t<Is, ArgsTuple>>()...);
                 return ret;
             }
             // C<2>:As Value
@@ -786,22 +815,47 @@ namespace fog
 
                 // static_assert(allArgsArePointers<ArgsTuple>, "All inject arguments must be pointer types!");
 
-                T ret = T(getPtrOrValue<std::tuple_element_t<Is, ArgsTuple>>()...);
+                T ret = T(getAsConstructorArg<T, Is, std::tuple_element_t<Is, ArgsTuple>>()...);
                 return ret;
             }
 
             // G<1>
-            template <typename Arg>
-            typename std::enable_if_t<std::is_pointer_v<Arg>, Arg> getPtrOrValue() // return Arg or Arg *
+            template <typename C, std::size_t I, typename Arg>
+            typename std::enable_if_t<std::is_pointer_v<Arg>, Arg> getAsConstructorArg() // return Arg or Arg *
             {
-                return this->getPtr<std::remove_pointer_t<Arg>>(AsStaticFirst); // default usage is static first.
+                Component * cPtr = this->tryGetComponent<std::remove_pointer_t<Arg>>();
+                if(cPtr){
+                    return cPtr->getPtr<std::remove_pointer_t<Arg>>(AsStaticFirst);
+                }
+
+                cPtr = this->tryGetComponent<ArgOfConstructor<std::remove_pointer_t<Arg>, C>>();
+                if (cPtr)
+                {
+                    auto cArg = cPtr->getVal<ArgOfConstructor<std::remove_pointer_t<Arg>,C>>(AsStaticFirst);
+                    std::any ptrA = (cArg.ptrFunc)();
+                    return std::any_cast<Arg>(ptrA);
+                }
+                throw std::runtime_error("cannot resolve component for a arg of constructor.");
             }
 
             // G<2>
-            template <typename Arg>
-            typename std::enable_if_t<!std::is_pointer_v<Arg>, Arg> getPtrOrValue() // return Arg or Arg *
+            template <typename C, std::size_t I, typename Arg>
+            typename std::enable_if_t<!std::is_pointer_v<Arg>, Arg> getAsConstructorArg() // return Arg or Arg *
             {
-                return this->getVal<Arg>(AsStaticFirst); // pointer
+
+                Component * cPtr = this->tryGetComponent<Arg>();
+                if(cPtr){
+                    return cPtr->getVal<Arg>(AsStaticFirst);
+                }
+                
+                cPtr = this->tryGetComponent<ArgOfConstructor<Arg, C>>();
+                if (cPtr)
+                {
+                    auto cArg = cPtr->getVal<ArgOfConstructor<Arg,C>>(AsStaticFirst);
+                    std::any valA = (cArg.valFunc)();
+                    return std::any_cast<Arg>(valA);
+                }
+                throw std::runtime_error("cannot resolve component for a arg of constructor.");
             }
         };
         //

@@ -40,6 +40,9 @@ namespace fog
         struct Options
         {
             std::string name;
+            INJECT(Options(std::string name)):name(name)
+            {
+            }
         };
 
     public:
