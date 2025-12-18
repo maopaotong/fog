@@ -4,31 +4,7 @@
  */
 // main.cpp - Complete Ogre A* Hex Grid Visualization System
 #pragma once
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <unordered_map>
-#include <unordered_set>
-#include <cmath>
-#include <utility>
-#include <algorithm>
-#include <functional>
-
-// === Include OgreBites for modern initialization ===
-#include <Bites/OgreApplicationContext.h>
-#include <OgreRoot.h>
-#include <OgreSceneManager.h>
-#include <OgreRenderWindow.h>
-#include <OgreCamera.h>
-#include <OgreViewport.h>
-#include <OgreEntity.h>
-#include <OgreManualObject.h>
-#include <OgreSceneNode.h>
-#include <OgreFrameListener.h>
-#include <OgreRTShaderSystem.h>
-#include <OgreTechnique.h>
-#include <OgreRenderWindow.h>
-#include <iostream>
+#include "Common.h"
 #include "fg/util.h"
 #include "fg/ogre.h"
 #include "MoveToCellTask.h"
@@ -37,7 +13,7 @@
 #include "InputStateController.h"
 #include "MovingStateManager.h"
 #include "BuildingStateManager.h"
-#include "CameraState.h"
+#include "CameraStateManager.h"
 namespace fog
 {
     using namespace OgreBites;
@@ -55,17 +31,19 @@ namespace fog
         BuildingStateManager * buildingStateManager;
         Viewport *viewport;
         Camera *camera;
-        CameraState *cameraState;
-
+        CameraStateManager *cameraState;
+        CoreMod * core;
     public:
         INJECT(EntryController(PathingStateManager *pathingStateManager, MovingStateManager *movingStateManager,
                                InputStateController *inputStateController,
                                MovableStateManager * movableStateManager,
                                BuildingStateManager * buildingStateManager,
-                               CameraState *cameraState,
+                               CameraStateManager *cameraState,
+                               CoreMod * core,
                                Viewport *viewport, Camera *camera))
             : viewport(viewport),
               camera(camera),
+              core(core),
               pathingStateManager(pathingStateManager), 
               buildingStateManager(buildingStateManager),
               movingStateManager(movingStateManager),
@@ -73,10 +51,12 @@ namespace fog
               cameraState (cameraState),
               inputStateController(inputStateController)
         {
+            core->getAppContext()->addInputListener(this);
+            core->getRoot()->addFrameListener(this);
         }
         bool mouseWheelRolled(const MouseWheelEvent &evt)
         {
-            cameraState->mouseWheelRolled(evt);
+            cameraState->mouseWheelRolled(evt.y);
             return false;
         }
         bool mousePressed(const MouseButtonEvent &evt) override

@@ -5,6 +5,7 @@
 #pragma once
 #include "demo/BuildingStateManager.h"
 #include "demo/Building.h"
+
 #include "demo/CellInstanceStateManager.h"
 #include "demo/CellsState.h"
 #include "demo/CellStateControl.h"

@@ -28,7 +28,7 @@ namespace fog
     using namespace Ogre;
 
     // === Frame Listener class for main loop ===
-    class CameraState : public Stairs
+    class CameraStateManager : public Stairs
     {
 
     private:
@@ -38,7 +38,7 @@ namespace fog
         Config *config;
 
     public:
-        INJECT(CameraState(CoreMod *core, InputStateController *inputState, Config *config)) : quit(false), core(core), inputState(inputState), config(config)
+        INJECT(CameraStateManager(CoreMod *core, InputStateController *inputState, Config *config)) : quit(false), core(core), inputState(inputState), config(config)
         {
         }
 
@@ -132,7 +132,7 @@ namespace fog
          * Lower position with a heigher pitch : look forward.
          * Heighest position let camera to look more like downward.
          */
-        bool mouseWheelRolled(const MouseWheelEvent &evt)
+        bool mouseWheelRolled(int evtY)
         {
             Camera *cam = core->getCamera();
             Ogre::SceneNode *node = cam->getParentSceneNode();
@@ -141,7 +141,7 @@ namespace fog
 
             float cameraRollSpeed = map(height, DEFAULT_CAMERA_HEIGHT_MIN, DEFAULT_CAMERA_HEIGHT_MAX, DEFAULT_CAMERA_ROLL_SPEED_MIN, DEFAULT_CAMERA_ROLL_SPEED_MAX);
 
-            Vector3 translate = Ogre::Vector3::NEGATIVE_UNIT_Y * evt.y * cameraRollSpeed;
+            Vector3 translate = Ogre::Vector3::NEGATIVE_UNIT_Y * evtY * cameraRollSpeed;
 
             Vector3 posTarget = node->getPosition() + translate;
             if (posTarget.y < DEFAULT_CAMERA_HEIGHT_MIN)

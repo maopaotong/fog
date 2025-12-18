@@ -5,7 +5,6 @@
 #pragma once
 #include "fg/core.h"
 #include "CellStateControl.h"
-#include "CameraState.h"
 #include "EntityState.h"
 #include "MovingStateManager.h"
 #include "CellInstanceStateManager.h"
@@ -66,8 +65,7 @@ namespace fog
 
             //this->cellsState->rebuildMesh();
 
-            core->getAppContext()->addInputListener(entryController);
-            root->addFrameListener(entryController);
+            
         }
     };
 };

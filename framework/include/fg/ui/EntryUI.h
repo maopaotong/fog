@@ -69,7 +69,6 @@ namespace fog
         INJECT(EntryUI(MovingStateManager *movingStateManager, CoreMod *core,
                        MovableStateManager *msm,
                        Event::Bus *eventBus,
-                       WorldManager *rootState,
                        Children *cs,
                        InventoryManager *inventoryManager)) : inventoryManager(inventoryManager),
                                                               eventBus(eventBus),

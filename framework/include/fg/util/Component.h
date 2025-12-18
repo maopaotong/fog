@@ -43,20 +43,22 @@ namespace fog
         struct Injector;
         using AnyFunc = std::function<std::any()>;
         using AddonFunc = std::function<std::any(Injector&)>;
+        
         using Usage = unsigned int;
         static constexpr Usage AsPtr = 1U << 0;
         static constexpr Usage AsVal = 1U << 2;
         static constexpr Usage AsStatic = 1U << 3;
         static constexpr Usage AsDynamic = 1U << 4;
-
+        
         static constexpr Usage AsPtrStatic = AsPtr | AsStatic;
         static constexpr Usage AsPtrDynamic = AsPtr | AsDynamic;
         static constexpr Usage AsValStatic = AsVal | AsStatic;
         static constexpr Usage AsValDynamic = AsVal | AsDynamic;
-
+        
+        using AnyUsageFunc = std::function<std::any(Usage)>;
         using Interface = std::unordered_set<std::type_index>;
-        using Object = std::unordered_map<std::type_index, AnyFunc>;
-        using Value = AnyFunc;
+        using Object = std::unordered_map<std::type_index, AnyUsageFunc>;
+        using Value = AnyUsageFunc;
 
         std::type_index typeId; // register the main type of the component.
         Object obj;             // cast funcs
@@ -64,7 +66,7 @@ namespace fog
 
         Component(std::type_index typeId, Object obj, Value value) : typeId(typeId), obj(obj), value(value) {};
 
-        template <typename T>
+        template <typename T, Usage usg = AsStatic>
         T *getPtr()
         {
             std::type_index tid = typeid(T);
@@ -74,24 +76,24 @@ namespace fog
             {
                 return nullptr;
             }
-            return std::any_cast<T *>((it->second)());
+            return std::any_cast<T *>((it->second)(usg));
         }
 
-        template <typename T>
+        template <typename T, Usage usg=AsDynamic>
         T getVal()
         {
             if (!value)
             {
                 throw std::runtime_error("cannot get value , no value function registered for component as a value. ");
             }
-            std::any v = value();
+            std::any v = value(usg);
             if (v.type() != typeid(T))
             {
                 throw std::runtime_error("cannot cast value , value function returned a value with other type. ");
             }
             return std::any_cast<T>(v);
         }
-
+        template<Usage usg>
         std::any getPtr(std::type_index tid)
         {
             auto it = obj.find(tid);
@@ -99,7 +101,7 @@ namespace fog
             {
                 return nullptr;
             }
-            return (it->second)();
+            return (it->second)(usg);
         }
 
         template <typename F>
@@ -139,7 +141,7 @@ namespace fog
         }
 
         template <typename T, typename Imp, typename Tuple, std::size_t... Is>
-        static Component makeImpl(AnyFunc createAsPtr, AnyFunc createAsVal, std::index_sequence<Is...>)
+        static Component makeImpl(AnyUsageFunc createAsPtr, AnyUsageFunc createAsVal, std::index_sequence<Is...>)
         {
             Object obj; // map from type id => function to get/crate the required type of value.
             ((registerInterface<T, Imp, Tuple, Is>(obj, createAsPtr)), ...);
@@ -148,13 +150,13 @@ namespace fog
         }
 
         template <typename T, typename Imp, typename Tuple, std::size_t I>
-        static void registerInterface(Object &obj, AnyFunc createAsPtr)
+        static void registerInterface(Object &obj, AnyUsageFunc createAsPtr)
         {
             using InterfaceType = std::tuple_element_t<I, Tuple>;
             std::type_index tid = typeid(InterfaceType);
-            auto func = [createAsPtr]() -> InterfaceType *
+            auto func = [createAsPtr](Usage usgR) -> InterfaceType *
             {
-                std::any impAny = createAsPtr();
+                std::any impAny = createAsPtr(usgR);
                 T *main = std::any_cast<T *>(impAny);
                 return static_cast<InterfaceType *>(main); // cast to type.
             };
@@ -165,9 +167,9 @@ namespace fog
         struct Context
         {
             
-            AnyFunc pFunc;
-            AnyFunc vFunc;
-            Context(AnyFunc pF, AnyFunc vF) : pFunc(pF), vFunc(vF)
+            AnyUsageFunc pFunc;
+            AnyUsageFunc vFunc;
+            Context(AnyUsageFunc pF, AnyUsageFunc vF) : pFunc(pF), vFunc(vF)
             {
             }
         };
@@ -203,7 +205,7 @@ namespace fog
             }
             
             template <typename T, typename Usage usg>
-            AnyFunc getCtxFunc()
+            AnyUsageFunc getCtxFunc()
             {
                 std::type_index tid = typeid(T);
                 auto it = this->contexts.find(tid);
@@ -216,7 +218,7 @@ namespace fog
                 {
                     throw std::runtime_error("context missing, push() first.");
                 }
-                AnyFunc func = usg & AsPtr ? it->second.top().pFunc : it->second.top().vFunc;
+                AnyUsageFunc func = usg & AsPtr ? it->second.top().pFunc : it->second.top().vFunc;
                 if (!func)
                 {
                     throw std::runtime_error("context usage function missing, usg:" + std::to_string(usg));
@@ -254,7 +256,7 @@ namespace fog
             template <typename T, typename F>
             void bindFuncAsPtr(F &&ptrFunc)
             {
-                AnyFunc valueFunc = []() -> std::any
+                AnyUsageFunc valueFunc = [](Usage usgR) -> std::any
                 { throw std::runtime_error("Usage as value not implemented for the type to be injected."); };
                 bindComp(Component::make(typeid(T), ptrFunc, valueFunc));
             }
@@ -262,7 +264,7 @@ namespace fog
             template <typename T, typename F>
             void bindFuncAsVal(F &&valueFunc)
             {
-                AnyFunc ptrFunc = []() -> std::any
+                AnyUsageFunc ptrFunc = [](Usage usgR) -> std::any
                 { throw std::runtime_error("Usage as value not implemented for the type to be injected."); };
                 bindComp(Component::make(typeid(T), ptrFunc, valueFunc));
             }
@@ -319,7 +321,7 @@ namespace fog
             template <typename T>
             void bindPtr(T *obj)
             {
-                bindFuncAsPtr<T>([obj]() -> T *
+                bindFuncAsPtr<T>([obj](Usage) -> T *
                                  { return obj; });
             }
             
@@ -372,14 +374,14 @@ namespace fog
 
                 this->contexts.emplace(typeid(T), std::stack<Context>()); // initial the stack for the type id.
 
-                auto ptrFunc = [this]()
+                AnyUsageFunc ptrFunc = [this](Usage usgR)
                 {
-                    return getCtxFunc<T, AsPtr>()();
+                    return getCtxFunc<T, AsPtr>()(usgR);
                 };
 
-                auto valFunc = [this]()
+                AnyUsageFunc valFunc = [this](Usage usgR)
                 {
-                    return getCtxFunc<T, AsVal>()();
+                    return getCtxFunc<T, AsVal>()(usgR);
                 };
 
                 bindComp(Component::make(typeid(T), ptrFunc, valFunc));
@@ -388,7 +390,7 @@ namespace fog
             template <typename T>
             void bindVal(T obj)
             {
-                bindFuncAsVal<T>([obj]() -> T
+                bindFuncAsVal<T>([obj](Usage) -> T
                                  { return obj; });
             }
             //
@@ -431,7 +433,7 @@ namespace fog
             template <typename T, typename OT>
             void bindMethod(T *(OT::*method)())
             {
-                bindFuncAsPtr<T>([this, method]()
+                bindFuncAsPtr<T>([this, method](Usage usgR)
                                  {
                                      OT *obj = this->getPtr<OT>();
                                      return (obj->*method)(); //
@@ -445,25 +447,25 @@ namespace fog
                 static_assert(hasInject<Imp>::value, "macro INJECT missing or the INJECT constructor is not visible.");
                 static_assert(!std::is_abstract<Imp>::value);
                 using TAdtsTuple = std::tuple<T, Adts...>;
-                AnyFunc funcAsPtr;
-                AnyFunc funcAsVal;
+                AnyUsageFunc funcAsPtr;
+                AnyUsageFunc funcAsVal;
                 makeFunctionForUsage<usg, T, Imp>(initF, funcAsPtr, funcAsVal);
                 return Component::makeImpl<T, Imp, TAdtsTuple>(funcAsPtr, funcAsVal, std::make_index_sequence<std::tuple_size_v<std::decay_t<TAdtsTuple>>>{});
             }
 
             template <Usage usg, typename T, typename Imp>
-            typename std::enable_if_t<usg & AsPtr, void> makeFunctionForUsage(std::function<void(T &)> initF, AnyFunc &funcAsPtr, AnyFunc &funcAsVal)
+            typename std::enable_if_t<usg & AsPtr, void> makeFunctionForUsage(std::function<void(T &)> initF, AnyUsageFunc &funcAsPtr, AnyUsageFunc &funcAsVal)
             {
-                funcAsPtr = [this, initF]() -> std::any
+                funcAsPtr = [this, initF](Usage usgR) -> std::any
                 {
                     return std::make_any<T *>(this->getPtr<usg, Imp>(initF));
                 };
             }
 
             template <Usage usg, typename T, typename Imp>
-            typename std::enable_if_t<usg & AsVal, void> makeFunctionForUsage(std::function<void(T &)> initF, AnyFunc &funcAsPtr, AnyFunc &funcAsVal)
+            typename std::enable_if_t<usg & AsVal, void> makeFunctionForUsage(std::function<void(T &)> initF, AnyUsageFunc &funcAsPtr, AnyUsageFunc &funcAsVal)
             {
-                funcAsVal = [this, initF]() -> std::any
+                funcAsVal = [this, initF](Usage usgR) -> std::any
                 {
                     return std::make_any<T>(this->getVal<usg, Imp>(initF));
                 };
@@ -517,22 +519,22 @@ namespace fog
             }
 
             template <typename T>
-            void push(std::function<T *()> ptrCtx, std::function<T()> valCtx)
+            void push(std::function<T *(Usage)> ptrCtx, std::function<T(Usage)> valCtx)
             {
                 if (auto it = this->contexts.find(typeid(T)); it != this->contexts.end())
                 {
-                    AnyFunc pFunc;
+                    AnyUsageFunc pFunc;
                     if (ptrCtx)
                     {
-                        pFunc = [ptrCtx]()
-                        { return std::make_any<T *>(ptrCtx()); };
+                        pFunc = [ptrCtx](Usage usgR)
+                        { return std::make_any<T *>(ptrCtx(usgR)); };
                     }
 
-                    AnyFunc vFunc;
+                    AnyUsageFunc vFunc;
                     if (valCtx)
                     {
-                        vFunc = [valCtx]()
-                        { return std::make_any<T>(valCtx()); };
+                        vFunc = [valCtx](Usage usgR)
+                        { return std::make_any<T>(valCtx(usgR)); };
                     }
 
                     it->second.push(Context(pFunc, vFunc));
