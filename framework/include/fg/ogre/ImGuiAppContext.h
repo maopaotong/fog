@@ -40,7 +40,7 @@ namespace fog
         struct Options
         {
             std::string name;
-            INJECT(Options(std::string name)):name(name)
+            INJECT(Options(std::string name)) : name(name)
             {
             }
         };
@@ -98,7 +98,20 @@ namespace fog
             ApplicationContextSDL::windowResized(rw);
             this->imGuiApp->windowResized(rw);
         }
+        void locateResources() override
+        {
+            // ApplicationContextBase::locateResources();
+            auto &rgm = Ogre::ResourceGroupManager::getSingleton();
 
+            rgm.addResourceLocation("build/vcpkg_installed/x64-windows/share/ogre/Media/Main", "FileSystem", "OgreInternal");
+            rgm.addResourceLocation("build/vcpkg_installed/x64-windows/share/ogre/Media/RTShaderLib", "FileSystem", "OgreInternal");
+            rgm.addResourceLocation("build/vcpkg_installed/x64-windows/share/ogre/Media/Terrain", "FileSystem", "OgreInternal");
+            rgm.addResourceLocation("doc/material","FileSystem","App");
+            rgm.addResourceLocation("doc/textures","FileSystem","General");
+            rgm.addResourceLocation("doc/sinbad","FileSystem","App");
+            
+        }
+        
         void loadResources() override
         {
 
