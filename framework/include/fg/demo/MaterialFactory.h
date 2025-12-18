@@ -75,12 +75,12 @@ namespace fog
             delete[] ttf_buffer;
         }
         // 在你的 HexMapVisualizer 构造函数或初始化函数中调用
-        static Ogre::MaterialPtr createVertexColourMaterialForSelected(MaterialManager *matMgr)
+        static Ogre::MaterialPtr createVertexColourMaterialForSelected(CoreMod *core)
         {
             using namespace Ogre;
 
             // 创建材质，名称和资源组
-            MaterialPtr mat = matMgr->create(MaterialNames::materialNameSelected, "General");
+            MaterialPtr mat = core->createMaterial(MaterialNames::materialNameSelected, "General");
 
             // 禁用阴影接收
             mat->setReceiveShadows(false);
@@ -100,12 +100,12 @@ namespace fog
             pass->setDepthBias(1.0f, 0.0f);
             return mat;
         }
-        static Ogre::MaterialPtr createVertexColourMaterial(MaterialManager *matMgr)
+        static Ogre::MaterialPtr createVertexColourMaterial(CoreMod * core)
         {
             using namespace Ogre;
 
             // 创建材质，名称和资源组
-            MaterialPtr mat = matMgr->create(MaterialNames::materialNameToCreate, "General");
+            MaterialPtr mat = core->createMaterial(MaterialNames::materialNameToCreate, "General");
 
             // 禁用阴影接收
             mat->setReceiveShadows(false);
@@ -122,12 +122,12 @@ namespace fog
             // pass->setVertexColourTracking(TrackVertexColourEnum::TVC_SPECULAR);//镜面反射
             return mat;
         }
-        static Ogre::MaterialPtr createVertexColourMaterialBuilding(MaterialManager *matMgr)
+        static Ogre::MaterialPtr createVertexColourMaterialBuilding(CoreMod *core)
         {
             using namespace Ogre;
 
             // 创建材质，名称和资源组
-            MaterialPtr mat = matMgr->create(MaterialNames::materialNameBuilding, "General");
+            MaterialPtr mat = core->createMaterial(MaterialNames::materialNameBuilding, "General");
 
             // 禁用阴影接收
             mat->setReceiveShadows(true);
@@ -219,15 +219,15 @@ namespace fog
         }
 
     public:
-        static void createMaterials(MaterialManager *matMgr)
+        static void createMaterials(CoreMod *core)
         {
             //
             // Create hexagonal grid object
 
             //
-            createVertexColourMaterial(matMgr);
-            createVertexColourMaterialForSelected(matMgr); // for selected
-            createVertexColourMaterialBuilding(matMgr);    // for building
+            createVertexColourMaterial(core);
+            createVertexColourMaterialForSelected(core); // for selected
+            createVertexColourMaterialBuilding(core);    // for building
         }
     };
 

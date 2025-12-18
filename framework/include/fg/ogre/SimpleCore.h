@@ -157,7 +157,10 @@ namespace fog
         {
             this->sceMgr->destroyQuery(q);
         }
-
+        Ogre::MaterialPtr createMaterial(std::string name, std::string group) override
+        {
+            return this->matMgr->create(name, group);
+        }
         ManualObject *createManualObject()
         {
             return sceMgr->createManualObject();
@@ -170,10 +173,12 @@ namespace fog
 
         // Viewport *getViewport() override { return this->vp; }
         // Camera *getCamera() override { return this->camera; }
-        Ogre::Radian getCameraFOVy() override{
+        Ogre::Radian getCameraFOVy() override
+        {
             return camera->getFOVy();
         }
-        Ogre::SceneNode *getCameraSceneNode(){
+        Ogre::SceneNode *getCameraSceneNode()
+        {
             return camera->getParentSceneNode();
         }
         Ogre::Ray getCameraToViewportRay(float x, float y)
