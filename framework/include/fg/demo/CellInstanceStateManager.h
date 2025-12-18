@@ -110,7 +110,7 @@ namespace fog
         {
 
             CellKey cell;
-            injector->push<CellKey>(nullptr, [&cell](Component::Usage)
+            injector->push<CellKey>(nullptr, [&cell]()
                                    { return cell; });
             for (int x = 0; x < config->cellsRange.getWidth(); x++)
             {
