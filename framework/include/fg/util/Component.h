@@ -42,19 +42,19 @@ namespace fog
     {
         struct Injector;
         using AnyFunc = std::function<std::any()>;
-        using AddonFunc = std::function<std::any(Injector&)>;
-        
+        using AddonFunc = std::function<std::any(Injector &)>;
+
         using Usage = unsigned int;
         static constexpr Usage AsPtr = 1U << 0;
         static constexpr Usage AsVal = 1U << 2;
         static constexpr Usage AsStatic = 1U << 3;
         static constexpr Usage AsDynamic = 1U << 4;
-        
+
         static constexpr Usage AsPtrStatic = AsPtr | AsStatic;
         static constexpr Usage AsPtrDynamic = AsPtr | AsDynamic;
         static constexpr Usage AsValStatic = AsVal | AsStatic;
         static constexpr Usage AsValDynamic = AsVal | AsDynamic;
-        
+
         using AnyUsageFunc = std::function<std::any(Usage)>;
         using Interface = std::unordered_set<std::type_index>;
         using Object = std::unordered_map<std::type_index, AnyUsageFunc>;
@@ -66,8 +66,8 @@ namespace fog
 
         Component(std::type_index typeId, Object obj, Value value) : typeId(typeId), obj(obj), value(value) {};
 
-        template <typename T, Usage usg = AsStatic>
-        T *getPtr()
+        template <typename T>
+        T *getPtr(Usage usgR)
         {
             std::type_index tid = typeid(T);
 
@@ -76,32 +76,31 @@ namespace fog
             {
                 return nullptr;
             }
-            return std::any_cast<T *>((it->second)(usg));
+            return std::any_cast<T *>((it->second)(usgR));
         }
 
-        template <typename T, Usage usg=AsDynamic>
-        T getVal()
+        template <typename T>
+        T getVal(Usage usgR)
         {
             if (!value)
             {
                 throw std::runtime_error("cannot get value , no value function registered for component as a value. ");
             }
-            std::any v = value(usg);
+            std::any v = value(usgR);
             if (v.type() != typeid(T))
             {
                 throw std::runtime_error("cannot cast value , value function returned a value with other type. ");
             }
             return std::any_cast<T>(v);
         }
-        template<Usage usg>
-        std::any getPtr(std::type_index tid)
+        std::any getPtr(Usage usgR, std::type_index tid)
         {
             auto it = obj.find(tid);
             if (it == obj.end())
             {
                 return nullptr;
             }
-            return (it->second)(usg);
+            return (it->second)(usgR);
         }
 
         template <typename F>
@@ -166,16 +165,13 @@ namespace fog
     public:
         struct Context
         {
-            
+
             AnyUsageFunc pFunc;
             AnyUsageFunc vFunc;
             Context(AnyUsageFunc pF, AnyUsageFunc vF) : pFunc(pF), vFunc(vF)
             {
             }
         };
-
-
-
 
     public:
         struct Injector
@@ -197,13 +193,13 @@ namespace fog
                 func();
                 (*it).pop();
             }
-                        
+
             template <typename T>
-            T *getPtr(std::type_index tid)
+            T *getPtr(std::type_index tid, Usage usgR)
             {
-                return getComponent(tid).getPtr<T>();
+                return getComponent(tid).getPtr<T>(usgR);
             }
-            
+
             template <typename T, typename Usage usg>
             AnyUsageFunc getCtxFunc()
             {
@@ -226,8 +222,6 @@ namespace fog
                 return func;
             }
 
-
-
         public:
             Injector()
             {
@@ -242,7 +236,6 @@ namespace fog
             {
                 components.erase(typeid(T));
             }
-           
 
             void bindComp(Component comp)
             {
@@ -324,7 +317,7 @@ namespace fog
                 bindFuncAsPtr<T>([obj](Usage) -> T *
                                  { return obj; });
             }
-            
+
             template <typename T>
             void push(T vCtx)
             {
@@ -435,7 +428,7 @@ namespace fog
             {
                 bindFuncAsPtr<T>([this, method](Usage usgR)
                                  {
-                                     OT *obj = this->getPtr<OT>();
+                                     OT *obj = this->getPtr<OT>(usgR);
                                      return (obj->*method)(); //
                                  });
             }
@@ -458,7 +451,7 @@ namespace fog
             {
                 funcAsPtr = [this, initF](Usage usgR) -> std::any
                 {
-                    return std::make_any<T *>(this->getPtr<usg, Imp>(initF));
+                    return std::make_any<T *>(this->getPtr<usg, Imp>(usgR, initF));
                 };
             }
 
@@ -467,16 +460,16 @@ namespace fog
             {
                 funcAsVal = [this, initF](Usage usgR) -> std::any
                 {
-                    return std::make_any<T>(this->getVal<usg, Imp>(initF));
+                    return std::make_any<T>(this->getVal<usg, Imp>(usgR, initF));
                 };
             }
 
             template <Usage usg, typename T>
             typename std::enable_if_t<usg & AsStatic, T *>
-            getPtr(std::function<void(T &)> initF)
+            getPtr(Usage usgR, std::function<void(T &)> initF)
             {
                 static std::once_flag flag;
-                static T *instance = createInstance<AsPtr, T>();
+                static T *instance = createInstance<AsPtr, T>(usgR);
                 std::call_once(flag, [initF]()
                                { initF(*instance); });
                 return (instance);
@@ -484,19 +477,19 @@ namespace fog
 
             template <Usage usg, typename T>
             typename std::enable_if_t<usg & AsDynamic, T *>
-            getPtr(std::function<void(T &)> initF)
+            getPtr(Usage usgR, std::function<void(T &)> initF)
             {
-                T *ptr = createInstance<AsPtr, T>();
+                T *ptr = createInstance<AsPtr, T>(usgR);
                 initF(*ptr);
                 return ptr;
             }
 
             template <Usage usg, typename T>
             typename std::enable_if_t<usg & AsStatic, T>
-            getVal(std::function<void(T &)> initF)
+            getVal(Usage usgR, std::function<void(T &)> initF)
             {
                 static std::once_flag flag;
-                static T instance = createInstance<AsVal, T>();
+                static T instance = createInstance<AsVal, T>(usgR);
                 std::call_once(flag, [initF]()
                                { initF(instance); });
                 return (instance);
@@ -504,18 +497,18 @@ namespace fog
 
             template <Usage usg, typename T>
             typename std::enable_if_t<usg & AsDynamic, T>
-            getVal(std::function<void(T &)> initF)
+            getVal(Usage usgR, std::function<void(T &)> initF)
             {
-                T ret = createInstance<AsVal, T>();
+                T ret = createInstance<AsVal, T>(usgR);
                 initF(ret);
                 return ret;
             }
 
             //
             template <typename T>
-            T *getPtr()
+            T *getPtr(Usage usgR = AsStatic)
             {
-                return getComponent(typeid(T)).getPtr<T>();
+                return getComponent(typeid(T)).getPtr<T>(usgR);
             }
 
             template <typename T>
@@ -544,14 +537,14 @@ namespace fog
             }
 
             template <typename T>
-            T getVal()
+            T getVal(Usage usgR)
             {
-                return getComponent(typeid(T)).getVal<T>();
+                return getComponent(typeid(T)).getVal<T>(usgR);
             }
             template <typename T>
-            T getVal(std::type_index tid)
+            T getVal(std::type_index tid, Usage usgR)
             {
-                return getComponent(tid).getVal<T>();
+                return getComponent(tid).getVal<T>(usgR);
             }
 
             Component getComponent(std::type_index tid)
@@ -591,20 +584,20 @@ namespace fog
 
             // abstract as Pointer.
             template <Usage usg, typename T>
-            typename std::enable_if_t<usg & AsPtr && std::is_abstract_v<T>, T *> createInstance()
+            typename std::enable_if_t<usg & AsPtr && std::is_abstract_v<T>, T *> createInstance(Usage usgR)
             {
                 static_assert(always_false<T>::value, "abstract type & no injected impl class registered.");
             }
             // abstract as Value
             template <Usage usg, typename T>
-            typename std::enable_if_t<usg & AsPtr && std::is_abstract_v<T>, T> createInstance()
+            typename std::enable_if_t<usg & AsPtr && std::is_abstract_v<T>, T> createInstance(Usage usgR)
             {
                 static_assert(always_false<T>::value, "abstract type & no injected impl class registered.");
             }
 
             // concrete && !hasInject && as Pointer
             template <Usage usg, typename T>
-            typename std::enable_if_t<usg & AsPtr && !std::is_abstract_v<T> && !hasInject<T>::value, T /*AsPtr*/ *> createInstance()
+            typename std::enable_if_t<usg & AsPtr && !std::is_abstract_v<T> && !hasInject<T>::value, T /*AsPtr*/ *> createInstance(Usage usgR)
             {
                 T *ret = new T{};
                 return ret;
@@ -612,7 +605,7 @@ namespace fog
 
             // concrete && !hasInject && as Value
             template <Usage usg, typename T>
-            typename std::enable_if_t<usg & AsVal && !std::is_abstract_v<T> && !hasInject<T>::value, T /*AsVal*/> createInstance()
+            typename std::enable_if_t<usg & AsVal && !std::is_abstract_v<T> && !hasInject<T>::value, T /*AsVal*/> createInstance(Usage usgR)
             {
                 T ret = T{}; //
                 return ret;
@@ -620,24 +613,24 @@ namespace fog
 
             // concrete && hasInject && as Pointer
             template <Usage usg, typename T>
-            typename std::enable_if_t<usg & AsPtr && !std::is_abstract_v<T> && hasInject<T>::value, T /*AsPtr*/ *> createInstance()
+            typename std::enable_if_t<usg & AsPtr && !std::is_abstract_v<T> && hasInject<T>::value, T /*AsPtr*/ *> createInstance(Usage usgR)
             {
 
                 using ArgsTuple = typename ConstructorTraits<T::Inject>::ArgsTuple;
                 constexpr int N = ConstructorTraits<T::Inject>::arity;
-                return createInstanceByConstructor<usg, T, ArgsTuple>(std::make_index_sequence<N>{});
+                return createInstanceByConstructor<usg, T, ArgsTuple>(usgR, std::make_index_sequence<N>{});
 
                 // static_assert(N < 2, "todo more than 1 element in args list.");
             }
 
             // concrete && hasInject && as Pointer
             template <Usage usg, typename T>
-            typename std::enable_if_t<usg & AsVal && !std::is_abstract_v<T> && hasInject<T>::value, T /*AsVal*/> createInstance()
+            typename std::enable_if_t<usg & AsVal && !std::is_abstract_v<T> && hasInject<T>::value, T /*AsVal*/> createInstance(Usage usgR)
             {
 
                 using ArgsTuple = typename ConstructorTraits<T::Inject>::ArgsTuple;
                 constexpr int N = ConstructorTraits<T::Inject>::arity;
-                return createInstanceByConstructor<usg, T, ArgsTuple>(std::make_index_sequence<N>{});
+                return createInstanceByConstructor<usg, T, ArgsTuple>(usgR, std::make_index_sequence<N>{});
 
                 // static_assert(N < 2, "todo more than 1 element in args list.");
             }
@@ -645,36 +638,36 @@ namespace fog
             // C<1>:As Pointer
             template <Usage usg, typename T, typename ArgsTuple, std::size_t... Is>
             typename std::enable_if_t<usg & AsPtr, T *>
-            createInstanceByConstructor(std::index_sequence<Is...>)
+            createInstanceByConstructor(Usage usgR, std::index_sequence<Is...>)
             {
                 // static_assert(allArgsArePointers<ArgsTuple>, "All inject arguments must be pointer types!");
-                T *ret = new T(getPtrOrValue<std::tuple_element_t<Is, ArgsTuple>>()...);
+                T *ret = new T(getPtrOrValue<std::tuple_element_t<Is, ArgsTuple>>(usgR)...);
                 return ret;
             }
             // C<2>:As Value
             template <Usage usg, typename T, typename ArgsTuple, std::size_t... Is>
             typename std::enable_if_t<usg & AsVal, T>
-            createInstanceByConstructor(std::index_sequence<Is...>)
+            createInstanceByConstructor(Usage usgR, std::index_sequence<Is...>)
             {
 
                 // static_assert(allArgsArePointers<ArgsTuple>, "All inject arguments must be pointer types!");
 
-                T ret = T(getPtrOrValue<std::tuple_element_t<Is, ArgsTuple>>()...);
+                T ret = T(getPtrOrValue<std::tuple_element_t<Is, ArgsTuple>>(usgR)...);
                 return ret;
             }
 
             // G<1>
             template <typename Arg>
-            typename std::enable_if_t<std::is_pointer_v<Arg>, Arg> getPtrOrValue() // return Arg or Arg *
+            typename std::enable_if_t<std::is_pointer_v<Arg>, Arg> getPtrOrValue(Usage usgR) // return Arg or Arg *
             {
-                return getPtr<std::remove_pointer_t<Arg>>(); // pointer
+                return getPtr<std::remove_pointer_t<Arg>>(usgR); // pointer
             }
 
             // G<2>
             template <typename Arg>
-            typename std::enable_if_t<!std::is_pointer_v<Arg>, Arg> getPtrOrValue() // return Arg or Arg *
+            typename std::enable_if_t<!std::is_pointer_v<Arg>, Arg> getPtrOrValue(Usage usgR) // return Arg or Arg *
             {
-                return getVal<Arg>(); // pointer
+                return getVal<Arg>(usgR); // pointer
             }
         };
         //
