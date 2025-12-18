@@ -50,7 +50,7 @@ namespace fog
         {
             // Vector2 pIn2DV = Context<Node2D>::get()->to2D(pos);
 
-            Vector2 pIn2DV = Point2<float>::from(pos, *config->transformD3NormalToD2);
+            Vector2 pIn2DV = Point2<float>::from(pos, *config->transformD3NormalToD2Ptr);
             return getHeight(pIn2DV);
         }
         float getHeight(Vector2 pIn2DV)
@@ -110,7 +110,7 @@ namespace fog
             };
             // Context<Plane>::get()->height = heightFunc; // replace the height func.
             // TODO move to other place.
-            config->transformFromD2HToD3->setHeight([this](float x, float y)
+            config->transformFromD2HToD3Ptr->setHeight([this](float x, float y)
                                                     { return this->tts->getHeight(Vector2(x, y)); } //
             );
         }
@@ -224,7 +224,7 @@ namespace fog
 
                     // Vector3 position = qP.transform3(Transform::D2_NORMAL_D3(h));
                     // Vector3 position = ((cis.cast<float>().transform(Transform::CellCentreByKey()) + tts->vertexs[qx][qy].originInTile) * config->CELL_SCALE).transform3(Transform::D2_NORMAL_D3(h));
-                    Vector3 position = cKey.transform3(tts->vertexs[qx][qy].originInTile, h, *config->transformFromD2HToD3);
+                    Vector3 position = cKey.transform3(tts->vertexs[qx][qy].originInTile, h, *config->transformFromD2HToD3Ptr);
                     // position.y = h;
 
                     positions[x][y] = position;

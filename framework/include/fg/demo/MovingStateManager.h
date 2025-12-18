@@ -26,12 +26,15 @@ namespace fog
         CellsCost *cellsCost;
         Config *config;
         CoreMod * core;
+        Transform::D2H2D3 * transform3;
     public:
         INJECT(MovingStateManager(CostMap *cm, 
                                   Event::Bus *eventBus,
                                   CoreMod * core,
                                   Config *config,
+                                  Transform::D2H2D3 * transform3,
                                   CellsCost *cellsCost)) : core(core),
+                                  transform3(transform3),
                                                            config(config),
                                                            eventBus(eventBus),
                                                            cellsCost(cellsCost),
@@ -79,7 +82,7 @@ namespace fog
             }
             Ogre::Vector3 pos3D = ray.getPoint(hitGrd.second);
 
-            Point2<float> pos = Point2<float>::from(pos3D, *config->transformD3NormalToD2);
+            Point2<float> pos = Point2<float>::from(pos3D, *config->transformD3NormalToD2Ptr);
 
             // bool hitCell = CellUtil::findCellByPoint(costMap, Vector2(pos.x, pos.z), cKey);
             // bool hitCell = CellUtil::findCellByPoint(costMap, Ground::Transfer::to2D(pos), cKey);
@@ -121,7 +124,7 @@ namespace fog
             }
 
             //
-            MoveToCellTask *task = new MoveToCellTask(state, cKey2, costMap, eventBus, cellsCost, config);
+            MoveToCellTask *task = new MoveToCellTask(state, cKey2, costMap, eventBus, cellsCost, config, transform3);
             this->tasks.push_back(std::unique_ptr<MoveToCellTask>(task));
             eventBus->emit<MovableEventType, Actor *>(MovableEventType::StateStartMoving, state);
         }

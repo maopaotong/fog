@@ -24,11 +24,10 @@ namespace fog
         Actor *building;
         float amount;
         CoreMod *core;
-        Config *config;
-
+        Transform::D2H2D3* transform3;
     public:
-        BuildingPlan(Actor *building, float amount, CoreMod *core, Config *config) : core(core),
-                                                                                     config(config),
+        BuildingPlan(Actor *building, float amount, CoreMod *core, Transform::D2H2D3* transform3) : core(core),
+                                                                                    transform3(transform3),
                                                                                      building(building), amount(amount)
         {
         }
@@ -65,7 +64,7 @@ namespace fog
             // Vector3 pos3 = Context<Node2D>::get()->to3D(Cell::getOrigin2D(cKey),config->CELL_SCALE);
             // Vector3 pos3 = cKey.cast<float>().transform(Transform::CellCentreByKey()).transform3(config->D2H2D3);
             // this->building->findSceneNode()->setPosition(pos3);
-            this->building->getSceneNode()->setPosition(cKey.transform3(*config->transformFromD2HToD3));
+            this->building->getSceneNode()->setPosition(cKey.transform3(*transform3));
         }
     };
 
@@ -101,14 +100,16 @@ namespace fog
         }
         Event::Bus *eventBus;
         Component::Injector *injector;
+        Transform::D2H2D3 *transform3;
 
     public:
-        INJECT(BuildingStateManager(CoreMod *core, InventoryManager *inventoryManager,
+        INJECT(BuildingStateManager(CoreMod *core, Transform::D2H2D3 *transform3, InventoryManager *inventoryManager,
                                     Config *config,
                                     Component::Injector *injector,
                                     Event::Bus *eventBus))
             : core(core),
               injector(injector),
+              transform3(transform3),
               config(config),
               eventBus(eventBus),
               inventoryManager(inventoryManager),
@@ -200,11 +201,11 @@ namespace fog
                 }
                 else
                 {
-                    building = new Building(type, core, config);
+                    building = new Building(type, transform3, core);
                 }
-                //building->init();
+                // building->init();
 
-                this->plan = new BuildingPlan(building, invAmount, core, config);
+                this->plan = new BuildingPlan(building, invAmount, core, transform3);
             }
 
             return true;

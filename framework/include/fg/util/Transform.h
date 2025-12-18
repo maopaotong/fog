@@ -125,7 +125,7 @@ namespace fog
         {
             int tlsWidth;
             int tlsHeight;
-            D2CellWorldUV(int width, int height):tlsWidth(width),tlsHeight(height)
+            D2CellWorldUV(int width, int height) : tlsWidth(width), tlsHeight(height)
             {
             }
             void operator()(float &fx, float &fy)
@@ -163,8 +163,20 @@ namespace fog
             {
             }
 
-            template<typename F>
-            void setHeight(F&& func){
+            // D2H2D3(const D2H2D3 &dhd)
+            // {
+            //     this->height = dhd.height;
+            //     this->scale = dhd.scale;
+            // }
+            // D2H2D3(const D2H2D3 &&dhd)
+            // {
+            //     this->height = dhd.height;
+            //     this->scale = dhd.scale;
+            // }
+            // D2H2D3 &operator=(const D2H2D3 &) = delete;
+            template <typename F>
+            void setHeight(F &&func)
+            {
                 this->height = func;
             }
 

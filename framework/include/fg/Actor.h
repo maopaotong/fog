@@ -13,7 +13,6 @@
 
 namespace fog
 {
-    using namespace Ogre;
 
     class Actor
     {

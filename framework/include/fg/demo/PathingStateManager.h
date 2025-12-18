@@ -151,7 +151,7 @@ namespace fog
             pos2 = ray.getPoint(hitGrd.second);
 
             // Point2<float> p2 = Point2<float>::from(pos2, Transform::D3_NORMAL_D2(config->D2H2D3));
-            Point2<float> p2 = Point2<float>::from(pos2, *config->transformD3NormalToD2);
+            Point2<float> p2 = Point2<float>::from(pos2, *config->transformD3NormalToD2Ptr);
 
             CellInstanceState *cis = cellInstMgrState->getCellInstanceStateByPosition(p2);
             if (!cis)
@@ -195,7 +195,7 @@ namespace fog
                                          if (state->isActive())
                                          {
                                              //Context<CellInstanceManager>::get()
-                                             sourceCis = this->cellInstMgrState->getCellInstanceStateByPosition(state->getPosition(*config->transformD3NormalToD2));
+                                             sourceCis = this->cellInstMgrState->getCellInstanceStateByPosition(state->getPosition(*config->transformD3NormalToD2Ptr));
                                              if (sourceCis)
                                              {
                                                  return false; // break

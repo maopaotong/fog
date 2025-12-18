@@ -28,19 +28,19 @@ namespace fog
         // Vector3Ref actorPosition;
         Actor *state;
         bool done;
-        Config *config;
-
+        Transform::D2H2D3 * d23;
     public:
         PathFollow2MissionState(Actor *state, PathFollow2 path,                     //
+                                
                                 AnimationStateSet *aniSet,                          //
                                 std::vector<std::string> &aniNames, float aniSpeed, //
-                                Config *config,
+                                Transform::D2H2D3 * d23,
                                 float heightOffset = 0.0f) //
             : state(state),                                //
               path(path),                                  //
               aniSet(aniSet),                              //
               animateTimeSpeedFactor(aniSpeed),            //
-              config(config),
+              d23(d23),
               done(false) //
         {
             this->aniSet = aniSet;
@@ -69,7 +69,7 @@ namespace fog
         Vector3 to3D(Point2<float> p)
         {
 
-            return p.transform3(*config->transformFromD2HToD3) + this->offset;
+            return p.transform3(*d23) + this->offset;
         }
 
         // Vector3 to3D(Vector2 pointIn2D, float scale)
@@ -133,10 +133,10 @@ namespace fog
 
             // delta.y = 0;
             target->translate(delta); // new position
-            if (config->debugMovingPosition && config->debugCout)
-            {
-                std::cout << fmt::format("stateMoving: ({:>5.1},{:>5.1},{:>5.1}),({:>5.1},{:>5.1},{:>5.1}),({:>5.1},{:>5.1},{:>5.1})", delta.x, delta.y, delta.z, prevPos.x, prevPos.y, prevPos.z, prevPos.x, prevPos.y, prevPos.z) << std::endl;
-            }
+            // if (config->debugMovingPosition && config->debugCout)
+            // {
+            //     std::cout << fmt::format("stateMoving: ({:>5.1},{:>5.1},{:>5.1}),({:>5.1},{:>5.1},{:>5.1}),({:>5.1},{:>5.1},{:>5.1})", delta.x, delta.y, delta.z, prevPos.x, prevPos.y, prevPos.z, prevPos.x, prevPos.y, prevPos.z) << std::endl;
+            // }
 
             // high
 

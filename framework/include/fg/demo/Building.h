@@ -19,10 +19,12 @@ namespace fog
 
     protected:
         BuildingType type;
-        Config *config;
+        Transform::D2H2D3 *transform3;
 
     public:
-        Building(BuildingType type, CoreMod *core, Config *config) : ManualState(core), type(type), config(config)
+        INJECT(Building(BuildingType type, Transform::D2H2D3 *transform3, CoreMod *core)) : ManualState(core),
+                                                                                            transform3(transform3),
+                                                                                            type(type)
         {
             this->material = MaterialNames::materialNameBuilding;
         }
@@ -31,14 +33,14 @@ namespace fog
         {
         }
 
-        void rebuildMesh() 
+        void rebuildMesh()
         {
             MeshBuild::SpiderNet buildMesh(obj);
             buildMesh.begin(this->material); //
 
             // Node2D *node2D = Context<Node2D>::get();
             float totalHeight = .35f;
-            auto position = [totalHeight,this](Vector2 &pointOnLayer, int layer2, int totalLayer)
+            auto position = [totalHeight, this](Vector2 &pointOnLayer, int layer2, int totalLayer)
             {
                 float scale = 0.0f; //
                 float heightPerLayer = totalHeight / (totalLayer - 2);
@@ -58,7 +60,7 @@ namespace fog
                 // Vector2 pointIn2D = pointOnLayer * scale;
                 // Vector3 positionIn3D = node2D->plane->to3DInPlane(pointIn2D);
                 Point2<float> p2d = pointOnLayer;
-                Vector3 positionIn3D = p2d.transform3(*config->transformFromD2HToD3);
+                Vector3 positionIn3D = p2d.transform3(*transform3);
                 positionIn3D.y = layerHeight;
 
                 return positionIn3D;

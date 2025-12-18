@@ -365,12 +365,12 @@ namespace fog
                 bindComp(Component::make(typeid(T), ptrFuncS, valueFuncS));
             }
 
-            template <typename T, typename C , typename F>
+            template <typename T, typename C, typename F>
             void bindArgOfConstructorAsVal(F &&func)
             {
 
                 bindFuncAsVal<ArgOfConstructor<T, C>>([func]() -> ArgOfConstructor<T, C>
-                                                       { return ArgOfConstructor<T, C>(nullptr, func); });
+                                                      { return ArgOfConstructor<T, C>(nullptr, func); });
             }
 
             template <typename T, Usage usg = AsPtrStatic>
@@ -543,6 +543,26 @@ namespace fog
                                      return (obj->*method)(); //
                                  });
             }
+
+            template <typename T, typename OT>
+            void bindMethodAsVal(T (OT::*method)())
+            {
+                bindFuncAsVal<T>([this, method]() -> T
+                                 {
+                                     OT *obj = this->getPtr<OT>();
+                                     return (obj->*method)(); //
+                                 });
+            }
+
+            template <typename T, typename OT>
+            void bindMemberAsPtr(T *OT::*member)
+            {
+                bindFuncAsPtr<T>([this, member]() -> T *
+                                 {
+                                     OT *obj = this->getPtr<OT>();
+                                     return obj->*member; //
+                                 });
+            }
             //
 
             template <Usage usg, typename T, typename Imp, typename... Adts>
@@ -709,8 +729,9 @@ namespace fog
                 return *cPtr;
             }
 
-            template<typename T>
-            Component *tryGetComponent(){
+            template <typename T>
+            Component *tryGetComponent()
+            {
                 return tryGetComponent(typeid(T));
             }
 
@@ -823,15 +844,16 @@ namespace fog
             template <typename C, std::size_t I, typename Arg>
             typename std::enable_if_t<std::is_pointer_v<Arg>, Arg> getAsConstructorArg() // return Arg or Arg *
             {
-                Component * cPtr = this->tryGetComponent<std::remove_pointer_t<Arg>>();
-                if(cPtr){
+                Component *cPtr = this->tryGetComponent<std::remove_pointer_t<Arg>>();
+                if (cPtr)
+                {
                     return cPtr->getPtr<std::remove_pointer_t<Arg>>(AsStaticFirst);
                 }
 
                 cPtr = this->tryGetComponent<ArgOfConstructor<std::remove_pointer_t<Arg>, C>>();
                 if (cPtr)
                 {
-                    auto cArg = cPtr->getVal<ArgOfConstructor<std::remove_pointer_t<Arg>,C>>(AsStaticFirst);
+                    auto cArg = cPtr->getVal<ArgOfConstructor<std::remove_pointer_t<Arg>, C>>(AsStaticFirst);
                     std::any ptrA = (cArg.ptrFunc)();
                     return std::any_cast<Arg>(ptrA);
                 }
@@ -843,15 +865,16 @@ namespace fog
             typename std::enable_if_t<!std::is_pointer_v<Arg>, Arg> getAsConstructorArg() // return Arg or Arg *
             {
 
-                Component * cPtr = this->tryGetComponent<Arg>();
-                if(cPtr){
+                Component *cPtr = this->tryGetComponent<Arg>();
+                if (cPtr)
+                {
                     return cPtr->getVal<Arg>(AsStaticFirst);
                 }
-                
+
                 cPtr = this->tryGetComponent<ArgOfConstructor<Arg, C>>();
                 if (cPtr)
                 {
-                    auto cArg = cPtr->getVal<ArgOfConstructor<Arg,C>>(AsStaticFirst);
+                    auto cArg = cPtr->getVal<ArgOfConstructor<Arg, C>>(AsStaticFirst);
                     std::any valA = (cArg.valFunc)();
                     return std::any_cast<Arg>(valA);
                 }

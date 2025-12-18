@@ -4,7 +4,6 @@
  */
 #pragma once
 
-
 #include "util.h"
 namespace fog
 {
@@ -124,36 +123,45 @@ namespace fog
             // TF_CELL_SCALE = {CELL_SCALE};
             // CELLKEY_2_UV = {TILES_RANGE.getWidth(), TILES_RANGE.getHeight()};
 
-            transformFromD2HToD3 = new Transform::D2H2D3(cellScale, [](float x, float y) -> float
-                                                                  {
-                                                                      // see TilesTerrains.h
-                                                                      return 0.0f; // TODO provide the right height function, instead of one for init and update it in another place.
-                                                                  });
-            //Context<Transform::D2H2D3>::set();
+            transformFromD2HToD3Ptr = new Transform::D2H2D3(cellScale, [](float x, float y) -> float
+                                                            {
+                                                                // see TilesTerrains.h
+                                                                return 0.0f; // TODO provide the right height function, instead of one for init and update it in another place.
+                                                            });
+            // Context<Transform::D2H2D3>::set();
 
-            //Context<Transform::D3_NORMAL_D2>::set();
-            transformD3NormalToD2 = new Transform::D3_NORMAL_D2(1.0f / cellScale);
+            // Context<Transform::D3_NORMAL_D2>::set();
+            transformD3NormalToD2Ptr = new Transform::D3_NORMAL_D2(1.0f / cellScale);
 
             // Config::D2H2D3 = {};
         }
-        Transform::D3_NORMAL_D2 *transformD3NormalToD2 = nullptr;
+        Transform::D3_NORMAL_D2 *transformD3NormalToD2Ptr = nullptr;
+        Transform::D3_NORMAL_D2 &getTransformD3NormalToD2()
+        {
+            return *this->transformD3NormalToD2Ptr;
+        }
 
-        Transform::D2H2D3 *transformFromD2HToD3 = nullptr;
+        Transform::D2H2D3 *transformFromD2HToD3Ptr = nullptr;
+        Transform::D2H2D3 &getTransformFromD2HToD3()
+        {
+            return *transformFromD2HToD3Ptr;
+        }
+
         float heightScale = DEF_HEIGHT_SCALE;
         Box2<int> cellsRange = DEF_TILES_RANGE;
         int cellsTerrainQuality = DEF_TILE_TERRAIN_QUALITY;
         int cellsMeshQuality = DEF_TILE_MESH_QUALITY;
         float cellScale = DEF_CELL_SCALE;
-        float worldWidth = DEF_WORLD_WIDTH;         // = CELL_SCALE * 2.0 * TILES_WIDTH;
-        float worldHeight = DEF_WORLD_HEIGHT;       // = WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
-                                                     //
+        float worldWidth = DEF_WORLD_WIDTH;           // = CELL_SCALE * 2.0 * TILES_WIDTH;
+        float worldHeight = DEF_WORLD_HEIGHT;         // = WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
+                                                      //
         float heightOfOcean = DEF_HEIGHT_OCEAN;       // = 0.49f * 0.9f;
         float heightOfShore = DEF_HEIGHT_SHORE;       // = 0.50f * 0.9f;
         float heightOfPlain = DEF_HEIGHT_PLAIN;       // = 0.51f * 1.1f;
         float heightOfHill = DEF_HEIGHT_HILL;         // = 0.52f * 1.2f;
         float heightOfMountain = DEF_HEIGHT_MOUNTAIN; // = 0.53f * 1.f;
         float heightOfFrozen = DEF_HEIGHT_FROZEN;     // = 0.54f * 1.f;
-                                                     // generator
+                                                      // generator
         int seedOfGenerator1 = DEF_GENERATOR1_SEED;
         int seedOfGenerator2 = DEF_GENERATOR2_SEED;
         float GENERATOR1_ROUGHNESS = DEF_GENERATOR1_ROUGHNESS;

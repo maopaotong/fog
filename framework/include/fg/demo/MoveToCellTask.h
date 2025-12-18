@@ -34,16 +34,20 @@ namespace fog
         Event::Bus *eventBus;
         CellsCost *cellsCost;
         Config *config;
+        Transform::D2H2D3 *d23;
 
     public:
         MoveToCellTask(Actor *state, CellKey cKey2,
                        CostMap *costMap,
                        Event::Bus *eventBus,
                        CellsCost *cellsCost,
-                       Config *config) : costMap(costMap),
-                                         eventBus(eventBus),
-                                         cellsCost(cellsCost),
-                                         movingState(state), cKey2(cKey2), config(config)
+
+                       Config *config,
+                       Transform::D2H2D3 *d23) : costMap(costMap),
+                                                 d23(d23),
+                                                 eventBus(eventBus),
+                                                 cellsCost(cellsCost),
+                                                 movingState(state), cKey2(cKey2), config(config)
         {
         }
         virtual ~MoveToCellTask()
@@ -80,7 +84,7 @@ namespace fog
             // Cell::Center *cells = Context<Cell::Center>::get();
 
             // check if this state's position on the target cell
-            Point2<float> actorPosIn2D = this->movingState->getPosition(*config->transformD3NormalToD2);
+            Point2<float> actorPosIn2D = this->movingState->getPosition(*config->transformD3NormalToD2Ptr);
             // Node2D *root2D = cells->getRoot2D();
             // Vector2 actorPosIn2D = root2D->to2D(aPos3);
 
@@ -142,7 +146,7 @@ namespace fog
             CellKey::getCentres(pathByCKey, centres);
             // float pathSpeed = this->Context<Var<float>::Bag>::get()->getVarVal(".pathSpeed", 1.0f);
 
-            float pathSpeed = 1.0f;//Context<Var<float>::Bag>::get()->getVarVal(".pathSpeed", 1.0f);
+            float pathSpeed = 1.0f; // Context<Var<float>::Bag>::get()->getVarVal(".pathSpeed", 1.0f);
             PathFollow2 path(std::get<Point2<float>>(stateCellAndPosition), centres, pathSpeed);
             // PathState *pathState = new PathState();
             // pathState->init();
@@ -165,10 +169,10 @@ namespace fog
                 throw std::runtime_error("no animation set, not supported for now.");
             }
             // float aniSpeed = this->Context<Var<float>::Bag>::get()->getVarVal(".aniSpeed", 1.0f);
-            float aniSpeed = 1.0f;//Context<Var<float>::Bag>::get()->getVarVal(".aniSpeed", 1.0f);
+            float aniSpeed = 1.0f; // Context<Var<float>::Bag>::get()->getVarVal(".aniSpeed", 1.0f);
 
             // new child state.
-            mission = new PathFollow2MissionState(this->movingState, path2D, anisSet, movingState->getAnimationNames(), aniSpeed, config, movingState->getActorHighOffset()); //
+            mission = new PathFollow2MissionState(this->movingState, path2D, anisSet, movingState->getAnimationNames(), aniSpeed, d23, movingState->getActorHighOffset()); //
             mission->init();
             // delete missionState;
             // this->addChild(missionState);

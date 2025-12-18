@@ -16,12 +16,12 @@ namespace fog
         ManualObject *obj;
         CellKey cis;
         CoreMod *core;
-        Config *config;
+        Transform::D2H2D3 * d23;
 
     public:
-        INJECT(CellInstanceState(CellKey cis, CoreMod *core, Config *config, SceneNode *sNode))
+        INJECT(CellInstanceState(CellKey cis, CoreMod *core, Transform::D2H2D3 * d23, SceneNode *sNode))
             : Actor(sNode),
-              config(config),
+              d23(d23),
               cis(cis), core(core)
         {
             this->sceNode = sNode; // sceneManager->getRootSceneNode()->createChildSceneNode();
@@ -44,7 +44,7 @@ namespace fog
         Vector3 getOrigin3D()
         {
             // return Context<Node2D>::get()->to3D(Cell::getOrigin2D(cis),config->CELL_SCALE);
-            return cis.transform3(*config->transformFromD2HToD3);
+            return cis.transform3(*d23);
         }
 
         void buildMesh()

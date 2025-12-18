@@ -54,11 +54,14 @@ namespace fog
         HomeCellKey *homeCellKey;
         Event::Bus *eventBus;
         Config *config;
+        Transform::D2H2D3 *d23;
 
     public:
         INJECT(FogOfWar(Options opts, Event::Bus *eventBus, HomeCellKey *homeCellKey, Config *config,
+                        Transform::D2H2D3 *d23,
                         Texture *texture))
             : texture(texture),
+              d23(d23),
               tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
               eventBus(eventBus),
               config(config),
@@ -246,7 +249,7 @@ namespace fog
             // {
             //     this->set(cis, true);
             // }
-            CellKey cis = CellKey::from(state->getPosition(*config->transformD3NormalToD2));
+            CellKey cis = CellKey::from(state->getPosition(*config->transformD3NormalToD2Ptr));
             this->set(cis, true);
         }
 
