@@ -31,9 +31,8 @@ namespace fog
         std::vector<Stairs *> stepListeners;
 
     public:
-        INJECT(SimpleCore(ImGuiAppContext *igac)) : appCtx(igac), CoreMod()
+        INJECT(SimpleCore(ImGuiAppContext *appCtx)) : appCtx(appCtx), CoreMod()
         {
-            appCtx->initApp();
             this->matMgr = MaterialManager::getSingletonPtr();
             this->root = appCtx->getRoot();
 

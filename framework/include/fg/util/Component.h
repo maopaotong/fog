@@ -38,6 +38,11 @@ namespace fog
     {
     };
 
+    template <typename C, typename T, int aIdx>
+    struct ConstructorArg
+    {
+    };
+
     struct Component
     {
         struct Injector;
@@ -49,8 +54,8 @@ namespace fog
         static constexpr Usage AsVal = 1U << 1;
         static constexpr Usage AsStatic = 1U << 2;
         static constexpr Usage AsDynamic = 1U << 3;
-        static constexpr Usage AsStaticFirst = 1U << 4;//trying to use static and dynamic if static unsupported.
-        static constexpr Usage AsDynamicFirst = 1U << 5;//trying dynamic first, then static.
+        static constexpr Usage AsStaticFirst = 1U << 4;  // trying to use static and dynamic if static unsupported.
+        static constexpr Usage AsDynamicFirst = 1U << 5; // trying dynamic first, then static.
 
         static constexpr Usage AsPtrStatic = AsPtr | AsStatic;
         static constexpr Usage AsPtrDynamic = AsPtr | AsDynamic;
@@ -126,7 +131,7 @@ namespace fog
         UsageFunc getPtrFunc(Usage usgR, std::type_index tid)
         {
             std::function<void()> f;
-            
+
             UsageFunc func;
             if (usgR & AsStaticFirst)
             {
@@ -152,9 +157,9 @@ namespace fog
             {
                 func = getPtrFuncDynamic(tid);
             }
-            
+
             if (!func)
-            {                
+            {
                 throw std::runtime_error("no ptr func found for the type and usage required.");
             }
             return func;
@@ -347,13 +352,17 @@ namespace fog
             }
 
             template <typename T, typename F>
-            void bindFuncAsVal(F &&valueFunc)
+            void bindFuncAsVal(F &&valueFuncS)
             {
-                UsageFunc ptrFunc = []() -> std::any
+                UsageFunc ptrFuncS = []() -> std::any
                 { throw std::runtime_error("Usage as value not implemented for the type to be injected."); };
-                UsageFunc ptrFuncD;
-                UsageFunc valFuncD;
-                bindComp(Component::make(typeid(T), ptrFunc, valueFunc));
+                bindComp(Component::make(typeid(T), ptrFuncS, valueFuncS));
+            }
+
+            template <typename C, typename A, int I = 0, typename F>
+            void bindConstructorArgAsVal(F &&func)
+            {
+                bindFuncAsVal<ConstructorArg<C, A, I>>(func);
             }
 
             template <typename T, Usage usg = AsPtrStatic>

@@ -45,20 +45,6 @@ namespace fog
     public:
         INJECT(ImGuiAppContext(Options opts, ImGuiAppImpl *imGuiApp)) : imGuiApp(imGuiApp), ApplicationContextSDL(opts.name)
         {
-        }
-        virtual ~ImGuiAppContext() override
-        {
-            if (this->imGuiApp)
-                delete this->imGuiApp;
-        }
-
-        void createRoot() override
-        {
-            ApplicationContextSDL::createRoot();
-        }
-
-        void initApp()
-        {
             ApplicationContextSDL::initApp();
 
             if (mWindows.empty())
@@ -71,6 +57,17 @@ namespace fog
             // not this->addInputListener() ,us the super class to add the only one entry point listener.
             ApplicationContextSDL::addInputListener(window.native, imGuiApp);
         }
+        virtual ~ImGuiAppContext() override
+        {
+            if (this->imGuiApp)
+                delete this->imGuiApp;
+        }
+
+        void createRoot() override
+        {
+            ApplicationContextSDL::createRoot();
+        }
+
         ImGuiApp *getImGuiApp()
         {
             return this->imGuiApp;
