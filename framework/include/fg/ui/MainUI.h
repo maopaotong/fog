@@ -19,18 +19,14 @@ class MainUI
 {
     CoreMod *core;
     bool breakRenderRequested = false;
-    RenderWindow *window;
-    Viewport *vp;
-    SceneManager *sceMgr;
+    Box2<int> window;
     ActiveTrayUI *activeTrayUI = nullptr;
 
 public:
     MainUI(CoreMod *core,CostMap* costMap)
     {
         this->core = core;
-        this->window = core->getWindow();
-        this->vp = core->getViewport();
-        this->sceMgr = core->getSceneManager();
+        this->window = core->getWindowBox();
         this->initGlobalVarPtr();
         // active tray
 
@@ -57,11 +53,10 @@ public:
         //Context<Var<Actor*>::Bag>::get()->forEachVarPtr<int &>(MainUI::forEachVarPtr, actors);
         ImGui::Unindent(15.0f);
 
-        vp = core->getViewport();
+        Box2<float> vp = core->getViewportBox();
 
-        ImGui::Text(fmt::format("Viewport.norm:     {},{},{},{}", vp->getLeft(), vp->getTop(), vp->getWidth(), vp->getHeight()).c_str());
-        ImGui::Text(fmt::format("Viewport.pixel:    {},{},{},{}", vp->getActualLeft(), vp->getActualTop(), vp->getActualWidth(), vp->getActualHeight()).c_str());
-        ImGui::Text(fmt::format("Window.pixel:      {},{}", window->getWidth(), window->getHeight()).c_str());
+        ImGui::Text(fmt::format("Viewport.norm:     {},{},{},{}", vp.p1.x, vp.p1.y, vp.getWidth(), vp.getHeight()).c_str());
+        ImGui::Text(fmt::format("Window.pixel:      {},{}", window.getWidth(), window.getHeight()).c_str());
 
         int counter = 0;
 
@@ -72,7 +67,7 @@ public:
         //ImGui::Text(fmt::format("({:.1f},{:.1f},{:.1f})", pO.x, pO.y, pO.z).c_str());
                 // stats
 
-        const Ogre::RenderTarget::FrameStats &fs = window->getStatistics();
+        const Ogre::RenderTarget::FrameStats &fs = core->getWindowStatistics();
         ImGui::Text(fmt::format("FPS:     {:.2f}", fs.lastFPS).c_str());
         ImGui::Text(fmt::format("Tris:    {}", fs.triangleCount).c_str());
         ImGui::Text(fmt::format("Batches: {}", fs.batchCount).c_str());

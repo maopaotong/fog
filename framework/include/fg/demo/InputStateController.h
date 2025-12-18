@@ -31,10 +31,12 @@ namespace fog
 
         bool mouseMoved(const OgreBites::MouseMotionEvent &evt)
         {
-            RenderWindow *window = core->getWindow();
+            //RenderWindow *window = core->getWindow();
+            Box2<int> window = core->getWindowBox();
 
-            int width = window->getWidth();
-            int height = window->getHeight();
+            int width = window.getWidth();
+            int height = window.getHeight();
+
             // 定义边缘区域（例如：10 像素）
             int edgeSize = 10;
             int x = evt.x;

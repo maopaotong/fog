@@ -24,9 +24,7 @@ namespace fog
     {
         CoreMod *core;
         bool breakRenderRequested = false;
-        RenderWindow *window;
-        Viewport *vp;
-        SceneManager *sceMgr;
+        // RenderWindow *window;
         ActiveTrayUI *activeTrayUI = nullptr;
         MainUI *mainUI = nullptr;
         SceneNodeUI *sceneNodeUI = nullptr;
@@ -40,9 +38,7 @@ namespace fog
         {
             //this->core = Context<CoreMod>::get();
 
-            this->window = core->getWindow();
-            this->vp = core->getViewport();
-            this->sceMgr = core->getSceneManager();
+            // this->window = core->getWindow();
 
             //
             //this->activeTrayUI = new ActiveTrayUI(core, costMap);

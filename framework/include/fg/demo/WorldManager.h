@@ -60,7 +60,6 @@ namespace fog
                                                  cellsDatas(cDatas)
         {
                    
-            Ogre::Root *root = core->getRoot();
 
 
             //this->cellsState->rebuildMesh();

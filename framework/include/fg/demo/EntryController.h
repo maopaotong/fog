@@ -29,8 +29,6 @@ namespace fog
         InputStateController *inputStateController;
         MovableStateManager * movableStateManager;
         BuildingStateManager * buildingStateManager;
-        Viewport *viewport;
-        Camera *camera;
         CameraStateManager *cameraState;
         CoreMod * core;
     public:
@@ -39,10 +37,9 @@ namespace fog
                                MovableStateManager * movableStateManager,
                                BuildingStateManager * buildingStateManager,
                                CameraStateManager *cameraState,
-                               CoreMod * core,
-                               Viewport *viewport, Camera *camera))
-            : viewport(viewport),
-              camera(camera),
+                               CoreMod * core
+                               ))
+            :              
               core(core),
               pathingStateManager(pathingStateManager), 
               buildingStateManager(buildingStateManager),
@@ -51,8 +48,11 @@ namespace fog
               cameraState (cameraState),
               inputStateController(inputStateController)
         {
-            core->getAppContext()->addInputListener(this);
-            core->getRoot()->addFrameListener(this);
+            //core->getAppContext()->addInputListener(this);
+            core->getImGuiApp()->addInputListener(this);
+            // core->getRoot()->addFrameListener(this);
+            core->addFrameListener(this);
+        
         }
         bool mouseWheelRolled(const MouseWheelEvent &evt)
         {
@@ -78,9 +78,11 @@ namespace fog
             // normalized (0,1)
             // Viewport *viewport = Context<CoreMod>::get()->getViewport();
             // Camera *camera = Context<CoreMod>::get()->getCamera();
-            float ndcX = evt.x / (float)viewport->getActualWidth();
-            float ndcY = evt.y / (float)viewport->getActualHeight();
-            Ogre::Ray ray = camera->getCameraToViewportRay(ndcX, ndcY);
+            Box2<float> viewport = core->getActualViewportBox();
+
+            float ndcX = evt.x / (float)viewport.getWidth();
+            float ndcY = evt.y / (float)viewport.getHeight();
+            Ogre::Ray ray = core->getCameraToViewportRay(ndcX, ndcY);
 
             if (movableStateManager->pick(ray))
             {

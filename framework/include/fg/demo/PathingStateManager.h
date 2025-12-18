@@ -36,23 +36,21 @@ namespace fog
         CellKey cKey2;
         CellKey cKey1;
         CostMap *costMap;
-        Viewport *viewport;
-        Camera *camera;
         CellInstanceStateManager *cellInstMgrState;
         MovableStateManager *movableStateMgr;
         Event::Bus *eventBus;
         CellsCost *cellsCost;
         Config *config;
+        CoreMod *core;
 
     public:
-        INJECT(PathingStateManager(CostMap *costMap, Viewport *viewport,
+        INJECT(PathingStateManager(CostMap *costMap, 
                                    Event::Bus *eventBus,
                                    Config *config,
+                                   CoreMod *core,
                                    CellInstanceStateManager *cellInstMgrState,
                                    MovableStateManager *movableStateMgr,
-                                   Camera *camera,
-                                   CellsCost *cellsCost)) : viewport(viewport),
-                                                            camera(camera),
+                                   CellsCost *cellsCost)) : core(core),
                                                             config(config),
                                                             eventBus(eventBus),
                                                             costMap(costMap), sourceState(nullptr), targetCis(nullptr),
@@ -132,11 +130,12 @@ namespace fog
 
             // Viewport *viewport = Context<CoreMod>::get()->getViewport();
             // Camera *camera = Context<CoreMod>::get()->getCamera();
+            Box2<float> vp = core->getActualViewportBox();
 
-            float ndcX = x / (float)viewport->getActualWidth();
-            float ndcY = y / (float)viewport->getActualHeight();
+            float ndcX = x / (float)vp.getWidth();
+            float ndcY = y / (float)vp.getHeight();
 
-            Ogre::Ray ray = camera->getCameraToViewportRay(ndcX, ndcY);
+            Ogre::Ray ray = core->getCameraToViewportRay(ndcX, ndcY);
 
             Ogre::Plane ground(Ogre::Vector3::UNIT_Y, 0); // Y = 0
 
@@ -222,7 +221,7 @@ namespace fog
                 costMap->findPath(cKey1, cKey2, costFunc);
 
             PathState *pathState2 = new PathState(cellInstMgrState);
-            //pathState2->init();
+            // pathState2->init();
             pathState2->setPath(pathByCellKey);
             this->setPath(pathState2);
             return true;

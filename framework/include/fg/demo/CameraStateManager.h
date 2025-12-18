@@ -79,9 +79,9 @@ namespace fog
         {
             // std::cout << "Frame started!\n";
 
-            Camera *camera = core->getCamera();
+            // Camera *camera = core->getCamera();
             // Move camera
-            Ogre::SceneNode *node = camera->getParentSceneNode();
+            Ogre::SceneNode *node = core->getCameraSceneNode();
             // 获取当前朝向（四元数）
             // Ogre::Quaternion orientation = node->getOrientation();
 
@@ -134,8 +134,8 @@ namespace fog
          */
         bool mouseWheelRolled(int evtY)
         {
-            Camera *cam = core->getCamera();
-            Ogre::SceneNode *node = cam->getParentSceneNode();
+            // Camera *cam = core->getCamera();
+            Ogre::SceneNode *node = core->getCameraSceneNode();//cam->getParentSceneNode();
 
             float height = node->getPosition().y;
 
@@ -158,16 +158,17 @@ namespace fog
             // {
             //     distance = posTarget.y + 10;
             // }
-            alignHorizonToTop(node, cam, distance);
+            alignHorizonToTop(node, distance);
 
             return false;
         }
         /**
          * Adjust the pitch according to the new height of camera.
          */
-        void alignHorizonToTop(Ogre::SceneNode *camNode, Ogre::Camera *cam, Ogre::Real distance)
+        void alignHorizonToTop(Ogre::SceneNode *camNode, Ogre::Real distance)
         {
-            Ogre::Radian fovY = cam->getFOVy();
+            Ogre::Radian fovY = core->getCameraFOVy();//cam->getFOVy();
+
             Ogre::Real camHeight = camNode->getPosition().y; // 假设地面 Y=0
 
             // 防止高度 <= 0

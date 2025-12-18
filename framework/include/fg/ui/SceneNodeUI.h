@@ -25,18 +25,12 @@ class SceneNodeUI
 
     CoreMod *core;
     bool breakRenderRequested = false;
-    RenderWindow *window;
-    Viewport *vp;
-    SceneManager *sceMgr;
     ActiveTrayUI *activeTrayUI = nullptr;
 
 public:
     SceneNodeUI(CoreMod *core)
     {
         this->core = core;
-        this->window = core->getWindow();
-        this->vp = core->getViewport();
-        this->sceMgr = core->getSceneManager();
         // active tray
     }
 
@@ -45,7 +39,7 @@ public:
 
         ImGui::Begin("SceneNode Explorer");
 
-        SceneNode *sNode = sceMgr->getRootSceneNode();
+        SceneNode *sNode = core->getRootSceneNode();
         int id = 0;
         SceneNodeVistFunc<int &> func = (SceneNodeVistFunc<int &>)[](int depth, SceneNode *cNode, int &id) -> bool
         {

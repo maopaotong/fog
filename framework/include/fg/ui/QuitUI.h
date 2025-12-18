@@ -19,17 +19,13 @@ namespace fog
     class QuitUI : public UIState
     {
         bool breakRenderRequested = false;
-        RenderWindow *window;
-        Viewport *vp;
-        SceneManager *sceMgr;
+        // RenderWindow *window;
         ActiveTrayUI *activeTrayUI = nullptr;
         CoreMod * core;
     public:
         INJECT(QuitUI(CoreMod * core)) : UIState("Quit"),core(core)
         {            
-            this->window = core->getWindow();
-            this->vp = core->getViewport();
-            this->sceMgr = core->getSceneManager();
+            // this->window = core->getWindow();
 
             //
         }

@@ -15,9 +15,10 @@ namespace fog
     class StatisticTrayUI : public UIState
     {
         Actor *state = nullptr;
-        CoreMod * core;
+        CoreMod *core;
+
     public:
-        INJECT(StatisticTrayUI(CoreMod * core)) : UIState("StatisticTray"),core(core)
+        INJECT(StatisticTrayUI(CoreMod *core)) : UIState("StatisticTray"), core(core)
         {
             // Context<ActorPropEC>::get()->addListener(this);
         }
@@ -25,8 +26,9 @@ namespace fog
         void doOpen() override
         {
 
-            RenderWindow *window = core->getWindow();
-            const Ogre::RenderTarget::FrameStats &fs = window->getStatistics();
+            // RenderWindow *window =
+            // window->getStatistics();
+            const Ogre::RenderTarget::FrameStats &fs = core->getWindowStatistics();
             ImGui::Text(fmt::format("FPS:     {:.2f}", fs.lastFPS).c_str());
             ImGui::Text(fmt::format("Tris:    {}", fs.triangleCount).c_str());
             ImGui::Text(fmt::format("Batches: {}", fs.batchCount).c_str());

@@ -16,16 +16,16 @@ namespace fog
         ManualObject *obj;
         CellKey cis;
         CoreMod *core;
-        SceneManager *sceneManager;
-        Config* config;
+        Config *config;
+
     public:
-        INJECT(CellInstanceState(CellKey cis, CoreMod *core, SceneManager *sceneManager,Config* config,SceneNode * sNode))
-            :Actor(sNode), sceneManager(sceneManager),
-            config(config),
+        INJECT(CellInstanceState(CellKey cis, CoreMod *core, Config *config, SceneNode *sNode))
+            : Actor(sNode),
+              config(config),
               cis(cis), core(core)
         {
-            this->sceNode = sNode;//sceneManager->getRootSceneNode()->createChildSceneNode();
-            this->obj = sceneManager->createManualObject();
+            this->sceNode = sNode; // sceneManager->getRootSceneNode()->createChildSceneNode();
+            this->obj = core->createManualObject();
             this->sceNode->attachObject(this->obj);
             ColourValue bottomColour;
             bool hasBottomColor = getCostColor(cis, bottomColour);
@@ -66,7 +66,7 @@ namespace fog
         // Get color based on cost
         bool getCostColor(CellKey &cell, Ogre::ColourValue &color) const
         {
-            
+
             return false;
         }
 
@@ -97,28 +97,26 @@ namespace fog
         std::unordered_map<CellKey, CellInstanceState *, CellKey::Hash> cellInstanceStates;
 
         CoreMod *core;
-        SceneManager *sceneManager;
 
         Config *config;
 
     public:
-        INJECT(CellInstanceStateManager(CoreMod *core, SceneManager *sceneManager, Config *config,Component::Injector* injector))
+        INJECT(CellInstanceStateManager(CoreMod *core, Config *config, Component::Injector *injector))
             : config(config),
-              sceneManager(sceneManager),
               core(core)
 
         {
 
             CellKey cell;
             injector->push<CellKey>(nullptr, [&cell]()
-                                   { return cell; });
+                                    { return cell; });
             for (int x = 0; x < config->cellsRange.getWidth(); x++)
             {
                 for (int y = 0; y < config->cellsRange.getHeight(); y++)
                 {
                     cell = CellKey(x, y);
                     CellInstanceState *state = injector->getPtr<CellInstanceState>(Component::AsDynamic);
-                    //state->init();
+                    // state->init();
 
                     this->add(state); //
                     this->cellInstanceStates[cell] = state;

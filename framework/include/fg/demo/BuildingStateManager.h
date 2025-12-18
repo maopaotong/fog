@@ -74,7 +74,6 @@ namespace fog
         Actor *picked;
         BuildingPlan *plan;
         CoreMod *core;
-        SceneManager *sceneManager;
         std::unordered_map<CellKey, std::vector<Actor *>, CellKey::Hash> buildingsInCells;
         InventoryManager *inventoryManager;
         Config *config;
@@ -104,7 +103,7 @@ namespace fog
         Component::Injector *injector;
 
     public:
-        INJECT(BuildingStateManager(CoreMod *core, SceneManager *sceneManager, InventoryManager *inventoryManager,
+        INJECT(BuildingStateManager(CoreMod *core, InventoryManager *inventoryManager,
                                     Config *config,
                                     Component::Injector *injector,
                                     Event::Bus *eventBus))
@@ -113,7 +112,6 @@ namespace fog
               config(config),
               eventBus(eventBus),
               inventoryManager(inventoryManager),
-              sceneManager(sceneManager),
               picked(nullptr), plan(nullptr)
         {
             eventBus-> //
@@ -150,7 +148,7 @@ namespace fog
         {
 
             //
-            Ogre::RaySceneQuery *rayQuery = sceneManager->createRayQuery(ray);
+            Ogre::RaySceneQuery *rayQuery = core->createRayQuery(ray);
             rayQuery->setSortByDistance(true);  //
             rayQuery->setQueryMask(0x00000001); //
 
@@ -171,7 +169,7 @@ namespace fog
                 }
             }
             // Context<CoreMod>::get()
-            sceneManager->destroyQuery(rayQuery);
+            core->destroyQuery(rayQuery);
             this->setPicked(picked);
             return picked != nullptr;
         }

@@ -10,7 +10,6 @@
 #include "Common.h"
 #include "ImGuiAppContext.h"
 
-
 #define FG_LIGHT_DIRECTION_X 300
 #define FG_LIGHT_DIRECTION_Y 500
 #define FG_LIGHT_DIRECTION_Z 0
@@ -108,7 +107,7 @@ namespace fog
                                                        });
                 injector.bindAllImplAsVal<>();
                 injector.bindAllImplAsPtr<ImGuiAppContext,
-                                     ImGuiAppImpl>();
+                                          ImGuiAppImpl>();
 
                 return injector.getPtr<CoreMod>();
             };
@@ -144,11 +143,45 @@ namespace fog
             }
         }
 
-        ApplicationContext *getAppContext() override { return this->appCtx; }
-        SceneManager *getSceneManager() override { return this->sceMgr; }
-        Viewport *getViewport() override { return this->vp; }
-        Camera *getCamera() override { return this->camera; }
-        Root *getRoot() override { return this->root; };
+        // ApplicationContext *getAppContext() override { return this->appCtx; }
+        SceneNode *getRootSceneNode()
+        {
+            return this->sceMgr->getRootSceneNode();
+        }
+
+        Ogre::RaySceneQuery *createRayQuery(Ogre::Ray &ray)
+        {
+            return this->sceMgr->createRayQuery(ray);
+        }
+        void destroyQuery(Ogre::RaySceneQuery *q)
+        {
+            this->sceMgr->destroyQuery(q);
+        }
+
+        ManualObject *createManualObject()
+        {
+            return sceMgr->createManualObject();
+        }
+
+        Ogre::Entity *createEntity(std::string mesh)
+        {
+            return sceMgr->createEntity(mesh);
+        }
+
+        // Viewport *getViewport() override { return this->vp; }
+        // Camera *getCamera() override { return this->camera; }
+        Ogre::Radian getCameraFOVy() override{
+            return camera->getFOVy();
+        }
+        Ogre::SceneNode *getCameraSceneNode(){
+            return camera->getParentSceneNode();
+        }
+        Ogre::Ray getCameraToViewportRay(float x, float y)
+        {
+            return this->camera->getCameraToViewportRay(x, y);
+        }
+
+        // Root *getRoot() override { return this->root; };
 
         Light *getLight()
         {
@@ -158,13 +191,21 @@ namespace fog
         {
             return this->appCtx->getImGuiApp();
         }
-        RenderWindow *getWindow()
+        // RenderWindow *getWindow()
+        // {
+        //     return this->appCtx->getRenderWindow();
+        // }
+        Box2<int> getWindowBox()
         {
-            return this->appCtx->getRenderWindow();
+            return Box2<int>(this->appCtx->getRenderWindow()->getWidth(), this->appCtx->getRenderWindow()->getHeight());
         }
         MaterialManager *getMaterialManager() override
         {
             return this->matMgr;
+        }
+        Ogre::RenderTarget::FrameStats getWindowStatistics() override
+        {
+            return this->appCtx->getRenderWindow()->getStatistics();
         }
         void addStepListener(Stairs *listener) override
         {
@@ -197,6 +238,16 @@ namespace fog
             return false;
         }
 
+        Box2<float> getViewportBox() override
+        {
+            return Box2<float>(this->vp->getLeft(), this->vp->getTop(), this->vp->getLeft() + vp->getWidth(), this->vp->getTop() + vp->getHeight());
+        }
+
+        Box2<float> getActualViewportBox() override
+        {
+            return Box2<float>(this->vp->getActualLeft(), this->vp->getActualTop(), this->vp->getActualLeft() + vp->getActualWidth(), this->vp->getActualTop() + vp->getActualHeight());
+        }
+
         bool frameStarted(const FrameEvent &evt)
         {
             for (Stairs *listener : this->stepListeners)
@@ -204,6 +255,10 @@ namespace fog
                 listener->step(evt.timeSinceLastFrame);
             }
             return true;
+        }
+        void startRendering() override
+        {
+            this->root->startRendering();
         }
     };
 }; // end of namespace

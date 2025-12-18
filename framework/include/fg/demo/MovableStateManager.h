@@ -90,7 +90,6 @@ namespace fog
         EntityState *actor2;
         std::vector<std::string> aniNames = {"RunBase", "RunTop"};
         CoreMod *core;
-        SceneManager *sceneManager;
         Event::Bus *eventBus;
         HomeCellKey *home;
         TheTerrains2 *tts2;
@@ -102,13 +101,12 @@ namespace fog
                                    TheTerrains2 *tts2,
                                    HomeCellKey *homeCellKey,
                                    Config *config,
-                                   Component::Injector * injector,
-                                   SceneManager *sceneManager))
+                                   Component::Injector * injector
+                                   ))
             : core(core),
               tts2(tts2),
               config(config),
               eventBus(eventBus),
-              sceneManager(sceneManager),                
               home(homeCellKey),
               movingState{cisManager, eventBus, config}
         {
@@ -152,7 +150,7 @@ namespace fog
         {
 
             // 创建射线查询对象
-            Ogre::RaySceneQuery *rayQuery = sceneManager->createRayQuery(ray);
+            Ogre::RaySceneQuery *rayQuery = core->createRayQuery(ray);
             rayQuery->setSortByDistance(true);  // 按距离排序（最近的优先）
             rayQuery->setQueryMask(0x00000001); // 与 Entity 的查询掩码匹配
 
@@ -174,7 +172,7 @@ namespace fog
                 }
             }
             // Context<CoreMod>::get()
-            sceneManager->destroyQuery(rayQuery);
+            core->destroyQuery(rayQuery);
             this->movingState.setState(picked);
             return picked != nullptr;
         }

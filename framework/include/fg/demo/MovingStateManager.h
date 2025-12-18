@@ -22,21 +22,18 @@ namespace fog
         std::vector<std::unique_ptr<MoveToCellTask>> tasks;
         Actor *state;
         CostMap *costMap;
-        Viewport *viewport;
-        Camera *camera;
         Event::Bus *eventBus;
         CellsCost *cellsCost;
         Config *config;
-
+        CoreMod * core;
     public:
-        INJECT(MovingStateManager(CostMap *cm, Viewport *viewport,
+        INJECT(MovingStateManager(CostMap *cm, 
                                   Event::Bus *eventBus,
-                                  Camera *camera,
+                                  CoreMod * core,
                                   Config *config,
-                                  CellsCost *cellsCost)) : viewport(viewport),
+                                  CellsCost *cellsCost)) : core(core),
                                                            config(config),
                                                            eventBus(eventBus),
-                                                           camera(camera),
                                                            cellsCost(cellsCost),
                                                            costMap(cm), state(nullptr)
         {
@@ -67,11 +64,11 @@ namespace fog
             // // normalized (0,1)
             // Viewport *viewport = Context<CoreMod>::get()->getViewport();
             // Camera *camera = Context<CoreMod>::get()->getCamera();
+            Box2<float> vp = core->getActualViewportBox();
+            float ndcX = mx / (float)vp.getWidth();
+            float ndcY = my / (float)vp.getHeight();
 
-            float ndcX = mx / (float)viewport->getActualWidth();
-            float ndcY = my / (float)viewport->getActualHeight();
-
-            Ogre::Ray ray = camera->getCameraToViewportRay(ndcX, ndcY);
+            Ogre::Ray ray = core->getCameraToViewportRay(ndcX, ndcY);
 
             Ogre::Plane ground(Ogre::Vector3::UNIT_Y, 0); // Y = 0
             auto hitGrd = ray.intersects(ground);

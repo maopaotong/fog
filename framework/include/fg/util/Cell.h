@@ -10,7 +10,7 @@
 
 #include "Point2.h"
 #include "Box2.h"
-#include "Context.h"
+
 #include "CollectionUtil.h"
 #include "Transform.h"
 using namespace Ogre;

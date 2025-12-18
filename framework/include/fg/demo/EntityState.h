@@ -40,10 +40,8 @@ namespace fog
         {
             this->heighOffset = this->heigh / 2.0f * scale;            
             // Context<CoreMod>::get()
-            SceneManager *sMgr =
-                core->getSceneManager();
-
-            entity = sMgr->createEntity(mesh);
+          
+            entity = core->createEntity(mesh);
             entity->setQueryFlags(0x00000001);
 
             //sceNode = sMgr->getRootSceneNode()->createChildSceneNode();

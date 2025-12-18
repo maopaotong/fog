@@ -3,16 +3,13 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include <OgreInput.h>
-#include <OgreApplicationContext.h>
-#include <any>
+
+#include "Common.h"
 #include "ImGuiApp.h"
 #include "fg.h"
 #include "fg/core.h"
 #include "fg/util.h"
 
-using namespace Ogre;
-using namespace OgreBites;
 namespace fog
 {
 
@@ -25,7 +22,6 @@ namespace fog
         public:
             virtual void beforeResourceLoad() = 0;
             virtual void afterResourceLoad() = 0;
-
         };
 
     public:
@@ -33,13 +29,27 @@ namespace fog
         {
         }
         virtual ~CoreMod() {}
-        virtual ApplicationContext *getAppContext() = 0;
+        // virtual ApplicationContext *getAppContext() = 0;
         virtual ImGuiApp *getImGuiApp() = 0;
-        virtual SceneManager *getSceneManager() = 0;
-        virtual Viewport *getViewport() = 0;
-        virtual Camera *getCamera() = 0;
-        virtual Root *getRoot() = 0;
-        virtual RenderWindow *getWindow() = 0;
+        virtual SceneNode *getRootSceneNode() = 0;
+        virtual Ogre::RaySceneQuery *createRayQuery(Ogre::Ray &ray) = 0;
+        virtual void destroyQuery(Ogre::RaySceneQuery *) = 0;
+
+        // virtual Viewport *getViewport() = 0;
+        virtual Box2<float> getViewportBox() = 0;
+        virtual Box2<float> getActualViewportBox() = 0;
+        virtual ManualObject *createManualObject() = 0;
+        virtual Ogre::Entity * createEntity(std::string mesh) = 0;
+
+        // virtual Camera *getCamera() = 0;
+        virtual Ogre::Ray getCameraToViewportRay(float x, float y) = 0;
+        virtual Ogre::SceneNode *getCameraSceneNode() = 0;
+        virtual Ogre::Radian getCameraFOVy() = 0;
+
+        // virtual Root *getRoot() = 0;
+        // virtual RenderWindow *getWindow() = 0;
+        virtual Box2<int> getWindowBox() = 0;
+        virtual Ogre::RenderTarget::FrameStats getWindowStatistics() = 0;
 
         virtual void addStepListener(Stairs *listener) = 0;
 
@@ -86,5 +96,6 @@ namespace fog
             return rt;
         }
         virtual void addCallback(Callback *callback) = 0;
+        virtual void startRendering() = 0;
     };
 };
