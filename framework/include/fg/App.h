@@ -31,7 +31,5 @@ namespace fog
             mods.push_back(ModHolder(mod, injector));
         }
 
-        virtual void setup() = 0;
-        virtual void close() = 0;
     };
 };

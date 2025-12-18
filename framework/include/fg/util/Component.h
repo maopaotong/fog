@@ -531,8 +531,6 @@ namespace fog
             template <Usage usg, typename T, typename Imp, typename... Adts>
             Component makeByImpl(std::function<void(T &)> initF)
             {
-                static_assert(hasInject<Imp>::value, "macro INJECT missing or the INJECT constructor is not visible.");
-                static_assert(!std::is_abstract<Imp>::value);
                 using TAdtsTuple = std::tuple<T, Adts...>;
                 UsageFunc funcAsPtrStatic;  // empty func default.
                 UsageFunc funcAsValStatic;  // empty func default.

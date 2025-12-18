@@ -10,7 +10,6 @@
 #include "ogre/ImGuiAppImpl.h"
 #include "ogre/ImGuiFPSCounter.h"
 #include "ogre/ImGuiInputListener.h"
-#include "ogre/SimpleApp.h"
 #include "ogre/SimpleCore.h"
 
 
