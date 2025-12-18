@@ -16,7 +16,6 @@
 
 // === Include OgreBites for modern initialization ===
 #include "fg/ogre.h"
-#include "MaterialNames.h"
 #include "stb_truetype.h"
 
 namespace fog
@@ -138,9 +137,9 @@ namespace fog
             // 配置 Pass
             Pass *pass = tech->getPass(0);
             pass->setLightingEnabled(true);
-            pass->setVertexColourTracking(TrackVertexColourEnum::TVC_NONE // 漫反射
-                                                                          //| TrackVertexColourEnum::TVC_AMBIENT  // 环境光
-                                                                          //| TrackVertexColourEnum::TVC_EMISSIVE // 自发光
+            pass->setVertexColourTracking(TrackVertexColourEnum::TVC_NONE // 
+                                                                          //| TrackVertexColourEnum::TVC_AMBIENT  // 
+                                                                          //| TrackVertexColourEnum::TVC_EMISSIVE // 
             );
             // pass->setVertexColourTracking(TrackVertexColourEnum::TVC_EMISSIVE);//自发光
             // pass->setVertexColourTracking(TrackVertexColourEnum::TVC_SPECULAR);//镜面反射
@@ -150,15 +149,15 @@ namespace fog
 
             TextureUnitState *grassTex = pass->createTextureUnitState("11_13.jpg");
             grassTex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
-            //grassTex->setColourOperationEx(LayerBlendOperationEx::LBX_BLEND_CURRENT_ALPHA); // 与当前颜色相乘
+            //grassTex->setColourOperationEx(LayerBlendOperationEx::LBX_BLEND_CURRENT_ALPHA); // 
 
             // TextureUnitState * blendTex = pass->createTextureUnitState("grass_1024.png");
             // blendTex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
 
             grassTex->setColourOperationEx(
                 LayerBlendOperationEx::LBX_BLEND_TEXTURE_ALPHA,
-                LayerBlendSource::LBS_TEXTURE, // 草地纹理
-                LayerBlendSource::LBS_CURRENT // 当前颜色（即沙地）
+                LayerBlendSource::LBS_TEXTURE, //
+                LayerBlendSource::LBS_CURRENT // 
             );
 
             // texState1->setColourOperationEx();

@@ -7,10 +7,10 @@
 #include "Common.h"
 #include "fg/util.h"
 #include "fg/core.h"
+#include "fg/cells.h"
 
 #include "PathState.h"
 #include "PathFollow2MissionState.h"
-#include "EntityState.h"
 namespace fog
 {
     using namespace Ogre;

@@ -8,10 +8,8 @@
 
 #include "demo/CellInstanceStateManager.h"
 #include "demo/CellsState.h"
-#include "demo/CellStateControl.h"
 #include "demo/City.h"
 #include "demo/Clock.h"
-#include "demo/EntityState.h"
 #include "demo/EntryController.h"
 #include "demo/FogOfWar.h"
 #include "demo/H0085.h"
@@ -19,7 +17,6 @@
 #include "demo/InputStateController.h"
 #include "demo/Inventory.h"
 #include "demo/InventoryStateManager.h"
-#include "demo/ManualState.h"
 #include "demo/MaterialFactory.h"
 #include "demo/MineralRes.h"
 #include "demo/ModifyHeightImg.h"

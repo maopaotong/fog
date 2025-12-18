@@ -4,8 +4,6 @@
  */
 #pragma once
 #include "fg/core.h"
-#include "CellStateControl.h"
-#include "EntityState.h"
 #include "MovingStateManager.h"
 #include "CellInstanceStateManager.h"
 #include "EntryController.h"

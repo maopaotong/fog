@@ -8,7 +8,6 @@
 #include "fg/util.h"
 //
 #include "Common.h"
-#include "EntityState.h"
 #include "Sinbad.h"
 #include "Tower.h"
 namespace fog

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "fg/util.h"
+#include "fg/cells.h"
 #include "Ogre.h"
 #include "HomeCellKey.h"
 namespace fog
@@ -29,15 +30,7 @@ namespace fog
             }
         };
 
-        struct Texture
-        {
-            Options opts;
-            Ogre::TexturePtr texture;
-            INJECT(Texture(Options opts)) : opts(opts)
-            {
-                this->texture = TextureFactory::createTexture(opts.texName, opts.width, opts.height);
-            };
-        };
+        
 
         int width;
         int height;
@@ -48,7 +41,7 @@ namespace fog
         unsigned char *data;   // background.
         unsigned char *buffer; // buffer capacity is defined by bufferBox, in edige of the world the buffer is not fully used.
         std::string texName;
-        Texture *texture;
+        FogOfWarTexture *texture;
         Box2<int> bufferBox{0}; // moving around. but keep the width * height, even if the box is moving out the world.
         //
         HomeCellKey *homeCellKey;
@@ -59,7 +52,7 @@ namespace fog
     public:
         INJECT(FogOfWar(Options opts, Event::Bus *eventBus, HomeCellKey *homeCellKey, Config *config,
                         Transform::D2H2D3 *d23,
-                        Texture *texture))
+                        FogOfWarTexture *texture))
             : texture(texture),
               d23(d23),
               tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),

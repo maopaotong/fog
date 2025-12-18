@@ -7,8 +7,8 @@
 #include <Ogre.h>
 #include "fg/core.h"
 #include "fg/util.h"
+#include "fg/cells.h"
 #include "PathFollow2MissionState.h"
-#include "ManualState.h"
 namespace fog
 {
     using namespace Ogre;

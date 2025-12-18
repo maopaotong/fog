@@ -6,7 +6,6 @@
 #include "fg/core.h"
 #include "fg/util.h"
 #include "fg/ogre.h"
-#include "MaterialNames.h"
 #include "CellInstanceStateManager.h"
 #include "MovableStateManager.h"
 
