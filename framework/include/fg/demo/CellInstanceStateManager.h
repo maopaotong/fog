@@ -117,7 +117,7 @@ namespace fog
                 for (int y = 0; y < config->cellsRange.getHeight(); y++)
                 {
                     cell = CellKey(x, y);
-                    CellInstanceState *state = injector->getPtr<CellInstanceState>();
+                    CellInstanceState *state = injector->getPtr<CellInstanceState>(Component::AsDynamic);
                     //state->init();
 
                     this->add(state); //

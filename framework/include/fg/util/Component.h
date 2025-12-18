@@ -465,23 +465,24 @@ namespace fog
             }
 
             template <Usage usg, typename T>
-            typename std::enable_if_t<usg & AsStatic, T *>
-            getPtr(Usage usgR, std::function<void(T &)> initF)
+            T* getPtr(Usage usgR, std::function<void(T &)> initF)
             {
-                static std::once_flag flag;
-                static T *instance = createInstance<AsPtr, T>(usgR);
-                std::call_once(flag, [initF]()
-                               { initF(*instance); });
-                return (instance);
-            }
+                if (usgR & AsStatic)
+                {
 
-            template <Usage usg, typename T>
-            typename std::enable_if_t<usg & AsDynamic, T *>
-            getPtr(Usage usgR, std::function<void(T &)> initF)
-            {
-                T *ptr = createInstance<AsPtr, T>(usgR);
-                initF(*ptr);
-                return ptr;
+                    static std::once_flag flag;
+                    static T *instance = createInstance<AsPtr, T>(usgR);
+                    std::call_once(flag, [initF]()
+                                   { initF(*instance); });
+                    return (instance);
+                }
+                else
+                {
+
+                    T *ptr = createInstance<AsPtr, T>(usgR);
+                    initF(*ptr);
+                    return ptr;
+                }
             }
 
             template <Usage usg, typename T>
@@ -640,8 +641,10 @@ namespace fog
             typename std::enable_if_t<usg & AsPtr, T *>
             createInstanceByConstructor(Usage usgR, std::index_sequence<Is...>)
             {
-                // static_assert(allArgsArePointers<ArgsTuple>, "All inject arguments must be pointer types!");
-                T *ret = new T(getPtrOrValue<std::tuple_element_t<Is, ArgsTuple>>(usgR)...);
+                // usgR is the runtime arg provided by the top most getPtr(usgR), this argument control only the outer most object creation.
+                // do dynamic usge, do not propagate to deep layer, may be useful for other usage after unset the AsDynamic mask.
+                //
+                T *ret = new T(getPtrOrValue<std::tuple_element_t<Is, ArgsTuple>>(usg)...);
                 return ret;
             }
             // C<2>:As Value
@@ -652,7 +655,7 @@ namespace fog
 
                 // static_assert(allArgsArePointers<ArgsTuple>, "All inject arguments must be pointer types!");
 
-                T ret = T(getPtrOrValue<std::tuple_element_t<Is, ArgsTuple>>(usgR)...);
+                T ret = T(getPtrOrValue<std::tuple_element_t<Is, ArgsTuple>>(usg)...);
                 return ret;
             }
 
