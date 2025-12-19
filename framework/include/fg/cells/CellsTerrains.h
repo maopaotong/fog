@@ -3,74 +3,17 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include <vector>
-#include <Ogre.h>
-#include <OgreColourValue.h>
 #include "fg/core.h"
 #include "fg/ogre.h"
-#include "Common.h"
 #include "fg/core.h"
-#include "Cells.h"
 #include "fg/util.h"
+#include "Cells.h"
+#include "TheTerrains.h"
+#include "CellsVertex.h"
 
 namespace fog
 {
-
-    static constexpr float UNRESOLVED_HEIGHT = -100;
-    struct CellsVertex
-    {
-        float height;
-        CellKey cKey;
-        Vector2 originInTile;
-        std::array<CellType, 3> types;
-
-        CellsVertex() : CellsVertex(UNRESOLVED_HEIGHT, -1, -1)
-        {
-        }
-        CellsVertex(int tx, int ty, float th) : height(UNRESOLVED_HEIGHT), cKey(tx, ty), types{CellTypes::UNKNOW, CellTypes::UNKNOW, CellTypes::UNKNOW}
-        {
-        }
-        bool isHeightResolved()
-        {
-            return std::abs(this->height - UNRESOLVED_HEIGHT) > 0.01f; // height is not unknown.
-        }
-
-        float distanceToCell()
-        {
-            return originInTile.length();
-        }
-
-        float distanceToEdge(float rad)
-        {
-            Vector2 p = this->originInTile;
-            if (p.x < 0)
-            {
-                p.x = -p.x;
-            }
-            if (p.y < 0)
-            {
-                p.y = -p.y;
-            }
-            if (p.y > (1.0 / std::sqrt(3.0) * p.x))
-            {
-                p = rotateClockwise60(p);
-            }
-            return std::abs(p.x - rad); // < 0 inner, > 0 outer.
-        }
-
-        Vector2 rotateClockwise60(Vector2 p)
-        {
-            const float c = 0.5;                // cos(60°)
-            const float s = std::sqrt(3) / 2.0; // sin(60°)
-            return Vector2(c * p.x + s * p.y, -s * p.x + c * p.y);
-        }
-
-        float distance(CellKey cKey2)
-        {
-            return (Vector2(cKey.x, cKey.y) + originInTile).distance(Vector2(cKey2.x, cKey2.y));
-        }
-    };
-
+    
     struct CellsTerrains
     {
         struct Options
@@ -104,53 +47,21 @@ namespace fog
         float rectHeight;
         float rectRad; // average rad of the rect.
         Config *config;
-        INJECT(CellsTerrains(Options options, Config *config)) : tWidth(options.box.getWidth()), tHeight(options.box.getHeight()), config(config)
+        CellsDatas *cDatas;
+        TheTerrains *tts;
+        INJECT(CellsTerrains(Options options, Config *config, CellsDatas *cDatas, TheTerrains *tts)) : tWidth(options.box.getWidth()), tHeight(options.box.getHeight()), config(config),
+        cDatas(cDatas),tts(tts)
+
         {
             this->rectWidth = 2.0 / options.quality;                         // rad of tile = 1 , width of tile = 2;
             this->rectHeight = rectWidth;                                    // rect height == width
             this->width = tWidth * options.quality;                          //
             this->height = tHeight * options.quality * std::sqrt(3.0) / 2.0; // based on the toploy of cells.
             this->rectRad = (rectHeight + rectWidth) / 2.0;
-        }
+            //this->buildVertexs(cDatas->tiles, tts->vertexs);
 
-        /**
-         * Deal with the sub cell which span multiple different type of terrain.
-         * Calculate the height by sampling points's avg height.
-         */
-        float calculateRectHeightBySamples(Ogre::Vector2 center,
-                                           std::function<float(CellKey)> getHeight)
-        {
-            const int SAMPLES = 3; // 3x3 = 9 points；
-            float totalHeight = 0.0f;
-
-            for (int i = 0; i < SAMPLES; ++i)
-            {
-                for (int j = 0; j < SAMPLES; ++j)
-                {
-                    //
-                    float u = (i + 0.5f) / SAMPLES; //
-                    float v = (j + 0.5f) / SAMPLES;
-                    Ogre::Vector2 p(
-                        center.x + (u - 0.5f) * rectWidth,
-                        center.y + (v - 0.5f) * rectHeight);
-
-                    // HexTile::Key k = Cell::getCellKey(p, 1); //
-                    CellKey k = Point2<float>(p.x, p.y).transform(Transform::CentreToCellKey());
-
-                    totalHeight += getHeight(k);
-                }
-            }
-
-            return totalHeight / (SAMPLES * SAMPLES);
-        }
-
-        /**
-         * init the sub cell/rect.
-         */
-
-        void buildVertexs(std::vector<std::vector<CellData>> &tiles, std::vector<std::vector<CellsVertex>> &hMap)
-        {
-
+            auto &tiles = cDatas->tiles;
+            auto &hMap = tts->vertexs;
             // float rectWidth = static_cast<float>(tWidth) * 2.0f / static_cast<float>(width);
             // float rectHeight = static_cast<float>(tHeight) * 2.0f / static_cast<float>(height) * std::sqrt(3) / 2.0f;
             //
@@ -345,7 +256,38 @@ namespace fog
                     }
                 }
             }
-        } // end of init()
+        }
+
+        /**
+         * Deal with the sub cell which span multiple different type of terrain.
+         * Calculate the height by sampling points's avg height.
+         */
+        float calculateRectHeightBySamples(Ogre::Vector2 center,
+                                           std::function<float(CellKey)> getHeight)
+        {
+            const int SAMPLES = 3; // 3x3 = 9 points；
+            float totalHeight = 0.0f;
+
+            for (int i = 0; i < SAMPLES; ++i)
+            {
+                for (int j = 0; j < SAMPLES; ++j)
+                {
+                    //
+                    float u = (i + 0.5f) / SAMPLES; //
+                    float v = (j + 0.5f) / SAMPLES;
+                    Ogre::Vector2 p(
+                        center.x + (u - 0.5f) * rectWidth,
+                        center.y + (v - 0.5f) * rectHeight);
+
+                    // HexTile::Key k = Cell::getCellKey(p, 1); //
+                    CellKey k = Point2<float>(p.x, p.y).transform(Transform::CentreToCellKey());
+
+                    totalHeight += getHeight(k);
+                }
+            }
+
+            return totalHeight / (SAMPLES * SAMPLES);
+        }
 
         struct WorldTexOp
         {
