@@ -47,14 +47,14 @@ namespace fog
         HomeCellKey *homeCellKey;
         Event::Bus *eventBus;
         Config *config;
-        Transform::D2H2D3 *d23;
+        Transforms * tfs;
 
     public:
         INJECT(FogOfWar(Options opts, Event::Bus *eventBus, HomeCellKey *homeCellKey, Config *config,
-                        Transform::D2H2D3 *d23,
+                        Transforms * tfs,
                         FogOfWarTexture *texture))
             : texture(texture),
-              d23(d23),
+              tfs(tfs),
               tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
               eventBus(eventBus),
               config(config),

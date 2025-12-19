@@ -6,7 +6,8 @@
 #include "Common.h"
 #include "fg/core.h"
 #include "fg/ogre.h" //TODO remove this include.
-
+#include "fg/cells.h"
+#include "fg/cells/Transforms.h"
 namespace fog
 {
 
@@ -16,12 +17,12 @@ namespace fog
         ManualObject *obj;
         CellKey cis;
         CoreMod *core;
-        Transform::D2H2D3 * d23;
+        Transforms * tfs;
 
     public:
-        INJECT(CellInstanceState(CellKey cis, CoreMod *core, Transform::D2H2D3 * d23, SceneNode *sNode))
+        INJECT(CellInstanceState(CellKey cis, CoreMod *core, Transforms * tfs, SceneNode *sNode))
             : Actor(sNode),
-              d23(d23),
+              tfs(tfs),
               cis(cis), core(core)
         {
             this->sceNode = sNode; // sceneManager->getRootSceneNode()->createChildSceneNode();
@@ -44,7 +45,7 @@ namespace fog
         Vector3 getOrigin3D()
         {
             // return Context<Node2D>::get()->to3D(Cell::getOrigin2D(cis),config->CELL_SCALE);
-            return cis.transform3(*d23);
+            return cis.transform3(*tfs->d2d3);
         }
 
         void buildMesh()

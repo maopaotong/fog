@@ -33,7 +33,7 @@ namespace fog
         Event::Bus *eventBus;
         CellsCost *cellsCost;
         Config *config;
-        Transform::D2H2D3 *d23;
+        Transforms * tfs;
 
     public:
         MoveToCellTask(Actor *state, CellKey cKey2,
@@ -42,8 +42,8 @@ namespace fog
                        CellsCost *cellsCost,
 
                        Config *config,
-                       Transform::D2H2D3 *d23) : costMap(costMap),
-                                                 d23(d23),
+                       Transforms * tfs) : costMap(costMap),
+                                                 tfs(tfs),
                                                  eventBus(eventBus),
                                                  cellsCost(cellsCost),
                                                  movingState(state), cKey2(cKey2), config(config)
@@ -171,7 +171,7 @@ namespace fog
             float aniSpeed = 1.0f; // Context<Var<float>::Bag>::get()->getVarVal(".aniSpeed", 1.0f);
 
             // new child state.
-            mission = new PathFollow2MissionState(this->movingState, path2D, anisSet, movingState->getAnimationNames(), aniSpeed, d23, movingState->getActorHighOffset()); //
+            mission = new PathFollow2MissionState(this->movingState, path2D, anisSet, movingState->getAnimationNames(), aniSpeed, tfs, movingState->getActorHighOffset()); //
             mission->init();
             // delete missionState;
             // this->addChild(missionState);

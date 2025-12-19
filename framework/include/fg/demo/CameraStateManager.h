@@ -36,10 +36,10 @@ namespace fog
         CoreMod *core;
         InputStateController *inputState;
         Config *config;
-        Transform::D2H2D3 * transform3;
+        Transforms * tfs;
     public:
-        INJECT(CameraStateManager(CoreMod *core, InputStateController *inputState, Transform::D2H2D3 * transform3)) : quit(false), core(core), inputState(inputState), 
-        transform3(transform3)
+        INJECT(CameraStateManager(CoreMod *core, InputStateController *inputState, Transforms * tfs)) : quit(false), core(core), inputState(inputState), 
+        tfs(tfs)
         {
         }
 
@@ -60,7 +60,7 @@ namespace fog
             }
             Vector3 viewCenterOnGround = ray.getPoint(hitGrd.second);
 
-            auto p2 = Point2<float>::from(viewCenterOnGround, *transform3);
+            auto p2 = Point2<float>::from(viewCenterOnGround, *tfs->d2d3);
             CellKey cell = CellKey::from(p2);
             // if (Context<Cell::Center>::get()->findCellByPosition(p2, cell))
             // {

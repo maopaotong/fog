@@ -19,11 +19,11 @@ namespace fog
 
     protected:
         BuildingType type;
-        Transform::D2H2D3 *transform3;
+        Transforms * tfs;
 
     public:
-        INJECT(Building(BuildingType type, Transform::D2H2D3 *transform3, CoreMod *core)) : ManualState(core),
-                                                                                            transform3(transform3),
+        INJECT(Building(BuildingType type, Transforms * tfs, CoreMod *core)) : ManualState(core),
+                                                           tfs(tfs),
                                                                                             type(type)
         {
             this->material = MaterialNames::materialNameBuilding;
@@ -60,7 +60,7 @@ namespace fog
                 // Vector2 pointIn2D = pointOnLayer * scale;
                 // Vector3 positionIn3D = node2D->plane->to3DInPlane(pointIn2D);
                 Point2<float> p2d = pointOnLayer;
-                Vector3 positionIn3D = p2d.transform3(*transform3);
+                Vector3 positionIn3D = p2d.transform3(*tfs->d2d3);
                 positionIn3D.y = layerHeight;
 
                 return positionIn3D;

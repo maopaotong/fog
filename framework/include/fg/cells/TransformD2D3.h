@@ -3,18 +3,16 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include <vector>
-#include "fg/core.h"
-#include "fg/ogre.h"
-#include "fg/util.h"
+
 #include "CellsDatas.h"
 #include "CellsVertex.h"
 #include "CellsVertecies.h"
+
 namespace fog
 {
     using namespace Ogre;
 
-    struct TransformD2HToD3
+    struct TransformD2D3
     {
         struct Options
         {
@@ -38,22 +36,32 @@ namespace fog
 
         CellsVertecies *cvs;
         Config *config;
-        INJECT(TransformD2HToD3(Options opts, Config *config, CellsVertecies *cvs)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
-                                                                                 terWidth(opts.terWidth), terHeight(opts.terHeight),
-                                                                                 config(config),
-                                                                                 cvs(cvs)
+        float scale;
+        INJECT(TransformD2D3(Options opts, Config *config, CellsVertecies *cvs)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
+                                                                                      terWidth(opts.terWidth), terHeight(opts.terHeight),
+                                                                                      config(config),
+                                                                                      cvs(cvs),
+                                                                                      scale(config->cellScale)
         {
             config->transformFromD2HToD3Ptr->setHeight([this](float x, float y)
                                                        {
-                                                           return this->getHeight(Vector2(x, y)); //
+                                                           return this->getHeight(x, y); //
                                                        } //
             );
         }
 
-        float getHeight(Vector2 pIn2DV)
+        void operator()(float &x, float &y, float &z)
+        {
+            x *= scale;
+            y *= scale;
+            z = -y;
+            y = getHeight(x, y);
+        }
+
+        float getHeight(float px, float py)
         {
 
-            Point2<float> pIn2D(pIn2DV.x, pIn2DV.y);
+            Point2<float> pIn2D(px, py);
             pIn2D = pIn2D / config->cellScale; //
 
             // Point2<float> pUV = Cell::getPointInUV(pIn2D, tlsWidth, tlsHeight); // UV

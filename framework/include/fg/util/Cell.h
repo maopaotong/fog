@@ -47,19 +47,16 @@ namespace fog
             }
         };
 
-        Vector3 transform3(Transform::D2H2D3 & d2h2d3)
+        template<typename F>
+        Ogre::Vector3 transform3(F &&d2d3)
         {
-            return this->cast<float>().transform(Transform::CellCentreByKey()).transform3(d2h2d3);
+            return this->cast<float>().transform(Transform::CellCentreByKey()).transform3(d2d3);
         }
 
-        Vector3 transform3(Point2<float> pointInCell,Transform::D2H2D3 & d2h2d3)
+        template <typename F>
+        Ogre::Vector3 transform3(Point2<float> pointInCell, F &&d2d3)
         {
-            return (this->cast<float>().transform(Transform::CellCentreByKey()) + pointInCell).transform3(d2h2d3);
-        }
-
-        Vector3 transform3(Point2<float> pointInCell, float h, Transform::D2H2D3 & d2h2d3)
-        {
-            return (this->cast<float>().transform(Transform::CellCentreByKey()) + pointInCell).transform3(Transform::D2_HV_D3(d2h2d3, h));
+            return (this->cast<float>().transform(Transform::CellCentreByKey()) + pointInCell).transform3(d2d3);
         }
 
         static CellKey from(Point2<float> p)

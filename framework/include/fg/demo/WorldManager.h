@@ -22,7 +22,7 @@ namespace fog
     protected:
         // CellStateControl *cells;
         CellsState *cellsState;
-        TransformD2HToD3 *tts;
+        TransformD2D3 *tts;
         // std::vector<std::vector<CellData>> tiles;
         CellsDatas *cellsDatas;
         FogOfWar *fogOfWar;
@@ -40,7 +40,7 @@ namespace fog
                           CoreMod *core,
                           MovableStateManager *movableStateMgr,
                           InventoryManager *inventoryStateMgr,
-                          TransformD2HToD3 *tts,
+                          TransformD2D3 *tts,
                           HomeCellKey * homeCell,
                           CellsState * cellsState,
                           CellsDatas *cDatas)) : fogOfWar(fogOfWar),

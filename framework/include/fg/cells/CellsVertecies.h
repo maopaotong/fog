@@ -3,15 +3,14 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include <vector>
+
 #include "fg/core.h"
-#include "fg/ogre.h"
 #include "fg/util.h"
 #include "CellsDatas.h"
 #include "CellsVertex.h"
+
 namespace fog
 {
-    using namespace Ogre;
 
     struct CellsVertecies
     {

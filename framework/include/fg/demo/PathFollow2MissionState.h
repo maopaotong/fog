@@ -9,6 +9,7 @@
 #include <vector>
 #include "fg/util.h"
 #include "fg/core.h"
+#include "fg/cells.h"
 
 namespace fog
 {
@@ -28,19 +29,19 @@ namespace fog
         // Vector3Ref actorPosition;
         Actor *state;
         bool done;
-        Transform::D2H2D3 * d23;
+        Transforms * tfs;
     public:
         PathFollow2MissionState(Actor *state, PathFollow2 path,                     //
                                 
                                 AnimationStateSet *aniSet,                          //
                                 std::vector<std::string> &aniNames, float aniSpeed, //
-                                Transform::D2H2D3 * d23,
+                                Transforms * tfs,
                                 float heightOffset = 0.0f) //
             : state(state),                                //
               path(path),                                  //
               aniSet(aniSet),                              //
               animateTimeSpeedFactor(aniSpeed),            //
-              d23(d23),
+              tfs(tfs),
               done(false) //
         {
             this->aniSet = aniSet;
@@ -69,7 +70,7 @@ namespace fog
         Vector3 to3D(Point2<float> p)
         {
 
-            return p.transform3(*d23) + this->offset;
+            return p.transform3(*tfs->d2d3) + this->offset;
         }
 
         // Vector3 to3D(Vector2 pointIn2D, float scale)

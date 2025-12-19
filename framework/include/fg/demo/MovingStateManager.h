@@ -26,15 +26,15 @@ namespace fog
         CellsCost *cellsCost;
         Config *config;
         CoreMod * core;
-        Transform::D2H2D3 * transform3;
+        Transforms * tfs;
     public:
         INJECT(MovingStateManager(CostMap *cm, 
                                   Event::Bus *eventBus,
                                   CoreMod * core,
                                   Config *config,
-                                  Transform::D2H2D3 * transform3,
+                                  Transforms * tfs,
                                   CellsCost *cellsCost)) : core(core),
-                                  transform3(transform3),
+                                  tfs(tfs),
                                                            config(config),
                                                            eventBus(eventBus),
                                                            cellsCost(cellsCost),
@@ -124,7 +124,7 @@ namespace fog
             }
 
             //
-            MoveToCellTask *task = new MoveToCellTask(state, cKey2, costMap, eventBus, cellsCost, config, transform3);
+            MoveToCellTask *task = new MoveToCellTask(state, cKey2, costMap, eventBus, cellsCost, config, tfs);
             this->tasks.push_back(std::unique_ptr<MoveToCellTask>(task));
             eventBus->emit<MovableEventType, Actor *>(MovableEventType::StateStartMoving, state);
         }

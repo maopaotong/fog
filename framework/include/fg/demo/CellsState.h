@@ -69,7 +69,9 @@ namespace fog
 
                     // Vector3 position = qP.transform3(Transform::D2_NORMAL_D3(h));
                     // Vector3 position = ((cis.cast<float>().transform(Transform::CellCentreByKey()) + tts->vertexs[qx][qy].originInTile) * config->CELL_SCALE).transform3(Transform::D2_NORMAL_D3(h));
-                    Vector3 position = cKey.transform3(cvs->vertexs[qx][qy].originInTile, h, *config->transformFromD2HToD3Ptr);
+                    //Vector3 position = cKey.transform3(cvs->vertexs[qx][qy].originInTile, h, *config->transformFromD2HToD3Ptr);
+
+                    Vector3 position = cKey.transform3(cvs->vertexs[qx][qy].originInTile, Transform::D2_HV_D3(*config->transformFromD2HToD3Ptr, h));
                     // position.y = h;
 
                     positions[x][y] = position;
