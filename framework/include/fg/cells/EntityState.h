@@ -13,9 +13,6 @@
 
 namespace fog
 {
-    using namespace Ogre;
-    using Vector3Ref = Property::Ref<Vector3>;
-
     class EntityState : public Actor
     {
 

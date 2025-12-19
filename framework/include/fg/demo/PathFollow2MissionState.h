@@ -13,7 +13,6 @@
 
 namespace fog
 {
-    using Vector3Ref = Property::Ref<Vector3>;
     /**
      * Move a node to a destination.
      */

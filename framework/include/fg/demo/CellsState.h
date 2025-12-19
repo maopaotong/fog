@@ -10,8 +10,6 @@
 
 namespace fog
 {
-    using namespace Ogre;
-
     //
     class CellsState : public ManualState
     {

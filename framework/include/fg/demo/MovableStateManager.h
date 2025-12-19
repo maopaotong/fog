@@ -121,24 +121,14 @@ namespace fog
                                                          return true; //
                                                      });
             this->actor2 = injector->getPtr<Sinbad>(Component::AsDynamic);
-            this->createSinbad();
-        }
-        virtual ~MovableStateManager()
-        {
-        }
-
-        void createSinbad()
-        {
             actor2->init();
             this->add(actor2);
             // actor2->setPosition(home->cKey );
             //  find a position.
             actor2->setPosition(home->cKey, *tfs->d2td3);
         }
-
-        void setCellToStandOn(CellKey cKey)
+        virtual ~MovableStateManager()
         {
-            // actor2->setPosition(cKey);
         }
 
         bool step(float time) override
