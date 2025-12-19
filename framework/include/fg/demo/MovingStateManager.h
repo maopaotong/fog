@@ -80,7 +80,7 @@ namespace fog
             {
                 return false;
             }
-            Ogre::Vector3 pos3D = ray.getPoint(hitGrd.second);
+            Vector3 pos3D = ray.getPoint(hitGrd.second);
 
             Point2<float> pos = Point2<float>::from(pos3D, *config->transformD3NormalToD2Ptr);
 

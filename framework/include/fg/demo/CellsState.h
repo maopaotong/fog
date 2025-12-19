@@ -43,8 +43,8 @@ namespace fog
 
             int baseIdx = obj->getCurrentVertexCount();
 
-            std::vector<std::vector<Vector3>> norms(qWidth, std::vector<Vector3>(qHeight, Vector3::UNIT_Y));
-            std::vector<std::vector<Vector3>> positions(qWidth, std::vector<Vector3>(qHeight, Vector3::ZERO));
+            std::vector<std::vector<Vector3>> norms(qWidth, std::vector<Vector3>(qHeight, Ogre::Vector3::UNIT_Y));
+            std::vector<std::vector<Vector3>> positions(qWidth, std::vector<Vector3>(qHeight, Ogre::Vector3::ZERO));
 
             // Cell::Center *cc = Context<Cell::Center>::get();
 

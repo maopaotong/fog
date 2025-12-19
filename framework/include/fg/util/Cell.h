@@ -48,13 +48,13 @@ namespace fog
         };
 
         template<typename F>
-        Ogre::Vector3 transform3(F &&d2d3)
+        Vector3 transform3(F &&d2d3)
         {
             return this->cast<float>().transform(Transform::CellCentreByKey()).transform3(d2d3);
         }
 
         template <typename F>
-        Ogre::Vector3 transform3(Point2<float> pointInCell, float h, F &&d2d3)
+        Vector3 transform3(Point2<float> pointInCell, float h, F &&d2d3)
         {
             return (this->cast<float>().transform(Transform::CellCentreByKey()) + pointInCell).transform3(h, d2d3);
         }

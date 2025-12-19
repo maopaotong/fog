@@ -87,8 +87,8 @@ namespace fog
             // Ogre::Quaternion orientation = node->getOrientation();
 
             // 计算右向量（X轴）
-            Ogre::Vector3 right = Ogre::Vector3::UNIT_X;
-            Ogre::Vector3 back = Ogre::Vector3::UNIT_Z;
+            Vector3 right = Ogre::Vector3::UNIT_X;
+            Vector3 back = Ogre::Vector3::UNIT_Z;
             float height = node->getPosition().y;
 
             float speed = map(height, DEFAULT_CAMERA_HEIGHT_MIN, DEFAULT_CAMERA_HEIGHT_MAX, FOG_CAM_SPEED_MIN, FOG_CAM_SPEED_MAX);

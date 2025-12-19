@@ -151,7 +151,7 @@ namespace fog
             }
 
             Vector3 d3 = Vector3(direction2D.x, 0, -direction2D.y);
-            Quaternion orientation = Vector3::UNIT_Z.getRotationTo(d3);
+            Quaternion orientation = Ogre::Vector3::UNIT_Z.getRotationTo(d3);
 
             target->setOrientation(orientation);
 

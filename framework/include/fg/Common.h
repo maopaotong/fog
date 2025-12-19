@@ -67,8 +67,6 @@ namespace fog
     
     //using Vector2 = Point2<float>;
 
-    using Vector3 = Ogre::Vector3;
-
     using ColourValue = Ogre::ColourValue;
 
     using String = std::string;

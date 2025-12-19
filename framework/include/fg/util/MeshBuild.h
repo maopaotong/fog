@@ -18,7 +18,7 @@ namespace fog
 
     class MeshBuild
     {
-        using TransformFunc = std::function<Ogre::Vector3(Vector2)>;
+        using TransformFunc = std::function<Vector3(Vector2)>;
 
     public:
         class PointOnCircle
@@ -319,7 +319,7 @@ namespace fog
             int baseIndex;
             PointVisit visitPoint;
             bool useDefaultNorm = true;
-            Vector3 defaultNorm = Vector3::UNIT_Y;
+            Vector3 defaultNorm = {0.0f, 1.0f, 0.0f};
             NormManualObject normObj;
             TransformFunc transform;
 

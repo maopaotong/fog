@@ -104,7 +104,7 @@ public:
     }
     static void forEachVarPtr(const std::string name, Vector3 *vPtr, int &counter)
     {
-        ImGui::Text(fmt::format("{}: {:.2f}, {:.2f}, {:.2f}", name, (*vPtr)[0], (*vPtr)[1], (*vPtr)[2]).c_str());
+        ImGui::Text(fmt::format("{}: {:.2f}, {:.2f}, {:.2f}", name, (*vPtr).x, (*vPtr).y, (*vPtr).z).c_str());
     }
     static void forEachVarPtr(const std::string name, float *vPtr, Var<float>::Range *range, int &counter)
     {

@@ -27,6 +27,5 @@
 
 namespace fog
 {
-    using Vector3 = Ogre::Vector3;
     using ColourValue = Ogre::ColourValue;
 };

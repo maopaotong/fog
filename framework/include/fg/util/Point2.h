@@ -4,6 +4,8 @@
  */
 #pragma once
 #include "Common.h"
+#include <OgreVector.h>
+#include "Point3.h"
 namespace fog
 {
 
@@ -16,9 +18,9 @@ namespace fog
         {
         }
         Point2(T x, T y) : x(x), y(y) {}
-        Point2(Ogre::Vector2 v2) : Point2(v2.x, v2.y)
-        {
-        }
+        // Point2(Ogre::Vector2 v2) : Point2(v2.x, v2.y)
+        // {
+        // }
 
         Point2<T> &scale(T s)
         {
@@ -115,24 +117,24 @@ namespace fog
         }
 
         template <typename... F>
-        Ogre::Vector3 transform3(T h, F &&...funcs)
+        Point3<T> transform3(T h, F &&...funcs)
         {
 
             T x = this->x;
             T y = this->y;
             T z = h;
             (funcs(x, y, z), ...);
-            return Ogre::Vector3(x, y, z);
+            return Vector3(x, y, z);
         }
 
         template <typename... F>
-        Ogre::Vector3 transform3(F &&...funcs)
+        Point3<T> transform3(F &&...funcs)
         {
             return transform3(T{}, funcs...);
         }
 
         template <typename... F>
-        static Point2<T> from(Ogre::Vector3 pos, F &&...funcs)
+        static Point2<T> from(Vector3 pos, F &&...funcs)
         {
             (funcs(pos.x, pos.y, pos.z), ...);
             return Point2<T>(pos.x, pos.y);

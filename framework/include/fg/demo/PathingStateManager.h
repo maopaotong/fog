@@ -141,7 +141,7 @@ namespace fog
 
             auto hitGrd = ray.intersects(ground);
 
-            Ogre::Vector3 pos2;
+            Vector3 pos2;
 
             if (!hitGrd.first)
             {

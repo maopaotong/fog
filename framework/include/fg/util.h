@@ -22,6 +22,7 @@
 #include "util/Rect.h"
 #include "util/TextureFactory.h"
 #include "util/MeshBuild.h"
+#include "util/Point3.h"
 
 
 
