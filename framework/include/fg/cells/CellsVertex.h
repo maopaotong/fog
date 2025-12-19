@@ -17,13 +17,16 @@ namespace fog
     {
         float height;
         CellKey cKey;
-        Vector2 originInTile;
+        Vector2 originInCell;
         std::array<CellType, 3> types;
+        bool isPeak;
 
         CellsVertex() : CellsVertex(UNRESOLVED_HEIGHT, -1, -1)
         {
         }
-        CellsVertex(int tx, int ty, float th) : height(UNRESOLVED_HEIGHT), cKey(tx, ty), types{CellTypes::UNKNOW, CellTypes::UNKNOW, CellTypes::UNKNOW}
+        CellsVertex(int tx, int ty, float th) : height(UNRESOLVED_HEIGHT), cKey(tx, ty),
+                                                types{CellTypes::UNKNOW, CellTypes::UNKNOW, CellTypes::UNKNOW},
+                                                isPeak(false)
         {
         }
         bool isHeightResolved()
@@ -33,12 +36,12 @@ namespace fog
 
         float distanceToCell()
         {
-            return originInTile.length();
+            return originInCell.length();
         }
 
         float distanceToEdge(float rad)
         {
-            Vector2 p = this->originInTile;
+            Vector2 p = this->originInCell;
             if (p.x < 0)
             {
                 p.x = -p.x;
@@ -63,7 +66,7 @@ namespace fog
 
         float distance(CellKey cKey2)
         {
-            return (Vector2(cKey.x, cKey.y) + originInTile).distance(Vector2(cKey2.x, cKey2.y));
+            return (Vector2(cKey.x, cKey.y) + originInCell).distance(Vector2(cKey2.x, cKey2.y));
         }
     };
 

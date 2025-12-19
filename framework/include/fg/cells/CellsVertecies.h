@@ -4,7 +4,6 @@
  */
 #pragma once
 
-
 #include "fg/util.h"
 #include "CellsDatas.h"
 #include "CellsVertex.h"
@@ -21,9 +20,13 @@ namespace fog
             int terWidth;
             int terHeight;
             int quality;
+            float heightAmpOfHill;
+            float heightAmpOfMountain;
             INJECT(Options(Config *config)) : tlsWidth(config->cellsRange.getWidth()),
                                               quality(config->cellsTerrainQuality),
-                                              tlsHeight(config->cellsRange.getHeight())
+                                              tlsHeight(config->cellsRange.getHeight()),
+                                              heightAmpOfHill(config->heightAmpOfHill),
+                                              heightAmpOfMountain(config->heightAmpOfMountain)
 
             {
 
@@ -40,9 +43,16 @@ namespace fog
         float rectWidth;
         float rectHeight;
         float rectRad;
-        INJECT(CellsVertecies(Options opts, CellsDatas *cDatas, Config *config)) : vertexs(opts.terWidth,                                                                                           
-                                                                                           std::vector<CellsVertex>(opts.terHeight, CellsVertex())),
-                                                                                           config(config)
+        float heightAmpOfHill;
+        float heightAmpOfMountain;
+
+        INJECT(CellsVertecies(Options opts, CellsDatas *cDatas,
+                              Config *config)) : //
+                                                 vertexs(opts.terWidth,
+                                                         std::vector<CellsVertex>(opts.terHeight, CellsVertex())),
+                                                 config(config),
+                                                 heightAmpOfHill(opts.heightAmpOfHill),
+                                                 heightAmpOfMountain(opts.heightAmpOfMountain)
         {
 
             tWidth = opts.tlsWidth;
@@ -57,7 +67,7 @@ namespace fog
             // float rectWidth = static_cast<float>(tWidth) * 2.0f / static_cast<float>(width);
             // float rectHeight = static_cast<float>(tHeight) * 2.0f / static_cast<float>(height) * std::sqrt(3) / 2.0f;
             //
-            std::vector<std::vector<CellsVertex *>> tileCentreMap(tWidth, std::vector<CellsVertex *>(tHeight, nullptr));
+            std::vector<std::vector<CellsVertex *>> centreRectMap(tWidth, std::vector<CellsVertex *>(tHeight, nullptr));
             // resove the terrain height of the centre rect for each tile.
             for (int x = 0; x < width; x++)
             {
@@ -66,17 +76,15 @@ namespace fog
                     float centreX = static_cast<float>(x) * rectWidth;
                     float centreY = static_cast<float>(y) * rectHeight;
                     Vector2 points[5];
-                    points[0] = Vector2(centreX, centreY);
-                    points[1] = Vector2(centreX, centreY - rectHeight / 2.0f); //
-                    points[2] = Vector2(centreX + rectWidth / 2.0f, centreY);  //
-                    points[3] = Vector2(centreX, centreY + rectHeight / 2.0f); //
-                    points[4] = Vector2(centreX - rectWidth / 2.0f, centreY);  //
+                    points[0] = Vector2(centreX, centreY);                                        // centre point of the rect.
+                    points[1] = Vector2(centreX + rectWidth / 2.0f, centreY - rectHeight / 2.0f); //
+                    points[2] = Vector2(centreX + rectWidth / 2.0f, centreY + rectHeight / 2.0f); //
+                    points[3] = Vector2(centreX - rectWidth / 2.0f, centreY + rectHeight / 2.0f); //
+                    points[4] = Vector2(centreX - rectWidth / 2.0f, centreY - rectHeight / 2.0f); //
 
-                    CellKey cKeys[5]; //
+                    CellKey cKeys[5]; // find the 5 point in which cell.
                     for (int i = 0; i < 5; i++)
                     {
-
-                        // cKeys[i] = Cell::getCellKey(points[i], 1.0); //
                         cKeys[i] = Point2<float>(points[i].x, points[i].y).transform(Transform::CentreToCellKey());
                         cKeys[i].x = std::clamp<int>(cKeys[i].x, 0, tWidth - 1);
                         cKeys[i].y = std::clamp<int>(cKeys[i].y, 0, tHeight - 1);
@@ -88,11 +96,11 @@ namespace fog
                     Vector2 tileCentreP = cKeys[0].getCentre();
                     //
                     hMap[x][y].cKey = cKeys[0]; // centre cell.
-                    hMap[x][y].originInTile = points[0] - tileCentreP;
+                    hMap[x][y].originInCell = points[0] - tileCentreP;
                     hMap[x][y].types[0] = tl0.type;
                     // set corner's type
 
-                    std::unordered_set<CellType> typeSet;
+                    std::unordered_set<CellType> typeSet; // totol types of 5 cells.
                     CellType type0 = tl0.type;
                     for (int i = 1; i < 5; i++) // check other 4 corner's type. normally the max different types is 3, include the centre.
                     {
@@ -133,17 +141,19 @@ namespace fog
                     }
 
                     float typeHeight = defineTileHeight(tl0);
+                    float ht = 0.0f;
                     // tile's centre is in this rect.
                     if (Rect::isPointInSide(tileCentreP, points[0], rectWidth, rectHeight)) //
                     {                                                                       // is the center rect of the tile.
+
                         // remember the centre rect for each tile.
-                        tileCentreMap[cKeys[0].x][cKeys[0].y] = &hMap[x][y];
-                        hMap[x][y].height = typeHeight;
+                        centreRectMap[cKeys[0].x][cKeys[0].y] = &hMap[x][y];
+                        ht = typeHeight;
                     }
                     else if (tl0.type == CellTypes::OCEAN || tl0.type == CellTypes::SHORE)
                     {
-                        // for ocean , the height should be fixed.
-                        hMap[x][y].height = typeHeight;
+                        // for ocean , the height should be same and it is a fix value.
+                        ht = typeHeight;
                     }
                     else // not the centre rect, check all the corner's tile type.
                     {
@@ -155,99 +165,171 @@ namespace fog
 
                         if (type0 == type1 && type1 == type2) // 3 types are same , the entire rect is in same cell or the same types of cell.
                         {
-                            hMap[x][y].height = typeHeight;
+                            ht = typeHeight;
                         }
                         else
-                        { // calculate
-                            float h = calculateRectHeightBySamples(points[0], [this, &tiles](CellKey cKey)
-                                                                   {
-                                                                       int tx = std::clamp<int>(cKey.x, 0, tWidth - 1);
-                                                                       int ty = std::clamp<int>(cKey.y, 0, tHeight - 1);
+                        { // calculate by samples, the result is smoth enough.
+                            ht = calculateRectHeightBySamples(points[0], [this, &tiles](CellKey cKey)
+                                                              {
+                                                                  int tx = std::clamp<int>(cKey.x, 0, tWidth - 1);
+                                                                  int ty = std::clamp<int>(cKey.y, 0, tHeight - 1);
 
-                                                                       CellData &ttl = tiles[tx][ty];
-                                                                       return defineTileHeight(ttl); //
-                                                                   });
-                            hMap[x][y].height = h;
+                                                                  CellData &ttl = tiles[tx][ty];
+                                                                  return defineTileHeight(ttl); //
+                                                              });
                         }
                         //
-                    }
+                    } // end of if, height now prepared as a terrains in theory.
+                    //
+
+                    hMap[x][y].height = ht;
 
                     //
-                }
-            }
+                } // end of inner for.
+            } // end of outer for.
+            // process hill and mountains.
+
+            // make hill top
+            Iteration::forEachAsTable(width, height, [](int x) {}, [this, &hMap](int x, int y)
+                                      {
+                                          CellsVertex &ver = hMap[x][y];
+                                          CellType type = ver.types[0];
+
+                                          if (type == CellTypes::HILL)
+                                          {
+                                              float rnd = static_cast<float>((x * y) % 100) / 100.0f;
+                                              if (rnd > 0.5 & rnd < 0.55)
+                                              {
+                                                  ver.isPeak = true;
+                                                  ver.height *= heightAmpOfHill;
+                                              }
+                                          } //
+
+                                          if (type == CellTypes::MOUNTAIN)
+                                          {
+                                              float rnd = static_cast<float>((x * y) % 100) / 100.0f;
+                                              if (rnd > 0.5 & rnd < 0.55)
+                                              {
+                                                  ver.isPeak = true;
+                                                  ver.height *= heightAmpOfMountain;
+                                              }
+                                          } //
+                                          
+                                      });
+            // TODO adjust the hill around hill top.
+
+            bool forHillTop = false;
+            auto visitFunc = [this, &hMap, &forHillTop](int x, int y)
+            {
+                CellsVertex &ver = hMap[x][y];
+                CellType type = ver.types[0];
+
+                if ((!ver.isPeak && !forHillTop || ver.isPeak && forHillTop) && (type == CellTypes::HILL || type == CellTypes::MOUNTAIN))
+                {
+                    std::array<Point2<int>, 4> neibers;
+                    neibers[0] = {x + 1, y - 1};
+                    neibers[1] = {x + 1, y + 1};
+                    neibers[2] = {x - 1, y + 1};
+                    neibers[3] = {x - 1, y - 1};
+                    float sum = 0;
+                    int num = 0;
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (neibers[i].x >= 0 && neibers[i].x < width && neibers[i].y >= 0 && neibers[i].y < height)
+                        {
+                            CellsVertex &verI = hMap[neibers[i].x][neibers[i].y];
+                            if (verI.types[0] == CellTypes::HILL || verI.types[0] == CellTypes::MOUNTAIN)
+                            {
+                                float rnd = static_cast<float>((x * y * (i + 1)) % 10) / 10.0f;
+                                sum += (verI.height + (rnd - 0.5) / 50 - 0.001);
+                                num++;
+                            }
+                        }
+                    }
+                    if (num > 0)
+                    {
+                        ver.height = sum / num;
+                    }
+
+                } //
+            };
+            // Iteration::forEachAsTable(width, height, [](int x) {}, visitFunc);
+            forHillTop = true;
+            // Iteration::forEachAsTable(width, height, [](int x) {}, visitFunc);
+
             // calculate the height of non-centre but the inner circle is inside the same cell.
             /*
              */
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    if (!hMap[x][y].isHeightResolved())
-                    {
+            // for (int x = 0; x < width; x++)
+            // {
+            //     for (int y = 0; y < height; y++)
+            //     {
+            //         if (!hMap[x][y].isHeightResolved())
+            //         {
 
-                        float distanceToTileCentre = hMap[x][y].originInTile.length();
-                        // rad of the tile is 1.0;
-                        if (distanceToTileCentre + rectRad < 1.0)
-                        {
-                            int tx = hMap[x][y].cKey.x;
-                            int ty = hMap[x][y].cKey.y;
-                            CellsVertex *centreRect = tileCentreMap[tx][ty];
-                            assert(centreRect && "centreRest is missing?");
+            //             float distanceToTileCentre = hMap[x][y].originInCell.length();
+            //             // rad of the tile is 1.0;
+            //             if (distanceToTileCentre + rectRad < 1.0)
+            //             {
+            //                 int tx = hMap[x][y].cKey.x;
+            //                 int ty = hMap[x][y].cKey.y;
+            //                 CellsVertex *centreRect = centreRectMap[tx][ty];
+            //                 assert(centreRect && "centreRest is missing?");
 
-                            hMap[x][y].height = centreRect->height; // use the same height as the centre rect.
-                        }
-                    }
-                }
-            }
-            // calculate the height of non-centre by neiber's height.
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    CellsVertex &vertex = hMap[x][y];
+            //                 hMap[x][y].height = centreRect->height; // use the same height as the centre rect.
+            //             }
+            //         }
+            //     }
+            // }
+            // // calculate the height of non-centre by neiber's height.
+            // for (int x = 0; x < width; x++)
+            // {
+            //     for (int y = 0; y < height; y++)
+            //     {
+            //         CellsVertex &vertex = hMap[x][y];
 
-                    if (!vertex.isHeightResolved())
-                    { // is the centre rect
-                        // find all neiber tiles , and include the current till as well.
-                        // 6+1 = 7 as the max size;
-                        CellKey cKey = hMap[x][y].cKey;
-                        float sumHeight = 0.0f;
-                        int validNeibers = 0;
-                        float sumWeight = 0;
-                        auto visit = [&x, &y, &vertex, &validNeibers, &sumHeight, &tileCentreMap, &sumWeight](int idx, int nTX, int nTY)
-                        {
-                            CellsVertex *nTileCentre = tileCentreMap[nTX][nTY];
-                            if (nTileCentre)
-                            { // if centre rect exist for this current neiber.
-                                float distance = vertex.distance(nTileCentre->cKey);
-                                float weight = 1.0f / (distance + 1e-6);
-                                weight = 1.0f;
-                                sumHeight += nTileCentre->height * weight;
-                                validNeibers++;
-                                sumWeight += weight;
-                                if (DEBUG_COUT)
-                                {
-                                    std::cout << fmt::format("Vertex[{},{}],Neiber[{:>2}].cKey({},{}) .height:{}, .dis:{}, sumHeight:{},sumWeight:{}", x, y, idx, nTX, nTY, nTileCentre->height, distance, sumHeight, sumWeight) << std::endl;
-                                }
-                            }
-                        };
-                        if (DEBUG_COUT)
-                        {
-                            std::cout << fmt::format("===================") << std::endl;
-                        }
+            //         if (!vertex.isHeightResolved())
+            //         { // is the centre rect
+            //             // find all neiber tiles , and include the current till as well.
+            //             // 6+1 = 7 as the max size;
+            //             CellKey cKey = hMap[x][y].cKey;
+            //             float sumHeight = 0.0f;
+            //             int validNeibers = 0;
+            //             float sumWeight = 0;
+            //             auto visit = [&x, &y, &vertex, &validNeibers, &sumHeight, &centreRectMap, &sumWeight](int idx, int nTX, int nTY)
+            //             {
+            //                 CellsVertex *nTileCentre = centreRectMap[nTX][nTY];
+            //                 if (nTileCentre)
+            //                 { // if centre rect exist for this current neiber.
+            //                     float distance = vertex.distance(nTileCentre->cKey);
+            //                     float weight = 1.0f / (distance + 1e-6);
+            //                     weight = 1.0f;
+            //                     sumHeight += nTileCentre->height * weight;
+            //                     validNeibers++;
+            //                     sumWeight += weight;
+            //                     if (DEBUG_COUT)
+            //                     {
+            //                         std::cout << fmt::format("Vertex[{},{}],Neiber[{:>2}].cKey({},{}) .height:{}, .dis:{}, sumHeight:{},sumWeight:{}", x, y, idx, nTX, nTY, nTileCentre->height, distance, sumHeight, sumWeight) << std::endl;
+            //                     }
+            //                 }
+            //             };
+            //             if (DEBUG_COUT)
+            //             {
+            //                 std::cout << fmt::format("===================") << std::endl;
+            //             }
 
-                        int neibers = Cell::forEachNeibers(cKey.x, cKey.y, tWidth, tHeight, visit); // visit neibers.
-                        visit(-1, cKey.x, cKey.y);                                                  // visit this cell.
-                        assert(validNeibers > 0 && "bug?");
-                        float height = sumHeight / sumWeight;
-                        if (DEBUG_COUT)
-                        {
-                            std::cout << fmt::format("::::::::::{}:::::::::", height) << std::endl;
-                        }
-                        hMap[x][y].height = height;
-                    }
-                }
-            }
+            //             int neibers = Cell::forEachNeibers(cKey.x, cKey.y, tWidth, tHeight, visit); // visit neibers.
+            //             visit(-1, cKey.x, cKey.y);                                                  // visit this cell.
+            //             assert(validNeibers > 0 && "bug?");
+            //             float height = sumHeight / sumWeight;
+            //             if (DEBUG_COUT)
+            //             {
+            //                 std::cout << fmt::format("::::::::::{}:::::::::", height) << std::endl;
+            //             }
+            //             hMap[x][y].height = height;
+            //         }
+            //     }
+            // }
         }
 
         /**
@@ -285,7 +367,7 @@ namespace fog
             }
             return tlHeight;
         }
-        
+
         /**
          * Deal with the sub cell which span multiple different type of terrain.
          * Calculate the height by sampling points's avg height.

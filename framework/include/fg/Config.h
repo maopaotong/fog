@@ -118,7 +118,8 @@ namespace fog
             debugCout = getConfigByOption<bool>("DEBUG_COUT", opts, DEF_DEBUG_COUT);
             debugMovingPosition = getConfigByOption<bool>("DEBUG_MOVING_POSITION", opts, DEF_DEBUG_MOVING_POSITION);
             debugFogOfWar = getConfigByOption<bool>("DEBUG_FOG_OF_WAR", opts, DEF_DEBUG_FOG_OF_WAR);
-
+            heightAmpOfHill = getConfigByOption<float>("HEIGHT_AMP_OF_HILL", opts, 1.2f); //
+            heightAmpOfMountain = getConfigByOption<float>("HEIGHT_AMP_OF_MOUNTAIN", opts, 1.5f); 
             // // transform
             // TF_CELL_SCALE = {CELL_SCALE};
             // CELLKEY_2_UV = {TILES_RANGE.getWidth(), TILES_RANGE.getHeight()};
@@ -131,7 +132,7 @@ namespace fog
             // Context<Transform::D2H2D3>::set();
 
             // Context<Transform::D3_NORMAL_D2>::set();
-            //transformD3NormalToD2Ptr = new Transform::D3_NORMAL_D2(1.0f / cellScale);
+            // transformD3NormalToD2Ptr = new Transform::D3_NORMAL_D2(1.0f / cellScale);
 
             // Config::D2H2D3 = {};
         }
@@ -152,16 +153,18 @@ namespace fog
         int cellsTerrainQuality = DEF_TILE_TERRAIN_QUALITY;
         int cellsMeshQuality = DEF_TILE_MESH_QUALITY;
         float cellScale = DEF_CELL_SCALE;
-        float worldWidth = DEF_WORLD_WIDTH;           // = CELL_SCALE * 2.0 * TILES_WIDTH;
-        float worldHeight = DEF_WORLD_HEIGHT;         // = WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
-                                                      //
-        float heightOfOcean = DEF_HEIGHT_OCEAN;       // = 0.49f * 0.9f;
-        float heightOfShore = DEF_HEIGHT_SHORE;       // = 0.50f * 0.9f;
-        float heightOfPlain = DEF_HEIGHT_PLAIN;       // = 0.51f * 1.1f;
-        float heightOfHill = DEF_HEIGHT_HILL;         // = 0.52f * 1.2f;
-        float heightOfMountain = DEF_HEIGHT_MOUNTAIN; // = 0.53f * 1.f;
-        float heightOfFrozen = DEF_HEIGHT_FROZEN;     // = 0.54f * 1.f;
-                                                      // generator
+        float worldWidth = DEF_WORLD_WIDTH;              // = CELL_SCALE * 2.0 * TILES_WIDTH;
+        float worldHeight = DEF_WORLD_HEIGHT;            // = WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
+                                                         //
+        float heightOfOcean = DEF_HEIGHT_OCEAN;          // = 0.49f * 0.9f;
+        float heightOfShore = DEF_HEIGHT_SHORE;          // = 0.50f * 0.9f;
+        float heightOfPlain = DEF_HEIGHT_PLAIN;          // = 0.51f * 1.1f;
+        float heightOfHill = DEF_HEIGHT_HILL;            // = 0.52f * 1.2f;
+        float heightOfMountain = DEF_HEIGHT_MOUNTAIN;    // = 0.53f * 1.f;
+        float heightOfFrozen = DEF_HEIGHT_FROZEN;        // = 0.54f * 1.f;
+        float heightAmpOfHill = 1.0f; //
+        float heightAmpOfMountain = 1.1f;
+                                                         // generator
         int seedOfGenerator1 = DEF_GENERATOR1_SEED;
         int seedOfGenerator2 = DEF_GENERATOR2_SEED;
         float GENERATOR1_ROUGHNESS = DEF_GENERATOR1_ROUGHNESS;
