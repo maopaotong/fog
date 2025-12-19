@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/core.h"
+
 #include "fg/ogre.h"
 #include "fg/util.h"
 #include "fg/cells.h"
@@ -74,7 +74,7 @@ namespace fog
                     // Vector3 position = ((cis.cast<float>().transform(Transform::CellCentreByKey()) + tts->vertexs[qx][qy].originInTile) * config->CELL_SCALE).transform3(Transform::D2_NORMAL_D3(h));
                     // Vector3 position = cKey.transform3(cvs->vertexs[qx][qy].originInTile, h, *config->transformFromD2HToD3Ptr);
 
-                    Vector3 position = cKey.transform3(cvs->vertexs[qx][qy].originInTile, h, *tfs->d2d3H);
+                    Vector3 position = cKey.transform3(cvs->vertexs[qx][qy].originInTile, h, *tfs->d2hd3);
                     // position.y = h;
 
                     positions[x][y] = position;

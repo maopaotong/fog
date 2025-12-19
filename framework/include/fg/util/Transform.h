@@ -66,8 +66,7 @@ namespace fog
                 float cx = fx;
                 float cy = fy;
                 const float sqrt3 = std::sqrt(3.0f);
-                const float R = (2.0f / sqrt3) * rad; // 外接圆半径
-
+                const float R = (2.0f / sqrt3) * rad; // 
                 float q = ((sqrt3 / 3.0f) * cx - (1.0f / 3.0f) * cy) / R;
                 float r = ((2.0f / 3.0f) * cy) / R;
 
@@ -206,22 +205,22 @@ namespace fog
         //     }
         // };
 
-        struct D3_NORMAL_D2
-        {
-            float h;
-            float scale;
-            D3_NORMAL_D2(float scale_, float h = 0) : h(h), scale(scale_)
-            {
-            }
+        // struct D3_NORMAL_D2
+        // {
+        //     float h;
+        //     float scale;
+        //     D3_NORMAL_D2(float scale_, float h = 0) : h(h), scale(scale_)
+        //     {
+        //     }
 
-            void operator()(float &x, float &y, float &z)
-            {
-                y = -z;
-                z = h;
-                x *= scale;
-                y *= scale;
-            }
-        };
+        //     void operator()(float &x, float &y, float &z)
+        //     {
+        //         y = -z;
+        //         z = h;
+        //         x *= scale;
+        //         y *= scale;
+        //     }
+        // };
     };
 
 }; // end of namespace

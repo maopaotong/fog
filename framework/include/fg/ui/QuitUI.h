@@ -4,7 +4,7 @@
  */
 #pragma once
 #include "fg/ogre.h"
-#include "fg/core.h"
+
 #include "fg/util.h"
 #include "fg/demo.h"
 

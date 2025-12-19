@@ -6,7 +6,7 @@
 
 #include "Common.h"
 #include "fg/util.h"
-#include "fg/core.h"
+
 #include "fg/cells.h"
 
 #include "PathState.h"

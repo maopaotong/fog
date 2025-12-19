@@ -39,10 +39,10 @@ namespace fog
     };
     struct Transforms
     {
-        TransformD2D3 *d2d3;
-        TransformD2D3H *d2d3H;
+        TransformD2TD3 *d2td3;//d2 terrains height => d3
+        TransformD2D3H *d2hd3; //d2+z=h => d3
         TransformD3D2 *d3d2;
-        INJECT(Transforms(TransformD2D3 *d2d3, TransformD2D3H *d3h, TransformD3D2 *d3d2)) : d2d3(d2d3), d2d3H(d3h), d3d2(d3d2)
+        INJECT(Transforms(TransformD2TD3 *d2d3, TransformD2D3H *d3h, TransformD3D2 *d3d2)) : d2td3(d2d3), d2hd3(d3h), d3d2(d3d2)
         {
         }
     };

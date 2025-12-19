@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/core.h"
+
 #include "MovingStateManager.h"
 #include "CellInstanceStateManager.h"
 #include "EntryController.h"
@@ -22,7 +22,7 @@ namespace fog
     protected:
         // CellStateControl *cells;
         CellsState *cellsState;
-        TransformD2D3 *tts;
+        TransformD2TD3 *tts;
         // std::vector<std::vector<CellData>> tiles;
         CellsDatas *cellsDatas;
         FogOfWar *fogOfWar;
@@ -40,7 +40,7 @@ namespace fog
                           CoreMod *core,
                           MovableStateManager *movableStateMgr,
                           InventoryManager *inventoryStateMgr,
-                          TransformD2D3 *tts,
+                          TransformD2TD3 *tts,
                           HomeCellKey * homeCell,
                           CellsState * cellsState,
                           CellsDatas *cDatas)) : fogOfWar(fogOfWar),

@@ -4,7 +4,7 @@
  */
 #pragma once
 #include <vector>
-#include "fg/core.h"
+
 #include "fg/ogre.h"
 #include "fg/util.h"
 #include "CellsVertecies.h"

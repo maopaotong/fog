@@ -7,7 +7,6 @@
 #include "Common.h"
 #include "ImGuiApp.h"
 #include "fg.h"
-#include "fg/core.h"
 #include "fg/util.h"
 
 namespace fog

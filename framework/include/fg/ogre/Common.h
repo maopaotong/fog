@@ -23,8 +23,6 @@
 #include <OgreInput.h>
 #include <unordered_map>
 
-#include <fg/core.h>
-
 namespace fog
 {
     using ColourValue = Ogre::ColourValue;

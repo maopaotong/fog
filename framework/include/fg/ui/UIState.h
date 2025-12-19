@@ -6,7 +6,7 @@
 #include "imgui.h"
 #include <string>
 #include "fg/ogre.h"
-#include "fg/core.h"
+
 #include "fmt/format.h"
 #include "fg/util/ImGuiUtil.h"
 

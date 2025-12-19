@@ -5,7 +5,7 @@
 #pragma once
 #include <vector>
 #include "fg/ogre.h"
-#include "fg/core.h"
+
 #include "fg/ogre.h"
 #include "fg/util.h"
 #include "Cells.h"

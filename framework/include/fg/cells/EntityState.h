@@ -5,7 +5,7 @@
 #pragma once
 
 #include "fg/util.h"
-#include "fg/core.h"
+
 //
 #include "Common.h"
 #include "PathState.h"

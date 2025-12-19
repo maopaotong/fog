@@ -16,7 +16,7 @@
 
 // === Include OgreBites for modern initialization ===
 
-#include "fg/core.h"
+
 #include "fg/util.h"
 #include "fg/ogre.h"
 #include "InputState.h"
@@ -60,7 +60,7 @@ namespace fog
             }
             Vector3 viewCenterOnGround = ray.getPoint(hitGrd.second);
 
-            auto p2 = Point2<float>::from(viewCenterOnGround, *tfs->d2d3);
+            auto p2 = Point2<float>::from(viewCenterOnGround, *tfs->d2td3);
             CellKey cell = CellKey::from(p2);
             // if (Context<Cell::Center>::get()->findCellByPosition(p2, cell))
             // {

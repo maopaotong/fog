@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Ogre.h>
-#include "fg/core.h"
+
 #include "fg/util.h"
 #include "fg/cells.h"
 #include "PathFollow2MissionState.h"
@@ -60,7 +60,7 @@ namespace fog
                 // Vector2 pointIn2D = pointOnLayer * scale;
                 // Vector3 positionIn3D = node2D->plane->to3DInPlane(pointIn2D);
                 Point2<float> p2d = pointOnLayer;
-                Vector3 positionIn3D = p2d.transform3(*tfs->d2d3);
+                Vector3 positionIn3D = p2d.transform3(*tfs->d2td3);
                 positionIn3D.y = layerHeight;
 
                 return positionIn3D;

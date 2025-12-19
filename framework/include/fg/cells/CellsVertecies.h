@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "fg/core.h"
+
 #include "fg/util.h"
 #include "CellsDatas.h"
 #include "CellsVertex.h"

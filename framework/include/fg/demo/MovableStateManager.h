@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include "fg/core.h"
+
 #include "fg/util.h"
 #include "fg/ogre.h"
 #include "fg/cells.h"
@@ -133,7 +133,7 @@ namespace fog
             this->add(actor2);
             // actor2->setPosition(home->cKey );
             //  find a position.
-            actor2->setPosition(home->cKey, *tfs->d2d3);
+            actor2->setPosition(home->cKey, *tfs->d2td3);
         }
 
         void setCellToStandOn(CellKey cKey)

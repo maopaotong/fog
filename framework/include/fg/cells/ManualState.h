@@ -6,7 +6,7 @@
 #include <vector>
 #include <Ogre.h>
 #include <OgreColourValue.h>
-#include "fg/core.h"
+
 #include "fg/ogre.h"
 #include "fg/util.h"
 

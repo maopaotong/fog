@@ -4,9 +4,9 @@
  */
 #pragma once
 
-#include "fg/core.h"
+
 #include "fg/ogre.h"
-#include "fg/core.h"
+
 #include "fg/util.h"
 #include "fg/cells.h"
 //include the files under same folder

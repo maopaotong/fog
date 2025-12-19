@@ -12,7 +12,7 @@ namespace fog
 {
     using namespace Ogre;
 
-    struct TransformD2D3
+    struct TransformD2TD3
     {
         struct Options
         {
@@ -37,17 +37,12 @@ namespace fog
         CellsVertecies *cvs;
         Config *config;
         float scale;
-        INJECT(TransformD2D3(Options opts, Config *config, CellsVertecies *cvs)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
-                                                                                      terWidth(opts.terWidth), terHeight(opts.terHeight),
-                                                                                      config(config),
-                                                                                      cvs(cvs),
-                                                                                      scale(config->cellScale)
+        INJECT(TransformD2TD3(Options opts, Config *config, CellsVertecies *cvs)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
+                                                                                   terWidth(opts.terWidth), terHeight(opts.terHeight),
+                                                                                   config(config),
+                                                                                   cvs(cvs),
+                                                                                   scale(config->cellScale)
         {
-            // config->transformFromD2HToD3Ptr->setHeight([this](float x, float y)
-            //                                            {
-            //                                                return this->getHeight(x, y); //
-            //                                            } //
-            // );
         }
 
         void operator()(float &x, float &y, float &z)

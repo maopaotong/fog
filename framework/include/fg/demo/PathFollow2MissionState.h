@@ -8,7 +8,7 @@
 #include <OgreAnimationState.h>
 #include <vector>
 #include "fg/util.h"
-#include "fg/core.h"
+
 #include "fg/cells.h"
 
 namespace fog
@@ -70,7 +70,7 @@ namespace fog
         Vector3 to3D(Point2<float> p)
         {
 
-            return p.transform3(*tfs->d2d3) + this->offset;
+            return p.transform3(*tfs->d2td3) + this->offset;
         }
 
         // Vector3 to3D(Vector2 pointIn2D, float scale)

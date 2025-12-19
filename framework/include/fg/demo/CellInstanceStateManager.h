@@ -4,7 +4,7 @@
  */
 #pragma once
 #include "Common.h"
-#include "fg/core.h"
+
 #include "fg/ogre.h" //TODO remove this include.
 #include "fg/cells.h"
 #include "fg/cells/Transforms.h"
@@ -45,7 +45,7 @@ namespace fog
         Vector3 getOrigin3D()
         {
             // return Context<Node2D>::get()->to3D(Cell::getOrigin2D(cis),config->CELL_SCALE);
-            return cis.transform3(*tfs->d2d3);
+            return cis.transform3(*tfs->d2td3);
         }
 
         void buildMesh()

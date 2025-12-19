@@ -20,7 +20,9 @@ namespace fog
 
     struct CellKey : public Point2<int>
     {
-
+        static inline Transform::CellCentreByKey TF_K2C{};
+        static inline Transform::CentreToCellKey TF_C2K{};
+        
         CellKey() : CellKey(-1, -1) {}
         CellKey(int x, int y) : Point2<int>(x, y)
         {
@@ -47,26 +49,26 @@ namespace fog
             }
         };
 
-        template<typename F>
+        template <typename F>
         Vector3 transform3(F &&d2d3)
         {
-            return this->cast<float>().transform(Transform::CellCentreByKey()).transform3(d2d3);
+            return this->cast<float>().transform(TF_K2C).transform3(d2d3);
         }
 
         template <typename F>
         Vector3 transform3(Point2<float> pointInCell, float h, F &&d2d3)
         {
-            return (this->cast<float>().transform(Transform::CellCentreByKey()) + pointInCell).transform3(h, d2d3);
+            return (this->cast<float>().transform(TF_K2C) + pointInCell).transform3(h, d2d3);
         }
 
         static CellKey from(Point2<float> p)
         {
-            return p.transform(Transform::CentreToCellKey());
+            return p.transform(TF_C2K);
         };
 
         Point2<float> getCentre()
         {
-            return this->Point2<int>::cast<float>().transform(Transform::CellCentreByKey());
+            return this->Point2<int>::cast<float>().transform(TF_K2C);
         }
 
         static void getCentres(std::vector<CellKey> &cks, std::vector<Point2<float>> &ret)

@@ -8,7 +8,7 @@
 #include "Common.h"
 #include "fg/util/Iteration.h"
 #include "fg/util/Rect.h"
-#include "fg/core.h"
+
 namespace fog
 {
 
