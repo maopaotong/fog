@@ -22,12 +22,11 @@ namespace fog
     protected:
         // CellStateControl *cells;
         CellsState *cellsState;
-        TheTerrains *tts;
+        TransformD2HToD3 *tts;
         // std::vector<std::vector<CellData>> tiles;
         CellsDatas *cellsDatas;
         FogOfWar *fogOfWar;
         EntryController *entryController;
-        CellsTerrains *terrains;
         CoreMod *core;
         MovableStateManager *movableStateMgr;
         BuildingStateManager *buildingStateMgr;
@@ -38,11 +37,10 @@ namespace fog
         INJECT(WorldManager(FogOfWar *fogOfWar,
                           EntryController *entryController,
                           BuildingStateManager *buildingStateMgr,
-                          CellsTerrains *terrains,
                           CoreMod *core,
                           MovableStateManager *movableStateMgr,
                           InventoryManager *inventoryStateMgr,
-                          TheTerrains *tts,
+                          TransformD2HToD3 *tts,
                           HomeCellKey * homeCell,
                           CellsState * cellsState,
                           CellsDatas *cDatas)) : fogOfWar(fogOfWar),
@@ -53,7 +51,6 @@ namespace fog
                                                  tts(tts),
                                                  buildingStateMgr(buildingStateMgr),
                                                  entryController(entryController),
-                                                 terrains(terrains),
                                                  homeCell(homeCell),
                                                  cellsDatas(cDatas)
         {

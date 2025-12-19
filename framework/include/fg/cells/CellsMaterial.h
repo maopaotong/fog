@@ -7,7 +7,7 @@
 #include "fg/core.h"
 #include "fg/ogre.h"
 #include "fg/util.h"
-#include "TheTerrains2.h"
+#include "CellsVertecies.h"
 namespace fog
 {
     using namespace Ogre;
@@ -24,10 +24,9 @@ namespace fog
         };
         std::string material;
 
-        INJECT(CellsMaterial(CellsTerrains *terrains,
-                      TheTerrains *tts,
+        INJECT(CellsMaterial(
+                      CellsVertecies * cvs,
                       FogOfWarTexture *ftexture,
-                      TheTerrains2 *tts2,
                       Config *config,
                       Options options))
         {
@@ -38,7 +37,7 @@ namespace fog
             // tex0
             std::string texName0 = "TerrainsTex001";
             // Context<CellsTerrains>::get()->createWorldTexture(texName0, tts->vertexs);
-            terrains->createWorldTexture(texName0, tts->vertexs); // TODO texture create by a manager.
+            cvs->createWorldTexture(texName0, cvs->vertexs); // TODO texture create by a manager.
 
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(texName0);
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);

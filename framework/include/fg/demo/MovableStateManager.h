@@ -91,19 +91,16 @@ namespace fog
         CoreMod *core;
         Event::Bus *eventBus;
         HomeCellKey *home;
-        TheTerrains2 *tts2;
         Config *config;
 
     public:
         INJECT(MovableStateManager(CoreMod *core, CellInstanceStateManager *cisManager,
                                    Event::Bus *eventBus,
-                                   TheTerrains2 *tts2,
                                    HomeCellKey *homeCellKey,
                                    Config *config,
                                    Component::Injector * injector
                                    ))
             : core(core),
-              tts2(tts2),
               config(config),
               eventBus(eventBus),
               home(homeCellKey),

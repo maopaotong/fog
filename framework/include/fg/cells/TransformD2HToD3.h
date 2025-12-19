@@ -7,14 +7,14 @@
 #include "fg/core.h"
 #include "fg/ogre.h"
 #include "fg/util.h"
-#include "Terrains.h"
 #include "CellsDatas.h"
 #include "CellsVertex.h"
+#include "CellsVertecies.h"
 namespace fog
 {
     using namespace Ogre;
 
-    struct TheTerrains : public Terrains
+    struct TransformD2HToD3
     {
         struct Options
         {
@@ -23,8 +23,8 @@ namespace fog
             int terWidth;
             int terHeight;
             INJECT(Options(Config *config)) : tlsWidth(config->cellsRange.getWidth()),
-             tlsHeight(config->cellsRange.getHeight())
-                                                                          
+                                              tlsHeight(config->cellsRange.getHeight())
+
             {
                 int quality = config->cellsTerrainQuality;
                 this->terWidth = tlsWidth * quality;                          //
@@ -35,25 +35,21 @@ namespace fog
         int tlsHeight;
         int terWidth;
         int terHeight;
-        std::vector<std::vector<CellsVertex>> vertexs;
-        Config *config;
-        INJECT(TheTerrains(Options opts, Config *config)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
-                                                            terWidth(opts.terWidth), terHeight(opts.terHeight),
-                                                            config(config),
-                                                            vertexs(opts.terWidth, std::vector<CellsVertex>(opts.terHeight, CellsVertex()))
-        {
-        }
-        Vector3 getOrigin() override
-        {
-            return Vector3(0, 0, 0);
-        }
-        float getHeightWithNormalAtWorldPosition(Vector3 pos, Vector3 *norm) override
-        {
-            // Vector2 pIn2DV = Context<Node2D>::get()->to2D(pos);
 
-            Vector2 pIn2DV = Point2<float>::from(pos, *config->transformD3NormalToD2Ptr);
-            return getHeight(pIn2DV);
+        CellsVertecies *cvs;
+        Config *config;
+        INJECT(TransformD2HToD3(Options opts, Config *config, CellsVertecies *cvs)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
+                                                                                 terWidth(opts.terWidth), terHeight(opts.terHeight),
+                                                                                 config(config),
+                                                                                 cvs(cvs)
+        {
+            config->transformFromD2HToD3Ptr->setHeight([this](float x, float y)
+                                                       {
+                                                           return this->getHeight(Vector2(x, y)); //
+                                                       } //
+            );
         }
+
         float getHeight(Vector2 pIn2DV)
         {
 
@@ -78,7 +74,7 @@ namespace fog
                 y = y + terHeight;
                 y = 0;
             }
-            float ret = vertexs[x][y].height * config->heightScale;
+            float ret = cvs->vertexs[x][y].height * config->heightScale;
             if (config->debugCout)
             {
                 std::cout << fmt::format(":[{:>.2f},{:>.2f}],[{:>3},{:>3}].h={:>3.1f}", pUV.x, pUV.y, x, y, ret) << std::endl;
@@ -86,6 +82,5 @@ namespace fog
             return ret;
         }
     };
-
 
 }; // end of namespace

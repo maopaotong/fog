@@ -3,65 +3,58 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
+#include <vector>
 #include "fg/core.h"
 #include "fg/ogre.h"
-#include "fg/core.h"
 #include "fg/util.h"
-#include "Cells.h"
-#include "TheTerrains.h"
+#include "CellsDatas.h"
 #include "CellsVertex.h"
-
 namespace fog
 {
-    
-    struct CellsTerrains
+    using namespace Ogre;
+
+    struct CellsVertecies
     {
         struct Options
         {
-            Box2<int> box;
+            int tlsWidth;
+            int tlsHeight;
+            int terWidth;
+            int terHeight;
             int quality;
+            INJECT(Options(Config *config)) : tlsWidth(config->cellsRange.getWidth()),
+                                              quality(config->cellsTerrainQuality),
+                                              tlsHeight(config->cellsRange.getHeight())
 
-            int width;
-            int height;
-            float rectWidth;
-            float rectHeight;
-            int tWidth;
-            int tHeight;
-            INJECT(Options(Config *config)) : box(config->cellsRange), quality(config->cellsTerrainQuality), tWidth(box.getWidth()), tHeight(box.getHeight())
             {
-                this->rectWidth = 2.0 / quality;                         // rad of tile = 1 , width of tile = 2;
-                this->rectHeight = rectWidth;                            // rect height == width
-                this->width = tWidth * quality;                          //
-                this->height = tHeight * quality * std::sqrt(3.0) / 2.0; // based on the toploy of cells.
+
+                this->terWidth = tlsWidth * quality;                          //
+                this->terHeight = tlsHeight * quality * std::sqrt(3.0) / 2.0; // based on the toploy of cells.
             }
         };
-        int width;
-        int height;
-        // tiles index in number
+        Config *config;
+        std::vector<std::vector<CellsVertex>> vertexs;
         int tWidth;
         int tHeight;
-
-        // normal width of rect, when rad of cell = 1.
-        // depends on the quality argument.
+        int width;
+        int height;
         float rectWidth;
         float rectHeight;
-        float rectRad; // average rad of the rect.
-        Config *config;
-        CellsDatas *cDatas;
-        TheTerrains *tts;
-        INJECT(CellsTerrains(Options options, Config *config, CellsDatas *cDatas, TheTerrains *tts)) : tWidth(options.box.getWidth()), tHeight(options.box.getHeight()), config(config),
-        cDatas(cDatas),tts(tts)
-
+        float rectRad;
+        INJECT(CellsVertecies(Options opts, CellsDatas *cDatas, Config *config)) : vertexs(opts.terWidth,                                                                                           
+                                                                                           std::vector<CellsVertex>(opts.terHeight, CellsVertex())),
+                                                                                           config(config)
         {
-            this->rectWidth = 2.0 / options.quality;                         // rad of tile = 1 , width of tile = 2;
-            this->rectHeight = rectWidth;                                    // rect height == width
-            this->width = tWidth * options.quality;                          //
-            this->height = tHeight * options.quality * std::sqrt(3.0) / 2.0; // based on the toploy of cells.
-            this->rectRad = (rectHeight + rectWidth) / 2.0;
-            //this->buildVertexs(cDatas->tiles, tts->vertexs);
 
+            tWidth = opts.tlsWidth;
+            tHeight = opts.tlsHeight;
             auto &tiles = cDatas->tiles;
-            auto &hMap = tts->vertexs;
+            auto &hMap = vertexs;
+            width = opts.terWidth;
+            height = opts.terHeight;
+            rectWidth = 2.0 / opts.quality; // rad of tile = 1 , width of tile = 2;
+            rectHeight = rectWidth;         // rect height == width
+            this->rectRad = (rectHeight + rectWidth) / 2.0;
             // float rectWidth = static_cast<float>(tWidth) * 2.0f / static_cast<float>(width);
             // float rectHeight = static_cast<float>(tHeight) * 2.0f / static_cast<float>(height) * std::sqrt(3) / 2.0f;
             //
@@ -259,6 +252,42 @@ namespace fog
         }
 
         /**
+         *
+         */
+        float defineTileHeight(CellData &tl)
+        {
+
+            float tlHeight = 0.0;
+
+            switch (tl.type)
+            {
+            case (CellTypes::OCEAN):
+                tlHeight = config->heightOfOcean;
+                break;
+            case (CellTypes::SHORE):
+            case (CellTypes::LAKE):
+                tlHeight = config->heightOfShore;
+                break;
+            case (CellTypes::PLAIN):
+                tlHeight = config->heightOfPlain;
+                break;
+            case (CellTypes::HILL):
+                tlHeight = config->heightOfHill;
+                break;
+            case (CellTypes::MOUNTAIN):
+                tlHeight = config->heightOfMountain;
+                break;
+            case (CellTypes::FROZEN):
+                tlHeight = config->heightOfFrozen;
+                break;
+            default:
+                tlHeight = config->heightOfFrozen;
+                break;
+            }
+            return tlHeight;
+        }
+        
+        /**
          * Deal with the sub cell which span multiple different type of terrain.
          * Calculate the height by sampling points's avg height.
          */
@@ -362,42 +391,6 @@ namespace fog
             {
                 std::cout << fmt::format("typePlot[{}] is {:>3}", i, texOp.typePlot[i]) << std::endl;
             }
-        }
-
-        /**
-         *
-         */
-        float defineTileHeight(CellData &tl)
-        {
-
-            float tlHeight = 0.0;
-
-            switch (tl.type)
-            {
-            case (CellTypes::OCEAN):
-                tlHeight = config->heightOfOcean;
-                break;
-            case (CellTypes::SHORE):
-            case (CellTypes::LAKE):
-                tlHeight = config->heightOfShore;
-                break;
-            case (CellTypes::PLAIN):
-                tlHeight = config->heightOfPlain;
-                break;
-            case (CellTypes::HILL):
-                tlHeight = config->heightOfHill;
-                break;
-            case (CellTypes::MOUNTAIN):
-                tlHeight = config->heightOfMountain;
-                break;
-            case (CellTypes::FROZEN):
-                tlHeight = config->heightOfFrozen;
-                break;
-            default:
-                tlHeight = config->heightOfFrozen;
-                break;
-            }
-            return tlHeight;
         }
     };
 
