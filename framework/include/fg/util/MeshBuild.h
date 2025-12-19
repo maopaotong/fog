@@ -12,13 +12,13 @@
 #define FG_REPORT_ERROR_INDEX_OUT_OF_RANGE 0
 #define FG_SPIDER_TOTAL_LAYER 3
 #define FG_TEXTURE_COORD_SCALE 1.0f
-using namespace Ogre;
 
 namespace fog
 {
 
     class MeshBuild
     {
+        using TransformFunc = std::function<Ogre::Vector3(Vector2)>;
 
     public:
         class PointOnCircle
@@ -27,8 +27,8 @@ namespace fog
             ManualObject *obj;
             int baseIndex;
             float scale;
-            Transform::D2H2D3* d2h2d3;
-            PointOnCircle(ManualObject *obj, float scale, Transform::D2H2D3* d2h2d3) : obj(obj), scale(scale),d2h2d3(d2h2d3) {}
+            TransformFunc transform;
+            PointOnCircle(ManualObject *obj, float scale, TransformFunc transform) : obj(obj), scale(scale),transform(transform) {}
             void begin(std::string material)
             {
                 obj->clear();
@@ -49,12 +49,12 @@ namespace fog
                     CellKey &cell;
                     Vector2 origin;
                     Vector3 nom3;
-                    Transform::D2H2D3& d2h2d3;
+                    TransformFunc transform;
                     int layer;
                     void operator()(int pIdx, Vector2 &pointOnCircle)
                     {
                         // Vector3 pos = Context<Node2D>::get()->to3D(origin, pointOnCircle, &nom3);
-                        Vector3 pos = cell.transform3(pointOnCircle,d2h2d3);
+                        Vector3 pos = transform(pointOnCircle);
                         obj->position(pos);
                         obj->normal(nom3);
                         obj->colour(color);
@@ -73,7 +73,7 @@ namespace fog
                     cell,
                     origin,
                     nom3,
-                    *d2h2d3
+                    transform
                 };
 
                 int LAYERS = 1;
@@ -321,8 +321,9 @@ namespace fog
             bool useDefaultNorm = true;
             Vector3 defaultNorm = Vector3::UNIT_Y;
             NormManualObject normObj;
+            TransformFunc transform;
 
-            SpiderNet(ManualObject *obj) : obj(obj) {}
+            SpiderNet(ManualObject *obj, TransformFunc transform) : obj(obj) , transform(transform){}
             void begin(std::string material)
             {
                 obj->clear();
@@ -335,14 +336,13 @@ namespace fog
 
                 visitPoint.idx = baseIndex;
             }
-
-            void operator()(CellKey &cell, ColourValue color,Transform::D2H2D3 & transform)
+            
+            void operator()(CellKey &cell, ColourValue color)
             {
-                operator()([&cell, this,&transform](Vector2 & pointOnCircle, int layer, int totalLayer)
+                operator()([&cell, this](Vector2 & pointOnCircle, int layer, int totalLayer)
                            {
-                               Vector2 pointOnLayer = pointOnCircle * (float)layer / ((float)totalLayer - 1);
-                               // return Context<Node2D>::get()->to3D(Cell::getOrigin2D(cell, config->CELL_SCALE), pointOnLayer, useDefaultNorm ? &defaultNorm : nullptr); //
-                               return cell.transform3(pointOnLayer,transform);
+                               Vector2 pointOnLayer = pointOnCircle * (float)layer / ((float)totalLayer - 1);                               
+                               return transform(pointOnLayer);
                            },
                            color //
                 );

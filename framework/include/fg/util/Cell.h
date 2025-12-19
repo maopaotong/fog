@@ -54,9 +54,9 @@ namespace fog
         }
 
         template <typename F>
-        Ogre::Vector3 transform3(Point2<float> pointInCell, F &&d2d3)
+        Ogre::Vector3 transform3(Point2<float> pointInCell, float h, F &&d2d3)
         {
-            return (this->cast<float>().transform(Transform::CellCentreByKey()) + pointInCell).transform3(d2d3);
+            return (this->cast<float>().transform(Transform::CellCentreByKey()) + pointInCell).transform3(h, d2d3);
         }
 
         static CellKey from(Point2<float> p)

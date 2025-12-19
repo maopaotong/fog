@@ -35,7 +35,7 @@ namespace fog
 
         void rebuildMesh()
         {
-            MeshBuild::SpiderNet buildMesh(obj);
+            MeshBuild::SpiderNet buildMesh(obj, nullptr);
             buildMesh.begin(this->material); //
 
             // Node2D *node2D = Context<Node2D>::get();

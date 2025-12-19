@@ -154,57 +154,57 @@ namespace fog
             }
         };
 
-        struct D2H2D3
-        {
-            std::function<float(float x, float y)> height;
-            float scale;
+        // struct D2H2D3
+        // {
+        //     std::function<float(float x, float y)> height;
+        //     float scale;
 
-            D2H2D3(float scale, std::function<float(float, float)> height) : height(height), scale(scale)
-            {
-            }
+        //     D2H2D3(float scale, std::function<float(float, float)> height) : height(height), scale(scale)
+        //     {
+        //     }
 
-            // D2H2D3(const D2H2D3 &dhd)
-            // {
-            //     this->height = dhd.height;
-            //     this->scale = dhd.scale;
-            // }
-            // D2H2D3(const D2H2D3 &&dhd)
-            // {
-            //     this->height = dhd.height;
-            //     this->scale = dhd.scale;
-            // }
-            // D2H2D3 &operator=(const D2H2D3 &) = delete;
-            template <typename F>
-            void setHeight(F &&func)
-            {
-                this->height = func;
-            }
+        //     // D2H2D3(const D2H2D3 &dhd)
+        //     // {
+        //     //     this->height = dhd.height;
+        //     //     this->scale = dhd.scale;
+        //     // }
+        //     // D2H2D3(const D2H2D3 &&dhd)
+        //     // {
+        //     //     this->height = dhd.height;
+        //     //     this->scale = dhd.scale;
+        //     // }
+        //     // D2H2D3 &operator=(const D2H2D3 &) = delete;
+        //     template <typename F>
+        //     void setHeight(F &&func)
+        //     {
+        //         this->height = func;
+        //     }
 
-            void operator()(float &x, float &y, float &z)
-            {
-                x *= scale;
-                y *= scale;
-                z = -y;
-                y = height(x, y);
-            }
-        };
+        //     void operator()(float &x, float &y, float &z)
+        //     {
+        //         x *= scale;
+        //         y *= scale;
+        //         z = -y;
+        //         y = height(x, y);
+        //     }
+        // };
 
-        struct D2_HV_D3
-        {
-            float h;
-            float scale;
-            D2_HV_D3(D2H2D3 scale, float h = 0) : h(h), scale(scale.scale)
-            {
-            }
+        // struct D2_HV_D3
+        // {
+        //     float h;
+        //     float scale;
+        //     D2_HV_D3(D2H2D3 scale, float h = 0) : h(h), scale(scale.scale)
+        //     {
+        //     }
 
-            void operator()(float &x, float &y, float &z)
-            {
-                x *= scale;
-                y *= scale;
-                z = -y;
-                y = h;
-            }
-        };
+        //     void operator()(float &x, float &y, float &z)
+        //     {
+        //         x *= scale;
+        //         y *= scale;
+        //         z = -y;
+        //         y = h;
+        //     }
+        // };
 
         struct D3_NORMAL_D2
         {

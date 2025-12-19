@@ -115,22 +115,20 @@ namespace fog
         }
 
         template <typename... F>
-        Ogre::Vector3 transform3(float height, F &&...funcs)
+        Ogre::Vector3 transform3(T h, F &&...funcs)
         {
-            // TODO
-            Ogre::Vector3 ret = transform3(funcs...);
-            ret.y = height;
-            return ret;
+
+            T x = this->x;
+            T y = this->y;
+            T z = h;
+            (funcs(x, y, z), ...);
+            return Ogre::Vector3(x, y, z);
         }
 
         template <typename... F>
         Ogre::Vector3 transform3(F &&...funcs)
         {
-            T x = this->x;
-            T y = this->y;
-            T z = T{};
-            (funcs(x, y, z), ...);
-            return Ogre::Vector3(x, y, z);
+            return transform3(T{}, funcs...);
         }
 
         template <typename... F>

@@ -92,15 +92,17 @@ namespace fog
         Event::Bus *eventBus;
         HomeCellKey *home;
         Config *config;
+        Transforms *tfs;
 
     public:
         INJECT(MovableStateManager(CoreMod *core, CellInstanceStateManager *cisManager,
                                    Event::Bus *eventBus,
                                    HomeCellKey *homeCellKey,
                                    Config *config,
-                                   Component::Injector * injector
-                                   ))
+                                   Transforms *tfs,
+                                   Component::Injector *injector))
             : core(core),
+              tfs(tfs),
               config(config),
               eventBus(eventBus),
               home(homeCellKey),
@@ -115,7 +117,7 @@ namespace fog
                                                          }
                                                          return true; //
                                                      });
-        this->actor2= injector->getPtr<Sinbad>();                                                     
+            this->actor2 = injector->getPtr<Sinbad>();
             this->createSinbad();
         }
         virtual ~MovableStateManager()
@@ -128,7 +130,7 @@ namespace fog
             this->add(actor2);
             // actor2->setPosition(home->cKey );
             //  find a position.
-            actor2->setPosition(home->cKey, *config->transformFromD2HToD3Ptr);
+            actor2->setPosition(home->cKey, *tfs->d2d3);
         }
 
         void setCellToStandOn(CellKey cKey)

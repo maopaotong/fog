@@ -18,14 +18,17 @@ namespace fog
 
     public:
         Config *config;
+        Transforms *tfs;
 
     public:
         INJECT(CellsState(CellsDatas *cDatas,
                           CellsVertecies *cvs,
                           CellsMaterial *cMaterial,
+                          Transforms *tfs,
                           Config *config,
-                          CoreMod *core)) : ManualState(core), 
-                                            config(config)
+                          CoreMod *core)) : ManualState(core),
+                                            config(config),
+                                            tfs(tfs)
         {
 
             this->material = cMaterial->material;
@@ -69,9 +72,9 @@ namespace fog
 
                     // Vector3 position = qP.transform3(Transform::D2_NORMAL_D3(h));
                     // Vector3 position = ((cis.cast<float>().transform(Transform::CellCentreByKey()) + tts->vertexs[qx][qy].originInTile) * config->CELL_SCALE).transform3(Transform::D2_NORMAL_D3(h));
-                    //Vector3 position = cKey.transform3(cvs->vertexs[qx][qy].originInTile, h, *config->transformFromD2HToD3Ptr);
+                    // Vector3 position = cKey.transform3(cvs->vertexs[qx][qy].originInTile, h, *config->transformFromD2HToD3Ptr);
 
-                    Vector3 position = cKey.transform3(cvs->vertexs[qx][qy].originInTile, Transform::D2_HV_D3(*config->transformFromD2HToD3Ptr, h));
+                    Vector3 position = cKey.transform3(cvs->vertexs[qx][qy].originInTile, h, *tfs->d2d3H);
                     // position.y = h;
 
                     positions[x][y] = position;

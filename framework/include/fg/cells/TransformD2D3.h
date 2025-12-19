@@ -43,11 +43,11 @@ namespace fog
                                                                                       cvs(cvs),
                                                                                       scale(config->cellScale)
         {
-            config->transformFromD2HToD3Ptr->setHeight([this](float x, float y)
-                                                       {
-                                                           return this->getHeight(x, y); //
-                                                       } //
-            );
+            // config->transformFromD2HToD3Ptr->setHeight([this](float x, float y)
+            //                                            {
+            //                                                return this->getHeight(x, y); //
+            //                                            } //
+            // );
         }
 
         void operator()(float &x, float &y, float &z)

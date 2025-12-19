@@ -123,11 +123,11 @@ namespace fog
             // TF_CELL_SCALE = {CELL_SCALE};
             // CELLKEY_2_UV = {TILES_RANGE.getWidth(), TILES_RANGE.getHeight()};
 
-            transformFromD2HToD3Ptr = new Transform::D2H2D3(cellScale, [](float x, float y) -> float
-                                                            {
-                                                                // see TilesTerrains.h
-                                                                return 0.0f; // TODO provide the right height function, instead of one for init and update it in another place.
-                                                            });
+            // transformFromD2HToD3Ptr = new Transform::D2H2D3(cellScale, [](float x, float y) -> float
+            //                                                 {
+            //                                                     // see TilesTerrains.h
+            //                                                     return 0.0f; // TODO provide the right height function, instead of one for init and update it in another place.
+            //                                                 });
             // Context<Transform::D2H2D3>::set();
 
             // Context<Transform::D3_NORMAL_D2>::set();
@@ -141,11 +141,11 @@ namespace fog
             return *this->transformD3NormalToD2Ptr;
         }
 
-        Transform::D2H2D3 *transformFromD2HToD3Ptr = nullptr;
-        Transform::D2H2D3 &getTransformFromD2HToD3()
-        {
-            return *transformFromD2HToD3Ptr;
-        }
+        // Transform::D2H2D3 *transformFromD2HToD3Ptr = nullptr;
+        // Transform::D2H2D3 &getTransformFromD2HToD3()
+        // {
+        //     return *transformFromD2HToD3Ptr;
+        // }
 
         float heightScale = DEF_HEIGHT_SCALE;
         Box2<int> cellsRange = DEF_TILES_RANGE;
