@@ -21,12 +21,15 @@ namespace fog
         CellInstanceStateManager *cisManager;
         Event::Bus *eventBus;
         Config *config;
+        Transforms *tfs;
         MovingState(CellInstanceStateManager *cisManager,
                     Event::Bus *eventBus,
-                    Config *config) : state(nullptr), cis(nullptr),
-                                      eventBus(eventBus),
-                                      config(config),
-                                      cisManager(cisManager)
+                    Config *config,
+                    Transforms *tfs) : state(nullptr), cis(nullptr),
+                                       tfs(tfs),
+                                       eventBus(eventBus),
+                                       config(config),
+                                       cisManager(cisManager)
 
         {
         }
@@ -57,7 +60,7 @@ namespace fog
             if (this->state)
             {
 
-                CellInstanceState *cis2 = cisManager->getCellInstanceStateByPosition(state->getPosition(*config->transformD3NormalToD2Ptr));
+                CellInstanceState *cis2 = cisManager->getCellInstanceStateByPosition(state->getPosition(*tfs->d3d2));
                 this->trySetCis(cis2);
             }
             else
@@ -106,7 +109,7 @@ namespace fog
               config(config),
               eventBus(eventBus),
               home(homeCellKey),
-              movingState{cisManager, eventBus, config}
+              movingState{cisManager, eventBus, config, tfs}
         {
             eventBus-> //
                 subscribe<MovableEventType, Actor *>([this](MovableEventType evtType, Actor *state)

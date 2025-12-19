@@ -82,7 +82,7 @@ namespace fog
             }
             Vector3 pos3D = ray.getPoint(hitGrd.second);
 
-            Point2<float> pos = Point2<float>::from(pos3D, *config->transformD3NormalToD2Ptr);
+            Point2<float> pos = Point2<float>::from(pos3D, *tfs->d3d2);
 
             // bool hitCell = CellUtil::findCellByPoint(costMap, Vector2(pos.x, pos.z), cKey);
             // bool hitCell = CellUtil::findCellByPoint(costMap, Ground::Transfer::to2D(pos), cKey);

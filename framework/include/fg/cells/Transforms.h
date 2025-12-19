@@ -21,11 +21,28 @@ namespace fog
             z = -yy * scale;
         }
     };
+    struct TransformD3D2
+    {
+        float h = 0;
+        float scale;
+        INJECT(TransformD3D2(float scale_)) : scale(scale_)
+        {
+        }
+
+        void operator()(float &x, float &y, float &z)
+        {
+            y = -z;
+            z = h;
+            x *= scale;
+            y *= scale;
+        }
+    };
     struct Transforms
     {
         TransformD2D3 *d2d3;
         TransformD2D3H *d2d3H;
-        INJECT(Transforms(TransformD2D3 *d2d3, TransformD2D3H *d3h)) : d2d3(d2d3), d2d3H(d3h)
+        TransformD3D2 *d3d2;
+        INJECT(Transforms(TransformD2D3 *d2d3, TransformD2D3H *d3h, TransformD3D2 *d3d2)) : d2d3(d2d3), d2d3H(d3h), d3d2(d3d2)
         {
         }
     };

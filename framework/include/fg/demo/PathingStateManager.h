@@ -42,6 +42,7 @@ namespace fog
         CellsCost *cellsCost;
         Config *config;
         CoreMod *core;
+        Transforms * tfs;
 
     public:
         INJECT(PathingStateManager(CostMap *costMap, 
@@ -50,6 +51,7 @@ namespace fog
                                    CoreMod *core,
                                    CellInstanceStateManager *cellInstMgrState,
                                    MovableStateManager *movableStateMgr,
+                                   Transforms * tfs,
                                    CellsCost *cellsCost)) : core(core),
                                                             config(config),
                                                             eventBus(eventBus),
@@ -57,7 +59,8 @@ namespace fog
                                                             cellInstMgrState(cellInstMgrState),
                                                             movableStateMgr(movableStateMgr),
                                                             cellsCost(cellsCost),
-                                                            path(nullptr)
+                                                            path(nullptr),
+                                                            tfs(tfs)
 
         {
             std::cout << "PathingStateManager created." << std::endl;
@@ -151,7 +154,7 @@ namespace fog
             pos2 = ray.getPoint(hitGrd.second);
 
             // Point2<float> p2 = Point2<float>::from(pos2, Transform::D3_NORMAL_D2(config->D2H2D3));
-            Point2<float> p2 = Point2<float>::from(pos2, *config->transformD3NormalToD2Ptr);
+            Point2<float> p2 = Point2<float>::from(pos2, *tfs->d3d2);
 
             CellInstanceState *cis = cellInstMgrState->getCellInstanceStateByPosition(p2);
             if (!cis)
@@ -195,7 +198,7 @@ namespace fog
                                          if (state->isActive())
                                          {
                                              //Context<CellInstanceManager>::get()
-                                             sourceCis = this->cellInstMgrState->getCellInstanceStateByPosition(state->getPosition(*config->transformD3NormalToD2Ptr));
+                                             sourceCis = this->cellInstMgrState->getCellInstanceStateByPosition(state->getPosition(*tfs->d3d2));
                                              if (sourceCis)
                                              {
                                                  return false; // break

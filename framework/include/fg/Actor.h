@@ -69,7 +69,8 @@ namespace fog
             this->sceNode = nullptr;
         }
 
-        Point2<float> getPosition(Transform::D3_NORMAL_D2 &d3_normal_d2)
+        template<typename F>
+        Point2<float> getPosition(F &&d3_normal_d2)
         {
             Vector3 positionIn3D = this->getSceneNode()->getPosition();
             return Point2<float>::from(positionIn3D, d3_normal_d2);

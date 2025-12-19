@@ -242,7 +242,7 @@ namespace fog
             // {
             //     this->set(cis, true);
             // }
-            CellKey cis = CellKey::from(state->getPosition(*config->transformD3NormalToD2Ptr));
+            CellKey cis = CellKey::from(state->getPosition(*tfs->d3d2));
             this->set(cis, true);
         }
 

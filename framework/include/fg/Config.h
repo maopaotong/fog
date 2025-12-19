@@ -131,15 +131,15 @@ namespace fog
             // Context<Transform::D2H2D3>::set();
 
             // Context<Transform::D3_NORMAL_D2>::set();
-            transformD3NormalToD2Ptr = new Transform::D3_NORMAL_D2(1.0f / cellScale);
+            //transformD3NormalToD2Ptr = new Transform::D3_NORMAL_D2(1.0f / cellScale);
 
             // Config::D2H2D3 = {};
         }
-        Transform::D3_NORMAL_D2 *transformD3NormalToD2Ptr = nullptr;
-        Transform::D3_NORMAL_D2 &getTransformD3NormalToD2()
-        {
-            return *this->transformD3NormalToD2Ptr;
-        }
+        // Transform::D3_NORMAL_D2 *transformD3NormalToD2Ptr = nullptr;
+        // Transform::D3_NORMAL_D2 &getTransformD3NormalToD2()
+        // {
+        //     return *this->transformD3NormalToD2Ptr;
+        // }
 
         // Transform::D2H2D3 *transformFromD2HToD3Ptr = nullptr;
         // Transform::D2H2D3 &getTransformFromD2HToD3()

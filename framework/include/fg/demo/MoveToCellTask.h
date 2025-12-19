@@ -83,7 +83,7 @@ namespace fog
             // Cell::Center *cells = Context<Cell::Center>::get();
 
             // check if this state's position on the target cell
-            Point2<float> actorPosIn2D = this->movingState->getPosition(*config->transformD3NormalToD2Ptr);
+            Point2<float> actorPosIn2D = this->movingState->getPosition(*tfs->d3d2);
             // Node2D *root2D = cells->getRoot2D();
             // Vector2 actorPosIn2D = root2D->to2D(aPos3);
 
