@@ -67,6 +67,7 @@ namespace fog
         static constexpr Usage AsPtrDynamic = AsPtr | AsDynamic;
         static constexpr Usage AsValStatic = AsVal | AsStatic;
         static constexpr Usage AsValDynamic = AsVal | AsDynamic;
+        static constexpr Usage AsPtrOrValStatic = AsPtrStatic | AsValStatic;
 
         using UsageFunc = std::function<std::any()>;
         using Interface = std::unordered_set<std::type_index>;
@@ -373,34 +374,53 @@ namespace fog
                                                       { return ArgOfConstructor<T, C>(nullptr, func); });
             }
 
-            template <typename T, Usage usg = AsPtrStatic>
+            template <Usage usg, typename T>
             void bindImpl()
             {
                 bindComp(makeByImpl<usg, T, T>());
             }
-           
-            template <typename T, typename Imp, Usage usg = AsValStatic>
-            void bindImplAsVal()
+
+            template <typename T>
+            void bindImplAsPtrStatic()
             {
-                bindComp(makeByImpl<usg, T, Imp>());
+                bindComp(makeByImpl<AsPtrStatic, T, T>());
             }
 
-            template <typename T, Usage usg = AsValStatic>
-            void bindImplAsVal()
+            //
+            template <typename T, typename Imp>
+            void bindImplAsPtrStatic()
             {
-                bindComp(makeByImpl<usg, T, T>());
+                bindComp(makeByImpl<AsPtrStatic, T, Imp>());
+            }
+
+            template <typename T, typename Imp, typename T1>
+            void bindImplAsPtrStatic()
+            {
+                bindComp(makeByImpl<AsPtrStatic, T, Imp, T1>());
+            }
+
+            template <typename T, typename Imp>
+            void bindImplAsValStatic()
+            {
+                bindComp(makeByImpl<AsValStatic, T, Imp>());
+            }
+
+            template <typename T>
+            void bindImplAsValStatic()
+            {
+                bindComp(makeByImpl<AsValStatic, T, T>());
             }
 
             template <typename... T>
-            void bindAllImplAsPtr()
+            void bindAllImplAsPtrStatic()
             {
-                ((bindImpl<T>()), ...);
+                ((bindImplAsPtrStatic<T>()), ...);
             }
 
             template <typename... T>
-            void bindAllImplAsVal()
+            void bindAllImplAsValStatic()
             {
-                ((bindImplAsVal<T>()), ...);
+                ((bindImplAsValStatic<T>()), ...);
             }
 
             template <typename T>
@@ -478,22 +498,9 @@ namespace fog
                 bindFuncAsVal<T>([obj]() -> T
                                  { return obj; });
             }
-           
-            //
-            template <typename T, typename Imp, Usage usg = AsPtrStatic>
-            void bindImpl()
-            {
-                bindComp(makeByImpl<usg, T, Imp>());
-            }
-
-            template <typename T, typename Imp, typename T1, Usage usg = AsPtrStatic>
-            void bindImpl()
-            {
-                bindComp(makeByImpl<usg, T, Imp, T1>());
-            }
 
             template <typename T, typename Imp, typename T1, typename T2, Usage usg = AsPtrStatic>
-            void bindImpl()
+            void bindImplAsPtrStatic()
             {
                 bindComp(makeByImpl<usg, T, Imp, T1, T2>());
             }
@@ -550,7 +557,7 @@ namespace fog
             }
 
             template <Usage usg, typename T, typename Imp>
-            typename std::enable_if_t<usg & AsPtr, void> makeFunctionForUsage(UsageFunc &funcAsPtrS, UsageFunc &funcAsValS, UsageFunc &funcAsPtrD, UsageFunc &funcAsValD)
+            typename std::enable_if_t<usg & AsPtr && !(usg & AsVal), void> makeFunctionForUsage(UsageFunc &funcAsPtrS, UsageFunc &funcAsValS, UsageFunc &funcAsPtrD, UsageFunc &funcAsValD)
             {
                 if (usg & AsStatic)
                 {
@@ -571,8 +578,46 @@ namespace fog
             }
 
             template <Usage usg, typename T, typename Imp>
-            typename std::enable_if_t<usg & AsVal, void> makeFunctionForUsage(UsageFunc &funcAsPtrS, UsageFunc &funcAsValS, UsageFunc &funcAsPtrD, UsageFunc &funcAsValD)
+            typename std::enable_if_t<usg & AsVal &&!(usg & AsPtr), void> makeFunctionForUsage(UsageFunc &funcAsPtrS, UsageFunc &funcAsValS, UsageFunc &funcAsPtrD, UsageFunc &funcAsValD)
             {
+                if (usg & AsStatic)
+                {
+
+                    funcAsValS = [this]() -> std::any
+                    {
+                        return std::make_any<T>(this->getValStatic<Imp>());
+                    };
+                }
+                if (usg & AsDynamic)
+                {
+
+                    funcAsValD = [this]() -> std::any
+                    {
+                        return std::make_any<T>(this->getValDynamic<Imp>());
+                    };
+                }
+            }
+            
+            template <Usage usg, typename T, typename Imp>
+            typename std::enable_if_t<usg & AsPtr && usg & AsVal, void> makeFunctionForUsage(UsageFunc &funcAsPtrS, UsageFunc &funcAsValS, UsageFunc &funcAsPtrD, UsageFunc &funcAsValD)
+            {
+                if (usg & AsStatic)
+                {
+
+                    funcAsPtrS = [this]() -> std::any
+                    {
+                        return std::make_any<T *>(this->getPtrStatic<Imp>());
+                    };
+                }
+                if (usg & AsDynamic)
+                {
+
+                    funcAsPtrD = [this]() -> std::any
+                    {
+                        return std::make_any<T *>(this->getPtrDynamic<Imp>());
+                    };
+                }
+
                 if (usg & AsStatic)
                 {
 
@@ -594,7 +639,7 @@ namespace fog
             template <typename T>
             T *getPtrStatic()
             {
-                static T *instance = createInstance<AsPtr, T>();                
+                static T *instance = createInstance<AsPtr, T>();
                 return (instance);
             }
 
@@ -622,13 +667,13 @@ namespace fog
 
             //
             template <typename T>
-            T *getPtr(Usage usgR = AsStaticFirst)
+            T *getPtr(Usage usgR = AsStatic)
             {
                 return getComponent(typeid(T)).getPtr<T>(usgR);
             }
 
             template <typename T>
-            bool tryGetVal(T &val, Usage usgR = AsStaticFirst)
+            bool tryGetVal(T &val, Usage usgR = AsStatic)
             {
                 Component *cPtr = tryGetComponent(typeid(T));
                 if (cPtr)
@@ -665,7 +710,7 @@ namespace fog
             }
 
             template <typename T>
-            T getVal(Usage usgR)
+            T getVal(Usage usgR = AsStaticFirst)
             {
                 return getComponent(typeid(T)).getVal<T>(usgR);
             }

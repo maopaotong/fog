@@ -11,6 +11,7 @@ find_package(SDL2 CONFIG REQUIRED)
     
 file(GLOB_RECURSE  SOURCES "src/*.cpp"
     "lib/*.cpp"
+    "test/*.cpp"
 )
 
 add_library(framework ${SOURCES})

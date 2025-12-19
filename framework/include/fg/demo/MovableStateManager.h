@@ -120,7 +120,7 @@ namespace fog
                                                          }
                                                          return true; //
                                                      });
-            this->actor2 = injector->getPtr<Sinbad>();
+            this->actor2 = injector->getPtr<Sinbad>(Component::AsDynamic);
             this->createSinbad();
         }
         virtual ~MovableStateManager()
