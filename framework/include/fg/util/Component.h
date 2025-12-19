@@ -376,50 +376,31 @@ namespace fog
             template <typename T, Usage usg = AsPtrStatic>
             void bindImpl()
             {
-                bindComp(makeByImpl<usg, T, T>([](T &) -> void {}));
+                bindComp(makeByImpl<usg, T, T>());
             }
-
-            template <typename T>
+           
+            template <typename T, typename Imp, Usage usg = AsValStatic>
             void bindImplAsVal()
             {
-                bindComp(makeByImpl<AsValStatic, T, T>([](T &) -> void {}));
+                bindComp(makeByImpl<usg, T, Imp>());
             }
 
-            template <typename T, typename Imp>
+            template <typename T, Usage usg = AsValStatic>
             void bindImplAsVal()
             {
-                bindComp(makeByImpl<AsValStatic, T, Imp>([](T &) -> void {}));
-            }
-
-            //
-            template <typename T>
-            void bindImpl(std::function<void(T &)> initF)
-            {
-                bindComp(makeByImpl<AsPtrStatic, T, T>(initF));
-            }
-
-            template <typename T>
-            void bindImplAsVal(std::function<void(T &)> initF)
-            {
-                bindComp(makeByImpl<AsValStatic, T, T>(initF));
-            }
-
-            template <typename T, typename Imp>
-            void bindImplAsVal(std::function<void(T &)> initF)
-            {
-                bindComp(makeByImpl<AsValStatic, T, Imp>(initF));
+                bindComp(makeByImpl<usg, T, T>());
             }
 
             template <typename... T>
             void bindAllImplAsPtr()
             {
-                ((bindImpl<T>([](T &) -> void {})), ...);
+                ((bindImpl<T>()), ...);
             }
 
             template <typename... T>
             void bindAllImplAsVal()
             {
-                ((bindImplAsVal<T>([](T &) -> void {})), ...);
+                ((bindImplAsVal<T>()), ...);
             }
 
             template <typename T>
@@ -497,41 +478,24 @@ namespace fog
                 bindFuncAsVal<T>([obj]() -> T
                                  { return obj; });
             }
+           
             //
             template <typename T, typename Imp, Usage usg = AsPtrStatic>
             void bindImpl()
             {
-                bindComp(makeByImpl<usg, T, Imp>([](T &) -> void {}));
+                bindComp(makeByImpl<usg, T, Imp>());
             }
 
             template <typename T, typename Imp, typename T1, Usage usg = AsPtrStatic>
             void bindImpl()
             {
-                bindComp(makeByImpl<usg, T, Imp, T1>([](T &) -> void {}));
+                bindComp(makeByImpl<usg, T, Imp, T1>());
             }
 
             template <typename T, typename Imp, typename T1, typename T2, Usage usg = AsPtrStatic>
             void bindImpl()
             {
-                bindComp(makeByImpl<usg, T, Imp, T1, T2>([](T &) -> void {}));
-            }
-            //
-            template <typename T, typename Imp, Usage usg = AsPtrStatic>
-            void bindImpl(std::function<void(T &)> initF)
-            {
-                bindComp(makeByImpl<usg, T, Imp>(initF));
-            }
-
-            template <typename T, typename Imp, typename T1, Usage usg = AsPtrStatic>
-            void bindImpl(std::function<void(T &)> initF)
-            {
-                bindComp(makeByImpl<usg, T, Imp, T1>(initF));
-            }
-
-            template <typename T, typename Imp, typename T1, typename T2, Usage usg = AsPtrStatic>
-            void bindImpl(std::function<void(T &)> initF)
-            {
-                bindComp(makeByImpl<usg, T, Imp, T1, T2>(initF));
+                bindComp(makeByImpl<usg, T, Imp, T1, T2>());
             }
             //
             template <typename T, typename OT>
@@ -566,7 +530,7 @@ namespace fog
             //
 
             template <Usage usg, typename T, typename Imp, typename... Adts>
-            Component makeByImpl(std::function<void(T &)> initF)
+            Component makeByImpl()
             {
                 using TAdtsTuple = std::tuple<T, Adts...>;
                 UsageFunc funcAsPtrStatic;  // empty func default.
@@ -574,7 +538,7 @@ namespace fog
                 UsageFunc funcAsPtrDynamic; // empty func default.
                 UsageFunc funcAsValDynamic; // empty func default.
 
-                makeFunctionForUsage<usg, T, Imp>(initF, funcAsPtrStatic, funcAsValStatic, funcAsPtrDynamic, funcAsValDynamic);
+                makeFunctionForUsage<usg, T, Imp>(funcAsPtrStatic, funcAsValStatic, funcAsPtrDynamic, funcAsValDynamic);
 
                 return Component::makeImpl<T, Imp, TAdtsTuple>(funcAsPtrStatic, funcAsValStatic, funcAsPtrDynamic, funcAsValDynamic, std::make_index_sequence<std::tuple_size_v<std::decay_t<TAdtsTuple>>>{});
             }
@@ -586,81 +550,73 @@ namespace fog
             }
 
             template <Usage usg, typename T, typename Imp>
-            typename std::enable_if_t<usg & AsPtr, void> makeFunctionForUsage(std::function<void(T &)> initF, UsageFunc &funcAsPtrS, UsageFunc &funcAsValS, UsageFunc &funcAsPtrD, UsageFunc &funcAsValD)
+            typename std::enable_if_t<usg & AsPtr, void> makeFunctionForUsage(UsageFunc &funcAsPtrS, UsageFunc &funcAsValS, UsageFunc &funcAsPtrD, UsageFunc &funcAsValD)
             {
                 if (usg & AsStatic)
                 {
 
-                    funcAsPtrS = [this, initF]() -> std::any
+                    funcAsPtrS = [this]() -> std::any
                     {
-                        return std::make_any<T *>(this->getPtrStatic<Imp>(initF));
+                        return std::make_any<T *>(this->getPtrStatic<Imp>());
                     };
                 }
                 if (usg & AsDynamic)
                 {
 
-                    funcAsPtrD = [this, initF]() -> std::any
+                    funcAsPtrD = [this]() -> std::any
                     {
-                        return std::make_any<T *>(this->getPtrDynamic<Imp>(initF));
+                        return std::make_any<T *>(this->getPtrDynamic<Imp>());
                     };
                 }
             }
 
             template <Usage usg, typename T, typename Imp>
-            typename std::enable_if_t<usg & AsVal, void> makeFunctionForUsage(std::function<void(T &)> initF, UsageFunc &funcAsPtrS, UsageFunc &funcAsValS, UsageFunc &funcAsPtrD, UsageFunc &funcAsValD)
+            typename std::enable_if_t<usg & AsVal, void> makeFunctionForUsage(UsageFunc &funcAsPtrS, UsageFunc &funcAsValS, UsageFunc &funcAsPtrD, UsageFunc &funcAsValD)
             {
                 if (usg & AsStatic)
                 {
 
-                    funcAsValS = [this, initF]() -> std::any
+                    funcAsValS = [this]() -> std::any
                     {
-                        return std::make_any<T>(this->getValStatic<Imp>(initF));
+                        return std::make_any<T>(this->getValStatic<Imp>());
                     };
                 }
                 if (usg & AsDynamic)
                 {
 
-                    funcAsValD = [this, initF]() -> std::any
+                    funcAsValD = [this]() -> std::any
                     {
-                        return std::make_any<T>(this->getValDynamic<Imp>(initF));
+                        return std::make_any<T>(this->getValDynamic<Imp>());
                     };
                 }
             }
 
             template <typename T>
-            T *getPtrStatic(std::function<void(T &)> initF)
+            T *getPtrStatic()
             {
-                static std::once_flag flag;
-                static T *instance = createInstance<AsPtr, T>();
-                std::call_once(flag, [initF]()
-                               { initF(*instance); });
+                static T *instance = createInstance<AsPtr, T>();                
                 return (instance);
             }
 
             template <typename T>
-            T *getPtrDynamic(std::function<void(T &)> initF)
+            T *getPtrDynamic()
             {
 
                 T *ptr = createInstance<AsPtr, T>();
-                initF(*ptr);
                 return ptr;
             }
 
             template <typename T>
-            T getValStatic(std::function<void(T &)> initF)
+            T getValStatic()
             {
-                static std::once_flag flag;
                 static T instance = createInstance<AsVal, T>();
-                std::call_once(flag, [initF]()
-                               { initF(instance); });
                 return (instance);
             }
 
             template <typename T>
-            T getValDynamic(std::function<void(T &)> initF)
+            T getValDynamic()
             {
                 T ret = createInstance<AsVal, T>();
-                initF(ret);
                 return ret;
             }
 
