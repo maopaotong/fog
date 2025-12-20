@@ -37,7 +37,8 @@ namespace fog
     float Config::DEF_GENERATOR1_MOUNTAIN_RATIO = 0.95;
     float Config::DEF_GENERATOR1_RATIO_LAKE_OF_PLAIN = 0.05; //
     bool Config::DEF_GENERATOR1_MAKE_LAKE = false;
-    bool Config::DEF_FRAG_SHOW_EDGE = false;
+    int Config::DEF_SHADER_SHOW_CELL_EDGE = 0;
+    int Config::DEF_SHADER_SHOW_REGION_EDGE = 0;
     Box2<int> Config::DEF_FOG_OF_WAR_TEX_RANGE = Box2<int>(32);
     std::string Config::DEF_FOG_OF_WAR_TEX_NAME = "FogOfWarTex";
 
@@ -120,6 +121,10 @@ namespace fog
             {
                 Box2<int> v = Config::parseValueOfRange2Int(value);
                 ok = opts.tryAdd<Box2<int>>(key, v);
+            }
+            else if (type == "unsigned int")
+            {
+                ok = opts.tryAdd<unsigned int>(key, static_cast<unsigned int>(std::stoul(value)));
             }
             else
             {

@@ -40,6 +40,8 @@ namespace fog
         struct Options
         {
             std::string name;
+            std::function<void()> beforeResourceLoad;
+            std::function<void()> afterResourceLoad;
             INJECT(Options(std::string name)) : name(name)
             {
             }
@@ -106,12 +108,11 @@ namespace fog
             rgm.addResourceLocation("build/vcpkg_installed/x64-windows/share/ogre/Media/Main", "FileSystem", "OgreInternal");
             rgm.addResourceLocation("build/vcpkg_installed/x64-windows/share/ogre/Media/RTShaderLib", "FileSystem", "OgreInternal");
             rgm.addResourceLocation("build/vcpkg_installed/x64-windows/share/ogre/Media/Terrain", "FileSystem", "OgreInternal");
-            rgm.addResourceLocation("doc/material","FileSystem","App");
-            rgm.addResourceLocation("doc/textures","FileSystem","General");
-            rgm.addResourceLocation("doc/sinbad","FileSystem","App");
-            
+            rgm.addResourceLocation("doc/material", "FileSystem", "App");
+            rgm.addResourceLocation("doc/textures", "FileSystem", "General");
+            rgm.addResourceLocation("doc/sinbad", "FileSystem", "App");
         }
-        
+
         void loadResources() override
         {
 

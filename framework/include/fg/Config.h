@@ -37,7 +37,8 @@ namespace fog
         static float DEF_GENERATOR1_RATIO_LAKE_OF_PLAIN;
         static bool DEF_GENERATOR1_MAKE_LAKE;
         // fragment
-        static bool DEF_FRAG_SHOW_EDGE;
+        static int DEF_SHADER_SHOW_CELL_EDGE;
+        static int DEF_SHADER_SHOW_REGION_EDGE;
         // fog of war
         static Box2<int> DEF_FOG_OF_WAR_TEX_RANGE;
         static std::string DEF_FOG_OF_WAR_TEX_NAME;
@@ -111,7 +112,9 @@ namespace fog
             GENERATOR1_RATIO_LAKE_OF_PLAIN = getConfigByOption<float>("GENERATOR1_RATIO_LAKE_OF_PLAIN", opts, DEF_GENERATOR1_RATIO_LAKE_OF_PLAIN);
             GENERATOR1_MAKE_LAKE = getConfigByOption<bool>("GENERATOR1_MAKE_LAKE", opts, DEF_GENERATOR1_MAKE_LAKE);
             debugPrintTerrainsTexRange = getConfigByOption<Box2<int>>("DEBUG_PRINT_TERRAINS_TEX_RANGE", opts, DEF_DEBUG_PRINT_TERRAINS_TEX_RANGE);
-            debugShaderShowEdgeOfCell = getConfigByOption<bool>("FRAG_SHOW_EDGE", opts, DEF_FRAG_SHOW_EDGE);
+            debugShaderShowCellEdge = getConfigByOption<int>("SHADER_SHOW_CELL_EDGE", opts, DEF_SHADER_SHOW_CELL_EDGE);
+            debugShaderShowRegionEdge = getConfigByOption<int>("SHADER_SHOW_REGION_EDGE", opts, DEF_SHADER_SHOW_REGION_EDGE);
+            
             fogOfWarTextRange = getConfigByOption<Box2<int>>("FOG_OF_WAR_TEX_RANGE", opts, DEF_FOG_OF_WAR_TEX_RANGE);
             fogOfWarEreaseRange = getConfigByOption<Box2<int>>("FOG_OF_WAR_EREASE_RANGE", opts, DEF_FOG_OF_WAR_EREASE_RANGE);
             actorMovedEventDistance = getConfigByOption<float>("STATE_MOVED_EVENT_DISTNACE", opts, DEF_STATE_MOVED_EVENT_DISTNACE);
@@ -177,7 +180,8 @@ namespace fog
         float GENERATOR1_RATIO_LAKE_OF_PLAIN = DEF_GENERATOR1_RATIO_LAKE_OF_PLAIN;
         bool GENERATOR1_MAKE_LAKE = DEF_GENERATOR1_MAKE_LAKE;
         // fragment
-        bool debugShaderShowEdgeOfCell = DEF_FRAG_SHOW_EDGE;
+        unsigned int debugShaderShowCellEdge = DEF_SHADER_SHOW_CELL_EDGE;
+        unsigned int debugShaderShowRegionEdge = DEF_SHADER_SHOW_REGION_EDGE;
         // fog of war
         Box2<int> fogOfWarTextRange = DEF_FOG_OF_WAR_TEX_RANGE;
         std::string FOG_OF_WAR_TEX_NAME = DEF_FOG_OF_WAR_TEX_NAME;

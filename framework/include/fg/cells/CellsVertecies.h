@@ -168,7 +168,7 @@ namespace fog
                             ht = typeHeight;
                         }
                         else
-                        { // calculate by samples, the result is smoth enough.
+                        { // calculate height of the region edge by samples, the result is smoth enough.
                             ht = calculateRectHeightBySamples(points[0], [this, &tiles](CellKey cKey)
                                                               {
                                                                   int tx = std::clamp<int>(cKey.x, 0, tWidth - 1);
@@ -188,34 +188,9 @@ namespace fog
                 } // end of inner for.
             } // end of outer for.
             // process hill and mountains.
-
-            // make hill top
             Iteration::forEachAsTable(width, height, [](int x) {}, [this, &hMap](int x, int y)
-                                      {
-                                          CellsVertex &ver = hMap[x][y];
-                                          CellType type = ver.types[0];
+                                      { makePeak(hMap[x][y], x, y); });
 
-                                          if (type == CellTypes::HILL)
-                                          {
-                                              float rnd = static_cast<float>((x * y) % 100) / 100.0f;
-                                              if (rnd > 0.5 & rnd < 0.55)
-                                              {
-                                                  ver.isPeak = true;
-                                                  ver.height *= heightAmpOfHill;
-                                              }
-                                          } //
-
-                                          if (type == CellTypes::MOUNTAIN)
-                                          {
-                                              float rnd = static_cast<float>((x * y) % 100) / 100.0f;
-                                              if (rnd > 0.5 & rnd < 0.55)
-                                              {
-                                                  ver.isPeak = true;
-                                                  ver.height *= heightAmpOfMountain;
-                                              }
-                                          } //
-                                          
-                                      });
             // TODO adjust the hill around hill top.
 
             bool forHillTop = false;
@@ -330,6 +305,44 @@ namespace fog
             //         }
             //     }
             // }
+        }
+
+        // make random peak for hill and mountain.
+        bool makePeak(CellsVertex &ver, int x, int y)
+        {
+            CellType type = ver.types[0];
+
+            if (type == CellTypes::HILL)
+            {
+                float rnd = static_cast<float>((x * y) % 100) / 100.0f;
+                if (rnd > 0.5 & rnd < 0.55)
+                {
+                    float rnd2 = normal(0.5, 0.55, rnd);
+                    ver.isPeak = true;
+                    ver.height = ver.height * (1 + (heightAmpOfHill - 1) * rnd2);
+                    return true;
+                }
+                return false;
+            } //
+
+            if (type == CellTypes::MOUNTAIN)
+            {
+                float rnd = static_cast<float>((x * y) % 100) / 100.0f;
+                if (rnd > 0.5 & rnd < 0.55)
+                {
+                    float rnd2 = normal(0.5, 0.55, rnd);
+                    ver.isPeak = true;
+                    ver.height = ver.height * (1 + (heightAmpOfMountain - 1) * rnd2);
+                    return true;
+                }
+                return false;
+            } //
+            return false;
+        }
+
+        float normal(float low, float heigh, float value)
+        {
+            return (value - low) / (heigh - low);
         }
 
         /**
