@@ -80,14 +80,12 @@ namespace fog
 
             makeHeight(hMap, cDatas, centreRectMap);
             //makeMountainRange(CellTypes::MOUNTAIN, hMap, cDatas, centreRectMap);
-            makeMountainRange(CellTypes::HILL, hMap, cDatas, centreRectMap);
+            makeHillRange(CellTypes::HILL, hMap, cDatas, centreRectMap);
         }
-        struct
-        {
-        };
+        
         //
         // Connect peaks of mountain.
-        void makeMountainRange(CellType type, std::vector<std::vector<CellsVertex>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsVertex *>> &centreRectMap)
+        void makeHillRange(CellType type, std::vector<std::vector<CellsVertex>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsVertex *>> &centreRectMap)
         {
             for (int x = 0; x < width; x++)
             {
@@ -101,7 +99,7 @@ namespace fog
                     }
                     // is moutain rect and not the peak, so the height can be changed.
                     // collect neibers peaks
-                    int rad = opts.quality * 2;
+                    int rad = 3 ;
                     int px1 = x - rad;
                     int py1 = y - rad;
                     int px2 = x + rad;
@@ -142,7 +140,8 @@ namespace fog
 
             std::mt19937 randGen(23665289);
             std::bernoulli_distribution randHill(this->opts.hillDistribution); //
-            std::uniform_real_distribution<float> randHeightOfHill(0.0f, 0.5f);
+            std::uniform_real_distribution<float> randHeightH(-0.25f, 0.75f);
+            std::uniform_real_distribution<float> randHeightM(0.0f, 1.0f);
 
             /*
             int n2 = 1;
@@ -250,7 +249,7 @@ namespace fog
                             // hill is random offset + type height.
                             if (randHill(randGen))
                             {
-                                ht = typeHeight * (1 + (this->opts.heightAmpOfHill - 1) * randHeightOfHill(randGen));
+                                ht = typeHeight + this->opts.heightAmpOfHill  * randHeightH(randGen);
                                 hMap[x][y].isPeak = true;
                             }
                             else
@@ -262,7 +261,7 @@ namespace fog
                         {
                             if (randHill(randGen))
                             {
-                                ht = typeHeight * (1 + (this->opts.heightAmpOfMountain - 1) * randHeightOfHill(randGen));
+                                ht = typeHeight + this->opts.heightAmpOfMountain * randHeightM(randGen);
                                 hMap[x][y].isPeak = true;
                             }
                             else

@@ -176,8 +176,8 @@ namespace fog
         float heightOfHill = DEF_HEIGHT_HILL;            // = 0.52f * 1.2f;
         float heightOfMountain = DEF_HEIGHT_MOUNTAIN;    // = 0.53f * 1.f;
         float heightOfFrozen = DEF_HEIGHT_FROZEN;        // = 0.54f * 1.f;
-        float heightAmpOfHill = 1.0f; //
-        float heightAmpOfMountain = 1.1f;
+        float heightAmpOfHill = 0.2f; //
+        float heightAmpOfMountain = 0.5f;
         float hillPeakDistribution = 0.1f;
         float mountainPeakDistribution = 0.1f;
 
