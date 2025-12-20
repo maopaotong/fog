@@ -14,11 +14,11 @@ namespace fog
             {
             }
         };
-        std::vector<std::vector<CellData>> tiles;
+        std::vector<std::vector<CellData>> cells;
         Config *config;
         INJECT(CellsDatas(Options pts, Config *config)) : config(config)
         {
-            CellsGenerator::generateCells(tiles, pts.tsWidth, pts.tsHeight, config);
+            CellsGenerator::generateCells(cells, pts.tsWidth, pts.tsHeight, config);
         }
     };
 

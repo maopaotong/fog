@@ -19,16 +19,15 @@ namespace fog
     float Config::DEF_WORLD_HEIGHT = DEF_WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
 
     //
-    float Config::DEF_HEIGHT_OCEAN = 0.49f * 0.9f;
-    float Config::DEF_HEIGHT_SHORE = 0.50f * 0.9f;
-    float Config::DEF_HEIGHT_PLAIN = 0.51f * 1.1f;
-    float Config::DEF_HEIGHT_HILL = 0.52f * 1.2f;
-    float Config::DEF_HEIGHT_MOUNTAIN = 0.53f * 1.f;
-    float Config::DEF_HEIGHT_FROZEN = 0.54f * 1.f;
+    float Config::DEF_HEIGHT_OCEAN = 0.49f;
+    float Config::DEF_HEIGHT_SHORE = 0.50f;
+    float Config::DEF_HEIGHT_PLAIN = 0.51f;
+    float Config::DEF_HEIGHT_HILL = 0.52f;
+    float Config::DEF_HEIGHT_MOUNTAIN = 0.53f;
+    float Config::DEF_HEIGHT_FROZEN = 0.54f;
     // map generator.
     int Config::DEF_GENERATOR1_SEED = 8151245;
     int Config::DEF_GENERATOR2_SEED = 2359812;
-    float Config::DEF_GENERATOR1_ROUGHNESS = 0.45;
     float Config::DEF_GENERATOR2_ROUGHNESS = 0.65;
     float Config::DEF_GENERATOR1_OCEAN_RATIO = 0.35;
     float Config::DEF_GENERATOR1_SHORE_RATIO = 0.50;

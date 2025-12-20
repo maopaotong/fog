@@ -116,7 +116,7 @@ namespace fog
                                                      {
                                                          if (evtType == MovableEventType::StateStartMoving)
                                                          {
-                                                             this->movingState.setState(nullptr);
+                                                             //this->movingState.setState(nullptr);
                                                          }
                                                          return true; //
                                                      });

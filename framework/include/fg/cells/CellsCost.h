@@ -12,7 +12,7 @@ namespace fog
     {
         std::vector<std::vector<CellData>> *tiles;
 
-        INJECT(CellsCost(CellsDatas *cDatas)) : tiles(&cDatas->tiles)
+        INJECT(CellsCost(CellsDatas *cDatas)) : tiles(&cDatas->cells)
         {
         }
         int operator()(Point2<int> &cKey)

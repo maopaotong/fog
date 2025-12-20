@@ -38,8 +38,8 @@ namespace fog
             );
 
             std::vector<std::vector<float>> heightmap(w, std::vector<float>(w, 0.0f));
-            // DiamondSquare::generateAndNormalise(heightmap, w, config->GENERATOR_ROUGHNESS1, config->GENERATOR_SEED1);
-            DiamondSquare::generateAndNormalise(heightmap, w, config->GENERATOR2_ROUGHNESS, config->seedOfGenerator2);
+
+            DiamondSquare::generateAndNormalise(heightmap, w, config->generatorRoughness1, config->seedOfGenerator1);
 
             // statistic
             std::unordered_map<CellType, int> plot;

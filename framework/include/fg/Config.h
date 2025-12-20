@@ -27,7 +27,7 @@ namespace fog
         // generator
         static int DEF_GENERATOR1_SEED;
         static int DEF_GENERATOR2_SEED;
-        static float DEF_GENERATOR1_ROUGHNESS;
+        inline static float DEF_GENERATOR1_ROUGHNESS =  0.45;;
         static float DEF_GENERATOR2_ROUGHNESS;
         static float DEF_GENERATOR1_OCEAN_RATIO;
         static float DEF_GENERATOR1_SHORE_RATIO;
@@ -110,6 +110,10 @@ namespace fog
             //
             seedOfGenerator1 = getConfigByOption<int>("GENERATOR1_SEED", opts, DEF_GENERATOR1_SEED);
             seedOfGenerator2 = getConfigByOption<int>("GENERATOR2_SEED", opts, DEF_GENERATOR2_SEED);
+
+            generatorRoughness1 = getConfigByOption<float>("GENERATOR1_ROUGHNESS", opts, DEF_GENERATOR1_ROUGHNESS);
+            generatorRoughness2 = getConfigByOption<float>("GENERATOR2_ROUGHNESS", opts, DEF_GENERATOR2_ROUGHNESS);
+
             GENERATOR1_OCEAN_RATIO = getConfigByOption<float>("GENERATOR1_OCEAN_RATIO", opts, DEF_GENERATOR1_OCEAN_RATIO);
             GENERATOR1_SHORE_RATIO = getConfigByOption<float>("GENERATOR1_SHORE_RATIO", opts, DEF_GENERATOR1_SHORE_RATIO);
             GENERATOR1_PLAIN_RATIO = getConfigByOption<float>("GENERATOR1_PLAIN_RATIO", opts, DEF_GENERATOR1_PLAIN_RATIO);
@@ -180,8 +184,8 @@ namespace fog
                                                          // generator
         int seedOfGenerator1 = DEF_GENERATOR1_SEED;
         int seedOfGenerator2 = DEF_GENERATOR2_SEED;
-        float GENERATOR1_ROUGHNESS = DEF_GENERATOR1_ROUGHNESS;
-        float GENERATOR2_ROUGHNESS = DEF_GENERATOR2_ROUGHNESS;
+        float generatorRoughness1 = DEF_GENERATOR1_ROUGHNESS;
+        float generatorRoughness2 = DEF_GENERATOR2_ROUGHNESS;
         float GENERATOR1_OCEAN_RATIO = DEF_GENERATOR1_OCEAN_RATIO;
         float GENERATOR1_SHORE_RATIO = DEF_GENERATOR1_SHORE_RATIO;
         float GENERATOR1_PLAIN_RATIO = DEF_GENERATOR1_PLAIN_RATIO;

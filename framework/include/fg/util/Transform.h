@@ -61,7 +61,7 @@ namespace fog
             {
             }
 
-            void operator()(float &fx, float &fy)
+            void operator()(float &fx, float &fy) const
             {
                 float cx = fx;
                 float cy = fy;

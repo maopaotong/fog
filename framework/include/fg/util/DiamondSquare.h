@@ -132,23 +132,23 @@ namespace fog
 
         static void generate(std::vector<std::vector<float>> &heightmap, int size, float roughness = 0.5f, unsigned int seed = 0)
         {
-            // 检查 size 是否为 2^n + 1
+            // size must be 2^n + 1
             int n = static_cast<int>(log2(size - 1));
             std::cout << "size:" << size << std::endl;
             assert((1 << n) + 1 == size && "Size must be 2^n + 1 (e.g., 65, 129, 257)");
 
-            // 初始化随机数生成器
+            // 
             std::mt19937 rng(seed);
             std::uniform_real_distribution<float> rand(0.0f, 1.0f);
 
-            // 初始化四个角（可设为 0 或小随机值）
+            // 
             heightmap[0][0] = rand(rng);
             heightmap[0][size - 1] = rand(rng);
             heightmap[size - 1][0] = rand(rng);
             heightmap[size - 1][size - 1] = rand(rng);
 
-            int step = size - 1; // 当前正方形边长
-            float scale = 1.0f;  // 随机扰动幅度
+            int step = size - 1; // 
+            float scale = 1.0f;  //
 
             while (step > 1)
             {

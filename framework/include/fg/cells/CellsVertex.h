@@ -64,10 +64,20 @@ namespace fog
             return Vector2(c * p.x + s * p.y, -s * p.x + c * p.y);
         }
 
-        float distance(CellKey cKey2)
+        int getRegions()
         {
-            return (Vector2(cKey.x, cKey.y) + originInCell).distance(Vector2(cKey2.x, cKey2.y));
+            int typeC = 3;
+            if (types[0] == types[1] && types[0] == types[2])
+            {
+                typeC = 1;
+            }
+            else if (types[0] == types[1] || types[0] == types[2] || types[1] == types[2])
+            {
+                typeC = 2;
+            }
+            return typeC;
         }
+        
     };
 
 }; // end of namespace

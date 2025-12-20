@@ -45,11 +45,13 @@ namespace fog
             return state;
         }
 
+    private:
+        bool active = false;
+
     protected:
         SceneNode *sceNode;
         //
-        bool active = false;
-       
+
         CellKey cKey;
 
     public:
@@ -69,14 +71,14 @@ namespace fog
             this->sceNode = nullptr;
         }
 
-        template<typename F>
+        template <typename F>
         Point2<float> getPosition(F &&d3_normal_d2)
         {
             Vector3 positionIn3D = this->getSceneNode()->getPosition();
             return Point2<float>::from(positionIn3D, d3_normal_d2);
         }
-        //TODO remove dependence of CellKey
-        template<typename F>
+        // TODO remove dependence of CellKey
+        template <typename F>
         void setPosition(CellKey cKey, F &&d2d3)
         {
             Vector3 v3 = cKey.transform3(d2d3);
@@ -108,14 +110,13 @@ namespace fog
         void setActive(bool active)
         {
             this->active = active;
-            
         }
 
         bool isActive()
         {
             return this->active;
         }
-        
+
         virtual AnimationStateSet *getAllAnimationStates()
         {
             return nullptr;
