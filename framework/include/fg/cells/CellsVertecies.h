@@ -24,13 +24,15 @@ namespace fog
             float heightAmpOfMountain;
             float hillDistribution;
             float mountainPeakDistribution;
+            int hillRad;
             INJECT(Options(Config *config)) : tlsWidth(config->cellsRange.getWidth()),
                                               quality(config->cellsTerrainQuality),
                                               tlsHeight(config->cellsRange.getHeight()),
                                               heightAmpOfHill(config->heightAmpOfHill),
                                               heightAmpOfMountain(config->heightAmpOfMountain),
                                               hillDistribution(config->hillPeakDistribution),
-                                              mountainPeakDistribution(config->mountainPeakDistribution)
+                                              mountainPeakDistribution(config->mountainPeakDistribution),
+                                              hillRad(quality)
 
             {
 
@@ -79,13 +81,143 @@ namespace fog
             // resove the terrain height of the centre rect for each tile.
 
             makeHeight(hMap, cDatas, centreRectMap);
-            //makeMountainRange(CellTypes::MOUNTAIN, hMap, cDatas, centreRectMap);
-            makeHillRange(CellTypes::HILL, hMap, cDatas, centreRectMap);
+            // makeMountainRange(CellTypes::MOUNTAIN, hMap, cDatas, centreRectMap);
+            makeHillRange(CellTypes::HILL, opts.hillRad, hMap, cDatas);
+
+            std::unordered_set<CellKey, CellKey::Hash> skips;
+            for (int i = 0; i < 100; i++)
+            {
+                int hits = makeMountainRangeOnCell(skips, i, CellTypes::MOUNTAIN, opts.hillRad, hMap, cDatas, centreRectMap);
+                if (hits == 0)
+                {
+                    break;
+                }
+            }
         }
-        
+
+        bool isValidRectIndex(Point2<int> p)
+        {
+            return isValidRectIndex(p.x, p.y);
+        }
+
+        bool isValidRectIndex(int x, int y)
+        {
+            return x >= 0 && x < width && y >= 0 && y < height;
+        }
+
+        Box2<int> cellOuterBox(CellKey cKey)
+        {
+            Box2<float> box = cKey.getOuterBoxInUV(tWidth, tHeight); // cover the entire tile.
+            box.scale(width, height);
+            return box.cast<int>();
+        }
+
+        int makeMountainRangeOnRegion(std::unordered_set<CellKey, CellKey::Hash> &skips, int loops, CellType type, int rad, std::vector<std::vector<CellsVertex>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsVertex *>> &centreRectMap)
+        {
+            int hits = 0;
+            std::mt19937 randGen(23669983);
+            float randHeightLow = 0.0;
+            float randHeightHigh = 1.0;
+            std::uniform_real_distribution<float> randHeight(randHeightLow, randHeightHigh);
+            int totalHit = 0;
+            for (int tx = 0; tx < tWidth; tx++)
+            {
+                for (int ty = 0; ty < tHeight; ty++)
+                {
+                    CellKey cKey(tx, ty);
+                    if (skips.find(cKey) != skips.end())
+                    {
+                        continue;
+                    }
+
+                    // TODO connect peak between cells in same region.
+                    // iterate the edge in same region.
+                }
+            }
+            return hits;
+        }
+
+        int makeMountainRangeOnCell(std::unordered_set<CellKey, CellKey::Hash> &skips, int loops, CellType type, int rad, std::vector<std::vector<CellsVertex>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsVertex *>> &centreRectMap)
+        {
+            std::mt19937 randGen(23669983);
+            float randHeightLow = 0.0;
+            float randHeightHigh = 1.0;
+            std::uniform_real_distribution<float> randHeight(randHeightLow, randHeightHigh);
+            int totalHit = 0;
+            for (int tx = 0; tx < tWidth; tx++)
+            {
+                for (int ty = 0; ty < tHeight; ty++)
+                {
+                    CellKey cKey(tx, ty);
+                    if (skips.find(cKey) != skips.end())
+                    {
+                        continue;
+                    }
+
+                    std::vector<Point2<int>> peaks;
+
+                    Box2<int> box = cellOuterBox(cKey);
+
+                    for (int x = box.p1.x; x < box.p2.x; x++)
+                    {
+                        for (int y = box.p1.y; y < box.p2.y; y++)
+                        {
+                            if (!isValidRectIndex(x, y))
+                            {
+                                continue;
+                            }
+                            CellsVertex &thePV = hMap[x][y];
+                            if (thePV.types[0] == type && thePV.isPeak)
+                            {
+                                peaks.push_back(Point2<int>(x, y));
+                            }
+                        }
+                    }
+                    // TODO sorting the peaks by some conditions?
+                    int hit = 0;
+                    for (int i = 1; i < peaks.size(); i++)
+                    {
+
+                        Point2<int> midP = (peaks[i] + peaks[i - 1]) / 2;
+                        CellsVertex &midPV = hMap[midP.x][midP.y];
+                        CellsVertex &prePV = hMap[peaks[i - 1].x][peaks[i - 1].y];
+                        CellsVertex &thePV = hMap[peaks[i].x][peaks[i].y];
+
+                        if (!midPV.isPeak)
+                        {
+
+                            float low = std::min(prePV.height, thePV.height);
+                            float high = std::max(prePV.height, thePV.height);
+                            low = low - midPV.height;   // midPv is not peak, it is type height.
+                            high = high - midPV.height; //
+                            if ((high - low) / high < 0.25f)
+                            {
+                                // if the two peak is samilar.
+                                // we make the new middle peak even lower than the low peak.
+                                high = low;
+                                low = low / 2.0f; //
+                            }
+
+                            midPV.height = midPV.height + map(randHeightLow, randHeightHigh, low, high, randHeight(randGen));
+                            midPV.isPeak = true;
+                            hit++;
+                        }
+                    }
+                    if (hit == 0)
+                    {
+                        skips.insert(cKey);
+                    }
+                    else
+                    {
+                        totalHit++;
+                    }
+                }
+            }
+            return totalHit;
+        } // end make range
         //
-        // Connect peaks of mountain.
-        void makeHillRange(CellType type, std::vector<std::vector<CellsVertex>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsVertex *>> &centreRectMap)
+        // Connect peaks of hills by make the rect height .
+        void makeHillRange(CellType type, int rad, std::vector<std::vector<CellsVertex>> &hMap, CellsDatas *cDatas)
         {
             for (int x = 0; x < width; x++)
             {
@@ -99,7 +231,7 @@ namespace fog
                     }
                     // is moutain rect and not the peak, so the height can be changed.
                     // collect neibers peaks
-                    int rad = 3 ;
+
                     int px1 = x - rad;
                     int py1 = y - rad;
                     int px2 = x + rad;
@@ -129,6 +261,7 @@ namespace fog
                     if (peaks > 0)
                     {
                         hMap[x][y].height = sumH / sumW;
+                        hMap[x][y].isPeak = true; // modified height meaning a peak.
                     }
                     //
                 }
@@ -140,7 +273,7 @@ namespace fog
 
             std::mt19937 randGen(23665289);
             std::bernoulli_distribution randHill(this->opts.hillDistribution); //
-            std::uniform_real_distribution<float> randHeightH(-0.25f, 0.75f);
+            std::uniform_real_distribution<float> randHeightH(-0.5f, 0.5f);
             std::uniform_real_distribution<float> randHeightM(0.0f, 1.0f);
 
             /*
@@ -249,7 +382,7 @@ namespace fog
                             // hill is random offset + type height.
                             if (randHill(randGen))
                             {
-                                ht = typeHeight + this->opts.heightAmpOfHill  * randHeightH(randGen);
+                                ht = typeHeight + this->opts.heightAmpOfHill * randHeightH(randGen);
                                 hMap[x][y].isPeak = true;
                             }
                             else

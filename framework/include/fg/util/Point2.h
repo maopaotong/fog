@@ -12,6 +12,16 @@ namespace fog
     template <typename T>
     struct Point2
     {
+        struct Hash
+        {
+            std::size_t operator()(const Point2 &p) const
+            {
+                auto h1 = std::hash<T>{}(p.x);
+                auto h2 = std::hash<T>{}(p.y);
+                return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
+            }
+        };
+
         T x;
         T y;
         Point2() : x(0), y(0)

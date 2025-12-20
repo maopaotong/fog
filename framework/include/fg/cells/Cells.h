@@ -60,9 +60,14 @@ namespace fog
         }
     };
 
+    /**
+     * 
+     * Define a region by declaring the inner function, the border function and additional check function.
+     * This is used as argument to iterate on the cells collection.
+     * 
+     */
     struct CellRegion
     {
-
         using RegionFunc = std::function<bool(CellKey, CellData &, CellRegion &rg)>;
 
         RegionFunc inner; // inner judge
