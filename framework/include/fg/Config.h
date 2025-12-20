@@ -49,6 +49,8 @@ namespace fog
         static bool DEF_DEBUG_COUT;
         static bool DEF_DEBUG_MOVING_POSITION;
         static bool DEF_DEBUG_FOG_OF_WAR;
+        static inline float DEF_HILL_PEAK_DISTRIBUTION = 0.01f;
+        static inline float DEF_MOUNTAIN_PEAK_DISTRIBUTION = 0.01f;
 
     private:
         static Box2<int> Config::parseValueOfRange2Int(std::string string);
@@ -101,6 +103,10 @@ namespace fog
             heightOfHill = Options::get<float>(opts, "HEIGHT_HILL", DEF_HEIGHT_HILL);
             heightOfMountain = Options::get<float>(opts, "HEIGHT_MOUNTAIN", DEF_HEIGHT_MOUNTAIN);
             heightOfFrozen = Options::get<float>(opts, "HEIGHT_FROZEN", DEF_HEIGHT_FROZEN);
+            //height scale of hill & mountain.
+
+            heightAmpOfHill = getConfigByOption<float>("HEIGHT_AMP_OF_HILL", opts, 1.2f); //
+            heightAmpOfMountain = getConfigByOption<float>("HEIGHT_AMP_OF_MOUNTAIN", opts, 1.5f); 
             //
             seedOfGenerator1 = getConfigByOption<int>("GENERATOR1_SEED", opts, DEF_GENERATOR1_SEED);
             seedOfGenerator2 = getConfigByOption<int>("GENERATOR2_SEED", opts, DEF_GENERATOR2_SEED);
@@ -121,8 +127,9 @@ namespace fog
             debugCout = getConfigByOption<bool>("DEBUG_COUT", opts, DEF_DEBUG_COUT);
             debugMovingPosition = getConfigByOption<bool>("DEBUG_MOVING_POSITION", opts, DEF_DEBUG_MOVING_POSITION);
             debugFogOfWar = getConfigByOption<bool>("DEBUG_FOG_OF_WAR", opts, DEF_DEBUG_FOG_OF_WAR);
-            heightAmpOfHill = getConfigByOption<float>("HEIGHT_AMP_OF_HILL", opts, 1.2f); //
-            heightAmpOfMountain = getConfigByOption<float>("HEIGHT_AMP_OF_MOUNTAIN", opts, 1.5f); 
+            hillPeakDistribution = getConfigByOption<float>("HILL_PEAK_DISTRIBUTION", opts, DEF_HILL_PEAK_DISTRIBUTION);
+            mountainPeakDistribution = getConfigByOption<float>("MOUNTAIN_PEAK_DISTRIBUTION", opts, DEF_MOUNTAIN_PEAK_DISTRIBUTION);
+            
             // // transform
             // TF_CELL_SCALE = {CELL_SCALE};
             // CELLKEY_2_UV = {TILES_RANGE.getWidth(), TILES_RANGE.getHeight()};
@@ -167,6 +174,9 @@ namespace fog
         float heightOfFrozen = DEF_HEIGHT_FROZEN;        // = 0.54f * 1.f;
         float heightAmpOfHill = 1.0f; //
         float heightAmpOfMountain = 1.1f;
+        float hillPeakDistribution = 0.1f;
+        float mountainPeakDistribution = 0.1f;
+
                                                          // generator
         int seedOfGenerator1 = DEF_GENERATOR1_SEED;
         int seedOfGenerator2 = DEF_GENERATOR2_SEED;

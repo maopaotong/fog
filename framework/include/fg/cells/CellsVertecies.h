@@ -22,11 +22,15 @@ namespace fog
             int quality;
             float heightAmpOfHill;
             float heightAmpOfMountain;
+            float hillPeakDistribution;
+            float mountainPeakDistribution;
             INJECT(Options(Config *config)) : tlsWidth(config->cellsRange.getWidth()),
                                               quality(config->cellsTerrainQuality),
                                               tlsHeight(config->cellsRange.getHeight()),
                                               heightAmpOfHill(config->heightAmpOfHill),
-                                              heightAmpOfMountain(config->heightAmpOfMountain)
+                                              heightAmpOfMountain(config->heightAmpOfMountain),
+                                              hillPeakDistribution(config->hillPeakDistribution),
+                                              mountainPeakDistribution(config->mountainPeakDistribution)
 
             {
 
@@ -34,6 +38,15 @@ namespace fog
                 this->terHeight = tlsHeight * quality * std::sqrt(3.0) / 2.0; // based on the toploy of cells.
             }
         };
+
+        struct CellWorkData
+        {
+            int peaks;
+            CellWorkData() : peaks(0)
+            {
+            }
+        };
+
         Config *config;
         std::vector<std::vector<CellsVertex>> vertexs;
         int tWidth;
@@ -45,9 +58,12 @@ namespace fog
         float rectRad;
         float heightAmpOfHill;
         float heightAmpOfMountain;
+        std::vector<std::vector<CellData>> tiles;
+
+        Options opts;
 
         INJECT(CellsVertecies(Options opts, CellsDatas *cDatas,
-                              Config *config)) : //
+                              Config *config)) : opts(opts),
                                                  vertexs(opts.terWidth,
                                                          std::vector<CellsVertex>(opts.terHeight, CellsVertex())),
                                                  config(config),
@@ -69,127 +85,12 @@ namespace fog
             //
             std::vector<std::vector<CellsVertex *>> centreRectMap(tWidth, std::vector<CellsVertex *>(tHeight, nullptr));
             // resove the terrain height of the centre rect for each tile.
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    float centreX = static_cast<float>(x) * rectWidth;
-                    float centreY = static_cast<float>(y) * rectHeight;
-                    Vector2 points[5];
-                    points[0] = Vector2(centreX, centreY);                                        // centre point of the rect.
-                    points[1] = Vector2(centreX + rectWidth / 2.0f, centreY - rectHeight / 2.0f); //
-                    points[2] = Vector2(centreX + rectWidth / 2.0f, centreY + rectHeight / 2.0f); //
-                    points[3] = Vector2(centreX - rectWidth / 2.0f, centreY + rectHeight / 2.0f); //
-                    points[4] = Vector2(centreX - rectWidth / 2.0f, centreY - rectHeight / 2.0f); //
 
-                    CellKey cKeys[5]; // find the 5 point in which cell.
-                    for (int i = 0; i < 5; i++)
-                    {
-                        cKeys[i] = Point2<float>(points[i].x, points[i].y).transform(Transform::CentreToCellKey());
-                        cKeys[i].x = std::clamp<int>(cKeys[i].x, 0, tWidth - 1);
-                        cKeys[i].y = std::clamp<int>(cKeys[i].y, 0, tHeight - 1);
-                    }
+            Iteration::forEachAsTable(width, height, [](int x) {}, [this, &hMap, cDatas, &centreRectMap](int x, int y)
+                                      { makeHeight(x, y, hMap, cDatas, centreRectMap); });
 
-                    CellData &tl0 = tiles[cKeys[0].x][cKeys[0].y];
-                    // tile centre position.
-                    // Vector2 tileCentreP = Cell::getOrigin2D(cKeys[0].x, cKeys[0].y);
-                    Vector2 tileCentreP = cKeys[0].getCentre();
-                    //
-                    hMap[x][y].cKey = cKeys[0]; // centre cell.
-                    hMap[x][y].originInCell = points[0] - tileCentreP;
-                    hMap[x][y].types[0] = tl0.type;
-                    // set corner's type
-
-                    std::unordered_set<CellType> typeSet; // totol types of 5 cells.
-                    CellType type0 = tl0.type;
-                    for (int i = 1; i < 5; i++) // check other 4 corner's type. normally the max different types is 3, include the centre.
-                    {
-                        CellData &tlI = tiles[cKeys[i].x][cKeys[i].y];
-                        CellType typeI = tlI.type;
-                        if (typeI != type0)
-                        {
-                            typeSet.insert(typeI);
-                        }
-                    }
-
-                    if (typeSet.size() == 0)
-                    {
-                        hMap[x][y].types[1] = type0;
-                        hMap[x][y].types[2] = type0;
-                    }
-                    else if (typeSet.size() == 1)
-                    {
-                        hMap[x][y].types[1] = type0;
-                        hMap[x][y].types[2] = *typeSet.begin();
-                    }
-                    else if (typeSet.size() == 2)
-                    {
-                        auto it = typeSet.begin();
-                        hMap[x][y].types[1] = *it++;
-                        hMap[x][y].types[2] = *it++;
-                    }
-                    else if (typeSet.size() == 3)
-                    {
-                        auto it = typeSet.begin();
-                        hMap[x][y].types[1] = *it++;
-                        hMap[x][y].types[2] = *it++;
-                        // TODO what's up? span on the world edge?
-                    }
-                    else
-                    { // impossbile?bug?
-                        throw std::runtime_error("the rect is tool big?");
-                    }
-
-                    float typeHeight = defineTileHeight(tl0);
-                    float ht = 0.0f;
-                    // tile's centre is in this rect.
-                    if (Rect::isPointInSide(tileCentreP, points[0], rectWidth, rectHeight)) //
-                    {                                                                       // is the center rect of the tile.
-
-                        // remember the centre rect for each tile.
-                        centreRectMap[cKeys[0].x][cKeys[0].y] = &hMap[x][y];
-                        ht = typeHeight;
-                    }
-                    else if (tl0.type == CellTypes::OCEAN || tl0.type == CellTypes::SHORE)
-                    {
-                        // for ocean , the height should be same and it is a fix value.
-                        ht = typeHeight;
-                    }
-                    else // not the centre rect, check all the corner's tile type.
-                    {
-                        // check if 4 corner's type is same;
-                        // check if this rect is inside a certain type.
-                        CellType type0 = hMap[x][y].types[0];
-                        CellType type1 = hMap[x][y].types[1];
-                        CellType type2 = hMap[x][y].types[2];
-
-                        if (type0 == type1 && type1 == type2) // 3 types are same , the entire rect is in same cell or the same types of cell.
-                        {
-                            ht = typeHeight;
-                        }
-                        else
-                        { // calculate height of the region edge by samples, the result is smoth enough.
-                            ht = calculateRectHeightBySamples(points[0], [this, &tiles](CellKey cKey)
-                                                              {
-                                                                  int tx = std::clamp<int>(cKey.x, 0, tWidth - 1);
-                                                                  int ty = std::clamp<int>(cKey.y, 0, tHeight - 1);
-
-                                                                  CellData &ttl = tiles[tx][ty];
-                                                                  return defineTileHeight(ttl); //
-                                                              });
-                        }
-                        //
-                    } // end of if, height now prepared as a terrains in theory.
-                    //
-
-                    hMap[x][y].height = ht;
-
-                    //
-                } // end of inner for.
-            } // end of outer for.
-            // process hill and mountains.
-            Iteration::forEachAsTable(width, height, [](int x) {}, [this, &hMap](int x, int y)
-                                      { makePeak(hMap[x][y], x, y); });
+            makePeaks(CellTypes::HILL, this->opts.hillPeakDistribution, this->heightAmpOfHill, cDatas, hMap);
+            makePeaks(CellTypes::MOUNTAIN, this->opts.mountainPeakDistribution, this->heightAmpOfMountain, cDatas, hMap);
 
             // TODO adjust the hill around hill top.
 
@@ -306,43 +207,156 @@ namespace fog
             //     }
             // }
         }
-
-        // make random peak for hill and mountain.
-        bool makePeak(CellsVertex &ver, int x, int y)
+        void makePeaks(CellType type, float dist, float heightAmp, CellsDatas *cDatas, std::vector<std::vector<CellsVertex>> &hMap)
         {
-            CellType type = ver.types[0];
+            // process hill and mountains.
+            int counterHill = 0;
+            int counterMountain = 100;
 
-            if (type == CellTypes::HILL)
-            {
-                float rnd = static_cast<float>((x * y) % 100) / 100.0f;
-                if (rnd > 0.5 & rnd < 0.55)
-                {
-                    float rnd2 = normal(0.5, 0.55, rnd);
-                    ver.isPeak = true;
-                    ver.height = ver.height * (1 + (heightAmpOfHill - 1) * rnd2);
-                    return true;
-                }
-                return false;
-            } //
+            std::mt19937 rGen(23665289);
 
-            if (type == CellTypes::MOUNTAIN)
+            std::bernoulli_distribution rnd1(dist);
+
+            std::uniform_real_distribution<float> rnd2(0.5f, 1.0f);
+
+            for (int x = 0; x < width; x++)
             {
-                float rnd = static_cast<float>((x * y) % 100) / 100.0f;
-                if (rnd > 0.5 & rnd < 0.55)
+                for (int y = 0; y < height; y++)
                 {
-                    float rnd2 = normal(0.5, 0.55, rnd);
-                    ver.isPeak = true;
-                    ver.height = ver.height * (1 + (heightAmpOfMountain - 1) * rnd2);
-                    return true;
+                    CellsVertex &ver = hMap[x][y];
+                    if (ver.types[0] != type)
+                    {
+                        continue;
+                    } //
+                    CellKey cKey = ver.cKey;
+
+                    if (rnd1(rGen))
+                    {
+                        ver.isPeak = true;
+                        ver.height = ver.height * (1 + (heightAmp - 1) * rnd2(rGen));
+                    }
                 }
-                return false;
-            } //
-            return false;
+            }
+        }
+        void makeHeight(int x, int y, std::vector<std::vector<CellsVertex>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsVertex *>> &centreRectMap)
+        {
+            auto &tiles = cDatas->tiles;
+
+            float centreX = static_cast<float>(x) * rectWidth;
+            float centreY = static_cast<float>(y) * rectHeight;
+            Vector2 points[5];
+            points[0] = Vector2(centreX, centreY);                                        // centre point of the rect.
+            points[1] = Vector2(centreX + rectWidth / 2.0f, centreY - rectHeight / 2.0f); //
+            points[2] = Vector2(centreX + rectWidth / 2.0f, centreY + rectHeight / 2.0f); //
+            points[3] = Vector2(centreX - rectWidth / 2.0f, centreY + rectHeight / 2.0f); //
+            points[4] = Vector2(centreX - rectWidth / 2.0f, centreY - rectHeight / 2.0f); //
+
+            CellKey cKeys[5]; // find the 5 point in which cell.
+            for (int i = 0; i < 5; i++)
+            {
+                cKeys[i] = Point2<float>(points[i].x, points[i].y).transform(Transform::CentreToCellKey());
+                cKeys[i].x = std::clamp<int>(cKeys[i].x, 0, tWidth - 1);
+                cKeys[i].y = std::clamp<int>(cKeys[i].y, 0, tHeight - 1);
+            }
+
+            CellData &tl0 = tiles[cKeys[0].x][cKeys[0].y];
+            // tile centre position.
+            // Vector2 tileCentreP = Cell::getOrigin2D(cKeys[0].x, cKeys[0].y);
+            Vector2 tileCentreP = cKeys[0].getCentre();
+            //
+            hMap[x][y].cKey = cKeys[0]; // centre cell.
+            hMap[x][y].originInCell = points[0] - tileCentreP;
+            hMap[x][y].types[0] = tl0.type;
+            // set corner's type
+
+            std::unordered_set<CellType> typeSet; // totol types of 5 cells.
+            CellType type0 = tl0.type;
+            for (int i = 1; i < 5; i++) // check other 4 corner's type. normally the max different types is 3, include the centre.
+            {
+                CellData &tlI = tiles[cKeys[i].x][cKeys[i].y];
+                CellType typeI = tlI.type;
+                if (typeI != type0)
+                {
+                    typeSet.insert(typeI);
+                }
+            }
+
+            if (typeSet.size() == 0)
+            {
+                hMap[x][y].types[1] = type0;
+                hMap[x][y].types[2] = type0;
+            }
+            else if (typeSet.size() == 1)
+            {
+                hMap[x][y].types[1] = type0;
+                hMap[x][y].types[2] = *typeSet.begin();
+            }
+            else if (typeSet.size() == 2)
+            {
+                auto it = typeSet.begin();
+                hMap[x][y].types[1] = *it++;
+                hMap[x][y].types[2] = *it++;
+            }
+            else if (typeSet.size() == 3)
+            {
+                auto it = typeSet.begin();
+                hMap[x][y].types[1] = *it++;
+                hMap[x][y].types[2] = *it++;
+                // TODO what's up? span on the world edge?
+            }
+            else
+            { // impossbile?bug?
+                throw std::runtime_error("the rect is tool big?");
+            }
+
+            float typeHeight = defineTileHeight(tl0);
+            float ht = 0.0f;
+            // tile's centre is in this rect.
+            if (Rect::isPointInSide(tileCentreP, points[0], rectWidth, rectHeight)) //
+            {                                                                       // is the center rect of the tile.
+
+                // remember the centre rect for each tile.
+                centreRectMap[cKeys[0].x][cKeys[0].y] = &hMap[x][y];
+                ht = typeHeight;
+            }
+            else if (tl0.type == CellTypes::OCEAN || tl0.type == CellTypes::SHORE)
+            {
+                // for ocean , the height should be same and it is a fix value.
+                ht = typeHeight;
+            }
+            else // not the centre rect, check all the corner's tile type.
+            {
+                // check if 4 corner's type is same;
+                // check if this rect is inside a certain type.
+                CellType type0 = hMap[x][y].types[0];
+                CellType type1 = hMap[x][y].types[1];
+                CellType type2 = hMap[x][y].types[2];
+
+                if (type0 == type1 && type1 == type2) // 3 types are same , the entire rect is in same cell or the same types of cell.
+                {
+                    ht = typeHeight;
+                }
+                else
+                { // calculate height of the region edge by samples, the result is smoth enough.
+                    ht = calculateRectHeightBySamples(points[0], [this, &tiles](CellKey cKey)
+                                                      {
+                                                          int tx = std::clamp<int>(cKey.x, 0, tWidth - 1);
+                                                          int ty = std::clamp<int>(cKey.y, 0, tHeight - 1);
+
+                                                          CellData &ttl = tiles[tx][ty];
+                                                          return defineTileHeight(ttl); //
+                                                      });
+                }
+                //
+            } // end of if, height now prepared as a terrains in theory.
+            //
+
+            hMap[x][y].height = ht;
         }
 
-        float normal(float low, float heigh, float value)
+        float map(float low1, float heigh1, float low2, float high2, float value)
         {
-            return (value - low) / (heigh - low);
+            return low2 + (high2 - low2) * ((value - low1) / (heigh1 - low1));
         }
 
         /**
