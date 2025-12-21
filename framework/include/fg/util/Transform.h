@@ -66,7 +66,7 @@ namespace fog
                 float cx = fx;
                 float cy = fy;
                 const float sqrt3 = std::sqrt(3.0f);
-                const float R = (2.0f / sqrt3) * rad; // 
+                const float R = (2.0f / sqrt3) * rad; //
                 float q = ((sqrt3 / 3.0f) * cx - (1.0f / 3.0f) * cy) / R;
                 float r = ((2.0f / 3.0f) * cy) / R;
 

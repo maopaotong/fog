@@ -4,12 +4,9 @@
  */
 #pragma once
 
-#include <vector>
-#include <Ogre.h>
-
+#include "Point2.h"
 namespace fog
 {
-    using namespace Ogre;
 
     class Rect
     {

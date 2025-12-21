@@ -16,17 +16,67 @@ namespace fog
     /**
      * Generator of tiles with types.
      */
-    class CellsGenerator
+    struct CellsGenerator
     {
 
-    public:
         static void changeType(std::vector<std::vector<CellData>> &tiles, int w, int h, CellRegion &region, CellType toType)
         {
             std::unordered_map<CellType, int> plot;
             Iteration::forEach<CellData>(tiles, w, h, [&tiles, &w, &h, &plot, &region, &toType](int x, int y, CellData &tl)
-                                         { bool isRegion =  CellRegion::forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); });
+                                         { bool isRegion = CellRegion::forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); });
         }
-        static void generateCells(std::vector<std::vector<CellData>> &tiles, int w, int h, Config *config)
+        struct TemperatureGenerator
+        {
+
+            void generateTemperature(std::vector<std::vector<float>> &hMap, std::vector<std::vector<float>> &tMap, int w, int h)
+            {
+                Range<float> yRange(0, h);
+                Range<float> latRange(-90, 90);
+                Range<float> absLatRange(0, 90);
+                Range<float> latTempratureRange(30, -20);
+
+                Range<float> hightNorm(0.0f, 1.0f); //
+                Range<float> altitudeLapseRange(0, -50);
+
+                float min = 1000;
+                float max = -1000;
+
+                for (int y = 0; y < h; y++)
+                {
+                    float lat = yRange.mapTo(y, latRange);
+                    float dgr1 = absLatRange.mapTo(std::abs(lat), latTempratureRange); // latitude.
+                    for (int x = 0; x < w; x++)
+                    {
+                        float dgr2 = dgr1 + hightNorm.mapTo(hMap[x][y], altitudeLapseRange); // altitude
+                        float dgr3 = dgr2 + 5 * ((x + 1) * (y + 1) % 10) / 10.0f;            // add noise
+                        tMap[x][y] = dgr3;
+                        if (max < dgr3)
+                        {
+                            max = dgr3;
+                        }
+                        if (min > dgr3)
+                        {
+                            min = dgr3;
+                        }
+                    }
+                } //
+                // normilise
+                Range<float> tRange(min, max);
+                Range<float> normRange(-1.0, 1.0f);
+                for (int x = 0; x < w; x++)
+                {
+                    for (int y = 0; y < h; y++)
+                    {
+                        tMap[x][y] = tRange.mapTo(tMap[x][y], normRange);
+                    }
+                }
+            }
+        };
+
+        INJECT(CellsGenerator())
+        {
+        }
+        virtual void generateCells(std::vector<std::vector<CellData>> &tiles, int w, int h, Config *config)
         {
             assert(w == h && "cannot generate tiles because w<>h.");
             Iteration::forEachAsTable<std::vector<std::vector<CellData>> &>(w, h, //
@@ -41,9 +91,13 @@ namespace fog
 
             DiamondSquare::generateAndNormalise(heightmap, w, config->generatorRoughness1, config->seedOfGenerator1);
 
+            std::vector<std::vector<float>> tpMap(w, std::vector<float>(w, 0.0f));
+            TemperatureGenerator tGen;
+            tGen.generateTemperature(heightmap, tpMap, w, w);
+
             // statistic
             std::unordered_map<CellType, int> plot;
-            Iteration::forEach<float>(heightmap, w, w, [&tiles, &plot,config](int x, int y, float h)
+            Iteration::forEach<float>(heightmap, w, w, [&tpMap, &tiles, &plot, config](int x, int y, float h)
                                       {
                                               CellType type = CellTypes::UNKNOW;
                                               if (h < config->GENERATOR1_OCEAN_RATIO) // TODo calculate the actual ratio instead of the height.
@@ -62,14 +116,17 @@ namespace fog
                                               {
                                                   type = CellTypes::HILL;
                                               }
-                                              else if (h < config->GENERATOR1_MOUNTAIN_RATIO)
-                                              {
-                                                  type = CellTypes::MOUNTAIN;
+                                              else { 
+                                                 type = CellTypes::MOUNTAIN;
+                                                
                                               }
-                                              else
-                                              {
-                                                  type = CellTypes::FROZEN;
-                                              }
+                                              if(tpMap[x][y] < -0.75f ){
+                                                //TODO frozen as extra attributes of ocean/shore/lake/plain.
+                                                if(type == CellTypes::MOUNTAIN){
+                                                    type = CellTypes::FROZEN;
+                                                }
+                                              } 
+                                              
                                               tiles[x][y].type = type; //
 
                                               auto &it = plot.find(type);
@@ -128,7 +185,7 @@ namespace fog
                                       return true; //
                                   });
 
-                bool isRegion =  CellRegion::forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
+                bool isRegion = CellRegion::forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
                 if (isRegion)
                 {
                     CellType type2 = this->typeFunc(borderTypes); // it will become: 1. plain, 2. shore.
@@ -187,7 +244,7 @@ namespace fog
                                       return true; //
                                   });
 
-                bool isLake =  CellRegion::forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
+                bool isLake = CellRegion::forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
                 if (isLake)
                 {
                     tl.type = CellTypes::LAKE;
