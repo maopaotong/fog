@@ -41,36 +41,38 @@ namespace fog
 
                 std::mt19937 randGen(23669983);
 
-                std::uniform_real_distribution<float> noiseTp(-0.1, 0.1); // noise.
-
                 for (int y = 0; y < h; y++)
                 {
                     float lat = yRange.mapTo(y, latRange);
-                    float absLat = std::abs(lat);
+                    float absLatStar = std::pow(std::abs(lat), temperatureLatitudeWeightPower); //(-1, 0)
                     int k = 1;
                     // float latWeight = 0.5 + 0.5 * std::pow(absLat / 90.0, k); //
                     // float latWeight = absLatRange.mapTo(absLat, 0.5, 1.0);
                     // float latW = 0.5 + std::abs(lat) / 2.0f;
+                    float noiseWeight = (1 - absLatStar) * 0.9;     
+                    float altWeight = (1 - absLatStar) * 0.2;                               //
+                    std::uniform_real_distribution<float> noiseTp(-noiseWeight, noiseWeight); // noise.
 
                     for (int x = 0; x < w; x++)
                     {
 
-                        float tp = -std::pow(absLat, temperatureLatitudeWeightPower);        //(-1, 0)
-                        float alt = (hMap[x][y] - 0.5f) * 2.0f; // to (-1,1)
-                        alt = std::clamp<float>(alt, 0, 1.0f);  // drop (-1,0)
+                        float alt = hMap[x][y] - 0.5f; //
+                        alt = std::max(0.0f, alt);     //(0, 0.5) ocean 's temperature is stable, 0.
+                        // tp += -alt;           // alt impact on temperature.,(-2, 0)
+                        // tp = std::clamp<float>(tp, -1.2, 0);//drop the extreme value from height.
 
-                        tp += -alt;           // alt drop temperature.,(-2, 0)
-                        tp = std::clamp<float>(tp, -1.5, 0);//drop the extreme value from height.
-                        if (hMap[x][y] > 0.9) // random the highest mountain as frozon.
+                        float noise = 0.0f;
+                        if (hMap[x][y] > 0.5) // random the highest mountain as frozon.
                         {
+                            noise = noiseTp(randGen); //(-2.1, 0.1)//only apply noise on the non-ocean, ocean's temperature is stable.
                         }
 
                         // tp = std::clamp<float>(tp, -2.1, 0.1);
 
-                        tp = tp + noiseTp(randGen);//(-2.1, 0.1)
-                        tp = std::clamp<float>(tp, -2, 0);//drop the extrem value form noise.
+                        // tp = std::clamp<float>(tp, -1.2, 0);//drop the extrem value form noise.
+                        alt = alt * altWeight;
 
-                        tMap[x][y] = tp;
+                        tMap[x][y] = -absLatStar - alt + noise;
                     }
 
                 } //
@@ -80,7 +82,7 @@ namespace fog
         {
             float frozenDistribution;
             float temperatureLatitudeWeightPower;
-            INJECT(Options(Config *config)) : frozenDistribution(config->frozenDistribution),temperatureLatitudeWeightPower(config->temperatureLatitudeWeightPower)
+            INJECT(Options(Config *config)) : frozenDistribution(config->frozenDistribution), temperatureLatitudeWeightPower(config->temperatureLatitudeWeightPower)
             {
             }
         };
