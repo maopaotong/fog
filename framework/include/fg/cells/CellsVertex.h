@@ -25,8 +25,8 @@ namespace fog
         {
         }
         CellsVertex(int tx, int ty, float th) : height(UNRESOLVED_HEIGHT), cKey(tx, ty),
-                                                types{CellTypes::UNKNOW, CellTypes::UNKNOW, CellTypes::UNKNOW},
-                                                isPeak(false)
+                                                                   types{CellTypes::UNKNOW, CellTypes::UNKNOW, CellTypes::UNKNOW},
+                                                                   isPeak(false)
         {
         }
         bool isHeightResolved()

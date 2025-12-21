@@ -85,6 +85,7 @@ namespace fog
             // makeHillRange(CellTypes::HILL, opts.hillRad, hMap, cDatas);
 
             makeMountainRangeOnCell(CellTypes::MOUNTAIN, hMap, cDatas, centreRectMap);
+           
         }
 
         bool isValidRectIndex(Point2<int> p)
@@ -482,20 +483,21 @@ namespace fog
                 tlHeight = config->heightOfOcean;
                 break;
             case (CellTypes::SHORE):
+            case (CellTypes::FRZ_SHORE):
             case (CellTypes::LAKE):
                 tlHeight = config->heightOfShore;
                 break;
             case (CellTypes::PLAIN):
+            case (CellTypes::FRZ_PLAIN):
                 tlHeight = config->heightOfPlain;
                 break;
             case (CellTypes::HILL):
                 tlHeight = config->heightOfHill;
                 break;
             case (CellTypes::MOUNTAIN):
+            case (CellTypes::FRZ_MOUNTAIN):
+            
                 tlHeight = config->heightOfMountain;
-                break;
-            case (CellTypes::FROZEN):
-                tlHeight = config->heightOfFrozen;
                 break;
             default:
                 tlHeight = config->heightOfFrozen;
@@ -582,7 +584,7 @@ namespace fog
                         data[idx + 2] = v.types[2];
                         // A
                         data[idx + 3] = v.distanceToEdge(1.0) * 100; //
-
+                        //data[idx + 3] = v.temperature * 100; //
                         if (debugRange.isIn(x, y))
                         {
                             std::cout << fmt::format("texure[{:>2},{:>2}]:({:>3}|{:>3}|{:>3}|{:>3})", x, y, data[idx], data[idx + 1], data[idx + 2], data[idx + 3]) << std::endl;

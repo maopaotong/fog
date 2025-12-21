@@ -53,6 +53,8 @@ namespace fog
         static inline float DEF_HILL_PEAK_DISTRIBUTION = 0.01f;
         static inline float DEF_MOUNTAIN_PEAK_DISTRIBUTION = 0.01f;
         static inline float DEF_frozenDistribution = 0.1f;
+        static inline float DEF_normalDistribution = 0.75;
+        static inline float DEF_hotDistribution = 0.95;
         static inline float DEF_temperatureLatitudeWeightPower = 3.0f;
 
     private:
@@ -137,8 +139,10 @@ namespace fog
             hillPeakDistribution = getConfigByOption<float>("HILL_PEAK_DISTRIBUTION", opts, DEF_HILL_PEAK_DISTRIBUTION);
             mountainPeakDistribution = getConfigByOption<float>("MOUNTAIN_PEAK_DISTRIBUTION", opts, DEF_MOUNTAIN_PEAK_DISTRIBUTION);
             frozenDistribution = getConfigByOption<float>("frozenDistribution", opts, DEF_frozenDistribution);
+            normalDistribution = getConfigByOption<float>("normalDistribution", opts, DEF_normalDistribution);
+            hotDistribution = getConfigByOption<float>("hotDistribution", opts, DEF_hotDistribution);
 
-            temperatureLatitudeWeightPower=getConfigByOption<float>("temperatureLatitudeWeightPower", opts, DEF_temperatureLatitudeWeightPower);
+            temperatureLatitudeWeightPower = getConfigByOption<float>("temperatureLatitudeWeightPower", opts, DEF_temperatureLatitudeWeightPower);
             // // transform
             // TF_CELL_SCALE = {CELL_SCALE};
             // CELLKEY_2_UV = {TILES_RANGE.getWidth(), TILES_RANGE.getHeight()};
@@ -212,6 +216,8 @@ namespace fog
         bool debugMovingPosition = DEF_DEBUG_MOVING_POSITION;
         bool debugFogOfWar = DEF_DEBUG_FOG_OF_WAR;
         float frozenDistribution = DEF_frozenDistribution;
+        float normalDistribution = DEF_normalDistribution;
+        float hotDistribution = DEF_hotDistribution;
         float temperatureLatitudeWeightPower = DEF_temperatureLatitudeWeightPower;
 
     }; // end of class

@@ -28,7 +28,9 @@ namespace fog
                 cost = CostMap::OBSTACLE;
                 break;
             case CellTypes::HILL:
-            case CellTypes::FROZEN:
+            case CellTypes::FRZ_MOUNTAIN:
+            case CellTypes::FRZ_PLAIN:
+            case CellTypes::FRZ_SHORE:
             case CellTypes::RIVER:
                 cost = 2;
                 break;

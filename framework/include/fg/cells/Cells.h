@@ -17,19 +17,24 @@ namespace fog
     class CellTypes
     {
     public:
+        //
+        //
         static constexpr CellType SKY = 100; //
+
+        static constexpr CellType FRZ_MOUNTAIN = 12;
+        static constexpr CellType FRZ_PLAIN = 11;
+        static constexpr CellType FRZ_SHORE = 10;
         static constexpr CellType RIVER = 9;
         static constexpr CellType LAKE = 8;
         static constexpr CellType DESERT = 7;
-        static constexpr CellType FROZEN = 6;
         static constexpr CellType MOUNTAIN = 5;
         static constexpr CellType HILL = 4;
         static constexpr CellType PLAIN = 3;
         static constexpr CellType SHORE = 2;
         static constexpr CellType OCEAN = 1;
         static constexpr CellType UNKNOW = 0;
-        //
     };
+    
     //
     struct CellData
     {

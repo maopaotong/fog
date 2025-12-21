@@ -49,8 +49,8 @@ namespace fog
                     // float latWeight = 0.5 + 0.5 * std::pow(absLat / 90.0, k); //
                     // float latWeight = absLatRange.mapTo(absLat, 0.5, 1.0);
                     // float latW = 0.5 + std::abs(lat) / 2.0f;
-                    float noiseWeight = (1 - absLatStar) * 0.9;     
-                    float altWeight = (1 - absLatStar) * 0.2;                               //
+                    float noiseWeight = (1 - absLatStar) * 0.9;
+                    float altWeight = (1 - absLatStar) * 0.2;                                 //
                     std::uniform_real_distribution<float> noiseTp(-noiseWeight, noiseWeight); // noise.
 
                     for (int x = 0; x < w; x++)
@@ -82,7 +82,13 @@ namespace fog
         {
             float frozenDistribution;
             float temperatureLatitudeWeightPower;
-            INJECT(Options(Config *config)) : frozenDistribution(config->frozenDistribution), temperatureLatitudeWeightPower(config->temperatureLatitudeWeightPower)
+            float normalDistribution;
+            float hotDistribution;
+
+            INJECT(Options(Config *config)) : frozenDistribution(config->frozenDistribution), temperatureLatitudeWeightPower(config->temperatureLatitudeWeightPower),
+                                              normalDistribution(config->normalDistribution),
+                                              hotDistribution(config->hotDistribution)
+
             {
             }
         };
@@ -155,21 +161,32 @@ namespace fog
                 makeLake(tiles, w, h);
             }
 
+            // make sub type by temperature.
             Iteration::forEach<float>(heightmap, w, w, [this, &tpMap, &tiles, &plot, config](int x, int y, float h)
                                       {
                                           CellType &type = tiles[x][y].type;
-                                          if (tpMap[x][y] < this->opts.frozenDistribution)//temperature 
+                                          float tp = tpMap[x][y];
+                                          if (tp < this->opts.frozenDistribution) // temperature
                                           {
                                               // TODO frozen as extra attributes of ocean/shore/lake/plain.
                                               // if (type == CellTypes::MOUNTAIN || type == CellTypes::HILL || type == CellTypes::PLAIN)
                                               //{
-                                              type = CellTypes::FROZEN;
-                                              //}
-                                          } else {
-                                              if(type == CellTypes::MOUNTAIN){
 
-                                              }  
-                                          } });
+                                              //}
+                                              if (type == CellTypes::OCEAN || type == CellTypes::SHORE || type == CellTypes::LAKE)
+                                              {
+                                                  type = CellTypes::FRZ_SHORE;
+                                              }
+                                              else if (type == CellTypes::PLAIN)
+                                              {
+                                                  type = CellTypes::FRZ_PLAIN;
+                                              }
+                                              else if (type == CellTypes::MOUNTAIN)
+                                              {
+                                                  type = CellTypes::FRZ_MOUNTAIN;
+                                              }
+                                          } //
+                                      });
 
         } // end of generate tiles
 
@@ -391,7 +408,7 @@ namespace fog
         static CellType determineTileTypeForMakeLakeByPlain(std::unordered_set<CellType> borderTypes)
         {
             // TODO find a random type from border
-            if (borderTypes.count(CellTypes::FROZEN) && borderTypes.count(CellTypes::MOUNTAIN) && borderTypes.count(CellTypes::HILL))
+            if (borderTypes.count(CellTypes::MOUNTAIN) && borderTypes.count(CellTypes::HILL))
             { // near fronzen and mountain and hill.
                 return CellTypes::LAKE;
             }
