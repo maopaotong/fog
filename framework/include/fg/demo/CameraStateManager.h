@@ -16,7 +16,6 @@
 
 // === Include OgreBites for modern initialization ===
 
-
 #include "fg/util.h"
 #include "fg/ogre.h"
 #include "InputState.h"
@@ -36,10 +35,11 @@ namespace fog
         CoreMod *core;
         InputStateController *inputState;
         Config *config;
-        Transforms * tfs;
+        Transforms *tfs;
+
     public:
-        INJECT(CameraStateManager(CoreMod *core, InputStateController *inputState, Transforms * tfs)) : quit(false), core(core), inputState(inputState), 
-        tfs(tfs)
+        INJECT(CameraStateManager(CoreMod *core, InputStateController *inputState, Transforms *tfs)) : quit(false), core(core), inputState(inputState),
+                                                                                                       tfs(tfs)
         {
         }
 
@@ -124,6 +124,11 @@ namespace fog
             if (validTranlate)
             {
                 node->translate(step);
+
+                Ogre::GpuProgramManager &gpuMgr = Ogre::GpuProgramManager::getSingleton();
+                GpuSharedParametersPtr sParams = gpuMgr.getSharedParameters("FragSharedParams");
+                sParams->setNamedConstant<3, float>("cameraPos", node->getPosition());
+                // sParams->setNamedConstant<int>("showRegionEdge", config->debugShaderShowRegionEdge);
             }
 
             return true; // Continue rendering
@@ -136,7 +141,7 @@ namespace fog
         bool mouseWheelRolled(int evtY)
         {
             // Camera *cam = core->getCamera();
-            Ogre::SceneNode *node = core->getCameraSceneNode();//cam->getParentSceneNode();
+            Ogre::SceneNode *node = core->getCameraSceneNode(); // cam->getParentSceneNode();
 
             float height = node->getPosition().y;
 
@@ -152,7 +157,7 @@ namespace fog
 
             node->setPosition(posTarget);
 
-            //Context<Var<Vector3>::Bag>::get()->setVar(".camera.position", posTarget);
+            // Context<Var<Vector3>::Bag>::get()->setVar(".camera.position", posTarget);
 
             float distance = map(height, DEFAULT_CAMERA_HEIGHT_MIN, DEFAULT_CAMERA_HEIGHT_MAX, CAMERA_FAR_DISTANCE_MIN, CAMERA_FAR_DISTANCE_MAX);
             // if (distance < posTarget.y)
@@ -168,7 +173,7 @@ namespace fog
          */
         void alignHorizonToTop(Ogre::SceneNode *camNode, Ogre::Real distance)
         {
-            Ogre::Radian fovY = core->getCameraFOVy();//cam->getFOVy();
+            Ogre::Radian fovY = core->getCameraFOVy(); // cam->getFOVy();
 
             Ogre::Real camHeight = camNode->getPosition().y; // 假设地面 Y=0
 
