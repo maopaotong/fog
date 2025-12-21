@@ -12,8 +12,8 @@ namespace fog
     private:
         static float DEF_HEIGHT_SCALE;
         static Box2<int> DEF_TILES_RANGE;
-        static int DEF_TILE_TERRAIN_QUALITY;
-        static int DEF_TILE_MESH_QUALITY;
+        static inline int DEF_CELLS_TERRAIN_AMP = 1;
+        static inline int DEF_TILE_MESH_QUALITY = 8;
         static float DEF_CELL_SCALE;
         static float DEF_WORLD_WIDTH;     // = CELL_SCALE * 2.0 * TILES_WIDTH;
         static float DEF_WORLD_HEIGHT;    // = WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
@@ -56,6 +56,8 @@ namespace fog
         static inline float DEF_normalDistribution = 0.75;
         static inline float DEF_hotDistribution = 0.95;
         static inline float DEF_temperatureLatitudeWeightPower = 3.0f;
+        static inline bool DEF_makeMountainRange = true;
+        static inline bool DEF_DEBUG_polygonMode_wireFrame = false;
 
     private:
         static Box2<int> Config::parseValueOfRange2Int(std::string string);
@@ -90,12 +92,9 @@ namespace fog
             heightScale = Options::get<float>(opts, "HEIGHT_SCALE", DEF_HEIGHT_SCALE);
             cellsRange = Options::get<Box2<int>>(opts, "TILES_RANGE", DEF_TILES_RANGE);
 
-            cellsTerrainQuality = Options::get<int>(opts, "TILE_TERRAIN_QUALITY", DEF_TILE_TERRAIN_QUALITY);
+            cellsTerrainAmp = Options::get<int>(opts, "CELLS_TERRAIN_AMP", DEF_CELLS_TERRAIN_AMP);
             cellsMeshQuality = Options::get<int>(opts, "TILE_MESH_QUALITY", DEF_TILE_MESH_QUALITY);
-            if (cellsMeshQuality > cellsTerrainQuality)
-            {
-                cellsMeshQuality = cellsTerrainQuality;
-            }
+
             cellScale = Options::get<float>(opts, "CELL_SCALE", DEF_CELL_SCALE);
 
             worldWidth = cellScale * 2.0 * cellsRange.getWidth();
@@ -138,11 +137,14 @@ namespace fog
             debugFogOfWar = getConfigByOption<bool>("DEBUG_FOG_OF_WAR", opts, DEF_DEBUG_FOG_OF_WAR);
             hillPeakDistribution = getConfigByOption<float>("HILL_PEAK_DISTRIBUTION", opts, DEF_HILL_PEAK_DISTRIBUTION);
             mountainPeakDistribution = getConfigByOption<float>("MOUNTAIN_PEAK_DISTRIBUTION", opts, DEF_MOUNTAIN_PEAK_DISTRIBUTION);
+            makeMountainRange = getConfigByOption<bool>("makeMountainRange", opts, DEF_makeMountainRange);
             frozenDistribution = getConfigByOption<float>("frozenDistribution", opts, DEF_frozenDistribution);
             normalDistribution = getConfigByOption<float>("normalDistribution", opts, DEF_normalDistribution);
             hotDistribution = getConfigByOption<float>("hotDistribution", opts, DEF_hotDistribution);
 
             temperatureLatitudeWeightPower = getConfigByOption<float>("temperatureLatitudeWeightPower", opts, DEF_temperatureLatitudeWeightPower);
+            DEBUG_polygonMode_wireFrame = getConfigByOption<bool>("DEBUG_polygonMode_wireFrame", opts, DEF_DEBUG_polygonMode_wireFrame);
+
             // // transform
             // TF_CELL_SCALE = {CELL_SCALE};
             // CELLKEY_2_UV = {TILES_RANGE.getWidth(), TILES_RANGE.getHeight()};
@@ -159,6 +161,12 @@ namespace fog
 
             // Config::D2H2D3 = {};
         }
+
+        int getTerrainQuality()
+        {
+            return cellsTerrainAmp * this->cellsMeshQuality;
+        }
+
         // Transform::D3_NORMAL_D2 *transformD3NormalToD2Ptr = nullptr;
         // Transform::D3_NORMAL_D2 &getTransformD3NormalToD2()
         // {
@@ -173,7 +181,7 @@ namespace fog
 
         float heightScale = DEF_HEIGHT_SCALE;
         Box2<int> cellsRange = DEF_TILES_RANGE;
-        int cellsTerrainQuality = DEF_TILE_TERRAIN_QUALITY;
+        int cellsTerrainAmp = DEF_CELLS_TERRAIN_AMP;
         int cellsMeshQuality = DEF_TILE_MESH_QUALITY;
         float cellScale = DEF_CELL_SCALE;
         float worldWidth = DEF_WORLD_WIDTH;           // = CELL_SCALE * 2.0 * TILES_WIDTH;
@@ -189,6 +197,7 @@ namespace fog
         float heightAmpOfMountain = 0.5f;
         float hillPeakDistribution = 0.1f;
         float mountainPeakDistribution = 0.1f;
+        bool makeMountainRange = true;
 
         // generator
         int seedOfGenerator1 = DEF_GENERATOR1_SEED;
@@ -219,6 +228,7 @@ namespace fog
         float normalDistribution = DEF_normalDistribution;
         float hotDistribution = DEF_hotDistribution;
         float temperatureLatitudeWeightPower = DEF_temperatureLatitudeWeightPower;
+        bool DEBUG_polygonMode_wireFrame = DEF_DEBUG_polygonMode_wireFrame;
 
     }; // end of class
 };

@@ -41,5 +41,16 @@ namespace fog
                 visit(*it);
             }
         }
+
+        
+        static bool isValidRectIndex(Point2<int> p, int w, int h)
+        {
+            return isValidRectIndex(p.x, p.y, w, h);
+        }
+
+        static bool isValidRectIndex(int x, int y, int width, int height)
+        {
+            return x >= 0 && x < width && y >= 0 && y < height;
+        }
     };
 }; // end of namespace

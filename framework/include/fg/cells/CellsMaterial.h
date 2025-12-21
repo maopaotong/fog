@@ -12,23 +12,24 @@ namespace fog
 {
     using namespace Ogre;
 
-
     struct CellsMaterial
     {
         struct Options
         {
             std::string texName;
-            INJECT(Options(Config *config)) : texName(config->FOG_OF_WAR_TEX_NAME)
+            bool debugWireFrame;
+            INJECT(Options(Config *config)) : texName(config->FOG_OF_WAR_TEX_NAME), debugWireFrame(config->DEBUG_polygonMode_wireFrame)
             {
             }
         };
         std::string material;
+        Options opts;
 
         INJECT(CellsMaterial(
-                      CellsVertecies * cvs,
-                      FogOfWarTexture *ftexture,
-                      Config *config,
-                      Options options))
+            CellsVertecies *cvs,
+            FogOfWarTexture *ftexture,
+            Config *config,
+            Options opts)) : opts(opts)
         {
             this->material = "Tiles";
 
@@ -38,20 +39,25 @@ namespace fog
             std::string texName0 = "TerrainsTex001";
             // Context<CellsTerrains>::get()->createWorldTexture(texName0, tts->vertexs);
             cvs->createWorldTexture(texName0, cvs->vertexs); // TODO texture create by a manager.
+            Pass *pass = mat->getTechnique(0)->getPass(0);
 
-            mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(texName0);
-            mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
+            pass->getTextureUnitState(0)->setTextureName(texName0);
+            pass->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
             // tex9
 
             // std::string texName9 = Context<FogOfWar>::get()->getTexName();
             // std::string texName9 = this->fogOfWar->getTexName();
             std::string texName9 = ftexture->opts.texName;
-            mat->getTechnique(0)->getPass(0)->getTextureUnitState(9)->setTextureName(texName9);
-            mat->getTechnique(0)->getPass(0)->getTextureUnitState(9)->setTextureFiltering(Ogre::TFO_BILINEAR);
+            pass->getTextureUnitState(9)->setTextureName(texName9);
+            pass->getTextureUnitState(9)->setTextureFiltering(Ogre::TFO_BILINEAR);
 
             GpuProgramParametersSharedPtr vParams = mat->getTechnique(0)->getPass(0)->getVertexProgramParameters();
             vParams->setNamedConstant("tlsWidthInNum", config->cellsRange.getWidth());
             vParams->setNamedConstant("tlsHeightInNum", config->cellsRange.getHeight());
+            if (opts.debugWireFrame)
+            {
+                pass->setPolygonMode(PM_WIREFRAME);
+            }
         }
     };
 

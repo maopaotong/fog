@@ -5,8 +5,8 @@
 #pragma once
 
 #include "fg/util.h"
+#include "fg/cells.h"
 #include "Common.h"
-#include "MaterialNames.h"
 #include "CellInstanceStateManager.h"
 namespace fog
 {

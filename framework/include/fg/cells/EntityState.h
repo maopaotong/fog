@@ -5,11 +5,8 @@
 #pragma once
 
 #include "fg/util.h"
-
+#include "fg.h"
 //
-#include "Common.h"
-#include "PathState.h"
-#include "PathFollow2MissionState.h"
 
 namespace fog
 {

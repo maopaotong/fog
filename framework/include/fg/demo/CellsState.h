@@ -31,13 +31,14 @@ namespace fog
 
             this->material = cMaterial->material;
 
-            int step = config->cellsTerrainQuality / config->cellsMeshQuality;
+            int step = config->cellsTerrainAmp ;// / config->cellsMeshQuality;
 
             int qWidth = cvs->width / step;
             int qHeight = cvs->height / step;
 
             obj->clear();
             obj->begin(material, Ogre::RenderOperation::OT_TRIANGLE_LIST);
+            
 
             int baseIdx = obj->getCurrentVertexCount();
 

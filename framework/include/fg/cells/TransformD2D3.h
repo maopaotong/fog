@@ -24,7 +24,7 @@ namespace fog
                                               tlsHeight(config->cellsRange.getHeight())
 
             {
-                int quality = config->cellsTerrainQuality;
+                int quality = config->getTerrainQuality();
                 this->terWidth = tlsWidth * quality;                          //
                 this->terHeight = tlsHeight * quality * std::sqrt(3.0) / 2.0; // based on the toploy of cells.
             }

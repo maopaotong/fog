@@ -25,14 +25,17 @@ namespace fog
             float hillDistribution;
             float mountainDistribution;
             int hillRad;
+            bool makeMountainRange;
+
             INJECT(Options(Config *config)) : tlsWidth(config->cellsRange.getWidth()),
-                                              quality(config->cellsTerrainQuality),
+                                              quality(config->cellsTerrainAmp * config->cellsMeshQuality),
                                               tlsHeight(config->cellsRange.getHeight()),
                                               heightAmpOfHill(config->heightAmpOfHill),
                                               heightAmpOfMountain(config->heightAmpOfMountain),
                                               hillDistribution(config->hillPeakDistribution),
                                               mountainDistribution(config->mountainPeakDistribution),
-                                              hillRad(quality)
+                                              hillRad(quality),
+                                              makeMountainRange(config->makeMountainRange)
 
             {
 
@@ -83,26 +86,11 @@ namespace fog
             makeHeight(hMap, cDatas, centreRectMap);
             // makeMountainRange(CellTypes::MOUNTAIN, hMap, cDatas, centreRectMap);
             // makeHillRange(CellTypes::HILL, opts.hillRad, hMap, cDatas);
-
-            makeMountainRangeOnCell(CellTypes::MOUNTAIN, hMap, cDatas, centreRectMap);
-           
-        }
-
-        bool isValidRectIndex(Point2<int> p)
-        {
-            return isValidRectIndex(p.x, p.y);
-        }
-
-        bool isValidRectIndex(int x, int y)
-        {
-            return x >= 0 && x < width && y >= 0 && y < height;
-        }
-
-        Box2<int> cellOuterBox(CellKey cKey)
-        {
-            Box2<float> box = cKey.getOuterBoxInUV(tWidth, tHeight); // cover the entire tile.
-            box.scale(width, height);
-            return box.cast<int>();
+            if (opts.makeMountainRange)
+            {
+                MakeMountainRangeOnCellOp(tWidth, tHeight, width, height).makeMountainRangeOnCell(hMap, [](CellsVertex &cv)
+                                                                                                  { return cv.types[0] == CellTypes::MOUNTAIN || cv.types[0] == CellTypes::FRZ_MOUNTAIN; });
+            }
         }
 
         int makeMountainRangeOnRegion(std::unordered_set<CellKey, CellKey::Hash> &skips, int loops, CellType type, int rad, std::vector<std::vector<CellsVertex>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsVertex *>> &centreRectMap)
@@ -130,122 +118,149 @@ namespace fog
             return hits;
         }
 
-        void makeMountainRangeOnCell(CellType type, std::vector<std::vector<CellsVertex>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsVertex *>> &centreRectMap)
+        struct MakeMountainRangeOnCellOp
         {
-            std::mt19937 randGen(23669983);
-            float randHeightLow = 0.0;
-            float randHeightHigh = 1.0;
-            std::uniform_real_distribution<float> randHeight(randHeightLow, randHeightHigh);
-            for (int tx = 0; tx < tWidth; tx++)
+            int tWidth;
+            int tHeight;
+            int width;
+            int height;
+            MakeMountainRangeOnCellOp(int tW, int tH, int w, int h) : tWidth(tW), tHeight(tH), width(w), height(h)
             {
-                for (int ty = 0; ty < tHeight; ty++)
+            }
+
+            Box2<int> cellOuterBox(CellKey cKey)
+            {
+                Box2<float> box = cKey.getOuterBoxInUV(tWidth, tHeight); // cover the entire tile.
+                box.scale(width, height);
+                return box.cast<int>();
+            }
+            template <typename F>
+            void makeMountainRangeOnCell(std::vector<std::vector<CellsVertex>> &hMap,
+                                         F &&typeFunc)
+            {
+                std::mt19937 randGen(23669983);
+                std::uniform_real_distribution<float> rand01(0, 1);
+                for (int tx = 0; tx < tWidth; tx++)
                 {
-                    CellKey cKey(tx, ty);
-                    // if (skips.find(cKey) != skips.end())
-                    // {
-                    //     continue;
-                    // }
-
-                    std::vector<Point2<int>> peaks;
-
-                    Box2<int> box = cellOuterBox(cKey);
-
-                    for (int x = box.p1.x; x < box.p2.x; x++)
+                    for (int ty = 0; ty < tHeight; ty++)
                     {
-                        for (int y = box.p1.y; y < box.p2.y; y++)
+                        CellKey cKey(tx, ty);
+                        // if (skips.find(cKey) != skips.end())
+                        // {
+                        //     continue;
+                        // }
+
+                        std::vector<Point2<int>> peaks;
+
+                        Box2<int> box = cellOuterBox(cKey);
+
+                        for (int x = box.p1.x; x < box.p2.x; x++)
                         {
-                            if (!isValidRectIndex(x, y))
+                            for (int y = box.p1.y; y < box.p2.y; y++)
                             {
+                                if (!Iteration::isValidRectIndex(x, y, width, height))
+                                {
+                                    continue;
+                                }
+                                CellsVertex &thePV = hMap[x][y];
+                                if (typeFunc(thePV) && thePV.isPeak)
+                                {
+                                    peaks.push_back(Point2<int>(x, y));
+                                }
+                            }
+                        }
+                        if (peaks.size() < 2)
+                        {
+                            continue;
+                        }
+
+                        // Find the 2 rect with max distance, make mountains at the line betwen the 2 rect.
+                        int maxDI = 0;
+                        int maxDJ = 0;
+                        float maxDistance = 0;
+                        for (int i = 0; i < peaks.size(); i++)
+                        {
+                            for (int j = 0; j < peaks.size(); j++)
+                            {
+                                float dis = peaks[i].distance(peaks[j]);
+
+                                if (dis > maxDistance)
+                                {
+                                    maxDI = i;
+                                    maxDJ = j;
+                                    maxDistance = dis;
+                                }
+                            }
+                        }
+                        // makeMidAsPeak(peaks[maxDI], peaks[maxDJ], hMap, randGen, randHeight);
+                        //  randomly pick two peak to connect.
+
+                        std::unordered_set<int> processed;
+                        int fails = 0;
+                        int success = 0;
+                        while (success < peaks.size() && fails < peaks.size())
+                        {
+
+                            int a = static_cast<int>(peaks.size() * rand01(randGen)) % peaks.size();
+                            int b = static_cast<int>(peaks.size() * rand01(randGen)) % peaks.size();
+                            if (a == b || processed.count(a) > 0 || processed.count(b) > 0)
+                            {
+                                fails++;
                                 continue;
                             }
-                            CellsVertex &thePV = hMap[x][y];
-                            if (thePV.types[0] == type && thePV.isPeak)
-                            {
-                                peaks.push_back(Point2<int>(x, y));
-                            }
+
+                            success += 2;
+                            processed.insert(a);
+                            processed.insert(b);
+                            makeMidAsPeak(peaks[a], peaks[b], hMap, randGen, rand01);
                         }
                     }
-                    if (peaks.size() < 2)
-                    {
-                        continue;
-                    }
-                    // Find the 2 rect with max distance, make mountains at the line betwen the 2 rect.
-                    int maxDI = 0;
-                    int maxDJ = 0;
-                    float maxDistance = 0;
-                    for (int i = 0; i < peaks.size(); i++)
-                    {
-                        for (int j = 0; j < peaks.size(); j++)
-                        {
-                            float dis = peaks[i].distance(peaks[j]);
-
-                            if (dis > maxDistance)
-                            {
-                                maxDI = i;
-                                maxDJ = j;
-                                maxDistance = dis;
-                            }
-                        }
-                    }
-
-                    makeMidAsPeak(peaks[maxDI], peaks[maxDJ], hMap, randGen, randHeight);
                 }
-            }
-        } // end make range
+            } // end make range
 
-        void makeMidAsPeak(Point2<int> p1, Point2<int> p2, std::vector<std::vector<CellsVertex>> &hMap,
-                           std::mt19937 &randGen, std::uniform_real_distribution<float> &randHeight,
-                           float randHeightLow = 0.0,
-                           float randHeightHigh = 1.0)
-        {
-            CellType type = hMap[p1.x][p1.y].types[0];
-
-            if (hMap[p2.x][p2.y].types[0] != type)
+            void makeMidAsPeak(Point2<int> p1, Point2<int> p2, std::vector<std::vector<CellsVertex>> &hMap,
+                               std::mt19937 &randGen, std::uniform_real_distribution<float> &rand01)
             {
-                return;
+                CellType type = hMap[p1.x][p1.y].types[0];
+
+                if (hMap[p2.x][p2.y].types[0] != type)
+                {
+                    return;
+                }
+
+                Point2<int> midP = (p1 + p2) / 2;
+                if (midP == p1 || midP == p2)
+                {
+                    Point2<int> midP1 = Point2<int>(p1.x, p2.y);
+                    Point2<int> midP2 = Point2<int>(p2.x, p1.y);
+                    doTryMakePeak(midP1, p1, p2, hMap);
+                    doTryMakePeak(midP2, p1, p2, hMap);
+                    return;
+                }
+
+                //
+                doTryMakePeak(midP, p1, p2, hMap);
+
+                makeMidAsPeak(p1, midP, hMap, randGen, rand01);
+                makeMidAsPeak(p2, midP, hMap, randGen, rand01);
             }
 
-            Point2<int> midP = (p1 + p2) / 2;
-            if (midP == p1 || midP == p2)
+            void doTryMakePeak(Point2<int> midP, Point2<int> p1, Point2<int> p2, std::vector<std::vector<CellsVertex>> &hMap)
             {
-                midP = Point2<int>(p1.x, p2.y);
                 CellsVertex &midPV = hMap[midP.x][midP.y];
 
-                if (midPV.isPeak || midPV.types[0] != type)
+                if (midPV.isPeak)
                 {
-                    midP = Point2<int>(p2.x, p1.y);
-                    if (hMap[midP.x][midP.y].isPeak || midPV.types[0] != type)
-                    {
-                        return;
-                    }
+                    return;
                 }
-            }
-            //
-            CellsVertex &midPV = hMap[midP.x][midP.y];
-
-            if (!midPV.isPeak)
-            {
                 CellsVertex &p1PV = hMap[p1.x][p1.y];
                 CellsVertex &p2PV = hMap[p2.x][p2.y];
 
-                float low = std::min(p1PV.height, p1PV.height);
-                float high = std::max(p2PV.height, p2PV.height);
-                low = low - midPV.height;   // midPv is not peak, it is type height.
-                high = high - midPV.height; //
-                if ((high - low) / high < 0.25f)
-                {
-                    // if the two peak is samilar.
-                    // we make the new middle peak even lower than the low peak.
-                    high = low;
-                    low = low / 2.0f; //
-                }
-
-                midPV.height = midPV.height + map(randHeightLow, randHeightHigh, low, high, randHeight(randGen));
+                midPV.height = (p1PV.height + p2PV.height) / 2.0;
                 midPV.isPeak = true;
             }
-            makeMidAsPeak(p1, midP, hMap, randGen, randHeight);
-            makeMidAsPeak(p2, midP, hMap, randGen, randHeight);
-        }
+        };
+
         //
         // Connect peaks of hills by make the rect height .
         void makeHillRange(CellType type, int rad, std::vector<std::vector<CellsVertex>> &hMap, CellsDatas *cDatas)
@@ -422,7 +437,7 @@ namespace fog
                                 ht = typeHeight;
                             }
                         }
-                        else if (cell0.type == CellTypes::MOUNTAIN)
+                        else if (cell0.type == CellTypes::MOUNTAIN || cell0.type == CellTypes::FRZ_MOUNTAIN)
                         {
                             if (randMountain(randGen))
                             {
@@ -464,7 +479,7 @@ namespace fog
             }
         }
 
-        float map(float low1, float heigh1, float low2, float high2, float value)
+        static float map(float low1, float heigh1, float low2, float high2, float value)
         {
             return low2 + (high2 - low2) * ((value - low1) / (heigh1 - low1));
         }
@@ -496,7 +511,7 @@ namespace fog
                 break;
             case (CellTypes::MOUNTAIN):
             case (CellTypes::FRZ_MOUNTAIN):
-            
+
                 tlHeight = config->heightOfMountain;
                 break;
             default:
@@ -584,7 +599,7 @@ namespace fog
                         data[idx + 2] = v.types[2];
                         // A
                         data[idx + 3] = v.distanceToEdge(1.0) * 100; //
-                        //data[idx + 3] = v.temperature * 100; //
+                        // data[idx + 3] = v.temperature * 100; //
                         if (debugRange.isIn(x, y))
                         {
                             std::cout << fmt::format("texure[{:>2},{:>2}]:({:>3}|{:>3}|{:>3}|{:>3})", x, y, data[idx], data[idx + 1], data[idx + 2], data[idx + 3]) << std::endl;

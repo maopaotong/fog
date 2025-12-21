@@ -9,7 +9,7 @@
 #include "fg/Pickable.h"
 #include "fg/Stairs.h"
 #include "fg/Config.h"
-
+#include "fg/Actor.h"
 
 
 
