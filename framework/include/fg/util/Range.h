@@ -19,7 +19,6 @@ namespace fog
 
         T mapTo(T value, Range<T> r2)
         {
-
             T ret = r2.low + (r2.high - r2.low) * ((value - low) / (high - low));
             if (reverse == r2.reverse)
             {
@@ -27,5 +26,8 @@ namespace fog
             }
             return r2.low + r2.high - ret;
         }
+
     };
+
+
 }; // end of namespace

@@ -138,7 +138,7 @@ namespace fog
         };
 
     public:
-        static bool forEachTileInSameRegion(std::vector<std::vector<CellData>> &tiles, int w, int h, CellKey cKey, CellData &tile, CellRegion &region)
+        static bool forEachCellInSameRegion(std::vector<std::vector<CellData>> &tiles, int w, int h, CellKey cKey, CellData &tile, CellRegion &region)
         {
             VisitCtx ctx(tiles, w, h, region);
             return doForEachTileInSameRegion(0, ctx, cKey, tile);

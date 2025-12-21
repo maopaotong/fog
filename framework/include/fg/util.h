@@ -24,6 +24,7 @@
 #include "util/MeshBuild.h"
 #include "util/Point3.h"
 #include "util/Range.h"
+#include "util/Normaliser.h"
 
 
 

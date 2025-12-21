@@ -23,12 +23,12 @@ namespace fog
         {
             std::unordered_map<CellType, int> plot;
             Iteration::forEach<CellData>(tiles, w, h, [&tiles, &w, &h, &plot, &region, &toType](int x, int y, CellData &tl)
-                                         { bool isRegion = CellRegion::forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); });
+                                         { bool isRegion = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey(x, y), tl, region); });
         }
         struct TemperatureGenerator
         {
 
-            void generateTemperature(std::vector<std::vector<float>> &hMap, std::vector<std::vector<float>> &tMap, int w, int h)
+            static void generate(std::vector<std::vector<float>> &hMap, std::vector<std::vector<float>> &tMap, int w, int h)
             {
                 Range<float> yRange(0, h);
                 Range<float> latRange(-90, 90);
@@ -38,38 +38,24 @@ namespace fog
                 Range<float> hightNorm(0.0f, 1.0f); //
                 Range<float> altitudeLapseRange(0, -50);
 
-                float min = 1000;
-                float max = -1000;
+                std::mt19937 randGen(23669983);
+                std::uniform_real_distribution<float> randTp(-30, 30);
 
                 for (int y = 0; y < h; y++)
                 {
                     float lat = yRange.mapTo(y, latRange);
-                    float dgr1 = absLatRange.mapTo(std::abs(lat), latTempratureRange); // latitude.
+                    float dgr1 = absLatRange.mapTo(std::abs(lat), latTempratureRange); // latitude * latitude, give high lat high weight.
+
                     for (int x = 0; x < w; x++)
                     {
                         float dgr2 = dgr1 + hightNorm.mapTo(hMap[x][y], altitudeLapseRange); // altitude
-                        float dgr3 = dgr2 + 5 * ((x + 1) * (y + 1) % 10) / 10.0f;            // add noise
+
+                        // float dgr3 = dgr2 + 10 * (((x + 1) * (y + 1) * w / 2 * h / 2 % 10) / 10.0f - 0.5); // add noise
+
+                        float dgr3 = dgr2; // + randTp(randGen);
                         tMap[x][y] = dgr3;
-                        if (max < dgr3)
-                        {
-                            max = dgr3;
-                        }
-                        if (min > dgr3)
-                        {
-                            min = dgr3;
-                        }
                     }
                 } //
-                // normilise
-                Range<float> tRange(min, max);
-                Range<float> normRange(-1.0, 1.0f);
-                for (int x = 0; x < w; x++)
-                {
-                    for (int y = 0; y < h; y++)
-                    {
-                        tMap[x][y] = tRange.mapTo(tMap[x][y], normRange);
-                    }
-                }
             }
         };
 
@@ -89,11 +75,12 @@ namespace fog
 
             std::vector<std::vector<float>> heightmap(w, std::vector<float>(w, 0.0f));
 
-            DiamondSquare::generateAndNormalise(heightmap, w, config->generatorRoughness1, config->seedOfGenerator1);
+            DiamondSquare::generate(heightmap, w, config->generatorRoughness1, config->seedOfGenerator1);
+            Normaliser::normalise(heightmap, w, h);
 
-            std::vector<std::vector<float>> tpMap(w, std::vector<float>(w, 0.0f));
-            TemperatureGenerator tGen;
-            tGen.generateTemperature(heightmap, tpMap, w, w);
+            std::vector<std::vector<float>> tpMap(w, std::vector<float>(h, 0.0f));
+            TemperatureGenerator::generate(heightmap, tpMap, w, h);
+            Normaliser::normalise(tpMap, w, h);
 
             // statistic
             std::unordered_map<CellType, int> plot;
@@ -117,16 +104,9 @@ namespace fog
                                                   type = CellTypes::HILL;
                                               }
                                               else { 
-                                                 type = CellTypes::MOUNTAIN;
-                                                
+                                                 type = CellTypes::MOUNTAIN;                                                
                                               }
-                                              if(tpMap[x][y] < -0.75f ){
-                                                //TODO frozen as extra attributes of ocean/shore/lake/plain.
-                                                if(type == CellTypes::MOUNTAIN){
-                                                    type = CellTypes::FROZEN;
-                                                }
-                                              } 
-                                              
+                                             
                                               tiles[x][y].type = type; //
 
                                               auto &it = plot.find(type);
@@ -145,7 +125,21 @@ namespace fog
                 makeLake(tiles, w, h);
             }
 
+            Iteration::forEach<float>(heightmap, w, w, [&tpMap, &tiles, &plot, config](int x, int y, float h)
+                                      {
+                                          CellType &type = tiles[x][y].type;
+                                          if (tpMap[x][y] < 0.05f)
+                                          {
+                                              // TODO frozen as extra attributes of ocean/shore/lake/plain.
+                                              if (type == CellTypes::MOUNTAIN || type == CellTypes::HILL || type == CellTypes::PLAIN)
+                                              {
+                                                  type = CellTypes::FROZEN;
+                                              }
+                                          } //
+                                      });
+
         } // end of generate tiles
+
         /**
          *
          */
@@ -185,7 +179,7 @@ namespace fog
                                       return true; //
                                   });
 
-                bool isRegion = CellRegion::forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
+                bool isRegion = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
                 if (isRegion)
                 {
                     CellType type2 = this->typeFunc(borderTypes); // it will become: 1. plain, 2. shore.
@@ -204,6 +198,9 @@ namespace fog
             int h;
 
             int totalLakes;
+            CellType mustNeiber = CellTypes::MOUNTAIN;
+            int mustNeibersLow = 4;
+
             MakeLakeByOceanShore(std::vector<std::vector<CellData>> &tiles, int w, int h) : tiles(tiles), w(w), h(h), totalLakes(0)
             {
             }
@@ -212,39 +209,60 @@ namespace fog
             {
                 CellType type = tl.type;
 
-                std::unordered_set<CellType> innerTypes;
-                std::unordered_set<CellType> borderTypes;
+                std::unordered_map<CellType, int> innerTypes;
+                std::unordered_map<CellType, int> borderTypes;
                 std::unordered_set<CellData *> inners;
 
                 CellRegion region([&innerTypes, &borderTypes](CellKey cKey, CellData &tile, CellRegion &rg)
                                   {
                                       if (tile.type == CellTypes::SHORE || tile.type == CellTypes::OCEAN)
                                       {
-                                          innerTypes.insert(tile.type);
+                                          if (auto it = innerTypes.find(tile.type); it == innerTypes.end())
+                                          {
+                                              innerTypes.emplace(tile.type, 1);
+                                          }
+                                          else
+                                          {
+                                              innerTypes[tile.type]++;
+                                          }
                                           return true; //
                                       }
                                       return false; //
                                   },
                                   [&borderTypes, &innerTypes](CellKey cKey, CellData &tile, CellRegion &rg)
                                   {
-                                      borderTypes.insert(tile.type);
+                                      if (auto it = borderTypes.find(tile.type); it == borderTypes.end())
+                                      {
+                                          borderTypes.emplace(tile.type, 1);
+                                      }
+                                      else
+                                      {
+                                          borderTypes[tile.type]++;
+                                      }
                                       return true; //
                                   },
-                                  [&borderTypes, &innerTypes, &inners](CellKey cKey, CellData &tile, CellRegion &rg)
+                                  [this, &borderTypes, &innerTypes, &inners](CellKey cKey, CellData &tile, CellRegion &rg)
                                   {
                                       inners.insert(&tile);
                                       if (inners.size() > 1)
                                       {
                                           return false;
                                       }
-                                      if (borderTypes.count(CellTypes::FROZEN) == 0)
+                                      if (auto it = borderTypes.find(mustNeiber); it != borderTypes.end())
+                                      {
+                                          if (borderTypes[mustNeiber] < mustNeibersLow)
+                                          {
+                                              return false;
+                                          }
+                                      }
+                                      else
                                       {
                                           return false;
                                       }
                                       return true; //
                                   });
 
-                bool isLake = CellRegion::forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
+                bool isLake = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
                 if (isLake)
                 {
                     tl.type = CellTypes::LAKE;
@@ -294,7 +312,7 @@ namespace fog
                                       return true; //
                                   });
 
-                bool isRegion = CellRegion::forEachTileInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
+                bool isRegion = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
                 if (isRegion)
                 {
                     CellType newType = determineNewTypeForInnerMiddleOcean(borderTypes);
