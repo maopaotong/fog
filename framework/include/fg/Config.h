@@ -27,7 +27,8 @@ namespace fog
         // generator
         static int DEF_GENERATOR1_SEED;
         static int DEF_GENERATOR2_SEED;
-        inline static float DEF_GENERATOR1_ROUGHNESS =  0.45;;
+        inline static float DEF_GENERATOR1_ROUGHNESS = 0.45;
+        ;
         static float DEF_GENERATOR2_ROUGHNESS;
         static float DEF_GENERATOR1_OCEAN_RATIO;
         static float DEF_GENERATOR1_SHORE_RATIO;
@@ -51,6 +52,8 @@ namespace fog
         static bool DEF_DEBUG_FOG_OF_WAR;
         static inline float DEF_HILL_PEAK_DISTRIBUTION = 0.01f;
         static inline float DEF_MOUNTAIN_PEAK_DISTRIBUTION = 0.01f;
+        static inline float DEF_frozenDistribution = 0.1f;
+        static inline float DEF_temperatureLatitudeWeightPower = 3.0f;
 
     private:
         static Box2<int> Config::parseValueOfRange2Int(std::string string);
@@ -103,10 +106,10 @@ namespace fog
             heightOfHill = Options::get<float>(opts, "HEIGHT_HILL", DEF_HEIGHT_HILL);
             heightOfMountain = Options::get<float>(opts, "HEIGHT_MOUNTAIN", DEF_HEIGHT_MOUNTAIN);
             heightOfFrozen = Options::get<float>(opts, "HEIGHT_FROZEN", DEF_HEIGHT_FROZEN);
-            //height scale of hill & mountain.
+            // height scale of hill & mountain.
 
             heightAmpOfHill = getConfigByOption<float>("HEIGHT_AMP_OF_HILL", opts, 1.2f); //
-            heightAmpOfMountain = getConfigByOption<float>("HEIGHT_AMP_OF_MOUNTAIN", opts, 1.5f); 
+            heightAmpOfMountain = getConfigByOption<float>("HEIGHT_AMP_OF_MOUNTAIN", opts, 1.5f);
             //
             seedOfGenerator1 = getConfigByOption<int>("GENERATOR1_SEED", opts, DEF_GENERATOR1_SEED);
             seedOfGenerator2 = getConfigByOption<int>("GENERATOR2_SEED", opts, DEF_GENERATOR2_SEED);
@@ -124,7 +127,7 @@ namespace fog
             debugPrintTerrainsTexRange = getConfigByOption<Box2<int>>("DEBUG_PRINT_TERRAINS_TEX_RANGE", opts, DEF_DEBUG_PRINT_TERRAINS_TEX_RANGE);
             debugShaderShowCellEdge = getConfigByOption<int>("SHADER_SHOW_CELL_EDGE", opts, DEF_SHADER_SHOW_CELL_EDGE);
             debugShaderShowRegionEdge = getConfigByOption<int>("SHADER_SHOW_REGION_EDGE", opts, DEF_SHADER_SHOW_REGION_EDGE);
-            
+
             fogOfWarTextRange = getConfigByOption<Box2<int>>("FOG_OF_WAR_TEX_RANGE", opts, DEF_FOG_OF_WAR_TEX_RANGE);
             fogOfWarEreaseRange = getConfigByOption<Box2<int>>("FOG_OF_WAR_EREASE_RANGE", opts, DEF_FOG_OF_WAR_EREASE_RANGE);
             actorMovedEventDistance = getConfigByOption<float>("STATE_MOVED_EVENT_DISTNACE", opts, DEF_STATE_MOVED_EVENT_DISTNACE);
@@ -133,7 +136,9 @@ namespace fog
             debugFogOfWar = getConfigByOption<bool>("DEBUG_FOG_OF_WAR", opts, DEF_DEBUG_FOG_OF_WAR);
             hillPeakDistribution = getConfigByOption<float>("HILL_PEAK_DISTRIBUTION", opts, DEF_HILL_PEAK_DISTRIBUTION);
             mountainPeakDistribution = getConfigByOption<float>("MOUNTAIN_PEAK_DISTRIBUTION", opts, DEF_MOUNTAIN_PEAK_DISTRIBUTION);
-            
+            frozenDistribution = getConfigByOption<float>("frozenDistribution", opts, DEF_frozenDistribution);
+
+            temperatureLatitudeWeightPower=getConfigByOption<float>("temperatureLatitudeWeightPower", opts, DEF_temperatureLatitudeWeightPower);
             // // transform
             // TF_CELL_SCALE = {CELL_SCALE};
             // CELLKEY_2_UV = {TILES_RANGE.getWidth(), TILES_RANGE.getHeight()};
@@ -167,21 +172,21 @@ namespace fog
         int cellsTerrainQuality = DEF_TILE_TERRAIN_QUALITY;
         int cellsMeshQuality = DEF_TILE_MESH_QUALITY;
         float cellScale = DEF_CELL_SCALE;
-        float worldWidth = DEF_WORLD_WIDTH;              // = CELL_SCALE * 2.0 * TILES_WIDTH;
-        float worldHeight = DEF_WORLD_HEIGHT;            // = WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
-                                                         //
-        float heightOfOcean = DEF_HEIGHT_OCEAN;          // = 0.49f * 0.9f;
-        float heightOfShore = DEF_HEIGHT_SHORE;          // = 0.50f * 0.9f;
-        float heightOfPlain = DEF_HEIGHT_PLAIN;          // = 0.51f * 1.1f;
-        float heightOfHill = DEF_HEIGHT_HILL;            // = 0.52f * 1.2f;
-        float heightOfMountain = DEF_HEIGHT_MOUNTAIN;    // = 0.53f * 1.f;
-        float heightOfFrozen = DEF_HEIGHT_FROZEN;        // = 0.54f * 1.f;
-        float heightAmpOfHill = 0.2f; //
+        float worldWidth = DEF_WORLD_WIDTH;           // = CELL_SCALE * 2.0 * TILES_WIDTH;
+        float worldHeight = DEF_WORLD_HEIGHT;         // = WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
+                                                      //
+        float heightOfOcean = DEF_HEIGHT_OCEAN;       // = 0.49f * 0.9f;
+        float heightOfShore = DEF_HEIGHT_SHORE;       // = 0.50f * 0.9f;
+        float heightOfPlain = DEF_HEIGHT_PLAIN;       // = 0.51f * 1.1f;
+        float heightOfHill = DEF_HEIGHT_HILL;         // = 0.52f * 1.2f;
+        float heightOfMountain = DEF_HEIGHT_MOUNTAIN; // = 0.53f * 1.f;
+        float heightOfFrozen = DEF_HEIGHT_FROZEN;     // = 0.54f * 1.f;
+        float heightAmpOfHill = 0.2f;                 //
         float heightAmpOfMountain = 0.5f;
         float hillPeakDistribution = 0.1f;
         float mountainPeakDistribution = 0.1f;
 
-                                                         // generator
+        // generator
         int seedOfGenerator1 = DEF_GENERATOR1_SEED;
         int seedOfGenerator2 = DEF_GENERATOR2_SEED;
         float generatorRoughness1 = DEF_GENERATOR1_ROUGHNESS;
@@ -206,6 +211,8 @@ namespace fog
         bool debugCout = DEF_DEBUG_COUT;
         bool debugMovingPosition = DEF_DEBUG_MOVING_POSITION;
         bool debugFogOfWar = DEF_DEBUG_FOG_OF_WAR;
+        float frozenDistribution = DEF_frozenDistribution;
+        float temperatureLatitudeWeightPower = DEF_temperatureLatitudeWeightPower;
 
     }; // end of class
 };

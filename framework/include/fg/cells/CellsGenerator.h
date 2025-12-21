@@ -28,38 +28,65 @@ namespace fog
         struct TemperatureGenerator
         {
 
-            static void generate(std::vector<std::vector<float>> &hMap, std::vector<std::vector<float>> &tMap, int w, int h)
+            static float latitudeWeight(float absLat, float maxAbsLat)
+            {
+                // 例如，我们可以让权重从赤道的1.0线性减少到极点的0.5
+                return 1.0f - (absLat / maxAbsLat) * 0.5f;
+            }
+
+            static void generate(std::vector<std::vector<float>> &hMap, std::vector<std::vector<float>> &tMap, int w, int h, float temperatureLatitudeWeightPower)
             {
                 Range<float> yRange(0, h);
-                Range<float> latRange(-90, 90);
-                Range<float> absLatRange(0, 90);
-                Range<float> latTempratureRange(30, -20);
-
-                Range<float> hightNorm(0.0f, 1.0f); //
-                Range<float> altitudeLapseRange(0, -50);
+                Range<float> latRange(-1, 1);
 
                 std::mt19937 randGen(23669983);
-                std::uniform_real_distribution<float> randTp(-30, 30);
+
+                std::uniform_real_distribution<float> noiseTp(-0.1, 0.1); // noise.
 
                 for (int y = 0; y < h; y++)
                 {
                     float lat = yRange.mapTo(y, latRange);
-                    float dgr1 = absLatRange.mapTo(std::abs(lat), latTempratureRange); // latitude * latitude, give high lat high weight.
+                    float absLat = std::abs(lat);
+                    int k = 1;
+                    // float latWeight = 0.5 + 0.5 * std::pow(absLat / 90.0, k); //
+                    // float latWeight = absLatRange.mapTo(absLat, 0.5, 1.0);
+                    // float latW = 0.5 + std::abs(lat) / 2.0f;
 
                     for (int x = 0; x < w; x++)
                     {
-                        float dgr2 = dgr1 + hightNorm.mapTo(hMap[x][y], altitudeLapseRange); // altitude
 
-                        // float dgr3 = dgr2 + 10 * (((x + 1) * (y + 1) * w / 2 * h / 2 % 10) / 10.0f - 0.5); // add noise
+                        float tp = -std::pow(absLat, temperatureLatitudeWeightPower);        //(-1, 0)
+                        float alt = (hMap[x][y] - 0.5f) * 2.0f; // to (-1,1)
+                        alt = std::clamp<float>(alt, 0, 1.0f);  // drop (-1,0)
 
-                        float dgr3 = dgr2; // + randTp(randGen);
-                        tMap[x][y] = dgr3;
+                        tp += -alt;           // alt drop temperature.,(-2, 0)
+                        tp = std::clamp<float>(tp, -1.5, 0);//drop the extreme value from height.
+                        if (hMap[x][y] > 0.9) // random the highest mountain as frozon.
+                        {
+                        }
+
+                        // tp = std::clamp<float>(tp, -2.1, 0.1);
+
+                        tp = tp + noiseTp(randGen);//(-2.1, 0.1)
+                        tp = std::clamp<float>(tp, -2, 0);//drop the extrem value form noise.
+
+                        tMap[x][y] = tp;
                     }
+
                 } //
             }
         };
+        struct Options
+        {
+            float frozenDistribution;
+            float temperatureLatitudeWeightPower;
+            INJECT(Options(Config *config)) : frozenDistribution(config->frozenDistribution),temperatureLatitudeWeightPower(config->temperatureLatitudeWeightPower)
+            {
+            }
+        };
 
-        INJECT(CellsGenerator())
+        Options opts;
+        INJECT(CellsGenerator(Options opts)) : opts(opts)
         {
         }
         virtual void generateCells(std::vector<std::vector<CellData>> &tiles, int w, int h, Config *config)
@@ -79,7 +106,8 @@ namespace fog
             Normaliser::normalise(heightmap, w, h);
 
             std::vector<std::vector<float>> tpMap(w, std::vector<float>(h, 0.0f));
-            TemperatureGenerator::generate(heightmap, tpMap, w, h);
+            TemperatureGenerator::generate(heightmap, tpMap, w, h, opts.temperatureLatitudeWeightPower);
+
             Normaliser::normalise(tpMap, w, h);
 
             // statistic
@@ -125,18 +153,21 @@ namespace fog
                 makeLake(tiles, w, h);
             }
 
-            Iteration::forEach<float>(heightmap, w, w, [&tpMap, &tiles, &plot, config](int x, int y, float h)
+            Iteration::forEach<float>(heightmap, w, w, [this, &tpMap, &tiles, &plot, config](int x, int y, float h)
                                       {
                                           CellType &type = tiles[x][y].type;
-                                          if (tpMap[x][y] < 0.05f)
+                                          if (tpMap[x][y] < this->opts.frozenDistribution)//temperature 
                                           {
                                               // TODO frozen as extra attributes of ocean/shore/lake/plain.
-                                              if (type == CellTypes::MOUNTAIN || type == CellTypes::HILL || type == CellTypes::PLAIN)
-                                              {
-                                                  type = CellTypes::FROZEN;
-                                              }
-                                          } //
-                                      });
+                                              // if (type == CellTypes::MOUNTAIN || type == CellTypes::HILL || type == CellTypes::PLAIN)
+                                              //{
+                                              type = CellTypes::FROZEN;
+                                              //}
+                                          } else {
+                                              if(type == CellTypes::MOUNTAIN){
+
+                                              }  
+                                          } });
 
         } // end of generate tiles
 
