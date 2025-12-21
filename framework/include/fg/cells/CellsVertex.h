@@ -20,13 +20,14 @@ namespace fog
         Vector2 originInCell;
         std::array<CellType, 3> types;
         bool isPeak;
+        int userData;
 
         CellsVertex() : CellsVertex(UNRESOLVED_HEIGHT, -1, -1)
         {
         }
         CellsVertex(int tx, int ty, float th) : height(UNRESOLVED_HEIGHT), cKey(tx, ty),
-                                                                   types{CellTypes::UNKNOW, CellTypes::UNKNOW, CellTypes::UNKNOW},
-                                                                   isPeak(false)
+                                                types{CellTypes::UNKNOW, CellTypes::UNKNOW, CellTypes::UNKNOW},
+                                                isPeak(false), userData(0)
         {
         }
         bool isHeightResolved()
@@ -77,7 +78,6 @@ namespace fog
             }
             return typeC;
         }
-        
     };
 
 }; // end of namespace

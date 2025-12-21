@@ -86,11 +86,23 @@ namespace fog
             makeHeight(hMap, cDatas, centreRectMap);
             // makeMountainRange(CellTypes::MOUNTAIN, hMap, cDatas, centreRectMap);
             // makeHillRange(CellTypes::HILL, opts.hillRad, hMap, cDatas);
+
             if (opts.makeMountainRange)
             {
                 MakeMountainRangeOnCellOp(tWidth, tHeight, width, height).makeMountainRangeOnCell(hMap, [](CellsVertex &cv)
                                                                                                   { return cv.types[0] == CellTypes::MOUNTAIN || cv.types[0] == CellTypes::FRZ_MOUNTAIN; });
             }
+        }
+        
+        void tryMakePeak(float height, std::vector<std::vector<CellsVertex>> &hMap, int x, int y, int w, int h)
+        {
+            if (!Iteration::isValidRectIndex(x, y, w, h))
+            {
+                return;
+            }
+            hMap[x][y].isPeak = true;
+            hMap[x][y].height = height;
+            hMap[x][y].userData = 1;
         }
 
         int makeMountainRangeOnRegion(std::unordered_set<CellKey, CellKey::Hash> &skips, int loops, CellType type, int rad, std::vector<std::vector<CellsVertex>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsVertex *>> &centreRectMap)
