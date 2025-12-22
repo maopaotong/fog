@@ -355,11 +355,26 @@ namespace fog
                     float centreX = static_cast<float>(x) * rectWidth;
                     float centreY = static_cast<float>(y) * rectHeight;
                     Vector2 points[5];
-                    points[0] = Vector2(centreX, centreY);                                        // centre point of the rect.
-                    points[1] = Vector2(centreX + rectWidth / 2.0f, centreY - rectHeight / 2.0f); //
-                    points[2] = Vector2(centreX + rectWidth / 2.0f, centreY + rectHeight / 2.0f); //
-                    points[3] = Vector2(centreX - rectWidth / 2.0f, centreY + rectHeight / 2.0f); //
-                    points[4] = Vector2(centreX - rectWidth / 2.0f, centreY - rectHeight / 2.0f); //
+                    // amplify the rect helps to make the boder jugment at shader program more easy.
+                    // But, this kind of solution for some reason does now work well.
+                    // The root cause is the that the uv cords geting the wrong cell/type value from texture few border rects. 
+                    // Even set the amp to 2 it is still have mis-match and wrong cell for points on border.
+                    // Thus we should find another way to deal with this mismatch on the boder of regions.
+                    // No need to process the non-border cells for rendering.
+                    // Option 1. Mix the color or some other rendering operation on the border of regions.
+                    // Option 2. Finger out the boder rect; and convert the near border but inner-region rects into border rect.
+                    // Border rect is charactered by:
+                    // 1. Span multiple regions .
+                    // 2. In another word, two or three types and cells related to it.
+                    // So we should wilden the border line and get more cells involed for texture generation for shader's using.
+                    
+                    float amp = 1;
+                    //0th is the centre point of the rect.
+                    points[0] = Vector2(centreX, centreY);                                                    
+                    points[1] = Vector2(centreX + amp * rectWidth / 2.0f, centreY - amp * rectHeight / 2.0f); //
+                    points[2] = Vector2(centreX + amp * rectWidth / 2.0f, centreY + amp * rectHeight / 2.0f); //
+                    points[3] = Vector2(centreX - amp * rectWidth / 2.0f, centreY + amp * rectHeight / 2.0f); //
+                    points[4] = Vector2(centreX - amp * rectWidth / 2.0f, centreY - amp * rectHeight / 2.0f); //
 
                     CellKey cKeys[5]; // find the 5 point in which cell.
                     for (int i = 0; i < 5; i++)
@@ -376,13 +391,13 @@ namespace fog
                     //
                     hMap[x][y].cKey = cKeys[0]; // centre cell.
                     hMap[x][y].originInCell = points[0] - tileCentreP;
-                    // 
+                    //
                     hMap[x][y].types[0] = cell0.type;
                     hMap[x][y].cKeys[0] = cKeys[0];
                     // set corner's type
 
                     std::unordered_set<CellKey, CellKey::Hash> keySet; // totol types of 5 cells.
-                    for (int i = 1; i < 5; i++)         // check other 4 corner's type. normally the max different types is 3, include the centre.
+                    for (int i = 1; i < 5; i++)                        // check other 4 corner's type. normally the max different types is 3, include the centre.
                     {
                         if (cKeys[i] != cKeys[0])
                         {
@@ -397,8 +412,8 @@ namespace fog
                     }
                     else if (keySet.size() == 1)
                     {
-                        hMap[x][y].cKeys[1] = cKeys[0];
-                        hMap[x][y].cKeys[2] = *keySet.begin();
+                        hMap[x][y].cKeys[1] = *keySet.begin();
+                        hMap[x][y].cKeys[2] = cKeys[0];
                     }
                     else if (keySet.size() == 2)
                     {

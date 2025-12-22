@@ -89,6 +89,8 @@ namespace fog
                                    {
                                        data[idx] = 0;
                                        data[idx + 1] = 0;
+                                       data[idx + 2] = 0;
+                                       data[idx + 3] = 0;
                                    }
                                    else
                                    {
