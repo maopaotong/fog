@@ -19,6 +19,7 @@ namespace fog
         CellKey cKey;
         Vector2 originInCell;
         std::array<CellType, 3> types;
+        std::array<CellKey, 3> cKeys;
         bool isPeak;
         int userData;
 
@@ -26,8 +27,9 @@ namespace fog
         {
         }
         CellsGrid(int tx, int ty, float th) : height(UNRESOLVED_HEIGHT), cKey(tx, ty),
-                                                types{CellTypes::UNKNOW, CellTypes::UNKNOW, CellTypes::UNKNOW},
-                                                isPeak(false), userData(0)
+                                              types{CellTypes::UNKNOW, CellTypes::UNKNOW, CellTypes::UNKNOW},
+                                              cKeys{CellKey(-1, -1), CellKey(-1, -1), CellKey(-1, -1)},
+                                              isPeak(false), userData(0)
         {
         }
         bool isHeightResolved()

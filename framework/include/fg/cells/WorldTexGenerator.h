@@ -92,9 +92,11 @@ namespace fog
                                    }
                                    else
                                    {
+                                       data[idx] = v.cKey.x;         //
+                                       data[idx + 1] = v.cKey.y;     //
+                                       data[idx + 2] = v.cKeys[1].x; //
+                                       data[idx + 3] = v.cKeys[1].y; //
 
-                                       data[idx] = v.cKey.x;
-                                       data[idx + 1] = v.cKey.y; //
                                    } //
                                });
         }

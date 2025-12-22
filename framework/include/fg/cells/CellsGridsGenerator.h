@@ -376,47 +376,52 @@ namespace fog
                     //
                     hMap[x][y].cKey = cKeys[0]; // centre cell.
                     hMap[x][y].originInCell = points[0] - tileCentreP;
+                    // 
                     hMap[x][y].types[0] = cell0.type;
+                    hMap[x][y].cKeys[0] = cKeys[0];
                     // set corner's type
 
-                    std::unordered_set<CellType> typeSet; // totol types of 5 cells.
-                    CellType type0 = cell0.type;
-                    for (int i = 1; i < 5; i++) // check other 4 corner's type. normally the max different types is 3, include the centre.
+                    std::unordered_set<CellKey, CellKey::Hash> keySet; // totol types of 5 cells.
+                    for (int i = 1; i < 5; i++)         // check other 4 corner's type. normally the max different types is 3, include the centre.
                     {
-                        CellData &tlI = cells[cKeys[i].x][cKeys[i].y];
-                        CellType typeI = tlI.type;
-                        if (typeI != type0)
+                        if (cKeys[i] != cKeys[0])
                         {
-                            typeSet.insert(typeI);
+                            keySet.insert(cKeys[i]);
                         }
                     }
 
-                    if (typeSet.size() == 0)
+                    if (keySet.size() == 0) // all rect inside the same cell.
                     {
-                        hMap[x][y].types[1] = type0;
-                        hMap[x][y].types[2] = type0;
+                        hMap[x][y].cKeys[1] = cKeys[0];
+                        hMap[x][y].cKeys[2] = cKeys[0];
                     }
-                    else if (typeSet.size() == 1)
+                    else if (keySet.size() == 1)
                     {
-                        hMap[x][y].types[1] = type0;
-                        hMap[x][y].types[2] = *typeSet.begin();
+                        hMap[x][y].cKeys[1] = cKeys[0];
+                        hMap[x][y].cKeys[2] = *keySet.begin();
                     }
-                    else if (typeSet.size() == 2)
+                    else if (keySet.size() == 2)
                     {
-                        auto it = typeSet.begin();
-                        hMap[x][y].types[1] = *it++;
-                        hMap[x][y].types[2] = *it++;
+                        auto it = keySet.begin();
+                        hMap[x][y].cKeys[1] = *it++;
+                        hMap[x][y].cKeys[2] = *it++;
                     }
-                    else if (typeSet.size() == 3)
+                    else if (keySet.size() == 3)
                     {
-                        auto it = typeSet.begin();
-                        hMap[x][y].types[1] = *it++;
-                        hMap[x][y].types[2] = *it++;
+                        auto it = keySet.begin();
+                        hMap[x][y].cKeys[1] = *it++;
+                        hMap[x][y].cKeys[2] = *it++;
                         // TODO what's up? span on the world edge?
                     }
                     else
                     { // impossbile?bug?
                         throw std::runtime_error("the rect is tool big?");
+                    }
+                    //
+                    for (int i = 1; i < 3; i++)
+                    {
+                        CellKey cKey = hMap[x][y].cKeys[i];
+                        hMap[x][y].types[i] = cells[cKey.x][cKey.y].type;
                     }
 
                     float typeHeight = cellTypeHeight(cell0);
@@ -560,8 +565,6 @@ namespace fog
 
             return totalHeight / (SAMPLES * SAMPLES);
         }
-
-        
     };
 
 }; // end of namespace
