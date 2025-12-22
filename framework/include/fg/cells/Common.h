@@ -5,7 +5,6 @@
 #pragma once
 #include <vector>
 #include "fg/util/DiamondSquare.h"
-#include "Common.h"
 #include "fg/util/Iteration.h"
 #include "fg/util/Rect.h"
 

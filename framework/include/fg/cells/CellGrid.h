@@ -7,13 +7,13 @@
 #include "fg/ogre.h"
 
 #include "fg/util.h"
-#include "Cells.h"
+#include "Common.h"
 
 namespace fog
 {
 
     static constexpr float UNRESOLVED_HEIGHT = -100;
-    struct CellsVertex
+    struct CellsGrid
     {
         float height;
         CellKey cKey;
@@ -22,10 +22,10 @@ namespace fog
         bool isPeak;
         int userData;
 
-        CellsVertex() : CellsVertex(UNRESOLVED_HEIGHT, -1, -1)
+        CellsGrid() : CellsGrid(UNRESOLVED_HEIGHT, -1, -1)
         {
         }
-        CellsVertex(int tx, int ty, float th) : height(UNRESOLVED_HEIGHT), cKey(tx, ty),
+        CellsGrid(int tx, int ty, float th) : height(UNRESOLVED_HEIGHT), cKey(tx, ty),
                                                 types{CellTypes::UNKNOW, CellTypes::UNKNOW, CellTypes::UNKNOW},
                                                 isPeak(false), userData(0)
         {

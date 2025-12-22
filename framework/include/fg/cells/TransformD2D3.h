@@ -5,9 +5,7 @@
 #pragma once
 
 #include "CellsDatas.h"
-#include "CellsVertex.h"
-#include "CellsVertecies.h"
-
+#include "CellsGrids.h"
 namespace fog
 {
     using namespace Ogre;
@@ -34,10 +32,10 @@ namespace fog
         int terWidth;
         int terHeight;
 
-        CellsVertecies *cvs;
+        CellsGrids *cvs;
         Config *config;
         float scale;
-        INJECT(TransformD2TD3(Options opts, Config *config, CellsVertecies *cvs)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
+        INJECT(TransformD2TD3(Options opts, Config *config, CellsGrids *cvs)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
                                                                                    terWidth(opts.terWidth), terHeight(opts.terHeight),
                                                                                    config(config),
                                                                                    cvs(cvs),
@@ -77,7 +75,7 @@ namespace fog
                 y = y + terHeight;
                 y = 0;
             }
-            float ret = cvs->vertexs[x][y].height * config->heightScale;
+            float ret = cvs->grids[x][y].height * config->heightScale;
             if (config->debugCout)
             {
                 std::cout << fmt::format(":[{:>.2f},{:>.2f}],[{:>3},{:>3}].h={:>3.1f}", pUV.x, pUV.y, x, y, ret) << std::endl;

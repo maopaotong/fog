@@ -6,12 +6,12 @@
 
 #include "fg/util.h"
 #include "CellsDatas.h"
-#include "CellsVertex.h"
+#include "CellGrid.h"
 
 namespace fog
 {
 
-    struct CellsVertecies
+    struct CellsGridsGenerator
     {
         struct Options
         {
@@ -45,7 +45,6 @@ namespace fog
         };
 
         Config *config;
-        std::vector<std::vector<CellsVertex>> vertexs;
         int tWidth;
         int tHeight;
         int width;
@@ -55,23 +54,22 @@ namespace fog
         float rectRad;
         float heightAmpOfHill;
         float heightAmpOfMountain;
-        std::vector<std::vector<CellData>> tiles;
 
         Options opts;
 
-        INJECT(CellsVertecies(Options opts, CellsDatas *cDatas,
-                              Config *config)) : opts(opts),
-                                                 vertexs(opts.terWidth,
-                                                         std::vector<CellsVertex>(opts.terHeight, CellsVertex())),
-                                                 config(config),
-                                                 heightAmpOfHill(opts.heightAmpOfHill),
-                                                 heightAmpOfMountain(opts.heightAmpOfMountain)
+        INJECT(CellsGridsGenerator(Options opts, Config *config)) : opts(opts),
+                                                                    config(config),
+                                                                    heightAmpOfHill(opts.heightAmpOfHill),
+                                                                    heightAmpOfMountain(opts.heightAmpOfMountain)
+        {
+        }
+
+        void generate(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas)
         {
 
             tWidth = opts.tlsWidth;
             tHeight = opts.tlsHeight;
             auto &tiles = cDatas->cells;
-            auto &hMap = vertexs;
             width = opts.terWidth;
             height = opts.terHeight;
             rectWidth = 2.0 / opts.quality; // rad of tile = 1 , width of tile = 2;
@@ -80,7 +78,7 @@ namespace fog
             // float rectWidth = static_cast<float>(tWidth) * 2.0f / static_cast<float>(width);
             // float rectHeight = static_cast<float>(tHeight) * 2.0f / static_cast<float>(height) * std::sqrt(3) / 2.0f;
             //
-            std::vector<std::vector<CellsVertex *>> centreRectMap(tWidth, std::vector<CellsVertex *>(tHeight, nullptr));
+            std::vector<std::vector<CellsGrid *>> centreRectMap(tWidth, std::vector<CellsGrid *>(tHeight, nullptr));
             // resove the terrain height of the centre rect for each tile.
 
             makeHeight(hMap, cDatas, centreRectMap);
@@ -89,12 +87,12 @@ namespace fog
 
             if (opts.makeMountainRange)
             {
-                MakeMountainRangeOnCellOp(tWidth, tHeight, width, height).makeMountainRangeOnCell(hMap, [](CellsVertex &cv)
+                MakeMountainRangeOnCellOp(tWidth, tHeight, width, height).makeMountainRangeOnCell(hMap, [](CellsGrid &cv)
                                                                                                   { return cv.types[0] == CellTypes::MOUNTAIN || cv.types[0] == CellTypes::FRZ_MOUNTAIN; });
             }
         }
-        
-        void tryMakePeak(float height, std::vector<std::vector<CellsVertex>> &hMap, int x, int y, int w, int h)
+
+        void tryMakePeak(float height, std::vector<std::vector<CellsGrid>> &hMap, int x, int y, int w, int h)
         {
             if (!Iteration::isValidRectIndex(x, y, w, h))
             {
@@ -105,7 +103,7 @@ namespace fog
             hMap[x][y].userData = 1;
         }
 
-        int makeMountainRangeOnRegion(std::unordered_set<CellKey, CellKey::Hash> &skips, int loops, CellType type, int rad, std::vector<std::vector<CellsVertex>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsVertex *>> &centreRectMap)
+        int makeMountainRangeOnRegion(std::unordered_set<CellKey, CellKey::Hash> &skips, int loops, CellType type, int rad, std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsGrid *>> &centreRectMap)
         {
             int hits = 0;
             std::mt19937 randGen(23669983);
@@ -147,7 +145,7 @@ namespace fog
                 return box.cast<int>();
             }
             template <typename F>
-            void makeMountainRangeOnCell(std::vector<std::vector<CellsVertex>> &hMap,
+            void makeMountainRangeOnCell(std::vector<std::vector<CellsGrid>> &hMap,
                                          F &&typeFunc)
             {
                 std::mt19937 randGen(23669983);
@@ -174,7 +172,7 @@ namespace fog
                                 {
                                     continue;
                                 }
-                                CellsVertex &thePV = hMap[x][y];
+                                CellsGrid &thePV = hMap[x][y];
                                 if (typeFunc(thePV) && thePV.isPeak)
                                 {
                                     peaks.push_back(Point2<int>(x, y));
@@ -230,7 +228,7 @@ namespace fog
                 }
             } // end make range
 
-            void makeMidAsPeak(Point2<int> p1, Point2<int> p2, std::vector<std::vector<CellsVertex>> &hMap,
+            void makeMidAsPeak(Point2<int> p1, Point2<int> p2, std::vector<std::vector<CellsGrid>> &hMap,
                                std::mt19937 &randGen, std::uniform_real_distribution<float> &rand01)
             {
                 CellType type = hMap[p1.x][p1.y].types[0];
@@ -257,16 +255,16 @@ namespace fog
                 makeMidAsPeak(p2, midP, hMap, randGen, rand01);
             }
 
-            void doTryMakePeak(Point2<int> midP, Point2<int> p1, Point2<int> p2, std::vector<std::vector<CellsVertex>> &hMap)
+            void doTryMakePeak(Point2<int> midP, Point2<int> p1, Point2<int> p2, std::vector<std::vector<CellsGrid>> &hMap)
             {
-                CellsVertex &midPV = hMap[midP.x][midP.y];
+                CellsGrid &midPV = hMap[midP.x][midP.y];
 
                 if (midPV.isPeak)
                 {
                     return;
                 }
-                CellsVertex &p1PV = hMap[p1.x][p1.y];
-                CellsVertex &p2PV = hMap[p2.x][p2.y];
+                CellsGrid &p1PV = hMap[p1.x][p1.y];
+                CellsGrid &p2PV = hMap[p2.x][p2.y];
 
                 midPV.height = (p1PV.height + p2PV.height) / 2.0;
                 midPV.isPeak = true;
@@ -275,13 +273,13 @@ namespace fog
 
         //
         // Connect peaks of hills by make the rect height .
-        void makeHillRange(CellType type, int rad, std::vector<std::vector<CellsVertex>> &hMap, CellsDatas *cDatas)
+        void makeHillRange(CellType type, int rad, std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas)
         {
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
-                    CellsVertex &vert = hMap[x][y]; // centre of rect.
+                    CellsGrid &vert = hMap[x][y]; // centre of rect.
                     int regions = vert.getRegions();
                     if (vert.types[0] != type || vert.isPeak || regions > 1) //
                     {
@@ -326,7 +324,7 @@ namespace fog
             }
         }
 
-        void makeHeight(std::vector<std::vector<CellsVertex>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsVertex *>> &centreRectMap)
+        void makeHeight(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsGrid *>> &centreRectMap)
         {
 
             std::mt19937 randGen(23665289);
@@ -563,80 +561,7 @@ namespace fog
             return totalHeight / (SAMPLES * SAMPLES);
         }
 
-        struct WorldTexOp
-        {
-
-            std::vector<std::vector<CellsVertex>> &hMap;
-            int typePlot[11] = {0}; // for debug.
-            int width;
-            int height;
-            unsigned char *data;
-            Config *config;
-            WorldTexOp(std::vector<std::vector<CellsVertex>> &hMap, int w, int h, Config *config) : hMap(hMap), width(w), height(h), config(config)
-            {
-                data = new unsigned char[w * h * 4];
-            }
-            ~WorldTexOp()
-            {
-                delete[] data;
-            }
-
-            void operator()()
-            {
-
-                for (int x = 0; x < width; x++)
-                {
-                    for (int y = 0; y < height; y++)
-                    {
-
-                        Box2<int> debugRange = config->debugPrintTerrainsTexRange;
-                        CellsVertex &v = hMap[x][y];
-                        if (v.types[0] < 10)
-                        {
-                            typePlot[v.types[0]]++;
-                        }
-                        else
-                        {
-                            typePlot[10]++;
-                        }
-
-                        int idx = (y * width + x) * 4;
-
-                        // R as the type of the centre point of the rect, the precision is based on the qulity parameter configred.
-
-                        data[idx] = v.types[0]; /** 0 .. 15 **/
-                        // G 2rd type of the rect.
-                        data[idx + 1] = v.types[1];
-                        // B 3rd type of the rect.
-                        data[idx + 2] = v.types[2];
-                        // A
-                        data[idx + 3] = v.distanceToEdge(1.0) * 100; //
-                        // data[idx + 3] = v.temperature * 100; //
-                        if (debugRange.isIn(x, y))
-                        {
-                            std::cout << fmt::format("texure[{:>2},{:>2}]:({:>3}|{:>3}|{:>3}|{:>3})", x, y, data[idx], data[idx + 1], data[idx + 2], data[idx + 3]) << std::endl;
-                        }
-                    }
-                }
-            }
-        };
-
-        // TODO create texture by a texture manager.
-        // TODO as well as the FogOfWar Texture creation.
-        // World texture is used as the meta data for the shader to determine the child texture.
-        void createWorldTexture(std::string name, std::vector<std::vector<CellsVertex>> &hMap)
-        {
-            WorldTexOp texOp(hMap, width, height, config);
-            texOp();
-            Ogre::TexturePtr texture = TextureFactory::createTexture(name, width, height);
-
-            TextureFactory::updateTexture(texture, width, height, texOp.data);
-
-            for (int i = 0; i < 11; i++)
-            {
-                std::cout << fmt::format("typePlot[{}] is {:>3}", i, texOp.typePlot[i]) << std::endl;
-            }
-        }
+        
     };
 
 }; // end of namespace

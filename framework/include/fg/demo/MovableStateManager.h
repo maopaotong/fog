@@ -121,7 +121,6 @@ namespace fog
                                                          return true; //
                                                      });
             this->actor2 = injector->getPtr<Sinbad>(Component::AsDynamic);
-            actor2->init();
             this->add(actor2);
             // actor2->setPosition(home->cKey );
             //  find a position.

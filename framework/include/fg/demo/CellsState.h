@@ -20,7 +20,7 @@ namespace fog
 
     public:
         INJECT(CellsState(CellsDatas *cDatas,
-                          CellsVertecies *cvs,
+                          CellsGrids *cvs,
                           CellsMaterial *cMaterial,
                           Transforms *tfs,
                           Config *config,
@@ -33,8 +33,8 @@ namespace fog
 
             int step = config->cellsTerrainAmp ;// / config->cellsMeshQuality;
 
-            int qWidth = cvs->width / step;
-            int qHeight = cvs->height / step;
+            int qWidth = cvs->opts.terWidth / step;
+            int qHeight = cvs->opts.terHeight / step;
 
             obj->clear();
             obj->begin(material, Ogre::RenderOperation::OT_TRIANGLE_LIST);
@@ -54,26 +54,26 @@ namespace fog
                 {
                     int qy = y * step;
                     int qx = x * step;
-                    CellKey cKey = cvs->vertexs[qx][qy].cKey;
+                    CellKey cKey = cvs->grids[qx][qy].cKey;
 
                     // HexTile::Key cis = cc->getCell(cKey);
 
                     // float scale = Context<Node2D>::get()->getScale();
                     // Vector2 tP = Cell::getOrigin2D(cis,scale);
 
-                    // Vector2 qP = tP + tts->vertexs[qx][qy].originInTile * scale;
-                    // Point2<float> qP = tP + tts->vertexs[qx][qy].originInTile * scale;
+                    // Vector2 qP = tP + tts->grids[qx][qy].originInTile * scale;
+                    // Point2<float> qP = tP + tts->grids[qx][qy].originInTile * scale;
                     //  scale
-                    float h = cvs->vertexs[qx][qy].height * config->heightScale;
+                    float h = cvs->grids[qx][qy].height * config->heightScale;
 
                     // Vector3 position3 = Context<Node2D>::get()->to3D(qP, 1);
                     // position.y = h;
 
                     // Vector3 position = qP.transform3(Transform::D2_NORMAL_D3(h));
-                    // Vector3 position = ((cis.cast<float>().transform(Transform::CellCentreByKey()) + tts->vertexs[qx][qy].originInTile) * config->CELL_SCALE).transform3(Transform::D2_NORMAL_D3(h));
-                    // Vector3 position = cKey.transform3(cvs->vertexs[qx][qy].originInTile, h, *config->transformFromD2HToD3Ptr);
+                    // Vector3 position = ((cis.cast<float>().transform(Transform::CellCentreByKey()) + tts->grids[qx][qy].originInTile) * config->CELL_SCALE).transform3(Transform::D2_NORMAL_D3(h));
+                    // Vector3 position = cKey.transform3(cvs->grids[qx][qy].originInTile, h, *config->transformFromD2HToD3Ptr);
 
-                    Vector3 position = cKey.transform3(cvs->vertexs[qx][qy].originInCell, h, *tfs->d2hd3);
+                    Vector3 position = cKey.transform3(cvs->grids[qx][qy].originInCell, h, *tfs->d2hd3);
                     // position.y = h;
 
                     positions[x][y] = position;

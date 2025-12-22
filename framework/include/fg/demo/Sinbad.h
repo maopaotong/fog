@@ -31,9 +31,5 @@ namespace fog
         {
         }
 
-        virtual void init() override
-        {
-            EntityState::init();
-        }
     };
 }; // end of namespace

@@ -22,18 +22,13 @@ namespace fog
     public:
         H0085(CoreMod * core,SceneNode* sNode) : EntityState("hc28c.mesh", ACTOR_SCALE, ACTOR_HEIGHT, {},core,sNode)
         {
+            entity->getSubEntity(0)->setMaterialName("hc28c");
+            this->sceNode->setOrientation(Ogre::Vector3(0, 0, 1).getRotationTo(Vector3(0, -1, 0)));
         }
 
         virtual ~H0085()
         {
         }
 
-        virtual void init() override
-        {
-            EntityState::init();
-            // this->sceNode->setOrientation();
-            entity->getSubEntity(0)->setMaterialName("hc28c");
-            this->sceNode->setOrientation(Ogre::Vector3(0, 0, 1).getRotationTo(Vector3(0, -1, 0)));
-        }
     };
 }; // end of namespace

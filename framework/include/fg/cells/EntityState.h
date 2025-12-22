@@ -49,12 +49,6 @@ namespace fog
         {
         }
 
-        virtual void init() 
-        {
-           
-            // init task owner.
-        }
-
         Ogre::Entity *getEntity()
         {
             return this->entity;
