@@ -64,6 +64,9 @@ namespace fog
             GpuProgramParametersSharedPtr vParams = mat->getTechnique(0)->getPass(0)->getVertexProgramParameters();
             vParams->setNamedConstant("tlsWidthInNum", config->cellsRange.getWidth());
             vParams->setNamedConstant("tlsHeightInNum", config->cellsRange.getHeight());
+            vParams->setNamedConstant("terrQuality", config->getTerrainQuality());
+            
+
             if (opts.debugWireFrame)
             {
                 pass->setPolygonMode(PM_WIREFRAME);
