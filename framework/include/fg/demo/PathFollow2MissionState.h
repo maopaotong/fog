@@ -28,13 +28,14 @@ namespace fog
         // Vector3Ref actorPosition;
         Actor *state;
         bool done;
-        Transforms * tfs;
+        Transforms *tfs;
+
     public:
-        PathFollow2MissionState(Actor *state, PathFollow2 path,                     //
-                                
+        PathFollow2MissionState(Actor *state, PathFollow2 path, //
+
                                 AnimationStateSet *aniSet,                          //
                                 std::vector<std::string> &aniNames, float aniSpeed, //
-                                Transforms * tfs,
+                                Transforms *tfs,
                                 float heightOffset = 0.0f) //
             : state(state),                                //
               path(path),                                  //
@@ -43,7 +44,6 @@ namespace fog
               tfs(tfs),
               done(false) //
         {
-            this->aniSet = aniSet;
             this->offset = Vector3(0, heightOffset, 0);
             for (std::string name : aniNames)
             {
@@ -55,12 +55,7 @@ namespace fog
             //
             // this->setFrameListener(this);
         }
-        void init() 
-        {
-            // actorPosition = this->getProperty<Vector3>("actor1"
-            //                  ".actor.position");
-        }
-
+       
         PathFollow2 &getPath()
         {
             return this->path;
@@ -141,12 +136,16 @@ namespace fog
             // high
 
             // animation
-            AnimationStateIterator it = this->aniSet->getAnimationStateIterator();
-            while (it.hasMoreElements())
+            if (this->aniSet)
             {
-                AnimationState *as = it.getNext();
-                float aniTimeFactor = this->animateTimeSpeedFactor * (path.getSpeed());
-                as->addTime(timeSinceLastFrame * aniTimeFactor);
+
+                AnimationStateIterator it = this->aniSet->getAnimationStateIterator();
+                while (it.hasMoreElements())
+                {
+                    AnimationState *as = it.getNext();
+                    float aniTimeFactor = this->animateTimeSpeedFactor * (path.getSpeed());
+                    as->addTime(timeSinceLastFrame * aniTimeFactor);
+                }
             }
 
             Vector3 d3 = Vector3(direction2D.x, 0, -direction2D.y);

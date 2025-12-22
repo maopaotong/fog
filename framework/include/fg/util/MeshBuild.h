@@ -255,27 +255,21 @@ namespace fog
             {
                 NormManualObject *obj;
                 ColourValue color;
-                // HexTile::Key *cell;
-                // Vector2 origin;
+                std::function<Vector3(Vector2, int)> position;
 
                 int layer;
                 int layerSize;
                 int preLayerSize;
-                int totalLayer = FG_SPIDER_TOTAL_LAYER; // settings global
 
                 // to build the mesh, this context alive on the whole building operation.
                 // so it visits each cell and each points of cells.
                 int idx; // point index
 
-                template <typename F>
-                void operator()(int pIdx, Vector2 &pointOnCircle, F &&positionFunc)
+                
+                void operator()(int pIdx, Vector2 &pointOnCircle)
                 {
-                    // Vector2 pointOnLayer = pointOnCircle * ((float)layer / (float)totalLayer);
-                    //  Vector3 pos = cell->node->to3D(origin, pointOnLayer, nullptr);
-                    // Vector3 pos = positionFunc(pointOnLayer);
-                    Vector3 pos = positionFunc(pointOnCircle, layer, totalLayer);
+                    Vector3 pos = position(pointOnCircle, layer);
                     obj->position(pos);
-                    // obj->textureCoord(pointOnCircle.x, pointOnCircle.y);
                     obj->textureCoord(pos.x / FG_TEXTURE_COORD_SCALE, -pos.z / FG_TEXTURE_COORD_SCALE);
                     obj->colour(color);
 
@@ -321,9 +315,8 @@ namespace fog
             bool useDefaultNorm = true;
             Vector3 defaultNorm = {0.0f, 1.0f, 0.0f};
             NormManualObject normObj;
-            TransformFunc transform;
 
-            SpiderNet(ManualObject *obj, TransformFunc transform) : obj(obj) , transform(transform){}
+            SpiderNet(ManualObject *obj) : obj(obj){}
             void begin(std::string material)
             {
                 obj->clear();
@@ -337,37 +330,27 @@ namespace fog
                 visitPoint.idx = baseIndex;
             }
             
-            void operator()(CellKey &cell, ColourValue color)
-            {
-                operator()([&cell, this](Vector2 & pointOnCircle, int layer, int totalLayer)
-                           {
-                               Vector2 pointOnLayer = pointOnCircle * (float)layer / ((float)totalLayer - 1);                               
-                               return transform(pointOnLayer);
-                           },
-                           color //
-                );
-            }
             // each cell visit op.
             template <typename F>
-            void operator()(F &&positionFunc, ColourValue color)
+            void operator()(int layers, F &&position, ColourValue color)
             {
-                // visitPoint.cell = &cell;
-                // visitPoint.origin = Cell::getOrigin2D(cell);
+                
                 visitPoint.color = color;
                 visitPoint.layerSize = 0;
+                visitPoint.position = position;
                 //
-                for (int i = 0; i < visitPoint.totalLayer; i++)
+                for (int i = 0; i < layers; i++)
                 {
                     visitPoint.layer = i;
                     visitPoint.preLayerSize = visitPoint.layerSize;
-                    visitPoint.layerSize = layerSize(i);
+                    visitPoint.layerSize = getLayerSize(i);
 
-                    CellKey::forEachPointOnCircle(visitPoint.layerSize, 0.0f, visitPoint, positionFunc);
+                    Circle::forEachPointOnCircle(visitPoint.layerSize, visitPoint);
                 }
                 normObj.commit();
             }
 
-            int layerSize(int layer)
+            int getLayerSize(int layer)
             {
                 return layer = std::powf(2, layer) * 6;
             }
@@ -378,27 +361,5 @@ namespace fog
             }
         }; // end of spider net.
 
-        class HexPrism
-        {
-            ManualObject *obj;
-            int baseIndex;
-
-        public:
-            HexPrism(ManualObject *obj) : obj(obj) {}
-            void begin(std::string material)
-            {
-                obj->clear();
-                obj->begin(material, Ogre::RenderOperation::OT_TRIANGLE_LIST);
-                baseIndex = obj->getCurrentVertexCount();
-            }
-
-            void operator()(ColourValue color)
-            {
-            }
-            void end()
-            {
-                this->obj->end();
-            }
-        };
     };
 };

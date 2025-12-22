@@ -6,10 +6,9 @@
 
 #include "fg/ogre.h"
 #include "fg/util.h"
+#include "fg/actors.h"
 //
 #include "Common.h"
-#include "Sinbad.h"
-#include "Tower.h"
 namespace fog
 {
 

@@ -163,19 +163,12 @@ namespace fog
             PathFollow2 path2D = buildPath();
 
             AnimationStateSet *anisSet = movingState->getAllAnimationStates();
-            if (!anisSet)
-            {
-                throw std::runtime_error("no animation set, not supported for now.");
-            }
-            // float aniSpeed = this->Context<Var<float>::Bag>::get()->getVarVal(".aniSpeed", 1.0f);
-            float aniSpeed = 1.0f; // Context<Var<float>::Bag>::get()->getVarVal(".aniSpeed", 1.0f);
+            
+            float aniSpeed = 1.0f; // 
 
             // new child state.
             mission = new PathFollow2MissionState(this->movingState, path2D, anisSet, movingState->getAnimationNames(), aniSpeed, tfs, movingState->getActorHighOffset()); //
-            mission->init();
-            // delete missionState;
-            // this->addChild(missionState);
-            // this->addChild(mission);
+            
         }
 
     }; // end of class

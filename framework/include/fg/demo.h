@@ -4,7 +4,6 @@
  */
 #pragma once
 #include "demo/BuildingStateManager.h"
-#include "demo/Building.h"
 
 #include "demo/CellInstanceStateManager.h"
 #include "demo/CellsState.h"
@@ -12,7 +11,6 @@
 #include "demo/Clock.h"
 #include "demo/EntryController.h"
 #include "demo/FogOfWar.h"
-#include "demo/H0085.h"
 #include "demo/HomeCellKey.h"
 #include "demo/InputStateController.h"
 #include "demo/Inventory.h"
@@ -25,8 +23,6 @@
 #include "demo/PathFollow2MissionState.h"
 #include "demo/PathState.h"
 #include "demo/Policy.h"
-#include "demo/Sinbad.h"
-#include "demo/Tower.h"
 #include "demo/WorldManager.h"
 
 

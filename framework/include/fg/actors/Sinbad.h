@@ -14,7 +14,7 @@
 namespace fog
 {
 
-    class Sinbad : public EntityState
+    class Sinbadx : public EntityState
     {
 
         constexpr static float ACTOR_SCALE = 2.5f;
@@ -23,11 +23,11 @@ namespace fog
     protected:
 
     public:
-        INJECT(Sinbad(CoreMod * core,SceneNode * sceNode)) : EntityState("Sinbad.mesh", ACTOR_SCALE, ACTOR_HEIGHT, {"RunBase", "RunTop"},core,sceNode)
+        INJECT(Sinbadx(CoreMod * core,SceneNode * sceNode)) : EntityState("Sinbad.mesh", ACTOR_SCALE, ACTOR_HEIGHT, {"RunBase", "RunTop"},core,sceNode)
         {
         }
 
-        ~Sinbad()
+        ~Sinbadx()
         {
         }
 

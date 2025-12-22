@@ -32,17 +32,12 @@ namespace fog
 
             obj = core->createManualObject();
             obj->setQueryFlags(0x00000001);
-
-            //this->sceNode = sceneMgr->getRootSceneNode()->createChildSceneNode();
             sceNode->attachObject(obj);
-            //
-            //
-            // this->setSceneNode(sceNode);
         }
+
         virtual ~ManualState()
         {
-            core->getRootSceneNode()->removeAndDestroyChild(sceNode);
-            
+            core->getRootSceneNode()->removeAndDestroyChild(sceNode);            
             this->sceNode = nullptr;
         }
 

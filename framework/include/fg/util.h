@@ -25,6 +25,7 @@
 #include "util/Point3.h"
 #include "util/Range.h"
 #include "util/Normaliser.h"
+#include "util/Circle.h"
 
 
 

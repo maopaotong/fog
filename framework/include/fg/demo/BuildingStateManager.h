@@ -4,15 +4,12 @@
  */
 #pragma once
 #include "fg/util.h"
-
 #include "fg/ogre.h"
-#include "Common.h"
+#include "fg/actors.h"
 #include "fg/cells.h"
-#include "Sinbad.h"
-#include "Tower.h"
+#include "Common.h"
 #include "InventoryStateManager.h"
-#include "Building.h"
-#include "H0085.h"
+
 namespace fog
 {
 
@@ -191,21 +188,7 @@ namespace fog
 
             if (success)
             {
-                Actor *building = nullptr;
-                if (type == BuildingType::Tower)
-                {
-                    building = injector->getPtr<Tower>();
-                }
-                else if (type == BuildingType::H0085)
-                {
-                    building = injector->getPtr<H0085>();
-                }
-                else
-                {
-                    building = new Building(type, tfs, core);
-                }
-                // building->init();
-
+                Actor *building  = new Building(type, tfs, core);
                 this->plan = new BuildingPlan(building, invAmount, core, tfs);
             }
 

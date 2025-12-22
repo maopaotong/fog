@@ -85,7 +85,7 @@ namespace fog
                 {
                     msm->forEach([this](Actor *state)
                                        {
-                        Sinbad *sb = dynamic_cast<Sinbad*>(state);
+                        Sphere *sb = dynamic_cast<Sphere*>(state);
                         if(sb){
                             msm->pick(sb);
                             return false;

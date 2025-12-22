@@ -7,8 +7,7 @@
 #include "fg/util.h"
 #include "fg/ogre.h"
 #include "fg/cells.h"
-#include "Sinbad.h"
-#include "Tower.h"
+#include "fg/actors.h"
 #include "HomeCellKey.h"
 
 namespace fog
@@ -89,7 +88,7 @@ namespace fog
     class MovableStateManager : public Manager<Actor>, public Stairs
     {
         MovingState movingState;
-        EntityState *actor2;
+        Sphere *actor2;
         std::vector<std::string> aniNames = {"RunBase", "RunTop"};
         CoreMod *core;
         Event::Bus *eventBus;
@@ -120,10 +119,8 @@ namespace fog
                                                          }
                                                          return true; //
                                                      });
-            this->actor2 = injector->getPtr<Sinbad>(Component::AsDynamic);
+            this->actor2 = new Sphere(core);
             this->add(actor2);
-            // actor2->setPosition(home->cKey );
-            //  find a position.
             actor2->setPosition(home->cKey, *tfs->d2td3);
         }
         virtual ~MovableStateManager()
