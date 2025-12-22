@@ -19,27 +19,26 @@ namespace fog
 
         INJECT(Sphere(CoreMod *core)) : ManualState(core)
         {
-            this->sceNode->setScale(Vector3(10.0f, 10.0f, 10.0f));            
+            this->sceNode->setScale(Vector3(10.0f, 10.0f, 10.0f));
             MeshBuild::SpiderNet buildMesh(obj);
 
             buildMesh.begin(this->material); //
 
             int layers = 10;
-            float heightL = 1 / (layers - 1);
+            float yAnglar = Math::PI / 2.0f / layers;
+            
 
-            buildMesh(layers, [this, layers, heightL](Vector2 &pos2, int layer)
-                      {
-                        
-                          return Vector3(pos2.x, 1.0 - layer * heightL, -pos2.y); //
-                      },
-                      ColourValue::Green);
+            auto func = [this, layers, yAnglar](Vector2 pos2, int layer)
+            {
+                float h = std::cosf(layer * yAnglar); //
+                float r = std::sqrt(1.0f - h * h);
+                pos2 = pos2 * r;
 
-            buildMesh(layers, [this, layers, heightL](Vector2 &pos2, int layer)
-                      {
-                          return Vector3(pos2.x, -(1.0 - layer * heightL), -pos2.y); //
-                      },
-                      ColourValue::Green);
+                return Vector3(pos2.x, h, -pos2.y); //
+            };
 
+            buildMesh(layers, func, ColourValue::Green);
+            
             buildMesh.end();
         }
 

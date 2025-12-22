@@ -26,6 +26,7 @@
 #include "util/Range.h"
 #include "util/Normaliser.h"
 #include "util/Circle.h"
+#include "util/Math.h"
 
 
 

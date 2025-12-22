@@ -161,7 +161,7 @@ namespace fog
                 {
                     Vector3 p2 = neibersP[i];
                     Vector3 p3 = neibersP[(i + 1) % neibersCount];
-                    Vector4 plane = Math::calculateFaceNormalWithoutNormalize(p1, p2, p3);
+                    Vector4 plane = Ogre::Math::calculateFaceNormalWithoutNormalize(p1, p2, p3);
                     Vector3 normN(plane.x, plane.y, plane.z);
                     normN.normalise();
                     normNs += normN;

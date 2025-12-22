@@ -258,8 +258,8 @@ namespace fog
                 std::function<Vector3(Vector2, int)> position;
 
                 int layer;
-                int layerSize;
-                int preLayerSize;
+                int layerDensity;
+                int preLayerDensity;
 
                 // to build the mesh, this context alive on the whole building operation.
                 // so it visits each cell and each points of cells.
@@ -270,12 +270,12 @@ namespace fog
                 {
                     Vector3 pos = position(pointOnCircle, layer);
                     obj->position(pos);
-                    obj->textureCoord(pos.x / FG_TEXTURE_COORD_SCALE, -pos.z / FG_TEXTURE_COORD_SCALE);
+                    //obj->textureCoord(pos.x / FG_TEXTURE_COORD_SCALE, -pos.z / FG_TEXTURE_COORD_SCALE);
                     obj->colour(color);
 
                     //
-                    int size1 = preLayerSize;
-                    int size2 = layerSize;
+                    int size1 = preLayerDensity;
+                    int size2 = layerDensity;
                     int i = layer;
                     int j = pIdx; //
                     // skip i==0
@@ -336,23 +336,23 @@ namespace fog
             {
                 
                 visitPoint.color = color;
-                visitPoint.layerSize = 0;
+                visitPoint.layerDensity = 0;
                 visitPoint.position = position;
                 //
                 for (int i = 0; i < layers; i++)
                 {
                     visitPoint.layer = i;
-                    visitPoint.preLayerSize = visitPoint.layerSize;
-                    visitPoint.layerSize = getLayerSize(i);
+                    visitPoint.preLayerDensity = visitPoint.layerDensity;
+                    visitPoint.layerDensity = getLayerDensity(i);
 
-                    Circle::forEachPointOnCircle(visitPoint.layerSize, visitPoint);
+                    Circle::forEachPointOnCircle(visitPoint.layerDensity, visitPoint);
                 }
                 normObj.commit();
             }
 
-            int getLayerSize(int layer)
+            int getLayerDensity(int layer)
             {
-                return layer = std::powf(2, layer) * 6;
+                return std::powf(2, layer) * 6;
             }
 
             void end()

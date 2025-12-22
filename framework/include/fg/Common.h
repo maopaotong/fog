@@ -26,21 +26,7 @@
 
 namespace fog
 {
-
-    // graphics
-    // static constexpr float HEIGHT_SCALE = 100.0f;
-    // static constexpr int TILES_WIDTH = 128 + 1;
-    // static constexpr int TILE_SUBDIVISION_QUALITY = 2;
-    // static constexpr float HEIGHT_OCEAN = 0.49f * 0.9f;
-    // static constexpr float HEIGHT_SHORE = 0.50f * 0.9f;
-    // static constexpr float HEIGHT_PLAIN = 0.51f * 1.1f;
-    // static constexpr float HEIGHT_HILL = 0.52f * 1.2f;
-    // static constexpr float HEIGHT_MOUNTAIN = 0.53f * 1.f;
-    // static constexpr float HEIGHT_FROZEN = 0.54f * 1.f;
-
-    // static constexpr float CELL_SCALE = 30.0f;
-    // static constexpr float WORLD_WIDTH = CELL_SCALE * 2.0 * TILES_WIDTH;
-    // static constexpr float WORLD_HEIGHT = WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
+        
     static constexpr bool DEBUG_COUT = false;
     static constexpr float TEXTURE_COORD_SCALE = 30.0f;
     static constexpr bool DEBUG_CHECK_IMPOSSIBLE_ERROR = false;

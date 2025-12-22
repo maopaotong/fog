@@ -45,8 +45,9 @@ namespace fog
             return state;
         }
 
-    private:
+    protected:
         bool active = false;
+        float height = 0.0f;
 
     protected:
         SceneNode *sceNode;
