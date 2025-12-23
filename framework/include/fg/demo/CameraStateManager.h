@@ -36,10 +36,14 @@ namespace fog
         InputStateController *inputState;
         Config *config;
         Transforms *tfs;
+        Geometry *geo;
+
+        float speed = 0;
+        float maxAcc = 3000;
 
     public:
-        INJECT(CameraStateManager(CoreMod *core, InputStateController *inputState, Transforms *tfs)) : quit(false), core(core), inputState(inputState),
-                                                                                                       tfs(tfs)
+        INJECT(CameraStateManager(CoreMod *core, InputStateController *inputState, Transforms *tfs, Geometry *geo)) : geo(geo), quit(false), core(core), inputState(inputState),
+                                                                                                                      tfs(tfs)
         {
         }
 
@@ -47,13 +51,12 @@ namespace fog
         bool isViewportInsideGround(Vector3 &position, Quaternion &orientation)
         {
 
-            Ogre::Plane gPlane(Ogre::Vector3::UNIT_Y, 0);
             // Ray ray = state->camera->getCameraToViewportRay(0.5f, 0.5f);
 
             Ogre::Vector3 direction = orientation * Ogre::Vector3::NEGATIVE_UNIT_Z;
             Ogre::Ray ray(position, direction);
-            //
-            auto hitGrd = ray.intersects(gPlane);
+            // TODO intersects with ground in one piece of code.
+            auto hitGrd = ray.intersects(geo->ground);
             if (!hitGrd.first)
             {
                 return false;
@@ -79,6 +82,11 @@ namespace fog
         bool step(float timeSinceLastFrame) override
         {
             // std::cout << "Frame started!\n";
+            if (!inputState->isMoving())
+            {
+                this->speed = 0;
+                return true;
+            }
 
             // Camera *camera = core->getCamera();
             // Move camera
@@ -92,6 +100,18 @@ namespace fog
             float height = node->getPosition().y;
 
             float speed = map(height, DEFAULT_CAMERA_HEIGHT_MIN, DEFAULT_CAMERA_HEIGHT_MAX, FOG_CAM_SPEED_MIN, FOG_CAM_SPEED_MAX);
+            float deltaSpeed = speed - this->speed;
+            float maxDeltaSpeed = maxAcc * timeSinceLastFrame;
+            if (deltaSpeed > maxDeltaSpeed)
+            {
+                deltaSpeed = maxDeltaSpeed;
+            }
+            else if (deltaSpeed < -maxDeltaSpeed)
+            {
+                deltaSpeed = -maxDeltaSpeed;
+            }
+            speed = this->speed + deltaSpeed;
+            this->speed = speed;
             //
 
             Vector3 position = node->getPosition();
@@ -128,7 +148,6 @@ namespace fog
                 Ogre::GpuProgramManager &gpuMgr = Ogre::GpuProgramManager::getSingleton();
                 GpuSharedParametersPtr sParams = gpuMgr.getSharedParameters("FragSharedParams");
                 sParams->setNamedConstant<3, float>("cameraPos", node->getPosition());
-
             }
 
             return true; // Continue rendering

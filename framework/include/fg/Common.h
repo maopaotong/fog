@@ -43,7 +43,7 @@ namespace fog
 
     // camera speed when move within x-z plane.
     static constexpr float FOG_CAM_SPEED_MIN = 750;
-    static constexpr float FOG_CAM_SPEED_MAX = FOG_CAM_SPEED_MIN * 5;
+    static constexpr float FOG_CAM_SPEED_MAX = FOG_CAM_SPEED_MIN * 10;
 
     using GOON = bool;
 

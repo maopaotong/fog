@@ -4,18 +4,16 @@
  */
 #pragma once
 
-
 #include "fg/ogre.h"
 
 #include "fg/util.h"
 #include "fg/cells.h"
-//include the files under same folder
+// include the files under same folder
 #include "CellInstanceStateManager.h"
 #include "MoveToCellTask.h"
 #include "MovableStateManager.h"
 namespace fog
 {
-
 
     class MovingStateManager : public Manager<Actor>, public Stairs
     {
@@ -25,16 +23,20 @@ namespace fog
         Event::Bus *eventBus;
         CellsCost *cellsCost;
         Config *config;
-        CoreMod * core;
-        Transforms * tfs;
+        CoreMod *core;
+        Transforms *tfs;
+        Geometry *geo;
+
     public:
-        INJECT(MovingStateManager(CostMap *cm, 
+        INJECT(MovingStateManager(CostMap *cm,
                                   Event::Bus *eventBus,
-                                  CoreMod * core,
+                                  CoreMod *core,
                                   Config *config,
-                                  Transforms * tfs,
+                                  Transforms *tfs,
+                                  Geometry *geo,
                                   CellsCost *cellsCost)) : core(core),
-                                  tfs(tfs),
+                                                           geo(geo),
+                                                           tfs(tfs),
                                                            config(config),
                                                            eventBus(eventBus),
                                                            cellsCost(cellsCost),
@@ -73,8 +75,7 @@ namespace fog
 
             Ogre::Ray ray = core->getCameraToViewportRay(ndcX, ndcY);
 
-            Ogre::Plane ground(Ogre::Vector3::UNIT_Y, 0); // Y = 0
-            auto hitGrd = ray.intersects(ground);
+            auto hitGrd = ray.intersects(geo->ground);
             std::cout << "ndc:(" << ndcX << "," << ndcY << ")" << "hit:" << hitGrd.first << std::endl;
             if (!hitGrd.first)
             {

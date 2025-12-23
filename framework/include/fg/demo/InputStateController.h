@@ -9,7 +9,7 @@
 #include "fg/ogre.h"
 #include "InputState.h"
 #include "Common.h"
-
+#include <chrono>
 namespace fog
 {
     // === Custom hash function ===
@@ -17,46 +17,51 @@ namespace fog
     // === Input handler for closing application ===
     class InputStateController : public InputState
     {
+        using Clock = std::chrono::steady_clock;
+        using TimePoint = std::chrono::time_point<Clock>;
+
     private:
         bool left = false;
         bool right = false;
         bool front = false;
         bool back = false;
+        TimePoint lastMouseMoveEventTime;
         CoreMod *core;
-        Config * config;
+        Config *config;
+        int mouseX;
+        int mouseY;
+
+        int windowWidth;
+        int windowHeight;
+
     public:
-        INJECT(InputStateController(CoreMod *core,Config * config)) : core(core),config(config)
+        INJECT(InputStateController(CoreMod *core, Config *config)) : core(core), config(config)
         {
         }
 
         bool mouseMoved(const OgreBites::MouseMotionEvent &evt)
         {
-            //RenderWindow *window = core->getWindow();
+            this->lastMouseMoveEventTime = Clock::now();
             Box2<int> window = core->getWindowBox();
 
-            int width = window.getWidth();
-            int height = window.getHeight();
+            windowWidth = window.getWidth();
+            windowHeight = window.getHeight();
 
-            // 定义边缘区域（例如：10 像素）
-            int edgeSize = 10;
-            int x = evt.x;
-            int y = evt.y;
-            this->left = (x >= 0 && x <= edgeSize);
-            this->right = (x >= width - edgeSize && x <= width);
-            this->front = (y >= 0 && y <= edgeSize);
-            this->back = (y >= height - edgeSize && y <= height);
+            mouseX = evt.x;
+            mouseY = evt.y;
+
             if (config->debugCout)
             {
 
-                if (this->isMoving())
-                {
-                    std::cout << "Moving:(" << x << "," << y << "),(" << width << "," << height << ")" << std::endl;
-                    //  try pick.
-                }
-                else
-                {
-                    std::cout << "Not Moving:(" << x << "," << y << "),(" << width << "," << height << ")" << std::endl;
-                }
+                // if (this->isMoving())
+                // {
+                //     std::cout << "Moving:(" << x << "," << y << "),(" << width << "," << height << ")" << std::endl;
+                //     //  try pick.
+                // }
+                // else
+                // {
+                //     std::cout << "Not Moving:(" << x << "," << y << "),(" << width << "," << height << ")" << std::endl;
+                // }
             }
             return false;
         }
@@ -107,21 +112,83 @@ namespace fog
             return true;
         }
 
+        bool isMoving() override
+        {
+            auto now = Clock::now();
+            auto elapsed = std::chrono::duration<float>(now - lastMouseMoveEventTime).count();
+            if (elapsed > 3)
+            {
+                return false;
+            }
+            return InputState::isMoving();
+        }
+
         bool isLeft() override
         {
-            return this->left;
+            if (this->left)
+            {
+                return true;
+            }
+            if (mouseX > 0 && mouseX < 10)
+            {
+                return true;
+            }
+            if (mouseX == 0)
+            {
+                return true;
+            }
+
+            return false;
         }
         bool isRight() override
         {
-            return this->right;
+            if (this->right)
+            {
+                return this->right;
+            }
+            if (mouseX > windowWidth - 10 && mouseX < windowWidth - 1)
+            {
+                return true;
+            }
+            if (mouseX == windowWidth - 1)
+            {
+                return true;
+            }
+            return false;
         }
+
         bool isFront() override
         {
-            return this->front;
+            if (this->front)
+            {
+                return true;
+            }
+            if (mouseY > 0 && mouseY < 10)
+            {
+                return true;
+            }
+            if (mouseY == 0)
+            {
+                return true;
+            }
+            return false;
         }
         bool isBack() override
         {
-            return this->back;
+            if (this->back)
+            {
+                return true;
+            }
+            if (mouseY > windowHeight - 10 && mouseY < windowHeight - 1)
+            {
+                return true;
+            }
+            if (mouseY == windowHeight - 1)
+            {
+                return true;
+            }
+
+            return false;
         }
     };
 

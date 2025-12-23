@@ -12,7 +12,9 @@ namespace fog
         CellInstanceStateManager *cellInstMgrState;
         Transforms *tfs;
         Event::Bus *eventBus;
-        INJECT(MouseCellController(CoreMod *core, CellInstanceStateManager *cellInstMgrState, Transforms *tfs, Event::Bus *eventBus)) : core(core), cellInstMgrState(cellInstMgrState), tfs(tfs), eventBus(eventBus)
+        Geometry *geo;
+        CellKey mouseCellKey;
+        INJECT(MouseCellController(CoreMod *core, CellInstanceStateManager *cellInstMgrState, Transforms *tfs, Event::Bus *eventBus, Geometry *geo)) : geo(geo), core(core), cellInstMgrState(cellInstMgrState), tfs(tfs), eventBus(eventBus)
         {
         }
 
@@ -29,9 +31,7 @@ namespace fog
 
             Ogre::Ray ray = core->getCameraToViewportRay(ndcX, ndcY);
 
-            Ogre::Plane ground(Ogre::Vector3::UNIT_Y, 0); // Y = 0
-
-            auto hitGrd = ray.intersects(ground);
+            auto hitGrd = ray.intersects(geo->ground);
 
             Vector3 pos2;
 
@@ -51,9 +51,13 @@ namespace fog
                 return false;
             }
 
-            //cis->pushColour(ColourValue::White);
-
-            eventBus->emit<MouseCellEventType, CellKey>(MouseCellEventType::MouseEnterCell, cis->getCellKey());
+            // cis->pushColour(ColourValue::White);
+            CellKey cKey2 = cis->getCellKey();
+            if (this->mouseCellKey != cKey2)
+            {
+                this->mouseCellKey = cKey2;
+                eventBus->emit<MouseCellEventType, CellKey>(MouseCellEventType::MouseEnterCell, cKey2);
+            }
 
             return false;
         }

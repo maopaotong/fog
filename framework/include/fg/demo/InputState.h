@@ -15,7 +15,7 @@ public:
     virtual bool isUp() { return false; };
     virtual bool isDown() { return false; };
 
-    bool isMoving()
+    virtual bool isMoving() 
     {
         return isLeft() || isRight() || isFront() || isBack();
     }
