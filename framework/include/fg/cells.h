@@ -9,7 +9,6 @@
 #include "cells/CellsGenerator.h"
 #include "cells/TheTextures.h"
 #include "cells/CellsMaterial.h"
-#include "cells/ManualState.h"
 #include "cells/EntityState.h"
 #include "cells/CellsGrids.h"
 #include "cells/CellsGridsGenerator.h"

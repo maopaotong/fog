@@ -128,7 +128,7 @@ namespace fog
                 Ogre::GpuProgramManager &gpuMgr = Ogre::GpuProgramManager::getSingleton();
                 GpuSharedParametersPtr sParams = gpuMgr.getSharedParameters("FragSharedParams");
                 sParams->setNamedConstant<3, float>("cameraPos", node->getPosition());
-                // sParams->setNamedConstant<int>("showRegionEdge", config->debugShaderShowRegionEdge);
+
             }
 
             return true; // Continue rendering

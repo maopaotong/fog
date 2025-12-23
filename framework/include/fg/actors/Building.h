@@ -8,7 +8,7 @@
 #include "fg/cells.h"
 namespace fog
 {
-    class Building : public ManualState
+    class Building : public Actor
     {
 
     protected:
@@ -17,11 +17,14 @@ namespace fog
         Config *config;
 
     public:
-        INJECT(Building(BuildingType type, Transforms *tfs, CoreMod *core, Config *config, SceneNode *sceNode)) : ManualState(core, sceNode),
+        INJECT(Building(BuildingType type, Transforms *tfs, CoreMod *core, Config *config, SceneNode *sceNode)) : Actor(sceNode),
                                                                                                                   tfs(tfs),
                                                                                                                   config(config),
                                                                                                                   type(type)
         {
+            ManualObject * obj = core->createManualObject();
+            obj->setQueryFlags(0x00000001);
+            sceNode->attachObject(obj);
 
             sceNode->setScale(config->cellScale * 0.75, config->cellScale * 0.25, config->cellScale * 0.75);
             MeshBuild::Cylinder cylinder(obj);

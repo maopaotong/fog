@@ -55,7 +55,7 @@ namespace fog
             //
             // this->setFrameListener(this);
         }
-       
+
         PathFollow2 &getPath()
         {
             return this->path;
@@ -159,6 +159,12 @@ namespace fog
             // pNode->setOrientation(Quaternion(Degree(90), Vector3::UNIT_Y));
             //   update direction
             //
+            Ogre::GpuProgramManager &gpuMgr = Ogre::GpuProgramManager::getSingleton();
+            GpuSharedParametersPtr sParams = gpuMgr.getSharedParameters("FragSharedParams");
+            Point3<float> pos3D = target->getPosition();
+
+            Ogre::Vector2 posIn2D = Point2<float>::from(pos3D, *tfs->d3d2);
+            sParams->setNamedConstant<2, float>("actorPos2D", posIn2D);
 
             return true;
         }

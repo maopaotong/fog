@@ -14,22 +14,31 @@
 namespace fog
 {
 
-    struct Sphere : public ManualState
+    struct Sphere : public Actor
     {
 
-        INJECT(Sphere(CoreMod *core, SceneNode *sceNode)) : ManualState(core, sceNode)
+        INJECT(Sphere(CoreMod *core, SceneNode *sceNode)) : Actor(sceNode)
         {
-            sceNode->setScale(Vector3(10.0f, 10.0f, 10.0f));
-            MeshBuild::Cylinder cyclinder(obj);
 
-            cyclinder.begin(MaterialNames::materialNameForActor); //
+            sceNode = sceNode->createChildSceneNode(); //
 
-            int layers = 10;
-            float yAnglar = Math::PI / 2.0f / layers;
+            ManualObject *obj = core->createManualObject();
+            obj->setQueryFlags(0x00000001);
+            sceNode->attachObject(obj);
+            float scale = 5;
+            sceNode->setScale(Vector3(scale, scale, scale));
+            sceNode->setPosition(0, scale * 2, 0); //
+            MeshBuild::Cylinder cylinder(obj);
 
-            cyclinder(layers, [this, layers, yAnglar](Vector2 pos2, int layer)
+            cylinder.begin(MaterialNames::materialNameForActor); //
+
+            int layers = 5 * 2 + 1;
+            float yAnglar = Math::PI / (layers - 1);
+
+            cylinder(layers, [this, layers, yAnglar](Vector2 pos2, int layer)
                       {
                           float h = std::cosf(layer * yAnglar); //
+
                           float r = std::sqrt(1.0f - h * h);
                           pos2 = pos2 * r;
 
@@ -38,7 +47,7 @@ namespace fog
                       MeshBuild::SpiderNetTriangle(), [](int layer)
                       { return std::pow(2, layer) * 6; }, ColourValue::Green);
 
-            cyclinder.end();
+            cylinder.end();
         }
 
         ~Sphere()

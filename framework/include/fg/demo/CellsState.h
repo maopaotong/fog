@@ -11,7 +11,7 @@
 namespace fog
 {
     //
-    class CellsState : public ManualState
+    class CellsState : public Actor
     {
 
     public:
@@ -24,11 +24,14 @@ namespace fog
                           CellsMaterial *cMaterial,
                           Transforms *tfs,
                           Config *config,
-                          CoreMod *core, SceneNode *sceNode)) : ManualState(core, sceNode),
+                          CoreMod *core, SceneNode *sceNode)) : Actor(sceNode),
                                                                 config(config),
                                                                 tfs(tfs)
         {
 
+            ManualObject *obj = core->createManualObject();
+            //obj->setQueryFlags();
+            sceNode->attachObject(obj);
             int step = config->cellsTerrainAmp; // / config->cellsMeshQuality;
 
             int qWidth = cvs->opts.terWidth / step;
