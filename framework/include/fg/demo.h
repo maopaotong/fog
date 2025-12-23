@@ -24,6 +24,7 @@
 #include "demo/PathState.h"
 #include "demo/Policy.h"
 #include "demo/WorldManager.h"
+#include "demo/MouseCellController.h"
 
 
 

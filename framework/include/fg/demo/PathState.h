@@ -40,15 +40,14 @@ namespace fog
             for (auto it = currentPath.begin(); it != currentPath.end(); ++it)
             {
                 CellKey cKey = *it;
-                CellInstanceState *cis = cisManager ->getCellInstanceStateByCellKey(cKey);
+                CellInstanceState *cis = cisManager->getCellInstanceStateByCellKey(cKey);
                 if (unset)
                 {
-                    cis->popColour();
+                    // cis->popColour();
                 }
                 else
                 {
-
-                    cis->pushColour(Ogre::ColourValue::Blue);
+                    // cis->pushColour(Ogre::ColourValue::Blue);
                 }
             }
         }

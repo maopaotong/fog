@@ -114,69 +114,13 @@ namespace fog
         {
             if (this->targetCis)
             {
-                this->targetCis->popColour();
+                //this->targetCis->popColour();
             }
             this->targetCis = cis;
             if (this->targetCis)
             {
-                this->targetCis->pushColour(ColourValue::White);
+                //this->targetCis->pushColour(ColourValue::White);
             }
-        }
-
-        // TODO move this function to MouseStateManager
-        CONSUMED onMouseMoved(int x, int y)
-        {
-            if (!this->sourceState)
-            {
-                return false;
-            }
-
-            // Viewport *viewport = Context<CoreMod>::get()->getViewport();
-            // Camera *camera = Context<CoreMod>::get()->getCamera();
-            Box2<float> vp = core->getActualViewportBox();
-
-            float ndcX = x / (float)vp.getWidth();
-            float ndcY = y / (float)vp.getHeight();
-
-            Ogre::Ray ray = core->getCameraToViewportRay(ndcX, ndcY);
-
-            Ogre::Plane ground(Ogre::Vector3::UNIT_Y, 0); // Y = 0
-
-            auto hitGrd = ray.intersects(ground);
-
-            Vector3 pos2;
-
-            if (!hitGrd.first)
-            {
-                return false;
-            }
-
-            pos2 = ray.getPoint(hitGrd.second);
-
-            // Point2<float> p2 = Point2<float>::from(pos2, Transform::D3_NORMAL_D2(config->D2H2D3));
-            Point2<float> p2 = Point2<float>::from(pos2, *tfs->d3d2);
-
-            CellInstanceState *cis = cellInstMgrState->getCellInstanceStateByPosition(p2);
-            if (!cis)
-            {
-                return false;
-            }
-            if (cis == targetCis)
-            {
-                return false;
-            }
-            if (targetCis)
-            {
-                targetCis->popColour();
-                eventBus-> //
-                    emit<MouseCellEventType, CellKey>(MouseCellEventType::MouseLeaveCell, targetCis->getCellKey());
-            }
-            cis->pushColour(ColourValue::White);
-            targetCis = cis;
-            eventBus-> //
-                emit<MouseCellEventType, CellKey>(MouseCellEventType::MouseEnterCell, targetCis->getCellKey());
-
-            return false;
         }
 
         GOON step(float time) override

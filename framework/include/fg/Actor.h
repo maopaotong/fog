@@ -58,18 +58,13 @@ namespace fog
     public:
         Actor(SceneNode *sceNode) : sceNode(sceNode)
         {
-            // std::cout << "new State()" << this << "" << std::endl;
             Actor::set(sceNode, this);
         }
         virtual ~Actor()
         {
-            // children no need to delete , unique ptr will help.
-            //
-
-            Actor::set(this->sceNode, nullptr);
-            Node *pNode = this->sceNode->getParent();
-            pNode->removeChild(this->sceNode);
-            this->sceNode = nullptr;
+            Node *pNode = sceNode->getParent();
+            pNode->removeChild(sceNode);
+            Actor::set(sceNode, nullptr);
         }
 
         template <typename F>

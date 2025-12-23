@@ -19,8 +19,9 @@ namespace fog
         Event::Bus *eventBus;
         Actor *rootState;
         MovableStateManager * msm;
+        BuildingStateManager * bsm;
     public:
-        INJECT(ActiveTrayUI(Event::Bus *eventBus, MovableStateManager *msm)) : UIState("ActiveActor"), msm(msm),state(nullptr), eventBus(eventBus)
+        INJECT(ActiveTrayUI(Event::Bus *eventBus, MovableStateManager *msm, BuildingStateManager *bsm)) : UIState("ActiveActor"), msm(msm), bsm(bsm), state(nullptr), eventBus(eventBus)
         {
         }
         void init() override
@@ -55,26 +56,9 @@ namespace fog
                 counter++;
                 // Time Cost is the key: the building speed depends on the worker number and building type
                 //
-                if (ImGui::Button("Tower Building(1*120-Person-Month)"))
+                if (ImGui::Button("Building Center"))
                 {
-                    // Context<BuildingStateManager>::get()->planToBuild(BuildingType::Tower);
-                }
-
-                if (ImGui::Button("Create Sinbad(1*10-Persen-Month)"))
-                {
-
-                    // Context<MovableStateManager>::get()->createSinbad();
-                }
-
-                if (ImGui::Button("Build Farm(1*10-Persen-Month)"))
-                {
-
-                    // Context<BuildingStateManager>::get()->planToBuild(BuildingType::Farm);
-                }
-                if (ImGui::Button("Build H0085"))
-                {
-
-                    // Context<BuildingStateManager>::get()->planToBuild(BuildingType::H0085);
+                    bsm->startLocator(BuildingType::Center);
                 }
             }
 

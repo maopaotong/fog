@@ -28,7 +28,7 @@ namespace fog
             int baseIndex;
             float scale;
             TransformFunc transform;
-            PointOnCircle(ManualObject *obj, float scale, TransformFunc transform) : obj(obj), scale(scale),transform(transform) {}
+            PointOnCircle(ManualObject *obj, float scale, TransformFunc transform) : obj(obj), scale(scale), transform(transform) {}
             void begin(std::string material)
             {
                 obj->clear();
@@ -73,8 +73,7 @@ namespace fog
                     cell,
                     origin,
                     nom3,
-                    transform
-                };
+                    transform};
 
                 int LAYERS = 1;
                 for (int i = 0; i < LAYERS; i++)
@@ -213,7 +212,7 @@ namespace fog
                     Vector3 p2 = v2.position;
                     Vector3 p3 = v3.position;
 
-                    Vector4 plane = Math::calculateFaceNormalWithoutNormalize(p1, p2, p3);
+                    Vector4 plane = Ogre::Math::calculateFaceNormalWithoutNormalize(p1, p2, p3);
                     Vector3 norm(plane.x, plane.y, plane.z);
                     norm.normalise();
                     v1.addNormal(norm);
@@ -248,7 +247,75 @@ namespace fog
             }
         };
 
-        class SpiderNet
+        struct SpiderNetTriangle
+        {
+
+            void operator()(NormManualObject *obj, int idx, int i, int j, int size1, int size2)
+            {
+
+                if (i > 0) //
+                {
+                    // (j-1-size1)        .       .     .   .   .   .
+                    //         |   \     | \      | \   | \ | \ | \ |
+                    //      (j-1)__(j)   .___*    __    .   .   .
+                    //        0     1    2   3    4  5
+
+                    if (j % 2 == 1) // 1,3,5
+                    {
+                        obj->triangle(idx, idx - 1 - size1 - j / 2, idx - 1);
+                    }
+                    //
+                    if (j % 2 == 0 && j > 1) // 2,4,6
+                    {
+                        obj->triangle(idx, idx - size1 - j / 2, idx - 1);
+                        obj->triangle(idx - 1, idx - size1 - j / 2, idx - size1 - j / 2 - 1);
+                    }
+                    if (j == size2 - 1) // 0=idx-j
+                    {                   // last one, then find the first one.
+                        int j0 = idx - j;
+                        obj->triangle(idx - j, (idx - j) - size1, idx);
+                        obj->triangle(idx, (idx - j) - size1, idx - j - 1);
+                    }
+                }
+            }
+        };
+
+        struct CyclinderTriangle
+        {
+
+            void operator()(NormManualObject *obj, int idx, int i, int j, int size1, int size2)
+            {
+
+                if (i > 0) // skip first layer and first point each layer
+                {
+                    //       (d) __ (c:j-size2)
+                    //         |    |
+                    //    (a:j-1)__(b:j)
+                    //        0     1
+                    if (j > 0)
+                    {
+                        int a = idx - 1;
+                        int b = idx;
+                        int c = b - size2; 
+                        int d = a - size2;
+                        obj->triangle(a, b, d);
+                        obj->triangle(b, c, d);
+
+                        if (j == size2 - 1)//additional triangle to close the circle
+                        {
+                            int a = idx;
+                            int b = idx - j;   
+                            int c = b - size2; 
+                            int d = a - size2;
+                            obj->triangle(a, b, d);
+                            obj->triangle(b, c, d);
+                        }
+                    }
+                }
+            }
+        };
+
+        class Cylinder
         {
         public:
             struct PointVisit
@@ -256,6 +323,7 @@ namespace fog
                 NormManualObject *obj;
                 ColourValue color;
                 std::function<Vector3(Vector2, int)> position;
+                std::function<void(NormManualObject *, int, int, int, int, int)> triangle;
 
                 int layer;
                 int layerDensity;
@@ -265,12 +333,11 @@ namespace fog
                 // so it visits each cell and each points of cells.
                 int idx; // point index
 
-                
                 void operator()(int pIdx, Vector2 &pointOnCircle)
                 {
                     Vector3 pos = position(pointOnCircle, layer);
                     obj->position(pos);
-                    //obj->textureCoord(pos.x / FG_TEXTURE_COORD_SCALE, -pos.z / FG_TEXTURE_COORD_SCALE);
+                    // obj->textureCoord(pos.x / FG_TEXTURE_COORD_SCALE, -pos.z / FG_TEXTURE_COORD_SCALE);
                     obj->colour(color);
 
                     //
@@ -279,31 +346,8 @@ namespace fog
                     int i = layer;
                     int j = pIdx; //
                     // skip i==0
-
-                    if (i > 0) //
-                    {
-                        // (j-1-size1)        .       .     .   .   .   .
-                        //         |   \     | \      | \   | \ | \ | \ |
-                        //      (j-1)__(j)   .___*    __    .   .   .
-                        //        0     1    2   3    4  5
-
-                        if (j % 2 == 1) // 1,3,5
-                        {
-                            obj->triangle(idx, idx - 1 - size1 - j / 2, idx - 1);
-                        }
-                        //
-                        if (j % 2 == 0 && j > 1) // 2,4,6
-                        {
-                            obj->triangle(idx, idx - size1 - j / 2, idx - 1);
-                            obj->triangle(idx - 1, idx - size1 - j / 2, idx - size1 - j / 2 - 1);
-                        }
-                        if (j == size2 - 1) // 0=idx-j
-                        {                   // last one, then find the first one.
-                            int j0 = idx - j;
-                            obj->triangle(idx - j, (idx - j) - size1, idx);
-                            obj->triangle(idx, (idx - j) - size1, idx - j - 1);
-                        }
-                    }
+                    triangle(obj, this->idx, i, j, size1, size2);
+                    //
                     idx++;
                     //
                 }
@@ -315,8 +359,9 @@ namespace fog
             bool useDefaultNorm = true;
             Vector3 defaultNorm = {0.0f, 1.0f, 0.0f};
             NormManualObject normObj;
+            int density;
 
-            SpiderNet(ManualObject *obj) : obj(obj){}
+            Cylinder(ManualObject *obj, int density = 6) : obj(obj), density(density) {}
             void begin(std::string material)
             {
                 obj->clear();
@@ -329,30 +374,26 @@ namespace fog
 
                 visitPoint.idx = baseIndex;
             }
-            
+
             // each cell visit op.
-            template <typename F>
-            void operator()(int layers, F &&position, ColourValue color)
+            template <typename F, typename TF, typename DF>
+            void operator()(int layers, F &&positionFunc, TF &&triangleFunc, DF &&densityFunc, ColourValue color)
             {
-                
+
                 visitPoint.color = color;
                 visitPoint.layerDensity = 0;
-                visitPoint.position = position;
+                visitPoint.position = positionFunc;
+                visitPoint.triangle = triangleFunc;
                 //
                 for (int i = 0; i < layers; i++)
                 {
                     visitPoint.layer = i;
                     visitPoint.preLayerDensity = visitPoint.layerDensity;
-                    visitPoint.layerDensity = getLayerDensity(i);
+                    visitPoint.layerDensity = densityFunc(i);
 
                     Circle::forEachPointOnCircle(visitPoint.layerDensity, visitPoint);
                 }
                 normObj.commit();
-            }
-
-            int getLayerDensity(int layer)
-            {
-                return std::powf(2, layer) * 6;
             }
 
             void end()
@@ -360,6 +401,5 @@ namespace fog
                 this->obj->end();
             }
         }; // end of spider net.
-
     };
 };

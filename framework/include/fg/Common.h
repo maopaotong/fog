@@ -97,12 +97,9 @@ namespace fog
     };
     enum class BuildingType
     {
-        House,
+        Center,
         Farm,
-        Barrack,
-        Market,
-        Tower,
-        H0085,
+        Market
     };
     enum class BuildingEventType
     {

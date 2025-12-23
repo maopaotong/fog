@@ -14,6 +14,7 @@
 #include "MovingStateManager.h"
 #include "BuildingStateManager.h"
 #include "CameraStateManager.h"
+#include "MouseCellController.h"
 namespace fog
 {
     using namespace OgreBites;
@@ -31,16 +32,20 @@ namespace fog
         BuildingStateManager * buildingStateManager;
         CameraStateManager *cameraState;
         CoreMod * core;
+        MouseCellController * mouseCellController;
     public:
         INJECT(EntryController(PathingStateManager *pathingStateManager, MovingStateManager *movingStateManager,
                                InputStateController *inputStateController,
                                MovableStateManager * movableStateManager,
                                BuildingStateManager * buildingStateManager,
                                CameraStateManager *cameraState,
+                               MouseCellController * mouseCellController,
                                CoreMod * core
+
                                ))
             :              
               core(core),
+              mouseCellController(mouseCellController), 
               pathingStateManager(pathingStateManager), 
               buildingStateManager(buildingStateManager),
               movingStateManager(movingStateManager),
@@ -98,7 +103,7 @@ namespace fog
 
         CONSUMED mouseMoved(const MouseMotionEvent &evt) override
         {
-            pathingStateManager->onMouseMoved(evt.x, evt.y);
+            mouseCellController->onMouseMoved(evt.x, evt.y);            
             inputStateController->mouseMoved(evt);
             return false;
         }

@@ -13,28 +13,24 @@
 namespace fog
 {
 
-    class BuildingPlan
+    class BuildingLocator
     {
     protected:
-        CellKey cKey;
-        Actor *building;
+        std::unique_ptr<Actor> building;
         float amount;
         CoreMod *core;
-        Transforms * tfs;
+        Transforms *tfs;
+        std::unordered_map<CellKey, std::vector<Actor *>, CellKey::Hash> &buildingsInCells;
+
     public:
-        BuildingPlan(Actor *building, float amount, CoreMod *core, Transforms* tfs) : core(core),
-                                                                                    tfs(tfs),
-                                                                                     building(building), amount(amount)
+        BuildingLocator(std::unique_ptr<Actor> building, float amount, CoreMod *core, Transforms *tfs,
+                        std::unordered_map<CellKey, std::vector<Actor *>, CellKey::Hash> &buildingsInCells) : core(core),
+                                                                                                              tfs(tfs),
+                                                                                                              building(std::move(building)), amount(amount),
+                                                                                                              buildingsInCells(buildingsInCells)
         {
         }
 
-        Actor *exchangeBuilding(Actor *state)
-        {
-
-            Actor *ret = std::exchange(this->building, state);
-
-            return ret;
-        }
         float getAmount() const
         {
             return this->amount;
@@ -42,32 +38,40 @@ namespace fog
 
         Actor *getBuilding()
         {
-            return this->building;
+            return building.get();
         }
-        virtual ~BuildingPlan()
+
+        virtual ~BuildingLocator()
+        {
+        }
+
+        void moveTo(CellKey cKey)
         {
             if (this->building)
             {
-                delete this->building;
-                this->building = nullptr;
+                this->building->getSceneNode()->setPosition(cKey.transform3(*tfs->d2td3));
             }
         }
 
-        void moveToCell(CellKey cKey)
+        bool tryBuildAt(CellKey cKey)
         {
-            this->cKey = cKey;
-
-            // Vector3 pos3 = Context<Node2D>::get()->to3D(Cell::getOrigin2D(cKey),config->CELL_SCALE);
-            // Vector3 pos3 = cKey.cast<float>().transform(Transform::CellCentreByKey()).transform3(config->D2H2D3);
-            // this->building->findSceneNode()->setPosition(pos3);
-            this->building->getSceneNode()->setPosition(cKey.transform3(*tfs->d2td3));
+            if (this->building)
+            {
+                auto it = this->buildingsInCells.find(cKey);
+                if (it == this->buildingsInCells.end()) // cannot build two at the same cell
+                {
+                    this->buildingsInCells[cKey].push_back(building.release());
+                    return true;
+                }
+            }
+            return false;
         }
     };
 
     class BuildingStateManager : public Manager<Actor>
     {
         Actor *picked;
-        BuildingPlan *plan;
+        std::unique_ptr<BuildingLocator> locator;
         CoreMod *core;
         std::unordered_map<CellKey, std::vector<Actor *>, CellKey::Hash> buildingsInCells;
         InventoryManager *inventoryManager;
@@ -96,12 +100,12 @@ namespace fog
         }
         Event::Bus *eventBus;
         Component::Injector *injector;
-        Transforms * tfs;
+        Transforms *tfs;
 
     public:
-        INJECT(BuildingStateManager(CoreMod *core, 
-            Transforms * tfs, 
-            InventoryManager *inventoryManager,
+        INJECT(BuildingStateManager(CoreMod *core,
+                                    Transforms *tfs,
+                                    InventoryManager *inventoryManager,
                                     Config *config,
                                     Component::Injector *injector,
                                     Event::Bus *eventBus))
@@ -111,16 +115,17 @@ namespace fog
               config(config),
               eventBus(eventBus),
               inventoryManager(inventoryManager),
-              picked(nullptr), plan(nullptr)
+              picked(nullptr), locator(nullptr)
         {
             eventBus-> //
                 subscribe<MouseCellEventType, CellKey>([this](MouseCellEventType type, CellKey cKey)
                                                        {
                                                            if (type == MouseCellEventType::MouseEnterCell)
                                                            {
-                                                               if (this->plan) // move the position if has plan
+                                                               if (this->locator) // move the position if has plan
                                                                {
-                                                                   this->plan->moveToCell(cKey);
+                                                                   this->locator->moveTo(cKey);
+                                                                   std::cout << "Locator move to cell: (" << cKey.x << "," << cKey.y << ")" << std::endl;
                                                                }
                                                            }
 
@@ -131,9 +136,12 @@ namespace fog
                                                   {
                                                       if (type == CellEventType::CellAsTarget)
                                                       {
-                                                          if (this->plan) // finish the plan by set the position of the building.
+                                                          if (this->locator) // finish the plan by set the position of the building.
                                                           {
-                                                              this->finishPlan(cKey);
+                                                              if (this->locator->tryBuildAt(cKey))
+                                                              {
+                                                                  locator.reset();
+                                                              }
                                                           }
                                                       }
                                                       return true; //
@@ -173,14 +181,13 @@ namespace fog
             return picked != nullptr;
         }
 
-        bool planToBuild(BuildingType type) // plan a building and waiting mouse cell event to choose a position for the building.
+        bool startLocator(BuildingType type) // plan a building and waiting mouse cell event to choose a position for the building.
         {
-            if (this->plan)
+
+            if (this->locator)
             {
-                float invAmount = this->plan->getAmount();
+                float invAmount = this->locator->getAmount();
                 inventoryManager->returnInventory(InventoryType::BuildingPermit, invAmount);
-                delete this->plan;
-                this->plan = nullptr;
             }
 
             float invAmount = 1.0f;
@@ -188,32 +195,15 @@ namespace fog
 
             if (success)
             {
-                Actor *building  = new Building(type, tfs, core);
-                this->plan = new BuildingPlan(building, invAmount, core, tfs);
+                locator = std::make_unique<BuildingLocator>(std::make_unique<Building>(type, tfs, core, config), invAmount, core, tfs, buildingsInCells);
+            }
+            else
+            {
+                locator.reset();
             }
 
             return true;
         }
 
-        void finishPlan(CellKey cKey)
-        {
-
-            auto it = this->buildingsInCells.find(cKey);
-            if (it == this->buildingsInCells.end()) // cannot build two at the same cell
-            {
-
-                Actor *building = this->plan->exchangeBuilding(nullptr);
-                this->add(building);
-                this->buildingsInCells[cKey].push_back(building);
-            }
-            else
-            { // failed to build on the target cell.
-                float invAmount = this->plan->getAmount();
-                inventoryManager->returnInventory(InventoryType::BuildingPermit, invAmount);
-            }
-
-            delete this->plan;
-            this->plan = nullptr;
-        }
     }; // end of class
 }; // end of namespace

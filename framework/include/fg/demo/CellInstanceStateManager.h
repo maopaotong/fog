@@ -76,21 +76,6 @@ namespace fog
             return this->cis;
         }
 
-        void popColour()
-        {
-            // if (!this->colours.empty())
-            //{
-            this->colours.pop();
-            //}
-            buildMesh();
-        }
-
-        void pushColour(ColourValue color)
-        {
-            this->colours.push(color);
-            buildMesh();
-        }
-
     }; // end of class
 
     class CellInstanceStateManager : public Manager<CellInstanceState>

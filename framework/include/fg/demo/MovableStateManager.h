@@ -75,12 +75,12 @@ namespace fog
             }
             if (this->cis)
             {
-                this->cis->popColour();
+                //this->cis->popColour();
             }
             this->cis = cis2;
             if (this->cis)
             {
-                this->cis->pushColour(ColourValue::White);
+                //this->cis->pushColour(ColourValue::White);
             }
         }
     };
