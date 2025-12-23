@@ -166,6 +166,10 @@ namespace fog
         {
             return cellsTerrainAmp * this->cellsMeshQuality;
         }
+        int getShaderDebug()
+        {
+            return this->debugShaderShowCellEdge + this->debugShaderShowRegionEdge;
+        }
 
         // Transform::D3_NORMAL_D2 *transformD3NormalToD2Ptr = nullptr;
         // Transform::D3_NORMAL_D2 &getTransformD3NormalToD2()
