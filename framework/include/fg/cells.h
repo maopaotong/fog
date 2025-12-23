@@ -16,6 +16,7 @@
 #include "cells/TransformD2D3.h"
 #include "cells/Transforms.h"
 #include "cells/WorldTexGenerator.h"
+#include "cells/AdvCellsGenerator.h"
 
 
 

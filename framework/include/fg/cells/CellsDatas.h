@@ -18,7 +18,7 @@ namespace fog
         Config *config;
         INJECT(CellsDatas(Options pts, Config *config, CellsGenerator *generator)) : config(config)
         {
-            generator->generateCells(cells, pts.tsWidth, pts.tsHeight, config);
+            generator->generateCells(cells, pts.tsWidth, pts.tsHeight);
         }
     };
 
