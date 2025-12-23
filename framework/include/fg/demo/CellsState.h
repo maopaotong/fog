@@ -24,21 +24,18 @@ namespace fog
                           CellsMaterial *cMaterial,
                           Transforms *tfs,
                           Config *config,
-                          CoreMod *core)) : ManualState(core),
-                                            config(config),
-                                            tfs(tfs)
+                          CoreMod *core, SceneNode *sceNode)) : ManualState(core, sceNode),
+                                                                config(config),
+                                                                tfs(tfs)
         {
 
-            this->material = cMaterial->material;
-
-            int step = config->cellsTerrainAmp ;// / config->cellsMeshQuality;
+            int step = config->cellsTerrainAmp; // / config->cellsMeshQuality;
 
             int qWidth = cvs->opts.terWidth / step;
             int qHeight = cvs->opts.terHeight / step;
 
             obj->clear();
-            obj->begin(material, Ogre::RenderOperation::OT_TRIANGLE_LIST);
-            
+            obj->begin(MaterialNames::materialNameForCells, Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
             int baseIdx = obj->getCurrentVertexCount();
 

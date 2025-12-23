@@ -17,12 +17,12 @@ namespace fog
     struct Sphere : public ManualState
     {
 
-        INJECT(Sphere(CoreMod *core)) : ManualState(core)
+        INJECT(Sphere(CoreMod *core, SceneNode *sceNode)) : ManualState(core, sceNode)
         {
-            this->sceNode->setScale(Vector3(10.0f, 10.0f, 10.0f));
+            sceNode->setScale(Vector3(10.0f, 10.0f, 10.0f));
             MeshBuild::Cylinder cyclinder(obj);
 
-            cyclinder.begin(this->material); //
+            cyclinder.begin(MaterialNames::materialNameForActor); //
 
             int layers = 10;
             float yAnglar = Math::PI / 2.0f / layers;

@@ -17,16 +17,16 @@ namespace fog
         Config *config;
 
     public:
-        INJECT(Building(BuildingType type, Transforms *tfs, CoreMod *core, Config *config)) : ManualState(core),
-                                                                                              tfs(tfs),
-                                                                                              config(config),
-                                                                                              type(type)
+        INJECT(Building(BuildingType type, Transforms *tfs, CoreMod *core, Config *config, SceneNode *sceNode)) : ManualState(core, sceNode),
+                                                                                                                  tfs(tfs),
+                                                                                                                  config(config),
+                                                                                                                  type(type)
         {
-            
-            this->sceNode->setScale(config->cellScale * 0.75, config->cellScale * 0.25, config->cellScale * 0.75);
+
+            sceNode->setScale(config->cellScale * 0.75, config->cellScale * 0.25, config->cellScale * 0.75);
             MeshBuild::Cylinder cylinder(obj);
 
-            cylinder.begin(this->material); //
+            cylinder.begin(MaterialNames::materialNameBuilding); //
 
             int layers = 3;
             float deltaH = 1.0f / (layers - 2);

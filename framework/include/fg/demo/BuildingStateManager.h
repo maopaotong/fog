@@ -188,6 +188,8 @@ namespace fog
             {
                 float invAmount = this->locator->getAmount();
                 inventoryManager->returnInventory(InventoryType::BuildingPermit, invAmount);
+                this->locator.reset();
+                return true; //
             }
 
             float invAmount = 1.0f;
@@ -195,11 +197,7 @@ namespace fog
 
             if (success)
             {
-                locator = std::make_unique<BuildingLocator>(std::make_unique<Building>(type, tfs, core, config), invAmount, core, tfs, buildingsInCells);
-            }
-            else
-            {
-                locator.reset();
+                locator = std::make_unique<BuildingLocator>(std::make_unique<Building>(type, tfs, core, config, core->getRootSceneNode()->createChildSceneNode()), invAmount, core, tfs, buildingsInCells);
             }
 
             return true;

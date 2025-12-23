@@ -75,12 +75,12 @@ namespace fog
             }
             if (this->cis)
             {
-                //this->cis->popColour();
+                // this->cis->popColour();
             }
             this->cis = cis2;
             if (this->cis)
             {
-                //this->cis->pushColour(ColourValue::White);
+                // this->cis->pushColour(ColourValue::White);
             }
         }
     };
@@ -115,11 +115,11 @@ namespace fog
                                                      {
                                                          if (evtType == MovableEventType::StateStartMoving)
                                                          {
-                                                             //this->movingState.setState(nullptr);
+                                                             // this->movingState.setState(nullptr);
                                                          }
                                                          return true; //
                                                      });
-            this->actor2 = new Sphere(core);
+            this->actor2 = new Sphere(core, core->getRootSceneNode()->createChildSceneNode());
             this->add(actor2);
             actor2->setPosition(home->cKey, *tfs->d2td3);
         }
@@ -136,21 +136,20 @@ namespace fog
         bool pick(Ray &ray)
         {
 
-            // 创建射线查询对象
+            // 
             Ogre::RaySceneQuery *rayQuery = core->createRayQuery(ray);
-            rayQuery->setSortByDistance(true);  // 按距离排序（最近的优先）
-            rayQuery->setQueryMask(0x00000001); // 与 Entity 的查询掩码匹配
+            rayQuery->setSortByDistance(true);  // 
+            rayQuery->setQueryMask(0x00000001); // 
 
-            // 执行查询
+            // 
             Ogre::RaySceneQueryResult &result = rayQuery->execute();
 
             Actor *picked = nullptr;
-            // 遍历结果
+            // 
             for (auto &it : result)
             {
                 Node *node = it.movable->getParentNode();
                 Actor *s = Actor::get(node);
-                // if (s && s->pickable() && s->getParent() == this)
                 if (s && s->pickable() && s == actor2)
                 {
 
@@ -158,7 +157,7 @@ namespace fog
                     break;
                 }
             }
-            // Context<CoreMod>::get()
+            //
             core->destroyQuery(rayQuery);
             this->movingState.setState(picked);
             return picked != nullptr;

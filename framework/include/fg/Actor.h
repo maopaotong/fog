@@ -49,7 +49,7 @@ namespace fog
         bool active = false;
         float height = 0.0f;
 
-    protected:
+    private:
         SceneNode *sceNode;
         //
 
@@ -62,9 +62,8 @@ namespace fog
         }
         virtual ~Actor()
         {
-            Node *pNode = sceNode->getParent();
-            pNode->removeChild(sceNode);
-            Actor::set(sceNode, nullptr);
+            SceneNode *pSNode = sceNode->getParentSceneNode();
+            pSNode->removeAndDestroyChild(sceNode);
         }
 
         template <typename F>

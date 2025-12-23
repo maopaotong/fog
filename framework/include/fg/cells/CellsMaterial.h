@@ -9,7 +9,7 @@
 #include "fg/util.h"
 #include "CellsGrids.h"
 #include "WorldTexGenerator.h"
-
+#include "MaterialNames.h"
 namespace fog
 {
     using namespace Ogre;
@@ -24,7 +24,6 @@ namespace fog
             {
             }
         };
-        std::string material;
         Options opts;
         INJECT(CellsMaterial(
             CellsGrids *cvs,
@@ -33,10 +32,8 @@ namespace fog
             Config *config,
             Options opts)) : opts(opts)
         {
-            this->material = "Tiles";
-
             // material
-            MaterialPtr mat = MaterialManager::getSingletonPtr()->getByName("Tiles");
+            MaterialPtr mat = MaterialManager::getSingletonPtr()->getByName(MaterialNames::materialNameForCells);
             // tex0
             std::string texName001 = "TerrainsTex001";
             std::string texName010 = "TerrainsTex010";

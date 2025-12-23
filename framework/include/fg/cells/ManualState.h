@@ -24,24 +24,20 @@ namespace fog
     protected:
         Ogre::ManualObject *obj;
 
-        std::string material = MaterialNames::materialNameInUse;
-        CoreMod * core;
+        CoreMod *core;
+
     public:
-        ManualState(CoreMod * core):core(core),Actor(core->getRootSceneNode()->createChildSceneNode())
+        ManualState(CoreMod *core, SceneNode *sNode) : core(core), Actor(sNode)
         {
 
             obj = core->createManualObject();
             obj->setQueryFlags(0x00000001);
-            sceNode->attachObject(obj);
+            sNode->attachObject(obj);
         }
 
         virtual ~ManualState()
         {
-            core->getRootSceneNode()->removeAndDestroyChild(sceNode);            
-            this->sceNode = nullptr;
         }
-
-        
     };
 
 }; // end of namespace

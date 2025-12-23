@@ -25,9 +25,8 @@ namespace fog
               tfs(tfs),
               cis(cis), core(core)
         {
-            this->sceNode = sNode; // sceneManager->getRootSceneNode()->createChildSceneNode();
             this->obj = core->createManualObject();
-            this->sceNode->attachObject(this->obj);
+            sNode->attachObject(this->obj);
             ColourValue bottomColour;
             bool hasBottomColor = getCostColor(cis, bottomColour);
             if (hasBottomColor)

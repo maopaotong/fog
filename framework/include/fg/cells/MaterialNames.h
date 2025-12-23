@@ -7,15 +7,10 @@
 
 namespace fog
 {
-class MaterialNames
-{
-public:
-    static inline const std::string materialNameToCreate = "ABC";
-    static inline const std::string materialNameInUse = "ABC";
-    static inline const std::string materialNameSelected = "SelectedMaterial";
-    static inline const std::string materialNameBuilding = "BuildingMaterial";
-    static inline const std::string materialNameH0085 = "H0085Material";
-
-
-};
+    struct MaterialNames
+    {
+        static inline const std::string materialNameForActor = "ActorsMaterial";
+        static inline const std::string materialNameBuilding = "BuildingsMaterial";
+        static inline const std::string materialNameForCells = "CellsMaterial";
+    };
 };
