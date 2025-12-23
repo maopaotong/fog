@@ -24,11 +24,11 @@ namespace fog
             case CellTypes::OCEAN:
             case CellTypes::MOUNTAIN:
             case CellTypes::LAKE:
+            case CellTypes::FRZ_MOUNTAIN:
 
                 cost = CostMap::OBSTACLE;
                 break;
             case CellTypes::HILL:
-            case CellTypes::FRZ_MOUNTAIN:
             case CellTypes::FRZ_PLAIN:
             case CellTypes::FRZ_SHORE:
             case CellTypes::RIVER:
