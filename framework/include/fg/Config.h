@@ -60,8 +60,6 @@ namespace fog
         static inline bool DEF_DEBUG_polygonMode_wireFrame = false;
 
     private:
-        static Box2<int> Config::parseValueOfRange2Int(std::string string);
-
     public:
         struct Args
         {
@@ -77,17 +75,17 @@ namespace fog
             return Options::get<T>(opts, key, def);
         }
 
-        static void load(std::string file, Options &opts, bool strict);
-
         INJECT(Config(Args arg))
         {
 
-            Options opts;
-
+            OptionsLoader loader;
+            std::unordered_map<std::string, Options> optsMap;
             for (auto it = arg.files.begin(); it != arg.files.end(); it++)
             {
-                load(*it, opts, false);
+                loader.load(*it, optsMap, false);
             }
+
+            Options &opts = optsMap["config"];
 
             heightScale = Options::get<float>(opts, "HEIGHT_SCALE", DEF_HEIGHT_SCALE);
             cellsRange = Options::get<Box2<int>>(opts, "TILES_RANGE", DEF_TILES_RANGE);

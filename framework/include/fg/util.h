@@ -27,6 +27,7 @@
 #include "util/Normaliser.h"
 #include "util/Circle.h"
 #include "util/Math.h"
+#include "util/OptionsLoader.h"
 
 
 

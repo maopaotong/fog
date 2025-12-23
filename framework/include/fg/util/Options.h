@@ -15,27 +15,56 @@ namespace fog
         {
             std::string name;
             std::any valuePtr;
-            std::function<void()> destructor;
+            std::function<void(std::any)> destructor;
+            std::function<std::any()> copy;
 
             ~Option()
             {
-                destructor();
+                destructor(this->valuePtr);
             }
             template <typename T>
             Option(std::string name, T defaultV) : name(name)
             {
-                T *valueP = new T(defaultV);
-                this->valuePtr = std::make_any<T *>(valueP);
-                this->destructor = [valueP]()
+                this->copy = [defaultV]()
                 {
+                    T *valueP = new T(defaultV);
+                    return std::make_any<T *>(valueP);
+                };
+                this->valuePtr = copy();
+                this->destructor = [](std::any valuePtr)
+                {
+                    T *valueP = std::any_cast<T *>(valuePtr);
                     delete valueP;
                 };
             }
 
-            Option(const Option &) = delete;            // copy
-            Option(Option &&) = delete;                 // move
-            Option &operator=(const Option &) = delete; // copy assign
-            Option &operator=(Option &&) = delete;      // move assign
+            Option(const Option &opt) : name(opt.name)
+            {
+                this->copy = opt.copy;
+                this->destructor = opt.destructor;
+                this->valuePtr = this->copy();
+            }; // copy
+
+            Option(Option &&opt) : name(opt.name)
+            {
+                this->copy = opt.copy;
+                this->destructor = opt.destructor;
+                this->valuePtr = opt.valuePtr;
+                opt.destructor = [](std::any) {}; //
+                opt.copy = []() -> std::any
+                { return nullptr; };
+                opt.valuePtr = opt.copy();
+            }; // move
+
+            Option &operator=(const Option &opt)
+            {
+                return Option(opt);
+            }; // copy assign
+
+            Option &operator=(Option &&opt)
+            {
+                return Option(opt);
+            }; // move assign
 
             template <typename T>
             bool isType() const
@@ -119,6 +148,21 @@ namespace fog
             for (const auto &pair : options)
             {
                 visit(pair.first, pair.second.get());
+            }
+        }
+        void merge(Options &opts)
+        {
+            for (auto it = opts.options.begin(); it != opts.options.end(); it++)
+            {
+
+                std::string key = it->first;
+                if (auto it2 = this->options.find(key); it2 == this->options.end())
+                {
+
+                    this->options.emplace(it->first, std::make_unique<Option>(*it->second));
+                    return;
+                } //
+                throw std::runtime_error("merge broken, option already exists:" + key); //
             }
         }
     };
