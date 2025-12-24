@@ -160,9 +160,8 @@ namespace fog
                 {
 
                     this->options.emplace(it->first, std::make_unique<Option>(*it->second));
-                    return;
                 } //
-                throw std::runtime_error("merge broken, option already exists:" + key); //
+                // ignore duplicated entry.
             }
         }
     };
