@@ -21,6 +21,11 @@ namespace fog
             opts.merge(optsMap[group]);
         }
 
+        void load(std::vector<std::string> files, Options::Groups &optMap, bool strict)
+        {
+            load(files, optMap.groups, strict);
+        }
+        
         void load(std::vector<std::string> files, std::unordered_map<std::string, Options> &optMap, bool strict)
         {
             doLoad(files, optMap, strict);
@@ -31,7 +36,7 @@ namespace fog
                 std::string group = it->first;
                 Options &opts = optMap[group];
                 Options resolvedOpts;
-                opts.forEach([this, & group, &resolvedOpts, &optMap](std::string key, Options::Option *optPtr)
+                opts.forEach([this, &group, &resolvedOpts, &optMap](std::string key, Options::Option *optPtr)
                              {
                                  Options::Option &opt = *optPtr;
                                  std::unordered_set<std::string> processedFKeys;

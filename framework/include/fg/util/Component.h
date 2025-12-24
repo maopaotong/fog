@@ -8,8 +8,9 @@
 #define INJECT(Sig)     \
     using Inject = Sig; \
     Sig
-#define SELF(T) \
-    using Self = T;
+#define SELF(T)     \
+    using Self = T; \
+    static inline std::string SelfName{#T};
 
 #define FIELD(ftype, fname)                                                                   \
     ftype fname;                                                                              \
@@ -48,6 +49,16 @@ namespace fog
 
     template <typename T>
     struct hasInject<T, std::void_t<typename T::Inject>> : std::true_type
+    {
+    };
+
+    template <typename T, typename = void>
+    struct hasSelfName : std::false_type
+    {
+    };
+
+    template <typename T>
+    struct hasSelfName<T, std::void_t<decltype(T::SelfName)>> : std::true_type
     {
     };
 
@@ -413,17 +424,15 @@ namespace fog
             template <typename T, typename F>
             void bindFuncAsPtr(F &&ptrFunc)
             {
-                UsageFunc valueFunc;
-
-                bindComp(Component::make(typeid(T), ptrFunc, valueFunc));
+                UsageFunc vf;
+                bindComp(Component::make(typeid(T), ptrFunc, vf));
             }
 
             template <typename T, typename F>
             void bindFuncAsVal(F &&valueFuncS)
             {
-                UsageFunc ptrFuncS = []() -> std::any
-                { throw std::runtime_error("Usage as value not implemented for the type to be injected."); };
-                bindComp(Component::make(typeid(T), ptrFuncS, valueFuncS));
+                UsageFunc vf;
+                bindComp(Component::make(typeid(T), vf, valueFuncS));
             }
 
             template <typename T, typename C, typename F>
@@ -464,11 +473,19 @@ namespace fog
             {
                 bindComp(makeByImpl<AsValStatic, T, Imp>());
             }
+
             template <typename T, typename Imp, typename F>
             void bindImplAsValStatic(F &&fieldsF)
             {
 
                 bindComp(makeByImpl<AsValStatic, T, Imp>(fieldsF));
+            }
+
+            template <typename T, typename F>
+            void bindImplAsValStatic(F &&fieldsF)
+            {
+
+                bindComp(makeByImpl<AsValStatic, T, T>(fieldsF));
             }
 
             template <typename T>
@@ -869,6 +886,7 @@ namespace fog
             template <Usage usg, typename T>
             typename std::enable_if_t<usg & AsVal && !std::is_abstract_v<T> && !hasInject<T>::value, T /*AsVal*/> createInstance()
             {
+                // use default constructor
                 T ret = T{}; //
                 return ret;
             }
@@ -906,6 +924,7 @@ namespace fog
                 // do dynamic usge, do not propagate to deep layer, may be useful for other usage after unset the AsDynamic mask.
                 //
                 T *ret = new T(getAsConstructorArg<T, Is, std::tuple_element_t<Is, ArgsTuple>>()...);
+                initRegistedFields<T>(ret);
                 return ret;
             }
             // C<2>:As Value
@@ -917,14 +936,14 @@ namespace fog
                 // static_assert(allArgsArePointers<ArgsTuple>, "All inject arguments must be pointer types!");
 
                 T ret = T(getAsConstructorArg<T, Is, std::tuple_element_t<Is, ArgsTuple>>()...);
-                initFields<T>(&ret);
+                initRegistedFields<T>(&ret);
                 return ret;
             }
 
             template <typename T>
-            void initFields(T *objPtr)
+            void initRegistedFields(T *objPtr)
             {
-                //                fileds
+                //
                 AutoRegisteredObjects &autoRegObjs = AutoRegisteredObjects::getInstance();
                 auto itObj = autoRegObjs.objects.find(std::type_index(typeid(T)));
                 if (itObj != autoRegObjs.objects.end()) // make init func to setting fields.
@@ -953,8 +972,7 @@ namespace fog
                             //
                         }
                         else
-                        {
-                            // try to get registed fields.
+                        { // no component bind to the type, try to get registed fields.
                             Component *pCPtr = this->tryGetComponent(typeid(T));
                             if (pCPtr->fields)
                             {

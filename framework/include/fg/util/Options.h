@@ -91,6 +91,10 @@ namespace fog
                 return *p;
             }
         };
+        
+        struct Groups {
+            std::unordered_map<std::string, Options> groups;
+        };
 
     public:
         template <typename T>
