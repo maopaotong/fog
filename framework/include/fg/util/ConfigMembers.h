@@ -13,7 +13,7 @@ namespace fog
     {
     };
     template <typename T>
-    struct ConfigFields
+    struct ConfigMembers
     {
 
         bool operator()(std::type_index ftype, std::string fname, std::any &fval)
@@ -40,7 +40,7 @@ namespace fog
             throw std::runtime_error("cannot resolve option [" + gname + "]" + fname + "(no group found)");
         }
 
-        ConfigFields(std::function<Options::Groups *()> groups) : groups(groups)
+        ConfigMembers(std::function<Options::Groups *()> groups) : groups(groups)
         {
         }
 

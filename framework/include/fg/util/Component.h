@@ -6,7 +6,7 @@
 
 #include "Common.h"
 #include "Options.h"
-#include "ConfigFields.h"
+#include "ConfigMembers.h"
 
 #define INJECT(Sig)     \
     using Inject = Sig; \
@@ -665,7 +665,7 @@ namespace fog
             template <Usage usg, typename T, typename Imp, typename... Adts>
             typename std::enable_if_t<hasGroup<Imp>::value, Component> makeByImpl()
             {
-                return doMakeByImpl<usg, T, Imp, Adts...>(ConfigFields<Imp>([this]()
+                return doMakeByImpl<usg, T, Imp, Adts...>(ConfigMembers<Imp>([this]()
                                                                           { return this->getPtr<Options::Groups>(); }));
             }
 
