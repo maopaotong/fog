@@ -100,7 +100,7 @@ namespace fog
                     emit<BuildingEventType, Actor *>(BuildingEventType::StatePicked, this->picked);
             }
         }
-        Event::Bus *eventBus;
+        EventBus *eventBus;
         Component::Injector *injector;
         Transforms *tfs;
         Building::Args args;
@@ -112,7 +112,7 @@ namespace fog
                                     Building::Args args,
                                     Config *config,
                                     Component::Injector *injector,
-                                    Event::Bus *eventBus))
+                                    EventBus *eventBus))
             : core(core),
               args(args),
               injector(injector),

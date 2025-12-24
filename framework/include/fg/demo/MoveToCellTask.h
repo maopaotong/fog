@@ -30,7 +30,7 @@ namespace fog
         Vector3 prePosition;
 
         CostMap *costMap;
-        Event::Bus *eventBus;
+        EventBus *eventBus;
         CellsCost *cellsCost;
         Config *config;
         Transforms * tfs;
@@ -38,7 +38,7 @@ namespace fog
     public:
         MoveToCellTask(Actor *state, CellKey cKey2,
                        CostMap *costMap,
-                       Event::Bus *eventBus,
+                       EventBus *eventBus,
                        CellsCost *cellsCost,
 
                        Config *config,

@@ -7,9 +7,16 @@ namespace fog
 
     struct Geometry
     {
-        Config *config;
+        struct Args
+        {
+            SELF(Args)             //
+            GROUP("geometry#args") //
+            MEMBER(float, groundHeight)  //
+
+        };
+
         Ogre::Plane ground;
-        INJECT(Geometry(Config *config)) : config(config), ground(Ogre::Vector3::UNIT_Y, config->heightScale / 2.0)
+        INJECT(Geometry(Args args)) : ground(Ogre::Vector3::UNIT_Y, args.groundHeight)
         {
         }
     };

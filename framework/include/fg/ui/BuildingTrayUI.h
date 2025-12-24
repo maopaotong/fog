@@ -15,10 +15,10 @@ namespace fog
     class BuildingTrayUI : /* public Listener<State *, std::string &>,*/ public UIState
     {
         Actor *state;
-        Event::Bus * eventBus;
+        EventBus * eventBus;
 
     public:
-        INJECT(BuildingTrayUI(Event::Bus * eventBus)) : UIState("BuildingTray"), 
+        INJECT(BuildingTrayUI(EventBus * eventBus)) : UIState("BuildingTray"), 
         eventBus(eventBus),
         state(nullptr)
         {

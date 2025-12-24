@@ -7,7 +7,7 @@
 //inversely the parent folder can be built on part of util.
 #include "util/Video.h"
 #include "util/VarBag.h"
-#include "util/Event.h"
+#include "util/EventBus.h"
 #include "util/Property.h"
 #include "util/PathFollow2.h"
 #include "util/Transform.h"
@@ -28,6 +28,7 @@
 #include "util/Circle.h"
 #include "util/Math.h"
 #include "util/OptionsLoader.h"
+#include "util/ConfigFields.h"
 
 
 

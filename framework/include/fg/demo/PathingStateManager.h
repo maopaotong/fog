@@ -38,7 +38,7 @@ namespace fog
         CostMap *costMap;
         CellInstanceStateManager *cellInstMgrState;
         MovableStateManager *movableStateMgr;
-        Event::Bus *eventBus;
+        EventBus *eventBus;
         CellsCost *cellsCost;
         Config *config;
         CoreMod *core;
@@ -46,7 +46,7 @@ namespace fog
 
     public:
         INJECT(PathingStateManager(CostMap *costMap, 
-                                   Event::Bus *eventBus,
+                                   EventBus *eventBus,
                                    Config *config,
                                    CoreMod *core,
                                    CellInstanceStateManager *cellInstMgrState,

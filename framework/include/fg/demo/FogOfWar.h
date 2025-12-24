@@ -45,12 +45,12 @@ namespace fog
         Box2<int> bufferBox{0}; // moving around. but keep the width * height, even if the box is moving out the world.
         //
         HomeCellKey *homeCellKey;
-        Event::Bus *eventBus;
+        EventBus *eventBus;
         Config *config;
         Transforms * tfs;
 
     public:
-        INJECT(FogOfWar(Options opts, Event::Bus *eventBus, HomeCellKey *homeCellKey, Config *config,
+        INJECT(FogOfWar(Options opts, EventBus *eventBus, HomeCellKey *homeCellKey, Config *config,
                         Transforms * tfs,
                         FogOfWarTexture *texture))
             : texture(texture),

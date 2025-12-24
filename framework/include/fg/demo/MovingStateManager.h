@@ -20,7 +20,7 @@ namespace fog
         std::vector<std::unique_ptr<MoveToCellTask>> tasks;
         Actor *state;
         CostMap *costMap;
-        Event::Bus *eventBus;
+        EventBus *eventBus;
         CellsCost *cellsCost;
         Config *config;
         CoreMod *core;
@@ -29,7 +29,7 @@ namespace fog
 
     public:
         INJECT(MovingStateManager(CostMap *cm,
-                                  Event::Bus *eventBus,
+                                  EventBus *eventBus,
                                   CoreMod *core,
                                   Config *config,
                                   Transforms *tfs,

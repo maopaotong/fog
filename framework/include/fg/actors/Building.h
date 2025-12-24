@@ -13,8 +13,8 @@ namespace fog
         struct Args
         {
             SELF(Args)
-            GROUP(building#args)
-            FIELD(float, scale)
+            GROUP("building#args")
+            MEMBER(float, scale)
 
             INJECT(Args())
             {

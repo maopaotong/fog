@@ -4,10 +4,7 @@
  */
 #pragma once
 #include <vector>
-#include "fg/util/DiamondSquare.h"
-#include "fg/util/Iteration.h"
-#include "fg/util/Rect.h"
-
+#include "fg/util.h"
 namespace fog
 {
 

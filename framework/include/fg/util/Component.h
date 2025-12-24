@@ -5,6 +5,8 @@
 #pragma once
 
 #include "Common.h"
+#include "Options.h"
+
 #define INJECT(Sig)     \
     using Inject = Sig; \
     Sig
@@ -13,29 +15,29 @@
     using Self = T;
 
 #define GROUP(G) \
-    static inline std::string Group{#G};
+    static inline std::string Group{G};
 
-#define FIELD(ftype, fname)                                                                   \
-    ftype fname;                                                                              \
-    struct AutoRegisteredField_##fname                                                        \
+#define MEMBER(ftype, mname)                                                                   \
+    ftype mname;                                                                              \
+    struct AutoRegisteredMember_##mname                                                        \
     {                                                                                         \
-        AutoRegisteredField_##fname()                                                         \
+        AutoRegisteredMember_##mname()                                                         \
         {                                                                                     \
-            AutoRegisteredObjects::getInstance().addField<Self, ftype>(#fname, &Self::fname); \
+            AutoRegisteredObjects::getInstance().addMember<Self, ftype>(#mname, &Self::mname); \
         };                                                                                    \
     };                                                                                        \
-    static inline AutoRegisteredField_##fname autoRegisteredField_##fname{};
+    static inline AutoRegisteredMember_##mname autoRegisteredMember_##mname{};
 
-#define INIT(fname)                                                           \
-    struct AutoRegisteredInit_##fname                                         \
+#define INIT(mname)                                                           \
+    struct AutoRegisteredInit_##mname                                         \
     {                                                                         \
-        AutoRegisteredInit_##fname()                                          \
+        AutoRegisteredInit_##mname()                                          \
         {                                                                     \
-            AutoRegisteredObjects::getInstance().addInit<Self>(&Self::fname); \
+            AutoRegisteredObjects::getInstance().addInit<Self>(&Self::mname); \
         };                                                                    \
     };                                                                        \
-    static inline AutoRegisteredInit_##fname autoRegisteredInit_##fname{};    \
-    void fname
+    static inline AutoRegisteredInit_##mname autoRegisteredInit_##mname{};    \
+    void mname
 
 namespace fog
 {
@@ -117,7 +119,7 @@ namespace fog
         std::unordered_map<std::type_index, ObjectInfo> objects;
 
         template <typename T, typename F>
-        void addField(const std::string &fieldName, F T::*fieldPtr)
+        void addMember(const std::string &fieldName, F T::*fieldPtr)
         {
             auto &objInfo = objects[std::type_index(typeid(T))];
             bool isPtr = std::is_pointer_v<F>;

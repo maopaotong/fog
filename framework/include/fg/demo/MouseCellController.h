@@ -11,10 +11,10 @@ namespace fog
         CoreMod *core;
         CellInstanceStateManager *cellInstMgrState;
         Transforms *tfs;
-        Event::Bus *eventBus;
+        EventBus *eventBus;
         Geometry *geo;
         CellKey mouseCellKey;
-        INJECT(MouseCellController(CoreMod *core, CellInstanceStateManager *cellInstMgrState, Transforms *tfs, Event::Bus *eventBus, Geometry *geo)) : geo(geo), core(core), cellInstMgrState(cellInstMgrState), tfs(tfs), eventBus(eventBus)
+        INJECT(MouseCellController(CoreMod *core, CellInstanceStateManager *cellInstMgrState, Transforms *tfs, EventBus *eventBus, Geometry *geo)) : geo(geo), core(core), cellInstMgrState(cellInstMgrState), tfs(tfs), eventBus(eventBus)
         {
         }
 

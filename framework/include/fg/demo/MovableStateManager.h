@@ -18,11 +18,11 @@ namespace fog
         Actor *state;
         CellInstanceState *cis;
         CellInstanceStateManager *cisManager;
-        Event::Bus *eventBus;
+        EventBus *eventBus;
         Config *config;
         Transforms *tfs;
         MovingState(CellInstanceStateManager *cisManager,
-                    Event::Bus *eventBus,
+                    EventBus *eventBus,
                     Config *config,
                     Transforms *tfs) : state(nullptr), cis(nullptr),
                                        tfs(tfs),
@@ -91,14 +91,14 @@ namespace fog
         Sphere *actor2;
         std::vector<std::string> aniNames = {"RunBase", "RunTop"};
         CoreMod *core;
-        Event::Bus *eventBus;
+        EventBus *eventBus;
         HomeCellKey *home;
         Config *config;
         Transforms *tfs;
 
     public:
         INJECT(MovableStateManager(CoreMod *core, CellInstanceStateManager *cisManager,
-                                   Event::Bus *eventBus,
+                                   EventBus *eventBus,
                                    HomeCellKey *homeCellKey,
                                    Config *config,
                                    Transforms *tfs,

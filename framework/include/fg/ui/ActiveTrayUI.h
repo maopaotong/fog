@@ -16,12 +16,12 @@ namespace fog
     class ActiveTrayUI : /* public Listener<State *, std::string &>,*/ public UIState
     {
         Actor *state;
-        Event::Bus *eventBus;
+        EventBus *eventBus;
         Actor *rootState;
         MovableStateManager * msm;
         BuildingStateManager * bsm;
     public:
-        INJECT(ActiveTrayUI(Event::Bus *eventBus, MovableStateManager *msm, BuildingStateManager *bsm)) : UIState("ActiveActor"), msm(msm), bsm(bsm), state(nullptr), eventBus(eventBus)
+        INJECT(ActiveTrayUI(EventBus *eventBus, MovableStateManager *msm, BuildingStateManager *bsm)) : UIState("ActiveActor"), msm(msm), bsm(bsm), state(nullptr), eventBus(eventBus)
         {
         }
         void init() override
