@@ -8,9 +8,21 @@
 namespace fog
 {
 
-    class Options
+    struct Options
     {
-    public:
+        struct Ref
+        {
+            std::string group;
+            std::string key;
+            Ref(std::string group, std::string key) : group(group), key(key)
+            {
+            }
+            Ref(const Ref &) = default;
+            Ref(Ref &&) = default;
+            Ref &operator=(const Ref &) = default;
+            Ref &operator=(Ref &&) = default;
+        };
+
         struct Option
         {
             std::string name;
@@ -142,6 +154,15 @@ namespace fog
             return opt;
         }
 
+        void add(Option &opt)
+        {
+            if (auto it = options.find(opt.name); it != options.end())
+            {
+                throw std::runtime_error("option with name:" + opt.name + " already exists.");
+            }
+            options[opt.name] = std::make_unique<Option>(opt);
+        }
+
         template <typename F>
         void forEach(F &&visit)
         {
@@ -162,6 +183,16 @@ namespace fog
                     this->options.emplace(it->first, std::make_unique<Option>(*it->second));
                 } //
                 // ignore duplicated entry.
+            }
+        }
+        void replaceAll(Options &opts)
+        {
+            for (auto it = opts.options.begin(); it != opts.options.end(); it++)
+            {
+
+                std::string key = it->first;
+
+                this->options[key] = std::make_unique<Option>(*it->second);
             }
         }
     };

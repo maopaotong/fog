@@ -14,13 +14,83 @@ namespace fog
     struct OptionsLoader
     {
 
-        void load(std::string file, Options & opts, std::string group, bool strict){
+        void load(std::vector<std::string> files, Options &opts, std::string group, bool strict)
+        {
             std::unordered_map<std::string, Options> optsMap;
-            load(file, optsMap, strict);
+            load(files, optsMap, strict);
             opts.merge(optsMap[group]);
         }
-        
-        void load(std::string file, std::unordered_map<std::string, Options> &optMap, bool strict)
+
+        void load(std::vector<std::string> files, std::unordered_map<std::string, Options> &optMap, bool strict)
+        {
+            doLoad(files, optMap, strict);
+
+            // resolve refs
+            for (auto it = optMap.begin(); it != optMap.end(); ++it)
+            {
+                std::string group = it->first;
+                Options &opts = optMap[group];
+                Options resolvedOpts;
+                opts.forEach([this, & group, &resolvedOpts, &optMap](std::string key, Options::Option *optPtr)
+                             {
+                                 Options::Option &opt = *optPtr;
+                                 std::unordered_set<std::string> processedFKeys;
+                                 if (opt.isType<Options::Ref>())
+                                 {
+                                     Options::Ref &refV = opt.getValueRef<Options::Ref>();
+                                     Options::Option &opt2 = resolveRef(optMap, refV.group, refV.key, processedFKeys);
+                                     Options::Option opt3 = opt2;
+                                     opt3.name = key;
+                                     resolvedOpts.add(opt3);
+                                     std::cout << "Resolved ref option: [" << group << "] " << key << " -> " << refV.group << "." << refV.key << std::endl;
+                                 } //
+                             });
+                opts.replaceAll(resolvedOpts);
+            }
+        }
+
+    private:
+        Options::Option &resolveRef(std::unordered_map<std::string, Options> &optMap, std::string group, std::string key, std::unordered_set<std::string> &processedFKeys)
+        {
+            std::string fkey = group + "." + key;
+            if (processedFKeys.find(fkey) != processedFKeys.end())
+            {
+                throw std::runtime_error("cannot resolve ref:" + fkey + " (circular reference detected)");
+            }
+            processedFKeys.insert(fkey);
+            if (auto it = optMap.find(group); it != optMap.end())
+            {
+                Options &opts = it->second;
+                Options::Option *optPtr = opts.getOption(key);
+                if (!optPtr)
+                {
+                    throw std::runtime_error("cannot resolve ref:" + fkey);
+                }
+                if (optPtr->isType<Options::Ref>())
+                {
+                    Options::Ref &refV = optPtr->getValueRef<Options::Ref>();
+                    return resolveRef(optMap, refV.group, refV.key, processedFKeys);
+                }
+                else
+                {
+                    return *optPtr;
+                }
+            }
+            else
+            {
+                throw std::runtime_error("cannot resolve ref:" + fkey + " (group not found)");
+            }
+        }
+
+        void doLoad(std::vector<std::string> files, std::unordered_map<std::string, Options> &optMap, bool strict)
+        {
+            for (const std::string &file : files)
+            {
+                doLoad(file, optMap, strict);
+            }
+        }
+
+        void doLoad(std::string file, std::unordered_map<std::string, Options> &optMap, bool strict)
         {
             std::filesystem::path fpath(file.c_str());
             if (!std::filesystem::exists(fpath))
@@ -50,7 +120,7 @@ namespace fog
                 {
                     continue;
                 }
-                
+
                 if (line[0] == '[')
                 {
                     // process group
@@ -60,9 +130,10 @@ namespace fog
                         throw std::runtime_error("group format error.");
                     }
                     group = line.substr(1, b2 - 1);
+                    continue;
                 }
-                
-                Options & opts = optMap[group];
+
+                Options &opts = optMap[group];
 
                 auto eq = line.find('=');
                 if (eq == std::string::npos)
@@ -70,22 +141,35 @@ namespace fog
                     // ignore
                     continue;
                 }
+                std::string type = "string";
+
+                auto typeLeft = line.find("<");
                 std::string key = line.substr(0, eq);
                 std::string value = line.substr(eq + 1);
-                auto typeLeft = key.find("<");
-                std::string type = "string";
                 if (typeLeft != std::string::npos)
                 {
+                    bool typeInV = (eq < typeLeft);
+                    if (typeInV)
+                    {
+                        typeLeft = typeLeft - eq - 1;
+                    }
+                    auto typeRight = (typeInV ? value : key).find_last_of(">");
 
-                    auto typeRight = key.find_last_of(">");
-
-                    if (typeRight == std::string::npos || typeRight != key.length() - 1)
+                    if (typeRight == std::string::npos)
                     {
                         throw std::runtime_error(std::string("config format error for lineNum:") + std::to_string(lNum));
                     }
 
-                    type = key.substr(typeLeft + 1, typeRight - typeLeft - 1);
-                    key = key.substr(0, typeLeft);
+                    if (typeInV)
+                    {
+                        type = value.substr(typeLeft + 1, typeRight - typeLeft - 1);
+                        value = value.substr(typeRight + 1);
+                    }
+                    else
+                    {
+                        type = key.substr(typeLeft + 1, typeRight - typeLeft - 1);
+                        key = key.substr(0, typeLeft);
+                    }
                 }
 
                 bool ok;
@@ -114,6 +198,19 @@ namespace fog
                 {
                     ok = opts.tryAdd<unsigned int>(key, static_cast<unsigned int>(std::stoul(value)));
                 }
+                else if (type == "ref")
+                {
+                    auto point = value.find_first_of('.');
+                    std::string group;
+                    std::string key2 = value;
+                    if (point != std::string::npos)
+                    {
+                        group = value.substr(0, point);
+                        key2 = value.substr(point + 1);
+                    }
+
+                    ok = opts.tryAdd<Options::Ref>(key, Options::Ref(group, key2));
+                }
                 else
                 {
                     throw std::runtime_error(std::string("not supported type:") + type);
@@ -121,6 +218,10 @@ namespace fog
                 if (!ok && strict)
                 {
                     throw std::runtime_error(std::string("options loading is in strict mode and item already exists:") + key);
+                }
+                if (ok)
+                {
+                    std::cout << "Loaded option: [" << group << "] " << key << "=" << "<" << type << ">" << value << std::endl;
                 }
 
             } // end while.

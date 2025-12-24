@@ -78,14 +78,9 @@ namespace fog
         INJECT(Config(Args arg))
         {
 
-            OptionsLoader loader;
-            std::unordered_map<std::string, Options> optsMap;
-            for (auto it = arg.files.begin(); it != arg.files.end(); it++)
-            {
-                loader.load(*it, optsMap, false);
-            }
-
-            Options &opts = optsMap["config"];
+            OptionsLoader loader;            
+            Options opts;
+            loader.load(arg.files, opts, "config", false);
 
             heightScale = Options::get<float>(opts, "HEIGHT_SCALE", DEF_HEIGHT_SCALE);
             cellsRange = Options::get<Box2<int>>(opts, "TILES_RANGE", DEF_TILES_RANGE);

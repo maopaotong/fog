@@ -20,6 +20,7 @@
 #include "fg/ogre.h"
 #include "InputState.h"
 #include "InputStateController.h"
+#include "ShaderManager.h"
 
 namespace fog
 {
@@ -37,12 +38,13 @@ namespace fog
         Config *config;
         Transforms *tfs;
         Geometry *geo;
+        ShaderManager *shaderManager;
 
         float speed = 0;
         float maxAcc = 3000;
 
     public:
-        INJECT(CameraStateManager(CoreMod *core, InputStateController *inputState, Transforms *tfs, Geometry *geo)) : geo(geo), quit(false), core(core), inputState(inputState),
+        INJECT(CameraStateManager(CoreMod *core, InputStateController *inputState, Transforms *tfs, Geometry *geo, ShaderManager *shaderManager)) : geo(geo), shaderManager(shaderManager), quit(false), core(core), inputState(inputState),
                                                                                                                       tfs(tfs)
         {
         }
@@ -145,9 +147,7 @@ namespace fog
             {
                 node->translate(step);
 
-                Ogre::GpuProgramManager &gpuMgr = Ogre::GpuProgramManager::getSingleton();
-                GpuSharedParametersPtr sParams = gpuMgr.getSharedParameters("FragSharedParams");
-                sParams->setNamedConstant<3, float>("cameraPos", node->getPosition());
+                shaderManager->setCameraPos(node->getPosition());
             }
 
             return true; // Continue rendering
@@ -184,7 +184,7 @@ namespace fog
             //     distance = posTarget.y + 10;
             // }
             alignHorizonToTop(node, distance);
-
+            shaderManager->setCameraPos(node->getPosition());
             return false;
         }
         /**
@@ -216,7 +216,7 @@ namespace fog
                 Ogre::Quaternion(currentYaw, Ogre::Vector3::UNIT_Y) *
                 Ogre::Quaternion(targetPitch, Ogre::Vector3::UNIT_X);
 
-            camNode->setOrientation(newOri);
+            camNode->setOrientation(newOri);            
         }
     };
 }; // end of namespace
