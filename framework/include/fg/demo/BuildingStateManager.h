@@ -70,7 +70,8 @@ namespace fog
 
     struct BuildingStateManager : public Manager<Actor>
     {
-
+        SELF(BuildingStateManager)
+        
         Actor *picked;
         std::unique_ptr<BuildingLocator> locator;
         CoreMod *core;
@@ -151,6 +152,11 @@ namespace fog
                                                       return true; //
                                                   });
         }
+
+        INIT(init)()
+        {
+        }
+
         virtual ~BuildingStateManager()
         {
         }

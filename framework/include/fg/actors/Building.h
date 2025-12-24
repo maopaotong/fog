@@ -12,12 +12,14 @@ namespace fog
     {
         struct Args
         {
-            SELF(Args, building/args)
+            SELF(Args)
+            GROUP(building#args)
             FIELD(float, scale)
 
             INJECT(Args())
             {
             }
+            
         };
 
     protected:
