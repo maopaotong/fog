@@ -1,16 +1,24 @@
 #pragma once
-
-#include "Component.h"
+#include "Options.h"
 namespace fog
 {
+    
+    template <typename T, typename = void>
+    struct hasGroup : std::false_type
+    {
+    };
 
+    template <typename T>
+    struct hasGroup<T, std::void_t<decltype(T::Group)>> : std::true_type
+    {
+    };
     template <typename T>
     struct ConfigFields
     {
 
         bool operator()(std::type_index ftype, std::string fname, std::any &fval)
         {
-            Options::Groups *gps = injector.getPtr<Options::Groups>();
+            Options::Groups *gps = groups();
             if (!gps)
             {
                 throw std::runtime_error("no options groups found from injector.");
@@ -32,12 +40,12 @@ namespace fog
             throw std::runtime_error("cannot resolve option [" + gname + "]" + fname + "(no group found)");
         }
 
-        ConfigFields(Component::Injector &injector) : injector(injector)
+        ConfigFields(std::function<Options::Groups *()> groups) : groups(groups)
         {
         }
 
     private:
-        Component::Injector &injector;
+        std::function<Options::Groups *()> groups;
 
         template <typename X>
         static std::enable_if_t<hasGroup<X>::value, std::string> resolveGroup()

@@ -6,6 +6,7 @@
 
 #include "Common.h"
 #include "Options.h"
+#include "ConfigFields.h"
 
 #define INJECT(Sig)     \
     using Inject = Sig; \
@@ -18,14 +19,14 @@
     static inline std::string Group{G};
 
 #define MEMBER(ftype, mname)                                                                   \
-    ftype mname;                                                                              \
+    ftype mname;                                                                               \
     struct AutoRegisteredMember_##mname                                                        \
-    {                                                                                         \
+    {                                                                                          \
         AutoRegisteredMember_##mname()                                                         \
-        {                                                                                     \
+        {                                                                                      \
             AutoRegisteredObjects::getInstance().addMember<Self, ftype>(#mname, &Self::mname); \
-        };                                                                                    \
-    };                                                                                        \
+        };                                                                                     \
+    };                                                                                         \
     static inline AutoRegisteredMember_##mname autoRegisteredMember_##mname{};
 
 #define INIT(mname)                                                           \
@@ -69,15 +70,6 @@ namespace fog
     };
 
     template <typename T, typename = void>
-    struct hasGroup : std::false_type
-    {
-    };
-
-    template <typename T>
-    struct hasGroup<T, std::void_t<decltype(T::Group)>> : std::true_type
-    {
-    };
-    template <typename T, typename = void>
     struct hasVoidInit : std::false_type
     {
     };
@@ -91,13 +83,13 @@ namespace fog
 
     struct AutoRegisteredObjects
     {
-        struct FieldInfo
+        struct MemberInfo
         {
             bool asPtr;
             std::type_index pType;
             std::type_index vType;
             std::function<void(std::any, std::any)> setter;
-            FieldInfo(bool asPtr, std::type_index pType, std::type_index vType, //
+            MemberInfo(bool asPtr, std::type_index pType, std::type_index vType, //
                       std::function<void(std::any, std::any)> setter) :         //
                                                                         asPtr(asPtr), pType(pType), vType(vType), setter(setter)
             {
@@ -112,7 +104,7 @@ namespace fog
         };
         struct ObjectInfo
         {
-            std::unordered_map<std::string, FieldInfo> fields;
+            std::unordered_map<std::string, MemberInfo> members;
             std::vector<MethodInfo> inits;
         };
 
@@ -126,14 +118,14 @@ namespace fog
 
             std::type_index vType = isPtr ? typeid(std::remove_pointer_t<F>) : typeid(F);
             std::type_index pType = isPtr ? typeid(F) : typeid(F *);
-            FieldInfo fieldInfo(isPtr, pType, vType, [fieldPtr](std::any obj, std::any value)
+            MemberInfo fieldInfo(isPtr, pType, vType, [fieldPtr](std::any obj, std::any value)
                                 {
                                     T *tObj = std::any_cast<T *>(obj);
                                     F val = std::any_cast<F>(value);
                                     tObj->*fieldPtr = val; //
                                 });
 
-            objInfo.fields.emplace(fieldName, fieldInfo);
+            objInfo.members.emplace(fieldName, fieldInfo);
         }
 
         template <typename T, typename F>
@@ -532,20 +524,6 @@ namespace fog
                 bindComp(makeByImpl<AsValStatic, T, Imp>());
             }
 
-            template <typename T, typename Imp, typename F>
-            void bindImplAsValStatic(F &&fieldsF)
-            {
-
-                bindComp(makeByImpl<AsValStatic, T, Imp>(fieldsF));
-            }
-
-            template <typename T, typename F>
-            void bindImplAsValStatic(F &&fieldsF)
-            {
-
-                bindComp(makeByImpl<AsValStatic, T, T>(fieldsF));
-            }
-
             template <typename T>
             void bindImplAsValStatic()
             {
@@ -562,12 +540,6 @@ namespace fog
             void bindAllImplAsValStatic()
             {
                 ((bindImplAsValStatic<T>()), ...);
-            }
-
-            template <typename F>
-            void bindMissingTypesForFields(F &&func)
-            {
-                //
             }
 
             template <typename T>
@@ -684,13 +656,21 @@ namespace fog
             //
 
             template <Usage usg, typename T, typename Imp, typename... Adts>
-            Component makeByImpl()
+            typename std::enable_if_t<!hasGroup<Imp>::value, Component> makeByImpl()
             {
                 std::function<bool(std::type_index, std::string, std::any &)> fields;
-                return makeByImpl<usg, T, Imp, Adts...>(fields);
+                return doMakeByImpl<usg, T, Imp, Adts...>(fields);
             }
+
             template <Usage usg, typename T, typename Imp, typename... Adts>
-            Component makeByImpl(std::function<bool(std::type_index, std::string, std::any &)> fields)
+            typename std::enable_if_t<hasGroup<Imp>::value, Component> makeByImpl()
+            {
+                return doMakeByImpl<usg, T, Imp, Adts...>(ConfigFields<Imp>([this]()
+                                                                          { return this->getPtr<Options::Groups>(); }));
+            }
+
+            template <Usage usg, typename T, typename Imp, typename... Adts>
+            Component doMakeByImpl(std::function<bool(std::type_index, std::string, std::any &)> fields)
             {
                 using TAdtsTuple = std::tuple<T, Adts...>;
                 UsageFunc funcAsPtrStatic;  // empty func default.
@@ -1027,7 +1007,7 @@ namespace fog
                 {
                     std::any objPA = std::make_any<T *>(ptr);
                     const AutoRegisteredObjects::ObjectInfo &objInfo = itObj->second;
-                    setRegistedFields<T>(objPA, objInfo);
+                    setRegistedMembers<T>(objPA, objInfo);
                     callRegistedInit<T>(objPA, objInfo);
                 }
             }
@@ -1041,14 +1021,14 @@ namespace fog
                 }
             }
             template <typename T>
-            void setRegistedFields(std::any &objPA, const AutoRegisteredObjects::ObjectInfo &objInfo)
+            void setRegistedMembers(std::any &objPA, const AutoRegisteredObjects::ObjectInfo &objInfo)
             {
                 //
 
-                for (const auto &fieldPair : objInfo.fields)
+                for (const auto &fieldPair : objInfo.members)
                 {
                     const std::string &fieldName = fieldPair.first;
-                    const AutoRegisteredObjects::FieldInfo &fieldInfo = fieldPair.second;
+                    const AutoRegisteredObjects::MemberInfo &fieldInfo = fieldPair.second;
                     //
                     // std::any fv = std::make_any<float>(1.0f);
 
