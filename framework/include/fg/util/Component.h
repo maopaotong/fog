@@ -8,6 +8,19 @@
 #define INJECT(Sig)     \
     using Inject = Sig; \
     Sig
+#define SELF(T) \
+    using Self = T;
+
+#define FIELD(ftype, fname)                                                                   \
+    ftype fname;                                                                              \
+    struct AutoRegisteredField_##fname                                                        \
+    {                                                                                         \
+        AutoRegisteredField_##fname()                                                         \
+        {                                                                                     \
+            AutoRegisteredObjects::getInstance().addField<Self, ftype>(#fname, &Self::fname); \
+        };                                                                                    \
+    };                                                                                        \
+    static inline AutoRegisteredField_##fname autoRegisteredField_##fname{};
 
 namespace fog
 {
@@ -38,6 +51,52 @@ namespace fog
     {
     };
 
+    struct AutoRegisteredObjects
+    {
+        struct FieldInfo
+        {
+            bool asPtr;
+            std::type_index pType;
+            std::type_index vType;
+            std::function<void(std::any, std::any)> setter;
+            FieldInfo(bool asPtr, std::type_index pType, std::type_index vType, //
+                      std::function<void(std::any, std::any)> setter) :         //
+                                                                        asPtr(asPtr), pType(pType), vType(vType), setter(setter)
+            {
+            }
+        };
+        struct ObjectInfo
+        {
+            std::unordered_map<std::string, FieldInfo> fields;
+        };
+
+        std::unordered_map<std::type_index, ObjectInfo> objects;
+
+        template <typename T, typename F>
+        void addField(const std::string &fieldName, F T::*fieldPtr)
+        {
+            auto &objInfo = objects[std::type_index(typeid(T))];
+            bool isPtr = std::is_pointer_v<F>;
+
+            std::type_index vType = isPtr ? typeid(std::remove_pointer_t<F>) : typeid(F);
+            std::type_index pType = isPtr ? typeid(F) : typeid(F *);
+            FieldInfo fieldInfo(isPtr, pType, vType, [fieldPtr](std::any obj, std::any value)
+                                {
+                                    T *tObj = std::any_cast<T *>(obj);
+                                    F val = std::any_cast<F>(value);
+                                    tObj->*fieldPtr = val; //
+                                });
+
+            objInfo.fields.emplace(fieldName, fieldInfo);
+        }
+
+        static AutoRegisteredObjects &getInstance()
+        {
+            static AutoRegisteredObjects instance;
+            return instance;
+        }
+    };
+
     template <typename T, typename C>
     struct ArgOfConstructor
     {
@@ -54,6 +113,7 @@ namespace fog
         struct Injector;
         using AnyFunc = std::function<std::any()>;
         using AddonFunc = std::function<std::any(Injector &)>;
+        using FieldsFunc = std::function<bool(std::type_index, std::string, std::any &)>;
 
         using Usage = unsigned int;
         static constexpr Usage AsPtr = 1U << 0;
@@ -73,6 +133,7 @@ namespace fog
         using Interface = std::unordered_set<std::type_index>;
         using Object = std::unordered_map<std::type_index, UsageFunc>;
         using Value = UsageFunc;
+        using Fields = FieldsFunc;
 
         std::type_index typeId; // register the main type of the component.
         Object objS;            // cast funcs
@@ -80,8 +141,10 @@ namespace fog
         Value valueStatic;
         Value valueDynamic;
 
-        Component(std::type_index typeId, Object objS, Object objD, Value valueS, Value valueD)
-            : typeId(typeId), objS(objS), objD(objD), valueStatic(valueS), valueDynamic(valueD) {};
+        Fields fields;
+
+        Component(std::type_index typeId, Object objS, Object objD, Value valueS, Value valueD, Fields fields)
+            : typeId(typeId), objS(objS), objD(objD), valueStatic(valueS), valueDynamic(valueD), fields(fields) {};
 
         template <typename T>
         T *getPtr(Usage usgR)
@@ -99,14 +162,14 @@ namespace fog
         template <typename T>
         T getVal(Usage usgR)
         {
-            Value func = getValFunc(usgR);
+            std::any aV = getVal(usgR, typeid(T));
+            return std::any_cast<T>(aV);
+        }
 
-            std::any v = func();
-            if (v.type() != typeid(T)) // impossible error.
-            {
-                throw std::runtime_error("cannot cast value , value function returned a value with other type. ");
-            }
-            return std::any_cast<T>(v);
+        std::any getVal(Usage usgR, std::type_index tid)
+        {
+            Value func = getValFunc(usgR);
+            return func();
         }
 
         UsageFunc getValFunc(Usage usgR)
@@ -221,21 +284,20 @@ namespace fog
         template <typename F, typename F2>
         static Component make(std::type_index tid, F &&createAsPtrS, F2 &&createAsValS)
         {
-
-            return make(tid, createAsPtrS, createAsValS, {}, {});
+            return make(tid, createAsPtrS, createAsValS, {}, {}, {});
         }
 
-        static Component make(std::type_index tid, UsageFunc createAsPtrS, UsageFunc createAsValS, UsageFunc createAsPtrD, UsageFunc createAsValD)
+        static Component make(std::type_index tid, UsageFunc createAsPtrS, UsageFunc createAsValS, UsageFunc createAsPtrD, UsageFunc createAsValD, FieldsFunc fields)
         {
             Object objS;
             objS.emplace(tid, createAsPtrS);
             Object objD;
             objD.emplace(tid, createAsPtrD);
-            return Component(tid, objS, objD, createAsValS, createAsValD);
+            return Component(tid, objS, objD, createAsValS, createAsValD, fields);
         }
 
         template <typename T, typename Imp, typename Tuple, std::size_t... Is>
-        static Component makeImpl(UsageFunc createAsPtrS, UsageFunc createAsValS, UsageFunc createAsPtrD, UsageFunc createAsValD, std::index_sequence<Is...>)
+        static Component makeImpl(UsageFunc createAsPtrS, UsageFunc createAsValS, UsageFunc createAsPtrD, UsageFunc createAsValD, std::index_sequence<Is...>, std::function<bool(std::type_index, std::string, std::any &)> fields)
         {
             Object objS; // map from type id => function to get/crate the required type of value.
             if (createAsPtrS)
@@ -248,7 +310,7 @@ namespace fog
                 ((registerInterface<T, Imp, Tuple, Is>(objD, createAsPtrD)), ...);
             }
 
-            return Component(typeid(T), objS, objD, createAsValS, createAsValD);
+            return Component(typeid(T), objS, objD, createAsValS, createAsValD, fields);
         }
 
         template <typename T, typename Imp, typename Tuple, std::size_t I>
@@ -333,8 +395,6 @@ namespace fog
 
             std::unordered_map<std::type_index, Component> components;
 
-            // std::function<Component(std::type_index)> defaultCompFunc;
-
             template <typename T>
             void upbind()
             {
@@ -404,6 +464,12 @@ namespace fog
             {
                 bindComp(makeByImpl<AsValStatic, T, Imp>());
             }
+            template <typename T, typename Imp, typename F>
+            void bindImplAsValStatic(F &&fieldsF)
+            {
+
+                bindComp(makeByImpl<AsValStatic, T, Imp>(fieldsF));
+            }
 
             template <typename T>
             void bindImplAsValStatic()
@@ -421,6 +487,12 @@ namespace fog
             void bindAllImplAsValStatic()
             {
                 ((bindImplAsValStatic<T>()), ...);
+            }
+
+            template <typename F>
+            void bindMissingTypesForFields(F &&func)
+            {
+                //
             }
 
             template <typename T>
@@ -539,15 +611,21 @@ namespace fog
             template <Usage usg, typename T, typename Imp, typename... Adts>
             Component makeByImpl()
             {
+                std::function<bool(std::type_index, std::string, std::any &)> fields;
+                return makeByImpl<usg, T, Imp, Adts...>(fields);
+            }
+            template <Usage usg, typename T, typename Imp, typename... Adts>
+            Component makeByImpl(std::function<bool(std::type_index, std::string, std::any &)> fields)
+            {
                 using TAdtsTuple = std::tuple<T, Adts...>;
                 UsageFunc funcAsPtrStatic;  // empty func default.
                 UsageFunc funcAsValStatic;  // empty func default.
                 UsageFunc funcAsPtrDynamic; // empty func default.
                 UsageFunc funcAsValDynamic; // empty func default.
 
-                makeFunctionForUsage<usg, T, Imp>(funcAsPtrStatic, funcAsValStatic, funcAsPtrDynamic, funcAsValDynamic);
+                makeFunctionForUsage<usg, T, Imp>(funcAsPtrStatic, funcAsValStatic, funcAsPtrDynamic, funcAsValDynamic); //
 
-                return Component::makeImpl<T, Imp, TAdtsTuple>(funcAsPtrStatic, funcAsValStatic, funcAsPtrDynamic, funcAsValDynamic, std::make_index_sequence<std::tuple_size_v<std::decay_t<TAdtsTuple>>>{});
+                return Component::makeImpl<T, Imp, TAdtsTuple>(funcAsPtrStatic, funcAsValStatic, funcAsPtrDynamic, funcAsValDynamic, std::make_index_sequence<std::tuple_size_v<std::decay_t<TAdtsTuple>>>{}, fields);
             }
 
             template <Usage usg>
@@ -578,7 +656,7 @@ namespace fog
             }
 
             template <Usage usg, typename T, typename Imp>
-            typename std::enable_if_t<usg & AsVal &&!(usg & AsPtr), void> makeFunctionForUsage(UsageFunc &funcAsPtrS, UsageFunc &funcAsValS, UsageFunc &funcAsPtrD, UsageFunc &funcAsValD)
+            typename std::enable_if_t<usg & AsVal && !(usg & AsPtr), void> makeFunctionForUsage(UsageFunc &funcAsPtrS, UsageFunc &funcAsValS, UsageFunc &funcAsPtrD, UsageFunc &funcAsValD)
             {
                 if (usg & AsStatic)
                 {
@@ -597,7 +675,7 @@ namespace fog
                     };
                 }
             }
-            
+
             template <Usage usg, typename T, typename Imp>
             typename std::enable_if_t<usg & AsPtr && usg & AsVal, void> makeFunctionForUsage(UsageFunc &funcAsPtrS, UsageFunc &funcAsValS, UsageFunc &funcAsPtrD, UsageFunc &funcAsValD)
             {
@@ -655,6 +733,7 @@ namespace fog
             T getValStatic()
             {
                 static T instance = createInstance<AsVal, T>();
+
                 return (instance);
             }
 
@@ -838,7 +917,61 @@ namespace fog
                 // static_assert(allArgsArePointers<ArgsTuple>, "All inject arguments must be pointer types!");
 
                 T ret = T(getAsConstructorArg<T, Is, std::tuple_element_t<Is, ArgsTuple>>()...);
+                initFields<T>(&ret);
                 return ret;
+            }
+
+            template <typename T>
+            void initFields(T *objPtr)
+            {
+                //                fileds
+                AutoRegisteredObjects &autoRegObjs = AutoRegisteredObjects::getInstance();
+                auto itObj = autoRegObjs.objects.find(std::type_index(typeid(T)));
+                if (itObj != autoRegObjs.objects.end()) // make init func to setting fields.
+                {
+                    const AutoRegisteredObjects::ObjectInfo &objInfo = itObj->second;
+
+                    for (const auto &fieldPair : objInfo.fields)
+                    {
+                        const std::string &fieldName = fieldPair.first;
+                        const AutoRegisteredObjects::FieldInfo &fieldInfo = fieldPair.second;
+                        //
+                        // std::any fv = std::make_any<float>(1.0f);
+
+                        std::any fv;
+                        Component *cPtr = this->tryGetComponent(fieldInfo.vType);
+                        if (cPtr)
+                        {
+                            if (fieldInfo.asPtr)
+                            {
+                                fv = cPtr->getPtr(AsStaticFirst, fieldInfo.vType);
+                            }
+                            else
+                            {
+                                fv = cPtr->getVal(AsStaticFirst, fieldInfo.vType);
+                            }
+                            //
+                        }
+                        else
+                        {
+                            // try to get registed fields.
+                            Component *pCPtr = this->tryGetComponent(typeid(T));
+                            if (pCPtr->fields)
+                            {
+                                if (!pCPtr->fields(fieldInfo.vType, fieldName, fv))
+                                {
+                                    throw std::runtime_error("failed to resolve the field value by field function.");
+                                }
+                            }
+                            else
+                            {
+                                throw std::runtime_error("cannot resolve the field value because no field function registered.");
+                            }
+                        }
+
+                        fieldInfo.setter(objPtr, fv);
+                    }
+                }
             }
 
             // G<1>

@@ -68,8 +68,9 @@ namespace fog
         }
     };
 
-    class BuildingStateManager : public Manager<Actor>
+    struct BuildingStateManager : public Manager<Actor>
     {
+
         Actor *picked;
         std::unique_ptr<BuildingLocator> locator;
         CoreMod *core;
@@ -101,15 +102,18 @@ namespace fog
         Event::Bus *eventBus;
         Component::Injector *injector;
         Transforms *tfs;
+        Building::Args args;
 
     public:
         INJECT(BuildingStateManager(CoreMod *core,
                                     Transforms *tfs,
                                     InventoryManager *inventoryManager,
+                                    Building::Args args,
                                     Config *config,
                                     Component::Injector *injector,
                                     Event::Bus *eventBus))
             : core(core),
+              args(args),
               injector(injector),
               tfs(tfs),
               config(config),
@@ -197,7 +201,8 @@ namespace fog
 
             if (success)
             {
-                locator = std::make_unique<BuildingLocator>(std::make_unique<Building>(type, tfs, core, config, core->getRootSceneNode()->createChildSceneNode()), invAmount, core, tfs, buildingsInCells);
+                std::unique_ptr<Building> bd = std::make_unique<Building>(type, tfs, core, config, core->getRootSceneNode()->createChildSceneNode(), args);
+                locator = std::make_unique<BuildingLocator>(std::move(bd), invAmount, core, tfs, buildingsInCells);
             }
 
             return true;

@@ -8,25 +8,37 @@
 #include "fg/cells.h"
 namespace fog
 {
-    class Building : public Actor
+    struct Building : public Actor
     {
+        struct Args
+        {
+            SELF(Args)
+            FIELD(float, scale)
+
+            INJECT(Args())
+            {
+            }
+        };
 
     protected:
         BuildingType type;
         Transforms *tfs;
         Config *config;
+        Args args;
 
     public:
-        INJECT(Building(BuildingType type, Transforms *tfs, CoreMod *core, Config *config, SceneNode *sceNode)) : Actor(sceNode),
-                                                                                                                  tfs(tfs),
-                                                                                                                  config(config),
-                                                                                                                  type(type)
+        INJECT(Building(BuildingType type, Transforms *tfs, CoreMod *core, Config *config, SceneNode *sceNode, Args args)) : Actor(sceNode),
+                                                                                                                             tfs(tfs),
+                                                                                                                             args(args),
+                                                                                                                             config(config),
+                                                                                                                             type(type)
         {
-            ManualObject * obj = core->createManualObject();
+            ManualObject *obj = core->createManualObject();
             obj->setQueryFlags(0x00000001);
             sceNode->attachObject(obj);
 
-            sceNode->setScale(config->cellScale * 0.75, config->cellScale * 0.25, config->cellScale * 0.75);
+            // sceNode->setScale(config->cellScale * 0.75, config->cellScale * 0.25, config->cellScale * 0.75);
+            sceNode->setScale(args.scale * 0.75, args.scale * 0.25, args.scale * 0.75);
             MeshBuild::Cylinder cylinder(obj);
 
             cylinder.begin(MaterialNames::materialNameBuilding); //
