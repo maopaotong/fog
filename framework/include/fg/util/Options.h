@@ -29,7 +29,7 @@ namespace fog
             std::any valuePtr;
             std::function<void(std::any)> destructor;
             std::function<std::any()> copy;
-
+            std::function<std::any()> value;
             ~Option()
             {
                 destructor(this->valuePtr);
@@ -48,6 +48,11 @@ namespace fog
                     T *valueP = std::any_cast<T *>(valuePtr);
                     delete valueP;
                 };
+                this->value = [this]()
+                {
+                    T *valueP = std::any_cast<T *>(valuePtr);
+                    return std::make_any<T>(*valueP);
+                };
             }
 
             Option(const Option &opt) : name(opt.name)
@@ -55,6 +60,7 @@ namespace fog
                 this->copy = opt.copy;
                 this->destructor = opt.destructor;
                 this->valuePtr = this->copy();
+                this->value = opt.value;
             }; // copy
 
             Option(Option &&opt) : name(opt.name)
@@ -66,6 +72,8 @@ namespace fog
                 opt.copy = []() -> std::any
                 { return nullptr; };
                 opt.valuePtr = opt.copy();
+                opt.value = []() -> std::any
+                { throw std::runtime_error("empty value."); };
             }; // move
 
             Option &operator=(const Option &opt)
@@ -90,9 +98,14 @@ namespace fog
                 T *p = std::any_cast<T *>(valuePtr);
                 return *p;
             }
+
+            std::any getValue(){
+                return this->value();
+            }
         };
-        
-        struct Groups {
+
+        struct Groups
+        {
             std::unordered_map<std::string, Options> groups;
         };
 

@@ -8,9 +8,9 @@
 #define INJECT(Sig)     \
     using Inject = Sig; \
     Sig
-#define SELF(T)     \
+#define SELF(T,N)     \
     using Self = T; \
-    static inline std::string SelfName{#T};
+    static inline std::string SelfName{#N};
 
 #define FIELD(ftype, fname)                                                                   \
     ftype fname;                                                                              \

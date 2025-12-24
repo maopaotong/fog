@@ -12,7 +12,7 @@ namespace fog
     {
         struct Args
         {
-            SELF(Args)
+            SELF(Args, building/args)
             FIELD(float, scale)
 
             INJECT(Args())
