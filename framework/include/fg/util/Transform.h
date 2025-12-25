@@ -8,49 +8,7 @@ namespace fog
     class Transform
     {
     public:
-        template <typename T>
-        struct Move2
-        {
-            T moveX; // origin point in space.
-            T moveY;
-            Move2(T mx, T my) : moveX(mx), moveY(my)
-            {
-            }
-
-            void operator()(T &x, T &y)
-            {
-                x += moveX;
-                y += moveY;
-            }
-
-            Move2<T> reverse()
-            {
-                return Move2<T>(-moveX, -moveY);
-            }
-        };
-
-        template <typename T>
-        struct Scale2
-        {
-            T scaleX; // origin point in space.
-            T scaleY;
-            Scale2() : Scale2(1, 1) {}
-            Scale2(T s) : Scale2(s, s) {}
-            Scale2(T mx, T my) : scaleX(mx), scaleY(my)
-            {
-            }
-            void operator()(T &x, T &y)
-            {
-                x *= scaleX;
-                y *= scaleY;
-            }
-
-            Scale2<T> reverse()
-            {
-                return Scale2<T>(1.0 / scaleX, 1.0 / scaleY);
-            }
-        };
-
+       
         struct CentreToCellKey
         {
             float rad;
