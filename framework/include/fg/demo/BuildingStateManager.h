@@ -207,7 +207,7 @@ namespace fog
 
             if (success)
             {
-                std::unique_ptr<Building> bd = std::make_unique<Building>(type, tfs, core, config, core->getRootSceneNode()->createChildSceneNode(), args);
+                std::unique_ptr<Building> bd = std::make_unique<Building>(type, tfs, core, core->getRootSceneNode()->createChildSceneNode(), args);
                 locator = std::make_unique<BuildingLocator>(std::move(bd), invAmount, core, tfs, buildingsInCells);
             }
 

@@ -25,14 +25,12 @@ namespace fog
     protected:
         BuildingType type;
         Transforms *tfs;
-        Config *config;
         Args args;
 
     public:
-        INJECT(Building(BuildingType type, Transforms *tfs, CoreMod *core, Config *config, SceneNode *sceNode, Args args)) : Actor(sceNode),
+        INJECT(Building(BuildingType type, Transforms *tfs, CoreMod *core, SceneNode *sceNode, Args args)) : Actor(sceNode),
                                                                                                                              tfs(tfs),
                                                                                                                              args(args),
-                                                                                                                             config(config),
                                                                                                                              type(type)
         {
             ManualObject *obj = core->createManualObject();

@@ -26,7 +26,7 @@ namespace fog
             MEMBERK(cellsTerrainAmp, "CELLS_TERRAIN_AMP")
             MEMBERK(cellsMeshQuality, "TILE_MESH_QUALITY")
 
-            INJECT(Options(Config *config, CellsDatas::Options cdos)) : tlsWidth(cdos.cellsRange.getWidth()),
+            INJECT(Options(CellsDatas::Options cdos)) : tlsWidth(cdos.cellsRange.getWidth()),
                                                                         tlsHeight(cdos.cellsRange.getHeight())
 
             {

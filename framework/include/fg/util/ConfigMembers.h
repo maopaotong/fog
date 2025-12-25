@@ -41,6 +41,9 @@ namespace fog
                 Options::Option *opt = ops.getOption(rKey);
                 if (opt)
                 {
+                    if(opt->getType() != mType){
+                        throw std::runtime_error("cannot resolve option[" + gname + "]" + rKey + "(type mismatch)");
+                    }
                     fval = opt->getValue();
                     return true;
                 }

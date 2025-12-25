@@ -27,6 +27,8 @@ namespace fog
             float temperatureLatitudeWeightPower; //, 3.0f)
             float normalDistribution;             //,  0.75f)
             float hotDistribution;                //,  0.95f)
+            bool GENERATOR1_MAKE_LAKE;
+            
 
             SELF(Options)
             // GROUP("cellsgenerator#args")
@@ -36,6 +38,7 @@ namespace fog
             MEMBERD(temperatureLatitudeWeightPower, 3.0f)
             MEMBERD(normalDistribution, 0.75f)
             MEMBERD(hotDistribution, 0.95f)
+            MEMBERKD(GENERATOR1_MAKE_LAKE, "GENERATOR1_MAKE_LAKE", true);
 
             INJECT(Options())
             // : frozenDistribution(config->frozenDistribution), temperatureLatitudeWeightPower(config->temperatureLatitudeWeightPower),

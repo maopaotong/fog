@@ -30,12 +30,13 @@ namespace fog
             std::function<void(std::any)> destructor;
             std::function<std::any()> copy;
             std::function<std::any()> value;
+            std::type_index valueType;
             ~Option()
             {
                 destructor(this->valuePtr);
             }
             template <typename T>
-            Option(std::string name, T defaultV) : name(name)
+            Option(std::string name, T defaultV) : name(name),valueType(typeid(T))
             {
                 this->copy = [defaultV]()
                 {
@@ -53,9 +54,10 @@ namespace fog
                     T *valueP = std::any_cast<T *>(valuePtr);
                     return std::make_any<T>(*valueP);
                 };
+                this->valueType = typeid(T);
             }
 
-            Option(const Option &opt) : name(opt.name)
+            Option(const Option &opt) : name(opt.name),valueType(opt.valueType)
             {
                 this->copy = opt.copy;
                 this->destructor = opt.destructor;
@@ -63,7 +65,7 @@ namespace fog
                 this->value = opt.value;
             }; // copy
 
-            Option(Option &&opt) : name(opt.name)
+            Option(Option &&opt) : name(opt.name),valueType(opt.valueType)
             {
                 this->copy = opt.copy;
                 this->destructor = opt.destructor;
@@ -74,6 +76,7 @@ namespace fog
                 opt.valuePtr = opt.copy();
                 opt.value = []() -> std::any
                 { throw std::runtime_error("empty value."); };
+                
             }; // move
 
             Option &operator=(const Option &opt)
@@ -90,6 +93,9 @@ namespace fog
             bool isType() const
             {
                 return valuePtr.type() == typeid(T *);
+            }
+            std::type_index getType(){
+                return valueType;
             }
 
             template <typename T>

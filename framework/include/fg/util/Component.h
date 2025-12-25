@@ -18,7 +18,7 @@
 #define GROUP(G) \
     static inline std::string Group{G};
 
-#define SELFG(T,G) SELF(T) GROUP(G)    
+#define SELFG(T, G) SELF(T) GROUP(G)
 
 #define IDENTITY(...) __VA_ARGS__
 
@@ -39,6 +39,8 @@
 #define MEMBERK(mname, key) MEMBERX(mname, (key))
 
 #define MEMBERD(mname, dftV) MEMBERX(mname, (#mname, dftV))
+
+#define MEMBERKD(mname, key, dftV) MEMBERX(mname, (key, dftV))
 
 #define INIT(mname)                                                           \
     struct AutoRegisteredInit_##mname                                         \
@@ -149,6 +151,7 @@ namespace fog
             std::type_index pType = isPtr ? typeid(F) : typeid(F *);
             objInfo.members.emplace(fieldName, MemberInfo(isPtr, pType, vType, [member](std::any obj, std::any value)
                                                           {
+                                                              // we trust the value provided here is type match
                                                               T *tObj = std::any_cast<T *>(obj);
                                                               F val = std::any_cast<F>(value);
                                                               tObj->*member = val; //
