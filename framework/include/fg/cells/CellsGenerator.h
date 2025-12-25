@@ -22,14 +22,25 @@ namespace fog
 
         struct Options
         {
-            float frozenDistribution;
-            float temperatureLatitudeWeightPower;
-            float normalDistribution;
-            float hotDistribution;
 
-            INJECT(Options(Config *config)) : frozenDistribution(config->frozenDistribution), temperatureLatitudeWeightPower(config->temperatureLatitudeWeightPower),
-                                              normalDistribution(config->normalDistribution),
-                                              hotDistribution(config->hotDistribution)
+            float frozenDistribution;             //, 0.1f)
+            float temperatureLatitudeWeightPower; //, 3.0f)
+            float normalDistribution;             //,  0.75f)
+            float hotDistribution;                //,  0.95f)
+
+            SELF(Options)
+            // GROUP("cellsgenerator#args")
+            GROUP("config")
+
+            MEMBERD(frozenDistribution, 0.1f)
+            MEMBERD(temperatureLatitudeWeightPower, 3.0f)
+            MEMBERD(normalDistribution, 0.75f)
+            MEMBERD(hotDistribution, 0.95f)
+
+            INJECT(Options(Config *config))
+            // : frozenDistribution(config->frozenDistribution), temperatureLatitudeWeightPower(config->temperatureLatitudeWeightPower),
+            //                                   normalDistribution(config->normalDistribution),
+            //                                   hotDistribution(config->hotDistribution)
 
             {
             }
@@ -69,7 +80,6 @@ namespace fog
             generateTemperaturemap(goc);
 
             generateCellsTypes(goc);
-            
         };
 
         virtual void generateHeightmap(GenerateOpCtx &goc)
@@ -113,7 +123,6 @@ namespace fog
                                           goc.tiles[x][y].type = type; //
                                       });
         }
-        
 
     }; // end of class
 

@@ -18,16 +18,25 @@
 #define GROUP(G) \
     static inline std::string Group{G};
 
-#define MEMBER(ftype, mname)                                                                   \
-    ftype mname;                                                                               \
-    struct AutoRegisteredMember_##mname                                                        \
-    {                                                                                          \
-        AutoRegisteredMember_##mname()                                                         \
-        {                                                                                      \
-            AutoRegisteredObjects::getInstance().addMember<Self, ftype>(#mname, &Self::mname); \
-        };                                                                                     \
-    };                                                                                         \
+#define IDENTITY(...) __VA_ARGS__
+
+#define REMOVE_PARENS(...) IDENTITY __VA_ARGS__
+
+#define MEMBERX(mname, args)                                                                                                        \
+    struct AutoRegisteredMember_##mname                                                                                             \
+    {                                                                                                                               \
+        AutoRegisteredMember_##mname()                                                                                              \
+        {                                                                                                                           \
+            AutoRegisteredObjects::getInstance().addMember<Self, decltype(Self::mname)>(#mname, &Self::mname, REMOVE_PARENS(args)); \
+        };                                                                                                                          \
+    };                                                                                                                              \
     static inline AutoRegisteredMember_##mname autoRegisteredMember_##mname{};
+
+#define MEMBER(mname) MEMBERX(mname, (#mname))
+
+#define MEMBERK(mname, key) MEMBERX(mname, (key))
+
+#define MEMBERD(mname, dftV) MEMBERX(mname, (#mname, dftV))
 
 #define INIT(mname)                                                           \
     struct AutoRegisteredInit_##mname                                         \
@@ -89,9 +98,13 @@ namespace fog
             std::type_index pType;
             std::type_index vType;
             std::function<void(std::any, std::any)> setter;
+            std::string key;
+            std::function<bool(std::any &)> defaultVal;
             MemberInfo(bool asPtr, std::type_index pType, std::type_index vType, //
-                      std::function<void(std::any, std::any)> setter) :         //
-                                                                        asPtr(asPtr), pType(pType), vType(vType), setter(setter)
+                       std::function<void(std::any, std::any)> setter,
+                       std::string key,
+                       std::function<bool(std::any &)> defaultVal) : //
+                                                                     asPtr(asPtr), pType(pType), vType(vType), setter(setter), key(key), defaultVal(defaultVal)
             {
             }
         };
@@ -111,21 +124,60 @@ namespace fog
         std::unordered_map<std::type_index, ObjectInfo> objects;
 
         template <typename T, typename F>
-        void addMember(const std::string &fieldName, F T::*fieldPtr)
+        void addMember(const std::string &fieldName, F T::*member, const std::string &key)
+        {
+            auto func = [](std::any &dftV)
+            { return false; };
+            doAddMember<T, F>(fieldName, member, key, func);
+        }
+        template <typename T, typename F>
+        void addMember(const std::string &fieldName, F T::*member, const std::string &key, F dftVal)
+        {
+            std::function<bool(std::any &)> dftFunc;
+            makeDefaultValFunction<F>(dftVal, dftFunc);
+            doAddMember<T, F>(fieldName, member, key, dftFunc);
+        }
+
+        template <typename T, typename F>
+        void doAddMember(const std::string &fieldName, F T::*member, const std::string &key, std::function<bool(std::any &)> dftFunc)
         {
             auto &objInfo = objects[std::type_index(typeid(T))];
             bool isPtr = std::is_pointer_v<F>;
-
             std::type_index vType = isPtr ? typeid(std::remove_pointer_t<F>) : typeid(F);
             std::type_index pType = isPtr ? typeid(F) : typeid(F *);
-            MemberInfo fieldInfo(isPtr, pType, vType, [fieldPtr](std::any obj, std::any value)
-                                {
-                                    T *tObj = std::any_cast<T *>(obj);
-                                    F val = std::any_cast<F>(value);
-                                    tObj->*fieldPtr = val; //
-                                });
+            objInfo.members.emplace(fieldName, MemberInfo(isPtr, pType, vType, [member](std::any obj, std::any value)
+                                                          {
+                                                              T *tObj = std::any_cast<T *>(obj);
+                                                              F val = std::any_cast<F>(value);
+                                                              tObj->*member = val; //
+                                                          },
+                                                          key, dftFunc));
+        }
 
-            objInfo.members.emplace(fieldName, fieldInfo);
+        template <typename T>
+        typename std::enable_if_t<!std::is_pointer_v<T>, void> makeDefaultValFunction(T dftV, std::function<bool(std::any &)> &func)
+        {
+
+            func = [dftV](std::any &retVal)
+            {
+                retVal = std::make_any<T>(dftV);
+                return true;
+            };
+        }
+
+        template <typename T>
+        typename std::enable_if_t<std::is_pointer_v<T>, void> makeDefaultValFunction(T dftV, std::function<bool(std::any &)> &func)
+        {
+
+            func = [dftV](std::any &retVal)
+            {
+                if (dftV)
+                {
+                    retVal = std::make_any<T>(dftV);
+                    return true;
+                }
+                return false;
+            };
         }
 
         template <typename T, typename F>
@@ -168,7 +220,7 @@ namespace fog
         struct Injector;
         using AnyFunc = std::function<std::any()>;
         using AddonFunc = std::function<std::any(Injector &)>;
-        using FieldsFunc = std::function<bool(std::type_index, std::string, std::any &)>;
+        using FieldsFunc = ConfigMembers<void>::Function;
         using InitFunc = std::function<bool(std::any)>;
 
         using Usage = unsigned int;
@@ -189,7 +241,7 @@ namespace fog
         using Interface = std::unordered_set<std::type_index>;
         using Object = std::unordered_map<std::type_index, UsageFunc>;
         using Value = UsageFunc;
-        using Fields = FieldsFunc;
+        using Members = FieldsFunc;
         using Init = InitFunc;
 
         std::type_index typeId; // register the main type of the component.
@@ -198,11 +250,11 @@ namespace fog
         Value valueStatic;
         Value valueDynamic;
 
-        Fields fields;
+        Members members;
         Init init;
 
-        Component(std::type_index typeId, Object objS, Object objD, Value valueS, Value valueD, Fields fields, Init init)
-            : typeId(typeId), objS(objS), objD(objD), valueStatic(valueS), valueDynamic(valueD), fields(fields), init(init) {};
+        Component(std::type_index typeId, Object objS, Object objD, Value valueS, Value valueD, Members mbs, Init init)
+            : typeId(typeId), objS(objS), objD(objD), valueStatic(valueS), valueDynamic(valueD), members(mbs), init(init) {};
 
         template <typename T>
         T *getPtr(Usage usgR)
@@ -658,19 +710,18 @@ namespace fog
             template <Usage usg, typename T, typename Imp, typename... Adts>
             typename std::enable_if_t<!hasGroup<Imp>::value, Component> makeByImpl()
             {
-                std::function<bool(std::type_index, std::string, std::any &)> fields;
-                return doMakeByImpl<usg, T, Imp, Adts...>(fields);
+                return doMakeByImpl<usg, T, Imp, Adts...>(ConfigMembers<void>::Function{});
             }
 
             template <Usage usg, typename T, typename Imp, typename... Adts>
             typename std::enable_if_t<hasGroup<Imp>::value, Component> makeByImpl()
             {
                 return doMakeByImpl<usg, T, Imp, Adts...>(ConfigMembers<Imp>([this]()
-                                                                          { return this->getPtr<Options::Groups>(); }));
+                                                                             { return this->getPtr<Options::Groups>(); }));
             }
 
             template <Usage usg, typename T, typename Imp, typename... Adts>
-            Component doMakeByImpl(std::function<bool(std::type_index, std::string, std::any &)> fields)
+            Component doMakeByImpl(ConfigMembers<void>::Function members)
             {
                 using TAdtsTuple = std::tuple<T, Adts...>;
                 UsageFunc funcAsPtrStatic;  // empty func default.
@@ -684,7 +735,7 @@ namespace fog
 
                 return Component::makeImpl<T, Imp, TAdtsTuple>(funcAsPtrStatic, funcAsValStatic, funcAsPtrDynamic, funcAsValDynamic,    //
                                                                std::make_index_sequence<std::tuple_size_v<std::decay_t<TAdtsTuple>>>{}, //
-                                                               fields,
+                                                               members,
                                                                initFunc);
             }
             template <typename T>
@@ -1027,42 +1078,44 @@ namespace fog
 
                 for (const auto &fieldPair : objInfo.members)
                 {
-                    const std::string &fieldName = fieldPair.first;
-                    const AutoRegisteredObjects::MemberInfo &fieldInfo = fieldPair.second;
+                    const std::string &mebName = fieldPair.first;
+                    const AutoRegisteredObjects::MemberInfo &mebInfo = fieldPair.second;
                     //
-                    // std::any fv = std::make_any<float>(1.0f);
 
-                    std::any fv;
-                    Component *cPtr = this->tryGetComponent(fieldInfo.vType);
+                    std::any val;
+                    Component *cPtr = this->tryGetComponent(mebInfo.vType);
                     if (cPtr)
                     {
-                        if (fieldInfo.asPtr)
+                        if (mebInfo.asPtr)
                         {
-                            fv = cPtr->getPtr(AsStaticFirst, fieldInfo.vType);
+                            val = cPtr->getPtr(AsStaticFirst, mebInfo.vType);
                         }
                         else
                         {
-                            fv = cPtr->getVal(AsStaticFirst, fieldInfo.vType);
+                            val = cPtr->getVal(AsStaticFirst, mebInfo.vType);
                         }
                         //
                     }
                     else
                     { // no component bind to the type, try to get registed fields.
                         Component *pCPtr = this->tryGetComponent(typeid(T));
-                        if (pCPtr->fields)
+                        if (pCPtr->members)
                         {
-                            if (!pCPtr->fields(fieldInfo.vType, fieldName, fv))
+                            if (!(pCPtr->members)(mebInfo.vType, mebName, mebInfo.key, val, false))
                             {
-                                throw std::runtime_error("failed to resolve the field value by field function.");
+                                if (!(mebInfo.defaultVal)(val))
+                                {
+                                    throw std::runtime_error("connot resolve the value for member:" + mebName + ",key:" + mebInfo.key + "(no default value)");
+                                }
                             }
                         }
                         else
                         {
-                            throw std::runtime_error("cannot resolve the field value because no field function registered.");
+                            throw std::runtime_error("connot resolve the value for member:" + mebName + ",key:" + mebInfo.key + "(no function registered)");
                         }
                     }
 
-                    fieldInfo.setter(objPA, fv);
+                    (mebInfo.setter)(objPA, val);
 
                 } // fields
             }

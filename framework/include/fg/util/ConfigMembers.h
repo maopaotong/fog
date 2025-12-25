@@ -2,7 +2,7 @@
 #include "Options.h"
 namespace fog
 {
-    
+
     template <typename T, typename = void>
     struct hasGroup : std::false_type
     {
@@ -15,33 +15,46 @@ namespace fog
     template <typename T>
     struct ConfigMembers
     {
+        using Function = std::function<bool(const std::type_index &, const std::string &, const std::string &, std::any &, bool strict)>;
 
-        bool operator()(std::type_index ftype, std::string fname, std::any &fval)
+        ConfigMembers(std::function<Options::Groups *()> groups) : groups(groups)
+        {
+        }
+
+        bool operator()(const std::type_index &mType, const std::string &mName, const std::string &key, std::any &fval, bool strict)
         {
             Options::Groups *gps = groups();
             if (!gps)
             {
-                throw std::runtime_error("no options groups found from injector.");
+                if (strict)
+                {
+                    throw std::runtime_error("no options groups found from injector.");
+                }
+                return false;
             }
-
+            std::string rKey = key.empty() ? mName : key;
             std::string gname = resolveGroup<T>();
             if (auto it = gps->groups.find(gname); it != gps->groups.end())
             {
                 Options &ops = it->second;
 
-                Options::Option *opt = ops.getOption(fname);
+                Options::Option *opt = ops.getOption(rKey);
                 if (opt)
                 {
                     fval = opt->getValue();
                     return true;
                 }
-                throw std::runtime_error("cannot resolve option [" + gname + "]" + fname + "(no option found)");
-            }
-            throw std::runtime_error("cannot resolve option [" + gname + "]" + fname + "(no group found)");
-        }
+                if (strict)
+                {
 
-        ConfigMembers(std::function<Options::Groups *()> groups) : groups(groups)
-        {
+                    throw std::runtime_error("cannot resolve option [" + gname + "]" + rKey + "(no option found)");
+                }
+            }
+            if (strict)
+            {
+                throw std::runtime_error("cannot resolve option [" + gname + "]" + rKey + "(no group found)");
+            }
+            return false;
         }
 
     private:
