@@ -226,7 +226,9 @@ namespace fog
         {
         }
     };
-
+    /**
+     * Component manage a set of functions and interfaces.there is no data and only contains meta info.
+     */
     struct Component
     {
 
@@ -464,6 +466,37 @@ namespace fog
             obj.emplace(tid, func);
         }
 
+        /**
+         * 
+         * The typical impl of component, this impl relay on the macro defined above. 
+         * 
+         *  1. INJECT(MyClass(YouClass * uc)){} : declaring the constructor args to be injected.          
+         *  2. SELF(MyClass)        : This is as the helper macro for below ones.
+         *  3. GROUP("config")      : Declaring the group name and used to resolve value from
+         *      external by a function registered. 
+         *  4. MEMBERK(myMemberVar, "myConfigKey") : If the type(for insance float,int...) of 
+         *      the member is missing from registering, the key declared here is used as the argument
+         *      to get value from a external function registered. The group above is another 
+         *      argument as well.          
+         *  5. MEMBERKD(myMemberVar2, "myConfigKey2", 1.0f) : declaring the default value to be set
+         *      when initializing the target member. It's used when the registered function return
+         *      false. If you use MEMBERK to declare the member variable, a exception will be
+         *      throwed if the external function return false when initalising the target object.
+         *      
+         * 
+         * And analysis the template type to find any constructor, member variable to be injected.
+         * Register interface type, constructor function, member inject function and init function.
+         * This impl requires the user to declare the usage of the component, especially the 
+         * AsPtr and AsVal are two different usage to construct the target object. AsStatic and
+         * AsDynamic control the storage mode of the target object.
+         * 
+         *  1. AsPtr+AsStatic : usually the normal usage, single instance and transfer by pointer.
+         *  2. AsPtr+AsDynamic: may useful to create light weight and short-life-cycle instance.         
+         *  3. AsVal+AsStatic : for global arguments, options.
+         *  4. AsVal+AsDynamic: don't known usaged on what situation.
+         * 
+         * 
+         */
         struct Impl
         {
 
