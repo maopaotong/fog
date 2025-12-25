@@ -10,6 +10,7 @@
 #include "CellsGrids.h"
 #include "WorldTexGenerator.h"
 #include "MaterialNames.h"
+#include "TransformD2D3.h"
 namespace fog
 {
     using namespace Ogre;
@@ -21,6 +22,7 @@ namespace fog
             std::string texName;
             bool debugWireFrame;
             INJECT(Options(Config *config)) : texName(config->FOG_OF_WAR_TEX_NAME), debugWireFrame(config->DEBUG_polygonMode_wireFrame)
+           
             {
             }
         };
@@ -30,6 +32,8 @@ namespace fog
             FogOfWarTexture *ftexture,
             WorldTexGenerator * wtg,
             Config *config,
+            CellsDatas::Options cdos,
+            TransformD2TD3::Options tfos,
             Options opts)) : opts(opts)
         {
             // material
@@ -59,9 +63,9 @@ namespace fog
 
             //arguments.
             GpuProgramParametersSharedPtr vParams = mat->getTechnique(0)->getPass(0)->getVertexProgramParameters();
-            vParams->setNamedConstant("tlsWidthInNum", config->cellsRange.getWidth());
-            vParams->setNamedConstant("tlsHeightInNum", config->cellsRange.getHeight());
-            vParams->setNamedConstant("terrQuality", config->getTerrainQuality());
+            vParams->setNamedConstant("tlsWidthInNum", cdos.cellsRange.getWidth());
+            vParams->setNamedConstant("tlsHeightInNum", cdos.cellsRange.getHeight());
+            vParams->setNamedConstant("terrQuality", tfos.getTerrainQuality());
             
 
             if (opts.debugWireFrame)

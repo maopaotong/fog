@@ -37,7 +37,7 @@ namespace fog
             MEMBERD(normalDistribution, 0.75f)
             MEMBERD(hotDistribution, 0.95f)
 
-            INJECT(Options(Config *config))
+            INJECT(Options())
             // : frozenDistribution(config->frozenDistribution), temperatureLatitudeWeightPower(config->temperatureLatitudeWeightPower),
             //                                   normalDistribution(config->normalDistribution),
             //                                   hotDistribution(config->hotDistribution)

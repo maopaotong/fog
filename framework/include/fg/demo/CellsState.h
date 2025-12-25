@@ -7,16 +7,17 @@
 #include "fg/ogre.h"
 #include "fg/util.h"
 #include "fg/cells.h"
-
+#include "fg/cells/TransformD2D3.h"
 namespace fog
 {
     //
-    class CellsState : public Actor
+    struct CellsState : public Actor
     {
 
     public:
         Config *config;
         Transforms *tfs;
+        TransformD2TD3::Options tfos;
 
     public:
         INJECT(CellsState(CellsDatas *cDatas,
@@ -24,15 +25,16 @@ namespace fog
                           CellsMaterial *cMaterial,
                           Transforms *tfs,
                           Config *config,
-                          CoreMod *core, SceneNode *sceNode)) : Actor(sceNode),
+                          CoreMod *core, SceneNode *sceNode, TransformD2TD3::Options tfos)) : Actor(sceNode),
                                                                 config(config),
-                                                                tfs(tfs)
+                                                                tfs(tfs),
+                                                                tfos(tfos)
         {
 
             ManualObject *obj = core->createManualObject();
             //obj->setQueryFlags();
             sceNode->attachObject(obj);
-            int step = config->cellsTerrainAmp; // / config->cellsMeshQuality;
+            int step = tfos.cellsTerrainAmp; // / config->cellsMeshQuality;
 
             int qWidth = cvs->opts.terWidth / step;
             int qHeight = cvs->opts.terHeight / step;
@@ -64,7 +66,7 @@ namespace fog
                     // Vector2 qP = tP + tts->grids[qx][qy].originInTile * scale;
                     // Point2<float> qP = tP + tts->grids[qx][qy].originInTile * scale;
                     //  scale
-                    float h = cvs->grids[qx][qy].height * config->heightScale;
+                    float h = cvs->grids[qx][qy].height * tfos.heightScale;
 
                     // Vector3 position3 = Context<Node2D>::get()->to3D(qP, 1);
                     // position.y = h;

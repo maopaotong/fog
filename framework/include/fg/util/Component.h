@@ -18,6 +18,8 @@
 #define GROUP(G) \
     static inline std::string Group{G};
 
+#define SELFG(T,G) SELF(T) GROUP(G)    
+
 #define IDENTITY(...) __VA_ARGS__
 
 #define REMOVE_PARENS(...) IDENTITY __VA_ARGS__

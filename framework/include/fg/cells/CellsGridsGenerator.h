@@ -15,8 +15,6 @@ namespace fog
     {
         struct Options
         {
-            int tlsWidth;
-            int tlsHeight;
             int terWidth;
             int terHeight;
             int quality;
@@ -26,21 +24,32 @@ namespace fog
             float mountainDistribution;
             int hillRad;
             bool makeMountainRange;
+            CellsDatas::Options cells;
 
-            INJECT(Options(Config *config)) : tlsWidth(config->cellsRange.getWidth()),
-                                              quality(config->cellsTerrainAmp * config->cellsMeshQuality),
-                                              tlsHeight(config->cellsRange.getHeight()),
-                                              heightAmpOfHill(config->heightAmpOfHill),
-                                              heightAmpOfMountain(config->heightAmpOfMountain),
-                                              hillDistribution(config->hillPeakDistribution),
-                                              mountainDistribution(config->mountainPeakDistribution),
-                                              hillRad(quality),
-                                              makeMountainRange(config->makeMountainRange)
+            int cellsTerrainAmp;
+            int cellsMeshQuality;
+
+            SELFG(Options, "config")
+            MEMBERK(cellsTerrainAmp, "CELLS_TERRAIN_AMP")
+            MEMBERK(cellsMeshQuality, "TILE_MESH_QUALITY")
+
+            INJECT(Options(Config *config, CellsDatas::Options cells)) : cells(cells),
+                                                                         heightAmpOfHill(config->heightAmpOfHill),
+                                                                         heightAmpOfMountain(config->heightAmpOfMountain),
+                                                                         hillDistribution(config->hillPeakDistribution),
+                                                                         mountainDistribution(config->mountainPeakDistribution),
+                                                                         makeMountainRange(config->makeMountainRange)
 
             {
 
-                this->terWidth = tlsWidth * quality;                          //
-                this->terHeight = tlsHeight * quality * std::sqrt(3.0) / 2.0; // based on the toploy of cells.
+            }
+            
+            INIT(init)()
+            {
+                quality = cellsTerrainAmp * cellsMeshQuality;
+                hillRad = quality;
+                this->terWidth = cells.cellsRange.getWidth() * quality;                          //
+                this->terHeight = cells.cellsRange.getHeight() * quality * std::sqrt(3.0) / 2.0; // based on the toploy of cells.
             }
         };
 
@@ -67,8 +76,8 @@ namespace fog
         void generate(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas)
         {
 
-            tWidth = opts.tlsWidth;
-            tHeight = opts.tlsHeight;
+            tWidth = opts.cells.cellsRange.getWidth();
+            tHeight = opts.cells.cellsRange.getHeight();
             auto &tiles = cDatas->cells;
             width = opts.terWidth;
             height = opts.terHeight;
@@ -357,7 +366,7 @@ namespace fog
                     Vector2 points[5];
                     // amplify the rect helps to make the boder jugment at shader program more easy.
                     // But, this kind of solution for some reason does now work well.
-                    // The root cause is the that the uv cords geting the wrong cell/type value from texture few border rects. 
+                    // The root cause is the that the uv cords geting the wrong cell/type value from texture few border rects.
                     // Even set the amp to 2 it is still have mis-match and wrong cell for points on border.
                     // Thus we should find another way to deal with this mismatch on the boder of regions.
                     // No need to process the non-border cells for rendering.
@@ -367,10 +376,10 @@ namespace fog
                     // 1. Span multiple regions .
                     // 2. In another word, two or three types and cells related to it.
                     // So we should wilden the border line and get more cells involed for texture generation for shader's using.
-                    
+
                     float amp = 1;
-                    //0th is the centre point of the rect.
-                    points[0] = Vector2(centreX, centreY);                                                    
+                    // 0th is the centre point of the rect.
+                    points[0] = Vector2(centreX, centreY);
                     points[1] = Vector2(centreX + amp * rectWidth / 2.0f, centreY - amp * rectHeight / 2.0f); //
                     points[2] = Vector2(centreX + amp * rectWidth / 2.0f, centreY + amp * rectHeight / 2.0f); //
                     points[3] = Vector2(centreX - amp * rectWidth / 2.0f, centreY + amp * rectHeight / 2.0f); //

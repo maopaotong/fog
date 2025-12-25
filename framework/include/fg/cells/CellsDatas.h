@@ -6,19 +6,23 @@ namespace fog
 
     struct CellsDatas
     {
+        
         struct Options
         {
-            int tsWidth;
-            int tsHeight;
-            INJECT(Options(Config *config)) : tsWidth(config->cellsRange.getWidth()), tsHeight(config->cellsRange.getHeight())
+            Box2<int> cellsRange;
+
+            SELF(Options)
+            GROUP("config")
+            MEMBERK(cellsRange, "TILES_RANGE")
+
+            INJECT(Options())
             {
             }
         };
         std::vector<std::vector<CellData>> cells;
-        Config *config;
-        INJECT(CellsDatas(Options pts, Config *config, CellsGenerator *generator)) : config(config)
+        INJECT(CellsDatas(Options pts, CellsGenerator *generator)) 
         {
-            generator->generateCells(cells, pts.tsWidth, pts.tsHeight);
+            generator->generateCells(cells, pts.cellsRange.getWidth(), pts.cellsRange.getHeight());
         }
     };
 

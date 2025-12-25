@@ -10,13 +10,13 @@ namespace fog
     class Config
     {
     private:
-        static float DEF_HEIGHT_SCALE;
-        static Box2<int> DEF_TILES_RANGE;
+        //static float DEF_HEIGHT_SCALE;
+        //static Box2<int> DEF_TILES_RANGE;
         static inline int DEF_CELLS_TERRAIN_AMP = 1;
         static inline int DEF_TILE_MESH_QUALITY = 8;
         static float DEF_CELL_SCALE;
-        static float DEF_WORLD_WIDTH;     // = CELL_SCALE * 2.0 * TILES_WIDTH;
-        static float DEF_WORLD_HEIGHT;    // = WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
+        // static float DEF_WORLD_WIDTH;     // = CELL_SCALE * 2.0 * TILES_WIDTH;
+        // static float DEF_WORLD_HEIGHT;    // = WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
                                           //
         static float DEF_HEIGHT_OCEAN;    // = 0.49f * 0.9f;
         static float DEF_HEIGHT_SHORE;    // = 0.50f * 0.9f;
@@ -82,16 +82,16 @@ namespace fog
             Options opts;
             loader.load(arg.files, opts, "config", false);
 
-            heightScale = Options::get<float>(opts, "HEIGHT_SCALE", DEF_HEIGHT_SCALE);
-            cellsRange = Options::get<Box2<int>>(opts, "TILES_RANGE", DEF_TILES_RANGE);
+            //heightScale = Options::get<float>(opts, "HEIGHT_SCALE", DEF_HEIGHT_SCALE);
+            // cellsRg = Options::get<Box2<int>>(opts, "TILES_RANGE", DEF_TILES_RANGE);
 
-            cellsTerrainAmp = Options::get<int>(opts, "CELLS_TERRAIN_AMP", DEF_CELLS_TERRAIN_AMP);
-            cellsMeshQuality = Options::get<int>(opts, "TILE_MESH_QUALITY", DEF_TILE_MESH_QUALITY);
+            // cellsTerrainAmp = Options::get<int>(opts, "CELLS_TERRAIN_AMP", DEF_CELLS_TERRAIN_AMP);
+            // cellsMeshQuality = Options::get<int>(opts, "TILE_MESH_QUALITY", DEF_TILE_MESH_QUALITY);
 
-            cellScale = Options::get<float>(opts, "CELL_SCALE", DEF_CELL_SCALE);
+            //cellScale = Options::get<float>(opts, "CELL_SCALE", DEF_CELL_SCALE);
 
-            worldWidth = cellScale * 2.0 * cellsRange.getWidth();
-            worldHeight = worldWidth * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
+            // worldW = cellScale * 2.0 * cellsRg.getWidth();
+            // worldH = worldW * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
             //
 
             heightOfOcean = Options::get<float>(opts, "HEIGHT_OCEAN", DEF_HEIGHT_OCEAN);
@@ -155,10 +155,10 @@ namespace fog
             // Config::D2H2D3 = {};
         }
 
-        int getTerrainQuality()
-        {
-            return cellsTerrainAmp * this->cellsMeshQuality;
-        }
+        // int getTerrainQuality()
+        // {
+        //     return cellsTerrainAmp * this->cellsMeshQuality;
+        // }
         int getShaderDebug()
         {
             return this->debugShaderShowCellEdge + this->debugShaderShowRegionEdge;
@@ -176,13 +176,13 @@ namespace fog
         //     return *transformFromD2HToD3Ptr;
         // }
 
-        float heightScale = DEF_HEIGHT_SCALE;
-        Box2<int> cellsRange = DEF_TILES_RANGE;
-        int cellsTerrainAmp = DEF_CELLS_TERRAIN_AMP;
-        int cellsMeshQuality = DEF_TILE_MESH_QUALITY;
+        // float heightScale = DEF_HEIGHT_SCALE;
+        //Box2<int> cellsRg = DEF_TILES_RANGE;
+        // int cellsTerrainAmp = DEF_CELLS_TERRAIN_AMP;
+        // int cellsMeshQuality = DEF_TILE_MESH_QUALITY;
         float cellScale = DEF_CELL_SCALE;
-        float worldWidth = DEF_WORLD_WIDTH;           // = CELL_SCALE * 2.0 * TILES_WIDTH;
-        float worldHeight = DEF_WORLD_HEIGHT;         // = WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
+        // float worldW = DEF_WORLD_WIDTH;           // = CELL_SCALE * 2.0 * TILES_WIDTH;
+        // float worldH = DEF_WORLD_HEIGHT;         // = WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
                                                       //
         float heightOfOcean = DEF_HEIGHT_OCEAN;       // = 0.49f * 0.9f;
         float heightOfShore = DEF_HEIGHT_SHORE;       // = 0.50f * 0.9f;

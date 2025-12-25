@@ -17,10 +17,10 @@ namespace fog
         ManualObject *obj;
         CellKey cis;
         CoreMod *core;
-        Transforms * tfs;
+        Transforms *tfs;
 
     public:
-        INJECT(CellInstanceState(CellKey cis, CoreMod *core, Transforms * tfs, SceneNode *sNode))
+        INJECT(CellInstanceState(CellKey cis, CoreMod *core, Transforms *tfs, SceneNode *sNode))
             : Actor(sNode),
               tfs(tfs),
               cis(cis), core(core)
@@ -86,7 +86,7 @@ namespace fog
         Config *config;
 
     public:
-        INJECT(CellInstanceStateManager(CoreMod *core, Config *config, Component::Injector *injector))
+        INJECT(CellInstanceStateManager(CoreMod *core, Config *config, Component::Injector *injector, CellsDatas::Options cdos))
             : config(config),
               core(core)
 
@@ -95,9 +95,9 @@ namespace fog
             CellKey cell;
             injector->push<CellKey>(nullptr, [&cell]()
                                     { return cell; });
-            for (int x = 0; x < config->cellsRange.getWidth(); x++)
+            for (int x = 0; x < cdos.cellsRange.getWidth(); x++)
             {
-                for (int y = 0; y < config->cellsRange.getHeight(); y++)
+                for (int y = 0; y < cdos.cellsRange.getHeight(); y++)
                 {
                     cell = CellKey(x, y);
                     CellInstanceState *state = injector->getPtr<CellInstanceState>(Component::AsDynamic);

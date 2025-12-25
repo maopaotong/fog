@@ -8,7 +8,6 @@
 #include "CellsGrids.h"
 namespace fog
 {
-    using namespace Ogre;
 
     struct TransformD2TD3
     {
@@ -18,13 +17,31 @@ namespace fog
             int tlsHeight;
             int terWidth;
             int terHeight;
-            INJECT(Options(Config *config)) : tlsWidth(config->cellsRange.getWidth()),
-                                              tlsHeight(config->cellsRange.getHeight())
+            int heightScale;
+            int cellsTerrainAmp;
+            int cellsMeshQuality;
+
+            SELFG(Options, "config")
+            MEMBERD(heightScale, 100.0f)
+            MEMBERK(cellsTerrainAmp, "CELLS_TERRAIN_AMP")
+            MEMBERK(cellsMeshQuality, "TILE_MESH_QUALITY")
+
+            INJECT(Options(Config *config, CellsDatas::Options cdos)) : tlsWidth(cdos.cellsRange.getWidth()),
+                                                                        tlsHeight(cdos.cellsRange.getHeight())
 
             {
-                int quality = config->getTerrainQuality();
+            }
+
+            INIT(init)()
+            {
+                int quality = getTerrainQuality();
                 this->terWidth = tlsWidth * quality;                          //
                 this->terHeight = tlsHeight * quality * std::sqrt(3.0) / 2.0; // based on the toploy of cells.
+            }
+
+            int getTerrainQuality()
+            {
+                return cellsTerrainAmp * this->cellsMeshQuality;
             }
         };
         int tlsWidth;
@@ -35,11 +52,13 @@ namespace fog
         CellsGrids *cvs;
         Config *config;
         float scale;
+        Options opts;
         INJECT(TransformD2TD3(Options opts, Config *config, CellsGrids *cvs)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
-                                                                                   terWidth(opts.terWidth), terHeight(opts.terHeight),
-                                                                                   config(config),
-                                                                                   cvs(cvs),
-                                                                                   scale(config->cellScale)
+                                                                                terWidth(opts.terWidth), terHeight(opts.terHeight),
+                                                                                config(config),
+                                                                                cvs(cvs),
+                                                                                scale(config->cellScale),
+                                                                                opts(opts)
         {
         }
 
@@ -75,7 +94,7 @@ namespace fog
                 y = y + terHeight;
                 y = 0;
             }
-            float ret = cvs->grids[x][y].height * config->heightScale;
+            float ret = cvs->grids[x][y].height * opts.heightScale;
             if (config->debugCout)
             {
                 std::cout << fmt::format(":[{:>.2f},{:>.2f}],[{:>3},{:>3}].h={:>3.1f}", pUV.x, pUV.y, x, y, ret) << std::endl;

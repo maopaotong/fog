@@ -10,13 +10,13 @@
 namespace fog
 {
 
-    float Config::DEF_HEIGHT_SCALE = 100;
-    Box2<int> Config::DEF_TILES_RANGE = Box2<int>(128 + 1);
+    // float Config::DEF_HEIGHT_SCALE = 100;
+    // Box2<int> Config::DEF_TILES_RANGE = Box2<int>(128 + 1);
     // int Config::DEF_CELLS_TERRAIN_AMP = 4;
     // int Config::DEF_TILE_MESH_QUALITY = 2;
     float Config::DEF_CELL_SCALE = 30.0f;
-    float Config::DEF_WORLD_WIDTH = DEF_CELL_SCALE * 2.0 * DEF_TILES_RANGE.getWidth();
-    float Config::DEF_WORLD_HEIGHT = DEF_WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
+    // float Config::DEF_WORLD_WIDTH = DEF_CELL_SCALE * 2.0 * DEF_TILES_RANGE.getWidth();
+    // float Config::DEF_WORLD_HEIGHT = DEF_WORLD_WIDTH * 1.73205080757 /*std::sqrt(3)*/ / 2.0; // 0.86602540378
 
     //
     float Config::DEF_HEIGHT_OCEAN = 0.49f;
