@@ -86,15 +86,15 @@ namespace fog
         Config *config;
 
     public:
-        INJECT(CellInstanceStateManager(CoreMod *core, Config *config, Component::Injector *injector, CellsDatas::Options cdos))
+        INJECT(CellInstanceStateManager(CoreMod *core, Config *config, Component::Injector *injector, CellsDatas::Options& cdos))
             : config(config),
               core(core)
 
         {
 
             CellKey cell;
-            injector->push<CellKey>(nullptr, [&cell]()
-                                    { return cell; });
+            injector->push<CellKey>([&cell]()
+                                    { return &cell; });
             for (int x = 0; x < cdos.cellsRange.getWidth(); x++)
             {
                 for (int y = 0; y < cdos.cellsRange.getHeight(); y++)

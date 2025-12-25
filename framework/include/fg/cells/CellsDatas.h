@@ -6,7 +6,7 @@ namespace fog
 
     struct CellsDatas
     {
-        
+
         struct Options
         {
             Box2<int> cellsRange;
@@ -18,9 +18,13 @@ namespace fog
             INJECT(Options())
             {
             }
+            Options(const Options &&) = delete;
+            Options(const Options &) = delete;
+            Options &operator()(const Options &) = delete;
+            Options &operator()(const Options &&) = delete;
         };
         std::vector<std::vector<CellData>> cells;
-        INJECT(CellsDatas(Options pts, CellsGenerator *generator)) 
+        INJECT(CellsDatas(Options& pts, CellsGenerator *generator))
         {
             generator->generateCells(cells, pts.cellsRange.getWidth(), pts.cellsRange.getHeight());
         }

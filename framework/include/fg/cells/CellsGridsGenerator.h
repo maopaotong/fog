@@ -24,7 +24,7 @@ namespace fog
             float mountainDistribution;
             int hillRad;
             bool makeMountainRange;
-            CellsDatas::Options cells;
+            CellsDatas::Options &cells;
 
             int cellsTerrainAmp;
             int cellsMeshQuality;
@@ -33,7 +33,7 @@ namespace fog
             MEMBERK(cellsTerrainAmp, "CELLS_TERRAIN_AMP")
             MEMBERK(cellsMeshQuality, "TILE_MESH_QUALITY")
 
-            INJECT(Options(Config *config, CellsDatas::Options cells)) : cells(cells),
+            INJECT(Options(Config *config, CellsDatas::Options &cells)) : cells(cells),
                                                                          heightAmpOfHill(config->heightAmpOfHill),
                                                                          heightAmpOfMountain(config->heightAmpOfMountain),
                                                                          hillDistribution(config->hillPeakDistribution),

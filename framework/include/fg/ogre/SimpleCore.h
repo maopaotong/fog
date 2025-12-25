@@ -100,8 +100,7 @@ namespace fog
         {
             Mod *operator()(Component::Injector &injector)
             {
-                injector.bindImplAsPtrStatic<CoreMod, SimpleCore>();
-                injector.bindAllImplAsValStatic<>();
+                injector.bindImplAsPtrStatic<CoreMod, SimpleCore>();                
                 injector.bindAllImplAsPtrStatic<ImGuiAppContext,
                                           ImGuiAppImpl>();
 

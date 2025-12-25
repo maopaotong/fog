@@ -9,6 +9,7 @@ namespace fog
 {
     struct TransformD2D3H
     {
+        
         float scale;
         INJECT(TransformD2D3H(float scale)) : scale(scale)
         {

@@ -23,7 +23,7 @@ namespace fog
             int tlsHeight;
             std::string texName;            
 
-            INJECT(Options(Config *cfg, CellsDatas::Options cdos)) : tlsWidth(cdos.cellsRange.getWidth()), tlsHeight(cdos.cellsRange.getHeight()),
+            INJECT(Options(Config *cfg, CellsDatas::Options &cdos)) : tlsWidth(cdos.cellsRange.getWidth()), tlsHeight(cdos.cellsRange.getHeight()),
                                            width(cfg->fogOfWarTextRange.getWidth()), height(cfg->fogOfWarTextRange.getHeight()),
                                            texName(cfg->FOG_OF_WAR_TEX_NAME)
             {

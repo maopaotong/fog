@@ -32,7 +32,7 @@ namespace fog
             FogOfWarTexture *ftexture,
             WorldTexGenerator * wtg,
             Config *config,
-            CellsDatas::Options cdos,
+            CellsDatas::Options& cdos,
             TransformD2TD3::Options tfos,
             Options opts)) : opts(opts)
         {
