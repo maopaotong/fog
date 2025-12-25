@@ -87,7 +87,7 @@ namespace fog
 
         Transforms * tfs;
     public:
-        INJECT(CellInstanceStateManager(CoreMod *core, Config *config, Transforms * tfs, CellsDatas::Options& cdos))
+        INJECT(CellInstanceStateManager(CoreMod *core, Config *config, Transforms * tfs, CellsDatas::Args& cdos))
             : config(config),
               core(core),
               tfs(tfs)

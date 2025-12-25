@@ -101,7 +101,7 @@ namespace fog
             Mod *operator()(Injector &injector)
             {
                 injector.bindImpl<CoreMod, SimpleCore>();                
-                injector.bindAllImplAsPtrStatic<ImGuiAppContext,
+                injector.bindAllImpl<ImGuiAppContext,
                                           ImGuiAppImpl>();
 
                 return injector.get<CoreMod>();

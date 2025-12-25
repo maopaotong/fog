@@ -44,7 +44,7 @@ namespace fog
         }
 
         template <typename... T>
-        void bindAllImplAsPtrStatic()
+        void bindAllImpl()
         {
             ((bindImpl<T>()), ...);
         }

@@ -22,8 +22,8 @@ namespace fog
     struct AdvCellsGenerator : public CellsGenerator
     {
 
-        Options opts;
-        INJECT(AdvCellsGenerator(Options opts)) : opts(opts), CellsGenerator(opts)
+        Args opts;
+        INJECT(AdvCellsGenerator(Args opts)) : opts(opts), CellsGenerator(opts)
         {
         }
         void generateCellsTypes(GenerateOpCtx &goc) override

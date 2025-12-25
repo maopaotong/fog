@@ -17,7 +17,7 @@ namespace fog
     public:
         Config *config;
         Transforms *tfs;
-        TransformD2TD3::Options tfos;
+        TransformD2TD3::Args tfos;
 
     public:
         INJECT(CellsState(CellsDatas *cDatas,
@@ -25,7 +25,7 @@ namespace fog
                           CellsMaterial *cMaterial,
                           Transforms *tfs,
                           Config *config,
-                          CoreMod *core, SceneNode *sceNode, TransformD2TD3::Options tfos)) : Actor(sceNode),
+                          CoreMod *core, SceneNode *sceNode, TransformD2TD3::Args tfos)) : Actor(sceNode),
                                                                 config(config),
                                                                 tfs(tfs),
                                                                 tfos(tfos)

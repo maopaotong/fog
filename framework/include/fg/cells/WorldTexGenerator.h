@@ -19,7 +19,7 @@ namespace fog
         std::vector<std::vector<CellsGrid>> &hMap;
         INJECT(WorldTexGenerator(Config *config,
                                  CellsGrids *grids,
-                                 CellsGridsGenerator::Options opts)) : hMap(grids->grids), config(config),
+                                 CellsGridsGenerator::Args opts)) : hMap(grids->grids), config(config),
                                                                        width(opts.terWidth),
                                                                        height(opts.terHeight)
         {

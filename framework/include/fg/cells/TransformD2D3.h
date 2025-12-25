@@ -11,7 +11,7 @@ namespace fog
 
     struct TransformD2TD3
     {
-        struct Options
+        struct Args
         {
             int tlsWidth;
             int tlsHeight;
@@ -21,12 +21,12 @@ namespace fog
             int cellsTerrainAmp;
             int cellsMeshQuality;
 
-            SELFG(Options, "config")
+            SELFG(Args, "config")
             MEMBERD(heightScale, 100.0f)
             MEMBERK(cellsTerrainAmp, "CELLS_TERRAIN_AMP")
             MEMBERK(cellsMeshQuality, "TILE_MESH_QUALITY")
 
-            INJECT(Options(CellsDatas::Options& cdos)) : tlsWidth(cdos.cellsRange.getWidth()),
+            INJECT(Args(CellsDatas::Args& cdos)) : tlsWidth(cdos.cellsRange.getWidth()),
                                                                         tlsHeight(cdos.cellsRange.getHeight())
 
             {
@@ -52,8 +52,8 @@ namespace fog
         CellsGrids *cvs;
         Config *config;
         float scale;
-        Options opts;
-        INJECT(TransformD2TD3(Options opts, Config *config, CellsGrids *cvs)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
+        Args opts;
+        INJECT(TransformD2TD3(Args opts, Config *config, CellsGrids *cvs)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
                                                                                 terWidth(opts.terWidth), terHeight(opts.terHeight),
                                                                                 config(config),
                                                                                 cvs(cvs),

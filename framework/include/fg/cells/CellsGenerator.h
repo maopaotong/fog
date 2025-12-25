@@ -20,7 +20,7 @@ namespace fog
     struct CellsGenerator
     {
 
-        struct Options
+        struct Args
         {
 
             float frozenDistribution;             //, 0.1f)
@@ -37,7 +37,7 @@ namespace fog
             float GENERATOR1_PLAIN_RATIO;
             float GENERATOR1_HILL_RATIO;
 
-            SELF(Options)
+            SELF(Args)
             // GROUP("cellsgenerator#args")
             GROUP("config")
             MEMBERKD(frozenDistribution, "frozenDistribution", 0.1f)
@@ -55,7 +55,7 @@ namespace fog
             MEMBERKD(GENERATOR1_PLAIN_RATIO, "GENERATOR1_PLAIN_RATIO", 0.85f)
             MEMBERKD(GENERATOR1_HILL_RATIO, "GENERATOR1_HILL_RATIO", 0.90f)
 
-            INJECT(Options())
+            INJECT(Args())
             // : frozenDistribution(config->frozenDistribution), temperatureLatitudeWeightPower(config->temperatureLatitudeWeightPower),
             //                                   normalDistribution(config->normalDistribution),
             //                                   hotDistribution(config->hotDistribution)
@@ -72,8 +72,8 @@ namespace fog
             std::vector<std::vector<float>> &tpMap;
         };
 
-        Options opts;
-        INJECT(CellsGenerator(Options opts)) : opts(opts)
+        Args opts;
+        INJECT(CellsGenerator(Args opts)) : opts(opts)
         {
         }
 

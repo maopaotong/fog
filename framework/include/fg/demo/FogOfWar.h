@@ -13,7 +13,7 @@ namespace fog
 
     struct FogOfWar
     {
-        struct Options
+        struct Args
         {
 
             int width;
@@ -23,7 +23,7 @@ namespace fog
             int tlsHeight;
             std::string texName;            
 
-            INJECT(Options(Config *cfg, CellsDatas::Options &cdos)) : tlsWidth(cdos.cellsRange.getWidth()), tlsHeight(cdos.cellsRange.getHeight()),
+            INJECT(Args(Config *cfg, CellsDatas::Args &cdos)) : tlsWidth(cdos.cellsRange.getWidth()), tlsHeight(cdos.cellsRange.getHeight()),
                                            width(cfg->fogOfWarTextRange.getWidth()), height(cfg->fogOfWarTextRange.getHeight()),
                                            texName(cfg->FOG_OF_WAR_TEX_NAME)
             {
@@ -50,7 +50,7 @@ namespace fog
         Transforms * tfs;
 
     public:
-        INJECT(FogOfWar(Options opts, EventBus *eventBus, HomeCellKey *homeCellKey, Config *config,
+        INJECT(FogOfWar(Args opts, EventBus *eventBus, HomeCellKey *homeCellKey, Config *config,
                         Transforms * tfs,
                         FogOfWarTexture *texture))
             : texture(texture),

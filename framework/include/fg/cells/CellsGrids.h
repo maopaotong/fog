@@ -19,9 +19,9 @@ namespace fog
 
         std::vector<std::vector<CellData>> tiles;
 
-        CellsGridsGenerator::Options opts;
+        CellsGridsGenerator::Args opts;
 
-        INJECT(CellsGrids(CellsGridsGenerator::Options opts, CellsDatas *cDatas, CellsGridsGenerator *generator, Config *config)) : config(config), opts(opts), grids(opts.terWidth, std::vector<CellsGrid>(opts.terHeight, CellsGrid()))
+        INJECT(CellsGrids(CellsGridsGenerator::Args opts, CellsDatas *cDatas, CellsGridsGenerator *generator, Config *config)) : config(config), opts(opts), grids(opts.terWidth, std::vector<CellsGrid>(opts.terHeight, CellsGrid()))
         {
             generator->generate(grids, cDatas);
         }

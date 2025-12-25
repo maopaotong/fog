@@ -13,7 +13,7 @@ namespace fog
 
     struct CellsGridsGenerator
     {
-        struct Options
+        struct Args
         {
             int terWidth;
             int terHeight;
@@ -24,16 +24,16 @@ namespace fog
             float mountainDistribution;
             int hillRad;
             bool makeMountainRange;
-            CellsDatas::Options &cells;
+            CellsDatas::Args &cells;
 
             int cellsTerrainAmp;
             int cellsMeshQuality;
 
-            SELFG(Options, "config")
+            SELFG(Args, "config")
             MEMBERK(cellsTerrainAmp, "CELLS_TERRAIN_AMP")
             MEMBERK(cellsMeshQuality, "TILE_MESH_QUALITY")
 
-            INJECT(Options(Config *config, CellsDatas::Options &cells)) : cells(cells),
+            INJECT(Args(Config *config, CellsDatas::Args &cells)) : cells(cells),
                                                                          heightAmpOfHill(config->heightAmpOfHill),
                                                                          heightAmpOfMountain(config->heightAmpOfMountain),
                                                                          hillDistribution(config->hillPeakDistribution),
@@ -64,9 +64,9 @@ namespace fog
         float heightAmpOfHill;
         float heightAmpOfMountain;
 
-        Options opts;
+        Args opts;
 
-        INJECT(CellsGridsGenerator(Options opts, Config *config)) : opts(opts),
+        INJECT(CellsGridsGenerator(Args opts, Config *config)) : opts(opts),
                                                                     config(config),
                                                                     heightAmpOfHill(opts.heightAmpOfHill),
                                                                     heightAmpOfMountain(opts.heightAmpOfMountain)

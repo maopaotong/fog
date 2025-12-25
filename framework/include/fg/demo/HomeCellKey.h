@@ -15,8 +15,8 @@ namespace fog
         CellsDatas *cDatas;
         CellKey cKey;
         Config *config;
-        CellsDatas::Options &cdos;
-        INJECT(HomeCellKey(CellsDatas *cDatas, Config *config, CellsDatas::Options &cdos)) : cdos(cdos), cDatas(cDatas), config(config)
+        CellsDatas::Args &cdos;
+        INJECT(HomeCellKey(CellsDatas *cDatas, Config *config, CellsDatas::Args &cdos)) : cdos(cdos), cDatas(cDatas), config(config)
         {
             cKey = this->findCellToStandOn();
         }

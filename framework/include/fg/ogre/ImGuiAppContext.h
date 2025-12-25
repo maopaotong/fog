@@ -37,18 +37,18 @@ namespace fog
     public:
         std::function<void()> beforeResourceLoad;
         std::function<void()> afterResourceLoad;
-        struct Options
+        struct Args
         {
             std::string name;
             std::function<void()> beforeResourceLoad;
             std::function<void()> afterResourceLoad;
-            INJECT(Options(std::string name)) : name(name)
+            INJECT(Args(std::string name)) : name(name)
             {
             }
         };
 
     public:
-        INJECT(ImGuiAppContext(Options opts, ImGuiAppImpl *imGuiApp)) : imGuiApp(imGuiApp), ApplicationContextSDL(opts.name)
+        INJECT(ImGuiAppContext(Args opts, ImGuiAppImpl *imGuiApp)) : imGuiApp(imGuiApp), ApplicationContextSDL(opts.name)
         {
             ApplicationContextSDL::initApp();
 

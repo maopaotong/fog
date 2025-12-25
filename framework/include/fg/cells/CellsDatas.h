@@ -7,24 +7,24 @@ namespace fog
     struct CellsDatas
     {
 
-        struct Options
+        struct Args
         {
             Box2<int> cellsRange;
 
-            SELF(Options)
+            SELF(Args)
             GROUP("config")
             MEMBERK(cellsRange, "TILES_RANGE")
 
-            INJECT(Options())
+            INJECT(Args())
             {
             }
-            Options(const Options &&) = delete;
-            Options(const Options &) = delete;
-            Options &operator()(const Options &) = delete;
-            Options &operator()(const Options &&) = delete;
+            Args(const Args &&) = delete;
+            Args(const Args &) = delete;
+            Args &operator()(const Args &) = delete;
+            Args &operator()(const Args &&) = delete;
         };
         std::vector<std::vector<CellData>> cells;
-        INJECT(CellsDatas(Options& pts, CellsGenerator *generator))
+        INJECT(CellsDatas(Args& pts, CellsGenerator *generator))
         {
             generator->generateCells(cells, pts.cellsRange.getWidth(), pts.cellsRange.getHeight());
         }

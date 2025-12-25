@@ -17,24 +17,24 @@ namespace fog
 
     struct CellsMaterial
     {
-        struct Options
+        struct Args
         {
             std::string texName;
             bool debugWireFrame;
-            INJECT(Options(Config *config)) : texName(config->FOG_OF_WAR_TEX_NAME), debugWireFrame(config->DEBUG_polygonMode_wireFrame)
+            INJECT(Args(Config *config)) : texName(config->FOG_OF_WAR_TEX_NAME), debugWireFrame(config->DEBUG_polygonMode_wireFrame)
            
             {
             }
         };
-        Options opts;
+        Args opts;
         INJECT(CellsMaterial(
             CellsGrids *cvs,
             FogOfWarTexture *ftexture,
             WorldTexGenerator * wtg,
             Config *config,
-            CellsDatas::Options& cdos,
-            TransformD2TD3::Options tfos,
-            Options opts)) : opts(opts)
+            CellsDatas::Args& cdos,
+            TransformD2TD3::Args tfos,
+            Args opts)) : opts(opts)
         {
             // material
             MaterialPtr mat = MaterialManager::getSingletonPtr()->getByName(MaterialNames::materialNameForCells);
