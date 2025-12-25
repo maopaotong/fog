@@ -271,23 +271,20 @@ namespace fog
             : typeId(typeId), objS(objS), objD(objD), members(mbs), init(init) {};
 
         template <typename T>
-        T *getPtr(Usage usgR) const
+        T *get(Usage usgR) const
         {
-            std::any aV = getPtr(usgR, typeid(T));
-            return std::any_cast<T *>(aV);
+            return std::any_cast<T *>(get(usgR, typeid(T)));
         }
 
-        std::any getPtr(Usage usgR, std::type_index tid) const
+        std::any get(Usage usgR, std::type_index tid) const
         {
-            UsageFunc func = getPtrFunc(usgR, tid);
-            return func();
+            return (getPtrFunc(usgR, tid))();
         }
 
         template <typename T>
-        T getVal(Usage usgR) const
+        T &getRef(Usage usgR) const
         {
-            std::any aV = getVal(usgR, typeid(T));
-            return std::any_cast<T>(aV);
+            return *get<T>(usgR);
         }
 
         UsageFunc getPtrFunc(Usage usgR, std::type_index tid) const
@@ -450,26 +447,26 @@ namespace fog
         struct Impl
         {
 
-            template <Usage usg, typename T, typename Imp, typename AdtsTuple, typename IJ>
-            static typename std::enable_if_t<!hasGroup<Imp>::value, Component> makeByImpl(IJ &&ij)
+            template <typename T, typename Imp, typename AdtsTuple, typename IJ>
+            static typename std::enable_if_t<!hasGroup<Imp>::value, Component> make(IJ &&ij)
             {
-                return doMakeByImpl<usg, T, Imp, AdtsTuple>(ij, ConfigMembers<void>::Function{});
+                return doMakeByImpl<T, Imp, AdtsTuple>(ij, ConfigMembers<void>::Function{});
             }
 
-            template <Usage usg, typename T, typename Imp, typename AdtsTuple, typename IJ>
-            static typename std::enable_if_t<hasGroup<Imp>::value, Component> makeByImpl(IJ &&ij)
+            template <typename T, typename Imp, typename AdtsTuple, typename IJ>
+            static typename std::enable_if_t<hasGroup<Imp>::value, Component> make(IJ &&ij)
             {
-                return doMakeByImpl<usg, T, Imp, AdtsTuple>(ij, ConfigMembers<Imp>([&ij]()
-                                                                                   {
+                return doMakeByImpl<T, Imp, AdtsTuple>(ij, ConfigMembers<Imp>([&ij]()
+                                                                              {
                                                                                        const Component *comp = (ij)(typeid(Options::Groups));
                                                                                        if (comp)
                                                                                        {
-                                                                                           return comp->getPtr<Options::Groups>(AsStatic);
+                                                                                           return comp->get<Options::Groups>(AsStatic);
                                                                                        }
                                                                                        throw std::runtime_error("cannot resolve group, no component of Options::Groups registered."); }));
             }
 
-            template <Usage usg, typename T, typename Imp, typename AdtsTuple, typename IJ>
+            template <typename T, typename Imp, typename AdtsTuple, typename IJ>
             static Component doMakeByImpl(IJ &&ij, ConfigMembers<void>::Function members)
             {
 
@@ -477,7 +474,7 @@ namespace fog
                 UsageFunc funcAsStatic;  // empty func default.
                 UsageFunc funcAsDynamic; // empty func default.
 
-                makeFunctionForUsage<usg, T, Imp>(ij, funcAsStatic, funcAsDynamic); //
+                makeFunctionForUsage<T, Imp>(ij, funcAsStatic, funcAsDynamic); //
                 InitFunc initFunc;
                 makeFunctionForInit<T>(initFunc);
 
@@ -502,25 +499,19 @@ namespace fog
                 };
             }
 
-            template <Usage usg, typename T, typename Imp, typename IJ>
+            template <typename T, typename Imp, typename IJ>
             static void makeFunctionForUsage(IJ &&ij, UsageFunc &funcAsStatic, UsageFunc &funcAsDynamic)
             {
-                if (usg & AsStatic)
-                {
 
-                    funcAsStatic = [&ij]() -> std::any
-                    {
-                        return std::make_any<T *>(getPtrStatic<Imp>(ij));
-                    };
-                }
-                if (usg & AsDynamic)
+                funcAsStatic = [&ij]() -> std::any
                 {
+                    return std::make_any<T *>(getPtrStatic<Imp>(ij));
+                };
 
-                    funcAsDynamic = [&ij]() -> std::any
-                    {
-                        return std::make_any<T *>(getPtrDynamic<Imp>(ij));
-                    };
-                }
+                funcAsDynamic = [&ij]() -> std::any
+                {
+                    return std::make_any<T *>(getPtrDynamic<Imp>(ij));
+                };
             }
 
             template <typename T, typename IJ>
@@ -622,11 +613,11 @@ namespace fog
                     {
                         if (mebInfo.asPtr)
                         {
-                            val = cPtr->getPtr(AsStaticFirst, mebInfo.vType);
+                            val = cPtr->get(AsStaticFirst, mebInfo.vType);
                         }
                         else
                         {
-                            val = cPtr->getPtr(AsStaticFirst, mebInfo.vType);//TODO
+                            val = cPtr->get(AsStaticFirst, mebInfo.vType); // TODO
                         }
                         //
                     }
@@ -684,14 +675,15 @@ namespace fog
                 const Component *cPtr = (ij)(typeid(T));
                 if (cPtr)
                 {
-                    return cPtr->getPtr<T>(AsStaticFirst);
+                    return cPtr->get<T>(AsStaticFirst);
                 }
 
                 cPtr = ij(typeid(ArgOfConstructor<T, C>));
                 if (cPtr)
                 {
-                    ArgOfConstructor<T, C> *cArg = cPtr->getPtr<ArgOfConstructor<T, C>>(AsStaticFirst);
+                    ArgOfConstructor<T, C> *cArg = cPtr->get<ArgOfConstructor<T, C>>(AsStaticFirst);
                     std::any aPtr = (cArg->ptrFunc)();
+
                     return std::any_cast<T *>(aPtr);
                 }
                 throw std::runtime_error("cannot resolve component for a arg of constructor.");
@@ -703,49 +695,13 @@ namespace fog
         {
 
         private:
-            std::unordered_map<std::type_index, std::stack<Context>> contexts;
+            // std::unordered_map<std::type_index, std::stack<Context>> contexts;
 
-            // template <typename T, typename F>
-            // void runWithCtx(Context ctx, F &&func)
+            // template <typename T>
+            // T *getPtr(std::type_index tid, Usage usgR)
             // {
-            //     auto it = contexts.find(typeid(T));
-            //     if (it == contexts.end())
-            //     {
-            //         throw std::runtime_error("must bind type to context before run with the context of certain type.");
-            //     }
-
-            //     (*it).push(ctx);
-            //     func();
-            //     (*it).pop();
+            //     return getComponent(tid).getPtr<T>(usgR);
             // }
-
-            template <typename T>
-            T *getPtr(std::type_index tid, Usage usgR)
-            {
-                return getComponent(tid).getPtr<T>(usgR);
-            }
-
-            template <typename T>
-            UsageFunc getCtxFunc()
-            {
-                std::type_index tid = typeid(T);
-                auto it = this->contexts.find(tid);
-                if (it == this->contexts.end())
-                {
-                    throw std::runtime_error("impossible bug? context bind error?");
-                }
-
-                if (it->second.empty())
-                {
-                    throw std::runtime_error("context missing, push() first.");
-                }
-                UsageFunc func = it->second.top().pFunc;
-                if (!func)
-                {
-                    throw std::runtime_error("context usage function missing.");
-                }
-                return func;
-            }
 
             struct IJ
             {
@@ -802,7 +758,7 @@ namespace fog
             }
 
             template <typename T, typename F>
-            void bindFuncAsPtr(F &&ptrFunc)
+            void bindFunc(F &&ptrFunc)
             {
                 bindComp(Component::make(typeid(T), ptrFunc, {}, {}, {}));
             }
@@ -810,189 +766,75 @@ namespace fog
             template <Usage usg, typename T>
             void bindImpl()
             {
-                bindComp(Impl::makeByImpl<usg, T, T, std::tuple<>>(ij));
+                bindComp(Impl::make<T, T, std::tuple<>>(ij));
             }
 
             template <typename T>
-            void bindImplAsPtrStatic()
+            void bindImpl()
             {
-                bindComp(Impl::makeByImpl<AsStatic, T, T, std::tuple<>>(ij));
+                bindComp(Impl::make<T, T, std::tuple<>>(ij));
             }
 
             //
             template <typename T, typename Imp>
-            void bindImplAsPtrStatic()
+            void bindImpl()
             {
-                bindComp(Impl::makeByImpl<AsStatic, T, Imp, std::tuple<>>(ij));
+                bindComp(Impl::make<T, Imp, std::tuple<>>(ij));
             }
 
             template <typename T, typename Imp, typename T1>
-            void bindImplAsPtrStatic()
+            void bindImpl()
             {
-                bindComp(Impl::makeByImpl<AsStatic, T, Imp, std::tuple<T1>>(ij));
+                bindComp(Impl::make<T, Imp, std::tuple<T1>>(ij));
             }
 
             template <typename... T>
             void bindAllImplAsPtrStatic()
             {
-                ((bindImplAsPtrStatic<T>()), ...);
+                ((bindImpl<T>()), ...);
             }
 
             template <typename T>
             void bindPtr(T *obj)
             {
-                bindFuncAsPtr<T>([obj]() -> T *
-                                 { return obj; });
-            }
-
-            template <typename T>
-            void push(T vCtx)
-            {
-                push<T>(nullptr, vCtx);
-            }
-
-            template <typename T>
-            void pop()
-            {
-                auto it = this->contexts.find(typeid(T));
-                if (it == this->contexts.end())
-                {
-                    throw std::runtime_error("context not bind to the type.");
-                }
-                (*it).second.pop();
-            }
-
-            template <typename T>
-            void push(T *pCtx, T vCtx)
-            {
-                if (auto it = this->contexts.find(typeid(T)); it != this->contexts.end())
-                {
-                    AnyFunc vF = [&vCtx]() -> std::any
-                    { return std::make_any<T>(vCtx); };
-
-                    AnyFunc pF;
-                    if (pCtx)
-                    {
-                        pF = [pCtx]() -> std::any
-                        { return std::make_any<T *>(pCtx); };
-                    }
-
-                    it->second.push(Context(pF, vF));
-                    return;
-                }
-                throw std::runtime_error("context not bind to the type.");
-            }
-
-            template <typename T>
-            void bindCtx()
-            {
-
-                if (auto it = this->contexts.find(typeid(T)); it != this->contexts.end())
-                {
-                    throw std::runtime_error("already bind type to context, cannot re-bind.");
-                }
-
-                this->contexts.emplace(typeid(T), std::stack<Context>()); // initial the stack for the type id.
-
-                UsageFunc ptrFunc = [this]()
-                {
-                    return getCtxFunc<T>()();
-                };
-
-                bindComp(Component::make(typeid(T), ptrFunc, {}, {}, {}));
-            }
-
-            template <typename T>
-            void bindVal(T obj)
-            {
-                bindFuncAsVal<T>([obj]() -> T
-                                 { return obj; });
+                bindFunc<T>([obj]() -> T *
+                            { return obj; });
             }
 
             template <typename T, typename Imp, typename T1, typename T2, Usage usg = AsStatic>
-            void bindImplAsPtrStatic()
+            void bindImpl()
             {
-                bindComp(Impl::makeByImpl<usg, T, Imp, T1, T2>(ij));
+                bindComp(Impl::make<T, Imp, T1, T2>(ij));
             }
             //
             template <typename T, typename OT>
             void bindMethod(T *(OT::*method)())
             {
-                bindFuncAsPtr<T>([this, method]()
-                                 {
-                                     OT *obj = this->getPtr<OT>();
-                                     return (obj->*method)(); //
-                                 });
+                bindFunc<T>([this, method]()
+                            {
+                                OT *obj = this->get<OT>();
+                                return (obj->*method)(); //
+                            });
             }
 
             template <typename T, typename OT>
-            void bindMethodAsVal(T (OT::*method)())
+            void bindMember(T *OT::*member)
             {
-                bindFuncAsVal<T>([this, method]() -> T
-                                 {
-                                     OT *obj = this->getPtr<OT>();
-                                     return (obj->*method)(); //
-                                 });
-            }
-
-            template <typename T, typename OT>
-            void bindMemberAsPtr(T *OT::*member)
-            {
-                bindFuncAsPtr<T>([this, member]() -> T *
-                                 {
-                                     OT *obj = this->getPtr<OT>();
-                                     return obj->*member; //
-                                 });
+                bindFunc<T>([this, member]() -> T *
+                            {
+                                OT *obj = this->get<OT>();
+                                return obj->*member; //
+                            });
             }
             //
 
             //
             template <typename T>
-            T *getPtr(Usage usgR = AsStatic)
+            T *get(Usage usgR = AsStatic)
             {
-                return ij.getComponent(typeid(T)).getPtr<T>(usgR);
+                return ij.getComponent(typeid(T)).get<T>(usgR);
             }
 
-            // template <typename T>
-            // bool tryGetVal(T &val, Usage usgR = AsStatic)
-            // {
-            //     Component *cPtr = tryGetComponent(typeid(T));
-            //     if (cPtr)
-            //     {
-            //         val = cPtr->getVal<T>();
-            //         return true;
-            //     }
-            //     return false;
-            // }
-
-            template <typename T>
-            void push(std::function<T *()> ptrCtx)
-            {
-                if (auto it = this->contexts.find(typeid(T)); it != this->contexts.end())
-                {
-                    UsageFunc pFunc;
-                    if (ptrCtx)
-                    {
-                        pFunc = [ptrCtx]()
-                        { return std::make_any<T *>(ptrCtx()); };
-                    }
-
-                    it->second.push(Context(pFunc));
-                    return;
-                }
-                throw std::runtime_error("context stack missing, you need bind type to context first.");
-            }
-
-            // template <typename T>
-            // T getVal(Usage usgR = AsStaticFirst)
-            // {
-            //     return ij.getComponent(typeid(T)).getVal<T>(usgR);
-            // }
-            // template <typename T>
-            // T getVal(std::type_index tid, Usage usgR)
-            // {
-            //     return ij.getComponent(tid).getVal<T>(usgR);
-            // }
             template <typename T>
             bool hasBind()
             {
@@ -1003,23 +845,13 @@ namespace fog
             template <typename T, typename C, typename F>
             void bindArgOfConstructor(F &&func)
             {
-
-                bindFuncAsPtr<ArgOfConstructor<T, C>>([func]() -> ArgOfConstructor<T, C> *
-                                                      { return new ArgOfConstructor<T, C>(func); });
+                bindFunc<ArgOfConstructor<T, C>>([func]() -> ArgOfConstructor<T, C> *
+                                                 {
+                                                     static ArgOfConstructor<T, C> instance(func);
+                                                     return &instance; //
+                                                 });
             }
 
-            // void bindDefault(Injector &pInjector)
-            // {
-            //     this->defaultCompFunc = [&pInjector](std::type_index tid)
-            //     { return pInjector.getComponent(tid); };
-            // }
-
-            // Injector &operator=(const Injector &injector)
-            // {
-            //     this->components = injector.components;
-            //     // this->defaultCompFunc = injector.defaultCompFunc;
-            //     return *this;
-            // }
         };
         //
     };
