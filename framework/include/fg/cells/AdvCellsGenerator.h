@@ -23,7 +23,7 @@ namespace fog
     {
 
         Options opts;
-        INJECT(AdvCellsGenerator(Options opts, Config *config)) : opts(opts), CellsGenerator(opts, config)
+        INJECT(AdvCellsGenerator(Options opts)) : opts(opts), CellsGenerator(opts)
         {
         }
         void generateCellsTypes(GenerateOpCtx &goc) override
@@ -37,7 +37,7 @@ namespace fog
         {
 
             // make lakes
-            if (!config->GENERATOR1_MAKE_LAKE)
+            if (!opts.GENERATOR1_MAKE_LAKE)
             {
                 return;
             }

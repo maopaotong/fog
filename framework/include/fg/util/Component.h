@@ -34,7 +34,6 @@
     };                                                                                                                              \
     static inline AutoRegisteredMember_##mname autoRegisteredMember_##mname{};
 
-#define MEMBER(mname) MEMBERX(mname, (#mname))
 
 #define MEMBERK(mname, key) MEMBERX(mname, (key))
 

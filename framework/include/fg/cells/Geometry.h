@@ -10,9 +10,9 @@ namespace fog
         struct Args
         {
             float groundHeight;
-            SELF(Args)             //
-            GROUP("geometry#args") //
-            MEMBER(groundHeight)   //
+            SELF(Args)                            //
+            GROUP("geometry#args")                //
+            MEMBERK(groundHeight, "groundHeight") //
         };
 
         Ogre::Plane ground;

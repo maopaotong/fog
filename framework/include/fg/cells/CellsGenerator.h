@@ -28,17 +28,32 @@ namespace fog
             float normalDistribution;             //,  0.75f)
             float hotDistribution;                //,  0.95f)
             bool GENERATOR1_MAKE_LAKE;
-            
+            float generatorRoughness1;
+            int seedOfGenerator1;
+            float generatorRoughness2;
+            int seedOfGenerator2;
+            float GENERATOR1_OCEAN_RATIO;
+            float GENERATOR1_SHORE_RATIO;
+            float GENERATOR1_PLAIN_RATIO;
+            float GENERATOR1_HILL_RATIO;
 
             SELF(Options)
             // GROUP("cellsgenerator#args")
             GROUP("config")
+            MEMBERKD(frozenDistribution, "frozenDistribution", 0.1f)
+            MEMBERKD(temperatureLatitudeWeightPower, "temperatureLatitudeWeightPower", 3.0f)
+            MEMBERKD(normalDistribution, "normalDistribution", 0.75f)
+            MEMBERKD(hotDistribution, "hotDistribution", 0.95f)
+            MEMBERKD(GENERATOR1_MAKE_LAKE, "GENERATOR1_MAKE_LAKE", true)
+            MEMBERKD(generatorRoughness1, "GENERATOR1_ROUGHNESS", 0.45)
+            MEMBERKD(generatorRoughness2, "GENERATOR2_ROUGHNESS", 0.65)
+            MEMBERKD(seedOfGenerator1, "GENERATOR1_SEED", 8151245)
+            MEMBERKD(seedOfGenerator2, "GENERATOR2_SEED", 2359812)
 
-            MEMBERD(frozenDistribution, 0.1f)
-            MEMBERD(temperatureLatitudeWeightPower, 3.0f)
-            MEMBERD(normalDistribution, 0.75f)
-            MEMBERD(hotDistribution, 0.95f)
-            MEMBERKD(GENERATOR1_MAKE_LAKE, "GENERATOR1_MAKE_LAKE", true);
+            MEMBERKD(GENERATOR1_OCEAN_RATIO, "GENERATOR1_OCEAN_RATIO", 0.35f)
+            MEMBERKD(GENERATOR1_SHORE_RATIO, "GENERATOR1_SHORE_RATIO", 0.50f)
+            MEMBERKD(GENERATOR1_PLAIN_RATIO, "GENERATOR1_PLAIN_RATIO", 0.85f)
+            MEMBERKD(GENERATOR1_HILL_RATIO, "GENERATOR1_HILL_RATIO", 0.90f)
 
             INJECT(Options())
             // : frozenDistribution(config->frozenDistribution), temperatureLatitudeWeightPower(config->temperatureLatitudeWeightPower),
@@ -58,8 +73,7 @@ namespace fog
         };
 
         Options opts;
-        Config *config;
-        INJECT(CellsGenerator(Options opts, Config *config)) : opts(opts), config(config)
+        INJECT(CellsGenerator(Options opts)) : opts(opts)
         {
         }
 
@@ -87,7 +101,7 @@ namespace fog
 
         virtual void generateHeightmap(GenerateOpCtx &goc)
         {
-            DiamondSquare::generate(goc.heightmap, goc.w, config->generatorRoughness1, config->seedOfGenerator1);
+            DiamondSquare::generate(goc.heightmap, goc.w, opts.generatorRoughness1, opts.seedOfGenerator1);
             Normaliser::normalise(goc.heightmap, goc.w, goc.h);
         }
 
@@ -102,19 +116,19 @@ namespace fog
             Iteration::forEach<float>(goc.heightmap, goc.w, goc.w, [this, &goc](int x, int y, float h)
                                       {
                                           CellType type = CellTypes::UNKNOW;
-                                          if (h < config->GENERATOR1_OCEAN_RATIO) // TODo calculate the actual ratio instead of the height.
+                                          if (h < opts.GENERATOR1_OCEAN_RATIO) // TODo calculate the actual ratio instead of the height.
                                           {
                                               type = CellTypes::OCEAN;
                                           }
-                                          else if (h < config->GENERATOR1_SHORE_RATIO)
+                                          else if (h < opts.GENERATOR1_SHORE_RATIO)
                                           {
                                               type = CellTypes::SHORE;
                                           }
-                                          else if (h < config->GENERATOR1_PLAIN_RATIO)
+                                          else if (h < opts.GENERATOR1_PLAIN_RATIO)
                                           {
                                               type = CellTypes::PLAIN;
                                           }
-                                          else if (h < config->GENERATOR1_HILL_RATIO)
+                                          else if (h < opts.GENERATOR1_HILL_RATIO)
                                           {
                                               type = CellTypes::HILL;
                                           }

@@ -25,18 +25,18 @@ namespace fog
         static float DEF_HEIGHT_MOUNTAIN; // = 0.53f * 1.f;
         static float DEF_HEIGHT_FROZEN;   // = 0.54f * 1.f;
         // generator
-        static int DEF_GENERATOR1_SEED;
-        static int DEF_GENERATOR2_SEED;
-        inline static float DEF_GENERATOR1_ROUGHNESS = 0.45;
-        ;
-        static float DEF_GENERATOR2_ROUGHNESS;
-        static float DEF_GENERATOR1_OCEAN_RATIO;
-        static float DEF_GENERATOR1_SHORE_RATIO;
-        static float DEF_GENERATOR1_PLAIN_RATIO;
-        static float DEF_GENERATOR1_HILL_RATIO;
-        static float DEF_GENERATOR1_MOUNTAIN_RATIO;
+        //static int DEF_GENERATOR1_SEED;
+        //static int DEF_GENERATOR2_SEED;
+        // inline static float DEF_GENERATOR1_ROUGHNESS = 0.45;
+        // ;
+        //static float DEF_GENERATOR2_ROUGHNESS;
+        // static float DEF_GENERATOR1_OCEAN_RATIO;
+        // static float DEF_GENERATOR1_SHORE_RATIO;
+        // static float DEF_GENERATOR1_PLAIN_RATIO;
+        // static float DEF_GENERATOR1_HILL_RATIO;
+        // static float DEF_GENERATOR1_MOUNTAIN_RATIO;
         static float DEF_GENERATOR1_RATIO_LAKE_OF_PLAIN;
-        static bool DEF_GENERATOR1_MAKE_LAKE;
+        //static bool DEF_GENERATOR1_MAKE_LAKE;
         // fragment
         static int DEF_SHADER_SHOW_CELL_EDGE;
         static int DEF_SHADER_SHOW_REGION_EDGE;
@@ -105,19 +105,19 @@ namespace fog
             heightAmpOfHill = getConfigByOption<float>("HEIGHT_AMP_OF_HILL", opts, 1.2f); //
             heightAmpOfMountain = getConfigByOption<float>("HEIGHT_AMP_OF_MOUNTAIN", opts, 1.5f);
             //
-            seedOfGenerator1 = getConfigByOption<int>("GENERATOR1_SEED", opts, DEF_GENERATOR1_SEED);
-            seedOfGenerator2 = getConfigByOption<int>("GENERATOR2_SEED", opts, DEF_GENERATOR2_SEED);
+            // seedOfGenerator1 = getConfigByOption<int>("GENERATOR1_SEED", opts, DEF_GENERATOR1_SEED);
+            // seedOfGenerator2 = getConfigByOption<int>("GENERATOR2_SEED", opts, DEF_GENERATOR2_SEED);
 
-            generatorRoughness1 = getConfigByOption<float>("GENERATOR1_ROUGHNESS", opts, DEF_GENERATOR1_ROUGHNESS);
-            generatorRoughness2 = getConfigByOption<float>("GENERATOR2_ROUGHNESS", opts, DEF_GENERATOR2_ROUGHNESS);
+            // generatorRoughness1 = getConfigByOption<float>("GENERATOR1_ROUGHNESS", opts, DEF_GENERATOR1_ROUGHNESS);
+            // generatorRoughness2 = getConfigByOption<float>("GENERATOR2_ROUGHNESS", opts, DEF_GENERATOR2_ROUGHNESS);
 
-            GENERATOR1_OCEAN_RATIO = getConfigByOption<float>("GENERATOR1_OCEAN_RATIO", opts, DEF_GENERATOR1_OCEAN_RATIO);
-            GENERATOR1_SHORE_RATIO = getConfigByOption<float>("GENERATOR1_SHORE_RATIO", opts, DEF_GENERATOR1_SHORE_RATIO);
-            GENERATOR1_PLAIN_RATIO = getConfigByOption<float>("GENERATOR1_PLAIN_RATIO", opts, DEF_GENERATOR1_PLAIN_RATIO);
-            GENERATOR1_HILL_RATIO = getConfigByOption<float>("GENERATOR1_HILL_RATIO", opts, DEF_GENERATOR1_HILL_RATIO);
-            GENERATOR1_MOUNTAIN_RATIO = getConfigByOption<float>("GENERATOR1_MOUNTAIN_RATIO", opts, DEF_GENERATOR1_MOUNTAIN_RATIO);
+            // GENERATOR1_OCEAN_RATIO = getConfigByOption<float>("GENERATOR1_OCEAN_RATIO", opts, DEF_GENERATOR1_OCEAN_RATIO);
+            // GENERATOR1_SHORE_RATIO = getConfigByOption<float>("GENERATOR1_SHORE_RATIO", opts, DEF_GENERATOR1_SHORE_RATIO);
+            // GENERATOR1_PLAIN_RATIO = getConfigByOption<float>("GENERATOR1_PLAIN_RATIO", opts, DEF_GENERATOR1_PLAIN_RATIO);
+            // GENERATOR1_HILL_RATIO = getConfigByOption<float>("GENERATOR1_HILL_RATIO", opts, DEF_GENERATOR1_HILL_RATIO);
+            // GENERATOR1_MOUNTAIN_RATIO = getConfigByOption<float>("GENERATOR1_MOUNTAIN_RATIO", opts, DEF_GENERATOR1_MOUNTAIN_RATIO);
             GENERATOR1_RATIO_LAKE_OF_PLAIN = getConfigByOption<float>("GENERATOR1_RATIO_LAKE_OF_PLAIN", opts, DEF_GENERATOR1_RATIO_LAKE_OF_PLAIN);
-            GENERATOR1_MAKE_LAKE = getConfigByOption<bool>("GENERATOR1_MAKE_LAKE", opts, DEF_GENERATOR1_MAKE_LAKE);
+            //GENERATOR1_MAKE_LAKE = getConfigByOption<bool>("GENERATOR1_MAKE_LAKE", opts, DEF_GENERATOR1_MAKE_LAKE);
             debugPrintTerrainsTexRange = getConfigByOption<Box2<int>>("DEBUG_PRINT_TERRAINS_TEX_RANGE", opts, DEF_DEBUG_PRINT_TERRAINS_TEX_RANGE);
             debugShaderShowCellEdge = getConfigByOption<int>("SHADER_SHOW_CELL_EDGE", opts, DEF_SHADER_SHOW_CELL_EDGE);
             debugShaderShowRegionEdge = getConfigByOption<int>("SHADER_SHOW_REGION_EDGE", opts, DEF_SHADER_SHOW_REGION_EDGE);
@@ -197,17 +197,17 @@ namespace fog
         bool makeMountainRange = true;
 
         // generator
-        int seedOfGenerator1 = DEF_GENERATOR1_SEED;
-        int seedOfGenerator2 = DEF_GENERATOR2_SEED;
-        float generatorRoughness1 = DEF_GENERATOR1_ROUGHNESS;
-        float generatorRoughness2 = DEF_GENERATOR2_ROUGHNESS;
-        float GENERATOR1_OCEAN_RATIO = DEF_GENERATOR1_OCEAN_RATIO;
-        float GENERATOR1_SHORE_RATIO = DEF_GENERATOR1_SHORE_RATIO;
-        float GENERATOR1_PLAIN_RATIO = DEF_GENERATOR1_PLAIN_RATIO;
-        float GENERATOR1_HILL_RATIO = DEF_GENERATOR1_HILL_RATIO;
-        float GENERATOR1_MOUNTAIN_RATIO = DEF_GENERATOR1_MOUNTAIN_RATIO;
+        // int seedOfGenerator1 = DEF_GENERATOR1_SEED;
+        // int seedOfGenerator2 = DEF_GENERATOR2_SEED;
+        // float generatorRoughness1 = DEF_GENERATOR1_ROUGHNESS;
+        // float generatorRoughness2 = DEF_GENERATOR2_ROUGHNESS;
+        // float GENERATOR1_OCEAN_RATIO = DEF_GENERATOR1_OCEAN_RATIO;
+        // float GENERATOR1_SHORE_RATIO = DEF_GENERATOR1_SHORE_RATIO;
+        // float GENERATOR1_PLAIN_RATIO = DEF_GENERATOR1_PLAIN_RATIO;
+        // float GENERATOR1_HILL_RATIO = DEF_GENERATOR1_HILL_RATIO;
+        // float GENERATOR1_MOUNTAIN_RATIO = DEF_GENERATOR1_MOUNTAIN_RATIO;
         float GENERATOR1_RATIO_LAKE_OF_PLAIN = DEF_GENERATOR1_RATIO_LAKE_OF_PLAIN;
-        bool GENERATOR1_MAKE_LAKE = DEF_GENERATOR1_MAKE_LAKE;
+        // bool GENERATOR1_MAKE_LAKE = DEF_GENERATOR1_MAKE_LAKE;
         // fragment
         unsigned int debugShaderShowCellEdge = DEF_SHADER_SHOW_CELL_EDGE;
         unsigned int debugShaderShowRegionEdge = DEF_SHADER_SHOW_REGION_EDGE;
