@@ -106,9 +106,9 @@ namespace fog
             }
         };
 
-        struct CellCentreByKey
+        struct CellKeyToCentre
         {
-            CellCentreByKey()
+            CellKeyToCentre()
             {
             }
             void operator()(float &fx, float &fy)
@@ -134,24 +134,24 @@ namespace fog
             }
         };
 
-        struct UVByKey
-        {
+        // struct UVByKey
+        // {
 
-            CellCentreByKey centre;
-            Scale2<float> scale;
-            UVByKey(int w, int h) : UVByKey(static_cast<float>(w), static_cast<float>(h))
-            {
-            }
-            UVByKey(float w, float h) : scale(1.0 / (2.0 * w), 1.0 / (std::sqrt(3.0) * h))
-            {
-            }
+        //     CellCentreByKey centre;
+        //     Scale2<float> scale;
+        //     UVByKey(int w, int h) : UVByKey(static_cast<float>(w), static_cast<float>(h))
+        //     {
+        //     }
+        //     UVByKey(float w, float h) : scale(1.0 / (2.0 * w), 1.0 / (std::sqrt(3.0) * h))
+        //     {
+        //     }
 
-            void operator()(float &fx, float &fy)
-            {
-                centre(fx, fy);
-                scale(fx, fy);
-            }
-        };
+        //     void operator()(float &fx, float &fy)
+        //     {
+        //         centre(fx, fy);
+        //         scale(fx, fy);
+        //     }
+        // };
 
         // struct D2H2D3
         // {

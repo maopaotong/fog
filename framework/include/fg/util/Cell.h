@@ -20,7 +20,7 @@ namespace fog
 
     struct CellKey : public Point2<int>
     {
-        static inline Transform::CellCentreByKey TF_K2C{};
+        static inline Transform::CellKeyToCentre TF_K2C{};
         static inline Transform::CentreToCellKey TF_C2K{};
         
         CellKey() : CellKey(-1, -1) {}
