@@ -80,18 +80,6 @@ namespace fog
     {
     };
 
-    template <typename T, typename = void>
-    struct hasVoidInit : std::false_type
-    {
-    };
-
-    template <typename T>
-    struct hasVoidInit<T, std::void_t<
-                              decltype(std::declval<T>().init())>> : std::is_same<decltype(std::declval<T>().init()),
-                                                                                  void>
-    {
-    };
-
     template <typename T, typename Tuple>
     struct tuplePushFront;
 
@@ -214,7 +202,7 @@ namespace fog
             static AutoRegisteredObjects instance;
             return instance;
         }
-    };
+    }; // end of class
 
     template <typename T, typename C>
     struct ArgOfConstructor
@@ -228,47 +216,91 @@ namespace fog
     /**
      * Component manage a set of functions and interfaces.there is no data and only contains meta info.
      */
+    struct Injector;
     struct Component
     {
-
-        struct Injector;
-        using AnyFunc = std::function<std::any()>;
-        using AddonFunc = std::function<std::any(Injector &)>;
+        using UsageFunc = std::function<std::any()>;
         using FieldsFunc = ConfigMembers<void>::Function;
-        using InitFunc = std::function<bool(std::any)>;
 
+        static Component make(std::type_index tid, UsageFunc createAsStatic, UsageFunc createAsDynamic,
+                              FieldsFunc fields)
+        {
+            Object objS;
+            objS.emplace(tid, createAsStatic);
+            Object objD;
+            objD.emplace(tid, createAsDynamic);
+            return Component(tid, objS, objD, fields);
+        }
+
+        template <typename T, typename Imp, typename Tuple, std::size_t... Is>
+        static Component make(UsageFunc createAsS, UsageFunc createAsD, std::index_sequence<Is...>, //
+                              FieldsFunc fields)
+        {
+            Object objS; // map from type id => function to get/crate the required type of value.
+            if (createAsS)
+            {
+                ((registerInterface<T, Imp, Tuple, Is>(objS, createAsS)), ...);
+            }
+            Object objD; // map from type id => function to get/crate the required type of value.
+            if (createAsD)
+            {
+                ((registerInterface<T, Imp, Tuple, Is>(objD, createAsD)), ...);
+            }
+
+            return Component(typeid(T), objS, objD, fields);
+        }
+        
+        template <typename T, typename Imp, typename AdtsTuple, typename IJ>
+        static typename std::enable_if_t<!hasGroup<Imp>::value, Component> make(IJ &&ij)
+        {
+            return Impl::doMakeByImpl<T, Imp, AdtsTuple>(ij, ConfigMembers<void>::Function{});
+        }
+
+        template <typename T, typename Imp, typename AdtsTuple, typename IJ>
+        static typename std::enable_if_t<hasGroup<Imp>::value, Component> make(IJ &&ij)
+        {
+            return Impl::doMakeByImpl<T, Imp, AdtsTuple>(ij, ConfigMembers<Imp>([&ij]()
+                                                                                {
+                                                                                       const Component *comp = (ij)(typeid(Options::Groups));
+                                                                                       if (comp)
+                                                                                       {
+                                                                                           return comp->get<Options::Groups>(Component::AsStatic);
+                                                                                       }
+                                                                                       throw std::runtime_error("cannot resolve group, no component of Options::Groups registered."); }));
+        }
+
+    private:
         using Usage = unsigned int;
 
-        static constexpr Usage AsStatic = 1U << 2;
-        static constexpr Usage AsDynamic = 1U << 3;
-        static constexpr Usage AsStaticFirst = 1U << 4;  // trying to use static and dynamic if static unsupported.
-        static constexpr Usage AsDynamicFirst = 1U << 5; // trying dynamic first, then static.
+        using AnyFunc = std::function<std::any()>;
+        using AddonFunc = std::function<std::any(Injector &)>;
+        using InitFunc = std::function<bool(std::any)>;
 
-        using UsageFunc = std::function<std::any()>;
+        static constexpr Usage AsStatic = 1U << 0;
+        static constexpr Usage AsDynamic = 1U << 1;
+
         using Interface = std::unordered_set<std::type_index>;
         using Object = std::unordered_map<std::type_index, UsageFunc>;
         using Value = UsageFunc;
         using Members = FieldsFunc;
-        using Init = InitFunc;
 
-        struct Context
-        {
+        // struct Context
+        // {
 
-            UsageFunc pFunc;
-            Context(UsageFunc pF) : pFunc(pF)
-            {
-            }
-        };
+        //     UsageFunc pFunc;
+        //     Context(UsageFunc pF) : pFunc(pF)
+        //     {
+        //     }
+        // };
 
         std::type_index typeId; // register the main type of the component.
         Object objS;            // cast funcs
         Object objD;            // cast funcs
 
         Members members;
-        Init init;
-
-        Component(std::type_index typeId, Object objS, Object objD, Members mbs, Init init)
-            : typeId(typeId), objS(objS), objD(objD), members(mbs), init(init) {};
+        friend struct Injector;
+        Component(std::type_index typeId, Object objS, Object objD, Members mbs)
+            : typeId(typeId), objS(objS), objD(objD), members(mbs) {};
 
         template <typename T>
         T *get(Usage usgR) const
@@ -292,23 +324,7 @@ namespace fog
             std::function<void()> f;
 
             UsageFunc func;
-            if (usgR & AsStaticFirst)
-            {
-                func = getPtrFuncStatic(tid);
-                if (!func)
-                {
-                    func = getPtrFuncDynamic(tid);
-                }
-            }
-            else if (usgR & AsDynamicFirst)
-            {
-                func = getPtrFuncDynamic(tid);
-                if (!func)
-                {
-                    func = getPtrFuncStatic(tid);
-                }
-            }
-            else if (usgR & AsStatic)
+            if (usgR & AsStatic)
             {
                 func = getPtrFuncStatic(tid);
             }
@@ -369,35 +385,6 @@ namespace fog
             return this->obj.find(tid) != this->obj.end();
         }
 
-        static Component make(std::type_index tid, UsageFunc createAsStatic, UsageFunc createAsDynamic,
-                              FieldsFunc fields, InitFunc init)
-        {
-            Object objS;
-            objS.emplace(tid, createAsStatic);
-            Object objD;
-            objD.emplace(tid, createAsDynamic);
-            return Component(tid, objS, objD, fields, init);
-        }
-
-        template <typename T, typename Imp, typename Tuple, std::size_t... Is>
-        static Component makeImpl(UsageFunc createAsS, UsageFunc createAsD, std::index_sequence<Is...>, //
-                                  FieldsFunc fields,
-                                  InitFunc init)
-        {
-            Object objS; // map from type id => function to get/crate the required type of value.
-            if (createAsS)
-            {
-                ((registerInterface<T, Imp, Tuple, Is>(objS, createAsS)), ...);
-            }
-            Object objD; // map from type id => function to get/crate the required type of value.
-            if (createAsD)
-            {
-                ((registerInterface<T, Imp, Tuple, Is>(objD, createAsD)), ...);
-            }
-
-            return Component(typeid(T), objS, objD, fields, init);
-        }
-
         template <typename T, typename Imp, typename Tuple, std::size_t I>
         static void registerInterface(Object &obj, UsageFunc createAsPtr)
         {
@@ -433,74 +420,33 @@ namespace fog
          *
          * And analysis the template type to find any constructor, member variable to be injected.
          * Register interface type, constructor function, member inject function and init function.
-         * This impl requires the user to declare the usage of the component, especially the
-         * AsPtr and AsVal are two different usage to construct the target object. AsStatic and
-         * AsDynamic control the storage mode of the target object.
-         *
-         *  1. AsPtr+AsStatic : usually the normal usage, single instance and transfer by pointer.
-         *  2. AsPtr+AsDynamic: may useful to create light weight and short-life-cycle instance.
-         *  3. AsVal+AsStatic : for global arguments, options.
-         *  4. AsVal+AsDynamic: don't known usaged on what situation.
+         * The injector does not manage pointer for static or dynamic instance returned by the get
+         * method of the injector, there is no way for now to clean the static instance after
+         * created.
          *
          *
          */
+
         struct Impl
         {
-
-            template <typename T, typename Imp, typename AdtsTuple, typename IJ>
-            static typename std::enable_if_t<!hasGroup<Imp>::value, Component> make(IJ &&ij)
-            {
-                return doMakeByImpl<T, Imp, AdtsTuple>(ij, ConfigMembers<void>::Function{});
-            }
-
-            template <typename T, typename Imp, typename AdtsTuple, typename IJ>
-            static typename std::enable_if_t<hasGroup<Imp>::value, Component> make(IJ &&ij)
-            {
-                return doMakeByImpl<T, Imp, AdtsTuple>(ij, ConfigMembers<Imp>([&ij]()
-                                                                              {
-                                                                                       const Component *comp = (ij)(typeid(Options::Groups));
-                                                                                       if (comp)
-                                                                                       {
-                                                                                           return comp->get<Options::Groups>(AsStatic);
-                                                                                       }
-                                                                                       throw std::runtime_error("cannot resolve group, no component of Options::Groups registered."); }));
-            }
 
             template <typename T, typename Imp, typename AdtsTuple, typename IJ>
             static Component doMakeByImpl(IJ &&ij, ConfigMembers<void>::Function members)
             {
 
                 using TAdtsTuple = tuplePushFront<T, AdtsTuple>::type;
-                UsageFunc funcAsStatic;  // empty func default.
-                UsageFunc funcAsDynamic; // empty func default.
+                Component::UsageFunc funcAsStatic;  // empty func default.
+                Component::UsageFunc funcAsDynamic; // empty func default.
 
                 makeFunctionForUsage<T, Imp>(ij, funcAsStatic, funcAsDynamic); //
-                InitFunc initFunc;
-                makeFunctionForInit<T>(initFunc);
 
-                return Component::makeImpl<T, Imp, TAdtsTuple>(funcAsStatic, funcAsDynamic,                                             //
-                                                               std::make_index_sequence<std::tuple_size_v<std::decay_t<TAdtsTuple>>>{}, //
-                                                               members,
-                                                               initFunc);
-            }
-            template <typename T>
-            static std::enable_if_t<!hasVoidInit<T>::value, void> makeFunctionForInit(std::function<bool(std::any)> &initFunc)
-            {
-            }
-
-            template <typename T>
-            static std::enable_if_t<hasVoidInit<T>::value, void> makeFunctionForInit(std::function<bool(std::any)> &initFunc)
-            {
-                initFunc = [](std::any ptrA)
-                {
-                    T *ptr = std::any_cast<T *>(ptrA);
-                    ptr->init();
-                    return true;
-                };
+                return Component::make<T, Imp, TAdtsTuple>(funcAsStatic, funcAsDynamic,                                             //
+                                                           std::make_index_sequence<std::tuple_size_v<std::decay_t<TAdtsTuple>>>{}, //
+                                                           members);
             }
 
             template <typename T, typename Imp, typename IJ>
-            static void makeFunctionForUsage(IJ &&ij, UsageFunc &funcAsStatic, UsageFunc &funcAsDynamic)
+            static void makeFunctionForUsage(IJ &&ij, Component::UsageFunc &funcAsStatic, Component::UsageFunc &funcAsDynamic)
             {
 
                 funcAsStatic = [&ij]() -> std::any
@@ -547,6 +493,7 @@ namespace fog
             static typename std::enable_if_t<!std::is_abstract_v<T> && !hasInject<T>::value, T *> createInstance(IJ &&ij)
             {
                 T *ret = new T{};
+                init(ret, ij);
                 return ret;
             }
 
@@ -613,11 +560,11 @@ namespace fog
                     {
                         if (mebInfo.asPtr)
                         {
-                            val = cPtr->get(AsStaticFirst, mebInfo.vType);
+                            val = cPtr->get(Component::AsStatic, mebInfo.vType);
                         }
                         else
                         {
-                            val = cPtr->get(AsStaticFirst, mebInfo.vType); // TODO
+                            val = cPtr->get(Component::AsStatic, mebInfo.vType); // TODO
                         }
                         //
                     }
@@ -675,184 +622,20 @@ namespace fog
                 const Component *cPtr = (ij)(typeid(T));
                 if (cPtr)
                 {
-                    return cPtr->get<T>(AsStaticFirst);
+                    return cPtr->get<T>(Component::AsStatic);
                 }
 
                 cPtr = ij(typeid(ArgOfConstructor<T, C>));
                 if (cPtr)
                 {
-                    ArgOfConstructor<T, C> *cArg = cPtr->get<ArgOfConstructor<T, C>>(AsStaticFirst);
+                    ArgOfConstructor<T, C> *cArg = cPtr->get<ArgOfConstructor<T, C>>(Component::AsStatic);
                     std::any aPtr = (cArg->ptrFunc)();
 
                     return std::any_cast<T *>(aPtr);
                 }
                 throw std::runtime_error("cannot resolve component for a arg of constructor.");
             }
-        };
-
-    public:
-        struct Injector
-        {
-
-        private:
-            // std::unordered_map<std::type_index, std::stack<Context>> contexts;
-
-            // template <typename T>
-            // T *getPtr(std::type_index tid, Usage usgR)
-            // {
-            //     return getComponent(tid).getPtr<T>(usgR);
-            // }
-
-            struct IJ
-            {
-                std::unordered_map<std::type_index, Component> components;
-
-                IJ()
-                {
-                }
-                IJ(const IJ &) = delete;
-                IJ &operator=(const IJ &) = delete;
-
-                IJ(IJ &&) = delete;
-                IJ &operator=(IJ &&) = delete;
-
-                const Component *operator()(std::type_index tid) const
-                {
-
-                    if (auto it = components.find(tid); it != components.end())
-                    {
-                        return &it->second;
-                    }
-                    return nullptr;
-                }
-
-                void bindComp(Component comp)
-                {
-                    if (components.find(comp.typeId) != components.end())
-                    {
-                        throw std::runtime_error("type id already bond, cannot bind, you may need rebind method.");
-                    }
-                    components.emplace(comp.typeId, comp);
-                }
-
-                Component &getComponent(std::type_index tid)
-                {
-                    if (auto it = components.find(tid); it != components.end())
-                    {
-                        return it->second;
-                    }
-                    throw std::runtime_error("must bind before get the instance by type from Component::Injector.");
-                }
-            };
-
-            IJ ij;
-
-        public:
-            Injector()
-            {
-            }
-
-            void bindComp(Component comp)
-            {
-                return ij.bindComp(comp);
-            }
-
-            template <typename T, typename F>
-            void bindFunc(F &&ptrFunc)
-            {
-                bindComp(Component::make(typeid(T), ptrFunc, {}, {}, {}));
-            }
-
-            template <Usage usg, typename T>
-            void bindImpl()
-            {
-                bindComp(Impl::make<T, T, std::tuple<>>(ij));
-            }
-
-            template <typename T>
-            void bindImpl()
-            {
-                bindComp(Impl::make<T, T, std::tuple<>>(ij));
-            }
-
-            //
-            template <typename T, typename Imp>
-            void bindImpl()
-            {
-                bindComp(Impl::make<T, Imp, std::tuple<>>(ij));
-            }
-
-            template <typename T, typename Imp, typename T1>
-            void bindImpl()
-            {
-                bindComp(Impl::make<T, Imp, std::tuple<T1>>(ij));
-            }
-
-            template <typename... T>
-            void bindAllImplAsPtrStatic()
-            {
-                ((bindImpl<T>()), ...);
-            }
-
-            template <typename T>
-            void bindPtr(T *obj)
-            {
-                bindFunc<T>([obj]() -> T *
-                            { return obj; });
-            }
-
-            template <typename T, typename Imp, typename T1, typename T2, Usage usg = AsStatic>
-            void bindImpl()
-            {
-                bindComp(Impl::make<T, Imp, T1, T2>(ij));
-            }
-            //
-            template <typename T, typename OT>
-            void bindMethod(T *(OT::*method)())
-            {
-                bindFunc<T>([this, method]()
-                            {
-                                OT *obj = this->get<OT>();
-                                return (obj->*method)(); //
-                            });
-            }
-
-            template <typename T, typename OT>
-            void bindMember(T *OT::*member)
-            {
-                bindFunc<T>([this, member]() -> T *
-                            {
-                                OT *obj = this->get<OT>();
-                                return obj->*member; //
-                            });
-            }
-            //
-
-            //
-            template <typename T>
-            T *get(Usage usgR = AsStatic)
-            {
-                return ij.getComponent(typeid(T)).get<T>(usgR);
-            }
-
-            template <typename T>
-            bool hasBind()
-            {
-                auto it = factories.find(typeid(T));
-                return it != factories.end();
-            }
-
-            template <typename T, typename C, typename F>
-            void bindArgOfConstructor(F &&func)
-            {
-                bindFunc<ArgOfConstructor<T, C>>([func]() -> ArgOfConstructor<T, C> *
-                                                 {
-                                                     static ArgOfConstructor<T, C> instance(func);
-                                                     return &instance; //
-                                                 });
-            }
-
-        };
-        //
+            friend struct Injector;
+        }; //
     };
 };

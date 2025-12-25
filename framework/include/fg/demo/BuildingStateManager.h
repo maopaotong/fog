@@ -101,7 +101,7 @@ namespace fog
             }
         }
         EventBus *eventBus;
-        Component::Injector *injector;
+        Injector *injector;
         Transforms *tfs;
         Building::Args args;
 
@@ -111,7 +111,7 @@ namespace fog
                                     InventoryManager *inventoryManager,
                                     Building::Args args,
                                     Config *config,
-                                    Component::Injector *injector,
+                                    Injector *injector,
                                     EventBus *eventBus))
             : core(core),
               args(args),

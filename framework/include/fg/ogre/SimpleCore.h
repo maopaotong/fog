@@ -98,7 +98,7 @@ namespace fog
 
         struct Setup
         {
-            Mod *operator()(Component::Injector &injector)
+            Mod *operator()(Injector &injector)
             {
                 injector.bindImpl<CoreMod, SimpleCore>();                
                 injector.bindAllImplAsPtrStatic<ImGuiAppContext,

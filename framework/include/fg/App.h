@@ -14,8 +14,8 @@ namespace fog
         struct ModHolder
         {
             Mod *mod;
-            Component::Injector &injector;
-            ModHolder(Mod *mod, Component::Injector &injector) : mod(mod), injector(injector)
+            Injector &injector;
+            ModHolder(Mod *mod, Injector &injector) : mod(mod), injector(injector)
             {
             }
         };
@@ -25,7 +25,7 @@ namespace fog
 
     public:
         template <typename F>
-        void add(Component::Injector &injector, F &&setup)
+        void add(Injector &injector, F &&setup)
         {
             Mod *mod = setup(injector);
             mods.push_back(ModHolder(mod, injector));

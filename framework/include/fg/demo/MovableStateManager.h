@@ -102,7 +102,7 @@ namespace fog
                                    HomeCellKey *homeCellKey,
                                    Config *config,
                                    Transforms *tfs,
-                                   Component::Injector *injector))
+                                   Injector *injector))
             : core(core),
               tfs(tfs),
               config(config),
