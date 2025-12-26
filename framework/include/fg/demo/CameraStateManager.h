@@ -25,8 +25,6 @@
 namespace fog
 {
 
-    using namespace Ogre;
-
     // === Frame Listener class for main loop ===
     class CameraStateManager : public Stairs
     {
@@ -50,7 +48,7 @@ namespace fog
         }
 
         // position and orientation of the camera
-        bool isViewportInsideGround(Vector3 &position, Quaternion &orientation)
+        bool isViewportInsideGround(Vector3 &position, Ogre::Quaternion &orientation)
         {
 
             // Ray ray = state->camera->getCameraToViewportRay(0.5f, 0.5f);
@@ -66,7 +64,7 @@ namespace fog
             Vector3 viewCenterOnGround = ray.getPoint(hitGrd.second);
 
             auto p2 = Point2<float>::from(viewCenterOnGround, *tfs->d2td3);
-            CellKey cell = CellKey::from(p2);
+            CellKey::Offset cell = CellKey::Offset::from(p2);
             // if (Context<Cell::Center>::get()->findCellByPosition(p2, cell))
             // {
             //     return true;
@@ -140,7 +138,7 @@ namespace fog
             Vector3 position2 = position + step;
             bool validTranlate = true;
 
-            Quaternion orientation = node->getOrientation();
+            Ogre::Quaternion orientation = node->getOrientation();
             validTranlate = this->isViewportInsideGround(position2, orientation);
 
             if (validTranlate)

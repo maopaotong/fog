@@ -18,7 +18,7 @@ namespace fog
         void setCameraPos(Vector3 pos)
         {
             Ogre::GpuProgramManager &gpuMgr = Ogre::GpuProgramManager::getSingleton();
-            GpuSharedParametersPtr sParams = gpuMgr.getSharedParameters("FragSharedParams");
+            Ogre::GpuSharedParametersPtr sParams = gpuMgr.getSharedParameters("FragSharedParams");
             sParams->setNamedConstant<3, float>("cameraPos", pos);
         }
     };

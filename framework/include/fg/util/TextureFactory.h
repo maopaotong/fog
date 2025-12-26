@@ -37,27 +37,27 @@ namespace fog
     // === Custom hash function ===
     //
     // === Hexagonal Map Visualizer class ===
-    using namespace Ogre;
-    using namespace OgreBites;
+    //using namespace Ogre;
+    //using namespace OgreBites;
 
     class TextureFactory
     {
     private:
     public:
-        static TexturePtr createTexture(std::string name, int width, int height, PixelFormat format = Ogre::PF_BYTE_RGBA)
+        static Ogre::TexturePtr createTexture(std::string name, int width, int height, Ogre::PixelFormat format = Ogre::PF_BYTE_RGBA)
         {
 
             // 上传到 GPU 纹理
 
-            TexturePtr tex = getTexture(name);
+           Ogre::TexturePtr tex = getTexture(name);
             if (tex)
             {
                 std::cout << "Bug? any way remove texture:" << name << std::endl;
-                TextureManager::getSingleton().remove(name);
+                Ogre::TextureManager::getSingleton().remove(name);
             }
             std::cout << "Create texture:" << name << std::endl;
 
-            tex = TextureManager::getSingleton().createManual(
+            tex = Ogre::TextureManager::getSingleton().createManual(
                 name,
                 Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
                 Ogre::TEX_TYPE_2D,
@@ -72,12 +72,12 @@ namespace fog
             return tex;
         }
 
-        static TexturePtr getTexture(std::string name)
+        static Ogre::TexturePtr getTexture(std::string name)
         {
-            return TextureManager::getSingleton().getByName(name);
+            return Ogre::TextureManager::getSingleton().getByName(name);
         }
 
-        static void updateTexture(TexturePtr tex, int width, int height, unsigned char *data, PixelFormat format = Ogre::PF_BYTE_RGBA)
+        static void updateTexture(Ogre::TexturePtr tex, int width, int height, unsigned char *data, Ogre::PixelFormat format = Ogre::PF_BYTE_RGBA)
         {
             Ogre::HardwarePixelBufferSharedPtr buffer = tex->getBuffer();
             Ogre::PixelBox pBox(width, height, 1, format, data);
@@ -89,7 +89,7 @@ namespace fog
             buffer->unlock();
         }
 
-        static void updateTexture(TexturePtr tex, int width, int height, unsigned char *data, Box2<int> box2, PixelFormat format = Ogre::PF_BYTE_RGBA)
+        static void updateTexture(Ogre::TexturePtr tex, int width, int height, unsigned char *data, Box2<int> box2, Ogre::PixelFormat format = Ogre::PF_BYTE_RGBA)
         {
             Ogre::HardwarePixelBufferSharedPtr buffer = tex->getBuffer();
             Ogre::PixelBox pBox(width, height, 1, format, data);

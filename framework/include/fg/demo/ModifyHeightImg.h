@@ -6,7 +6,7 @@
 #include "Common.h"
 #include "OgreColourValue.h"
 
-using namespace Ogre;
+//using namespace Ogre;
 class ModifyHeightImg
 {
     std::vector<float> height;
@@ -21,7 +21,7 @@ public:
         {
             for (int j = 0; j < W; ++j)
             {
-                ColourValue cv = img.getColourAt(i, j, 0);
+                Ogre::ColourValue cv = img.getColourAt(i, j, 0);
 
                 int value = static_cast<int>(2.0 * cv.r);
                 height[i * W + j] = static_cast<float>(value) / 2.0f;
@@ -37,7 +37,7 @@ public:
             for (int j = 0; j < W; ++j)
             {
                 float h = smoothHeight[i * W + j];
-                ColourValue cv;
+                Ogre::ColourValue cv;
                 cv.r = cv.g = cv.b = h;
                 img.setColourAt(cv, i, j, 0);
             }

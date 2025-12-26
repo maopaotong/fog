@@ -13,7 +13,7 @@
 namespace fog
 {
 
-    using CellType = uint8;
+    using CellType = uint8_t;
     /**
      * Generator of tiles with types.
      */

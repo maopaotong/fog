@@ -19,15 +19,15 @@
 #define MAO_IMGUI_BUTTON_OTHER 2
 
 namespace fog{
-using namespace Ogre;
-using namespace OgreBites;
+//using namespace Ogre;
+//using namespace OgreBites;
 
-class ImGuiInputListener : public InputListener
+class ImGuiInputListener : public OgreBites::InputListener
 {
 
 public:
     // ========== 输入事件转发给 ImGui ==========
-    bool keyPressed(const KeyboardEvent &evt) override
+    bool keyPressed(const OgreBites::KeyboardEvent &evt) override
     {
         ImGuiIO &io = ImGui::GetIO();
         if (evt.keysym.sym >= 0 && evt.keysym.sym < 256)
@@ -36,7 +36,7 @@ public:
         return ret;
     }
 
-    bool keyReleased(const KeyboardEvent &evt) override
+    bool keyReleased(const OgreBites::KeyboardEvent &evt) override
     {
         ImGuiIO &io = ImGui::GetIO();
         if (evt.keysym.sym >= 0 && evt.keysym.sym < 256)
@@ -52,7 +52,7 @@ public:
         std::cout << msg << std::endl;
     }
 
-    bool mouseMoved(const MouseMotionEvent &evt) override
+    bool mouseMoved(const  OgreBites::MouseMotionEvent &evt) override
     {
         ImGuiIO &io = ImGui::GetIO();
         io.AddMousePosEvent((float)evt.x, (float)evt.y);
@@ -60,20 +60,20 @@ public:
         return ret;
     }
 
-    bool mousePressed(const MouseButtonEvent &evt) override
+    bool mousePressed(const OgreBites::MouseButtonEvent &evt) override
     {
         ImGuiIO &io = ImGui::GetIO();
-        int button = evt.button == ButtonType::BUTTON_LEFT ? MAO_IMGUI_BUTTON_LEFT : (evt.button == ButtonType::BUTTON_RIGHT ? MAO_IMGUI_BUTTON_RIGHT : MAO_IMGUI_BUTTON_OTHER);
+        int button = evt.button == OgreBites::ButtonType::BUTTON_LEFT ? MAO_IMGUI_BUTTON_LEFT : (evt.button == OgreBites::ButtonType::BUTTON_RIGHT ? MAO_IMGUI_BUTTON_RIGHT : MAO_IMGUI_BUTTON_OTHER);
         io.AddMouseButtonEvent(button, true);
         bool ret = io.WantCaptureMouse;
         // log(fmt::format("io.WantCaptureMouse is {}", ret));
         return ret;
     }
 
-    bool mouseReleased(const MouseButtonEvent &evt) override
+    bool mouseReleased(const OgreBites::MouseButtonEvent &evt) override
     {
         ImGuiIO &io = ImGui::GetIO();
-        int button = evt.button == ButtonType::BUTTON_LEFT ? MAO_IMGUI_BUTTON_LEFT : (evt.button == ButtonType::BUTTON_RIGHT ? MAO_IMGUI_BUTTON_RIGHT : MAO_IMGUI_BUTTON_OTHER);
+        int button = evt.button == OgreBites::ButtonType::BUTTON_LEFT ? MAO_IMGUI_BUTTON_LEFT : (evt.button == OgreBites::ButtonType::BUTTON_RIGHT ? MAO_IMGUI_BUTTON_RIGHT : MAO_IMGUI_BUTTON_OTHER);
         io.AddMouseButtonEvent(button, false);
 
         bool ret = io.WantCaptureMouse;

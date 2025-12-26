@@ -13,7 +13,6 @@
 #include "TransformD2D3.h"
 namespace fog
 {
-    using namespace Ogre;
 
     struct CellsMaterial
     {
@@ -37,7 +36,7 @@ namespace fog
             Args opts)) : opts(opts)
         {
             // material
-            MaterialPtr mat = MaterialManager::getSingletonPtr()->getByName(MaterialNames::materialNameForCells);
+            Ogre::MaterialPtr mat =Ogre::MaterialManager::getSingletonPtr()->getByName(MaterialNames::materialNameForCells);
             // tex0
             std::string texName001 = "TerrainsTex001";
             std::string texName010 = "TerrainsTex010";
@@ -45,7 +44,7 @@ namespace fog
             //cvs->createWorldTexture(texName0, cvs->grids); // TODO texture create by a manager.
             wtg->createWorlTextures(texName001, texName010);
 
-            Pass *pass = mat->getTechnique(0)->getPass(0);
+            Ogre::Pass *pass = mat->getTechnique(0)->getPass(0);
             //text 01
             pass->getTextureUnitState(0)->setTextureName(texName001);
             pass->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
@@ -62,7 +61,7 @@ namespace fog
             pass->getTextureUnitState(9)->setTextureFiltering(Ogre::TFO_BILINEAR);
 
             //arguments.
-            GpuProgramParametersSharedPtr vParams = mat->getTechnique(0)->getPass(0)->getVertexProgramParameters();
+            Ogre::GpuProgramParametersSharedPtr vParams = mat->getTechnique(0)->getPass(0)->getVertexProgramParameters();
             vParams->setNamedConstant("tlsWidthInNum", cdos.cellsRange.getWidth());
             vParams->setNamedConstant("tlsHeightInNum", cdos.cellsRange.getHeight());
             vParams->setNamedConstant("terrQuality", tfos.getTerrainQuality());
@@ -70,7 +69,7 @@ namespace fog
 
             if (opts.debugWireFrame)
             {
-                pass->setPolygonMode(PM_WIREFRAME);
+                pass->setPolygonMode(Ogre::PM_WIREFRAME);
             }
         }
     };

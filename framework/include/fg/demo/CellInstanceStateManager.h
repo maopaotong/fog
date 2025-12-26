@@ -14,13 +14,13 @@ namespace fog
     class CellInstanceState : public Actor
     {
         std::stack<ColourValue> colours;
-        ManualObject *obj;
-        CellKey cis;
+        Ogre::ManualObject *obj;
+        CellKey::Offset cis;
         CoreMod *core;
         Transforms *tfs;
 
     public:
-        CellInstanceState(CellKey cis, CoreMod *core, Transforms *tfs, SceneNode *sNode)
+        CellInstanceState(CellKey::Offset cis, CoreMod *core, Transforms *tfs, Ogre::SceneNode *sNode)
             : Actor(sNode),
               tfs(tfs),
               cis(cis), core(core)
@@ -64,13 +64,13 @@ namespace fog
         }
 
         // Get color based on cost
-        bool getCostColor(CellKey &cell, Ogre::ColourValue &color) const
+        bool getCostColor(CellKey::Offset &cell, Ogre::ColourValue &color) const
         {
 
             return false;
         }
 
-        CellKey getCellKey()
+        CellKey::Offset getCellKey()
         {
             return this->cis;
         }
@@ -79,7 +79,7 @@ namespace fog
 
     class CellInstanceStateManager : public Manager<CellInstanceState>
     {
-        std::unordered_map<CellKey, CellInstanceState *, CellKey::Hash> cellInstanceStates;
+        std::unordered_map<CellKey::Offset, CellInstanceState *, CellKey::Offset::Hash> cellInstanceStates;
 
         CoreMod *core;
 
@@ -98,7 +98,7 @@ namespace fog
             {
                 for (int y = 0; y < cdos.cellsRange.getHeight(); y++)
                 {
-                    CellKey cell{x, y};
+                    CellKey::Offset cell{x, y};
                     CellInstanceState *state = new CellInstanceState(cell, core, tfs, core->getRootSceneNode()->createChildSceneNode());
                     this->add(state); //
                     this->cellInstanceStates[cell] = state;
@@ -133,10 +133,10 @@ namespace fog
             // {
             //     return this->cellInstanceStates[cell];
             // }
-            CellKey cKey = CellKey::from(pos);
+            CellKey::Offset cKey = CellKey::Offset::from(pos);
             return getCellInstanceStateByCellKey(cKey);
         }
-        CellInstanceState *getCellInstanceStateByCellKey(CellKey cKey)
+        CellInstanceState *getCellInstanceStateByCellKey(CellKey::Offset cKey)
         {
             auto it = this->cellInstanceStates.find(cKey);
             if (it != this->cellInstanceStates.end())

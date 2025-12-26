@@ -16,7 +16,7 @@
 
 namespace fog
 {
-    class SimpleCore : public CoreMod, public FrameListener
+    class SimpleCore : public CoreMod, public Ogre::FrameListener
     {
     private:
         Ogre::Camera *camera;
@@ -26,23 +26,23 @@ namespace fog
         Ogre::SceneManager *sceMgr;
         Ogre::Root *root;
         std::unordered_map<std::string, std::any> userObjs;
-        MaterialManager *matMgr;
+        Ogre::MaterialManager *matMgr;
         Ogre::Light *light;
         std::vector<Stairs *> stepListeners;
 
     public:
         INJECT(SimpleCore(ImGuiAppContext *appCtx)) : appCtx(appCtx), CoreMod()
         {
-            this->matMgr = MaterialManager::getSingletonPtr();
+            this->matMgr = Ogre::MaterialManager::getSingletonPtr();
             this->root = appCtx->getRoot();
 
             // log level
-            LogManager *lm = LogManager::getSingletonPtr();
-            Log *log = lm->getDefaultLog();
+            Ogre::LogManager *lm = Ogre::LogManager::getSingletonPtr();
+            Ogre::Log *log = lm->getDefaultLog();
             log->setDebugOutputEnabled(false);
             log->setLogDetail(Ogre::LL_LOW);
             //
-            RenderWindow *window = appCtx->getRenderWindow();
+            Ogre::RenderWindow *window = appCtx->getRenderWindow();
 
             sceMgr = appCtx->getRoot()->createSceneManager();
 
@@ -139,7 +139,7 @@ namespace fog
         }
 
         // ApplicationContext *getAppContext() override { return this->appCtx; }
-        SceneNode *getRootSceneNode()
+        Ogre::SceneNode *getRootSceneNode()
         {
             return this->sceMgr->getRootSceneNode();
         }
@@ -156,7 +156,7 @@ namespace fog
         {
             return this->matMgr->create(name, group);
         }
-        ManualObject *createManualObject()
+        Ogre::ManualObject *createManualObject()
         {
             return sceMgr->createManualObject();
         }
@@ -183,7 +183,7 @@ namespace fog
 
         // Root *getRoot() override { return this->root; };
 
-        Light *getLight()
+        Ogre::Light *getLight()
         {
             return this->light;
         }
@@ -199,7 +199,7 @@ namespace fog
         {
             return Box2<int>(this->appCtx->getRenderWindow()->getWidth(), this->appCtx->getRenderWindow()->getHeight());
         }
-        MaterialManager *getMaterialManager() override
+        Ogre::MaterialManager *getMaterialManager() override
         {
             return this->matMgr;
         }
@@ -211,12 +211,12 @@ namespace fog
         {
             this->stepListeners.push_back(listener);
         }
-        void addInputListener(InputListener *listener) override
+        void addInputListener(OgreBites::InputListener *listener) override
         {
             this->appCtx->getImGuiApp()->addInputListener(listener);
         }
 
-        void addFrameListener(FrameListener *listener) override
+        void addFrameListener(Ogre::FrameListener *listener) override
         {
 
             this->root->addFrameListener(listener);
@@ -248,7 +248,7 @@ namespace fog
             return Box2<float>(this->vp->getActualLeft(), this->vp->getActualTop(), this->vp->getActualLeft() + vp->getActualWidth(), this->vp->getActualTop() + vp->getActualHeight());
         }
 
-        bool frameStarted(const FrameEvent &evt)
+        bool frameStarted(const Ogre::FrameEvent &evt)
         {
             for (Stairs *listener : this->stepListeners)
             {

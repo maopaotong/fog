@@ -8,7 +8,7 @@
 
 namespace fog
 {
-    using namespace Ogre;
+    //using namespace Ogre;
 
     class OgreCode
     {
@@ -60,7 +60,7 @@ namespace fog
             // define a plane in terrain space
             // do not normalise as the normalization factor cancels out in the final
             // equation anyway
-            Vector4 plane;
+            Ogre::Vector4 plane;
             if (startY % 2)
             {
                 // odd row

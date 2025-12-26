@@ -133,7 +133,7 @@ namespace fog
             return true;
         }
 
-        bool pick(Ray &ray)
+        bool pick(Ogre::Ray &ray)
         {
 
             // 
@@ -148,7 +148,7 @@ namespace fog
             // 
             for (auto &it : result)
             {
-                Node *node = it.movable->getParentNode();
+                Ogre::Node *node = it.movable->getParentNode();
                 Actor *s = Actor::get(node);
                 if (s && s->pickable() && s == actor2)
                 {

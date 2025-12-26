@@ -9,7 +9,7 @@ namespace fog
 {
     struct CellUtil
     {
-        static std::string toString(const CellKey &cKey)
+        static std::string toString(const CellKey::Offset &cKey)
         {
             return "(" + std::to_string(cKey.x) + "," + std::to_string(cKey.y) + ")";
         }

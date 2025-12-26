@@ -43,14 +43,14 @@ namespace fog
             //this->activeTrayUI = new ActiveTrayUI(core, costMap);
 
             // this->mainUI = new MainUI(core);
-            // this->sceneNodeUI = new SceneNodeUI(core);
+            // this->sceneNodeUI = new Ogre::SceneNodeUI(core);
             // this->cmdUI = new CommandUI(core);
             
 //            this->entryUI = new EntryUI();
             this->entryUI->init();
         }
 
-        void onFrame(const FrameEvent &evt)
+        void onFrame(const Ogre::FrameEvent &evt)
         {
             ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.7f));
             // this->mainUI->Open();

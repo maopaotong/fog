@@ -20,11 +20,11 @@ namespace fog
         float amount;
         CoreMod *core;
         Transforms *tfs;
-        std::unordered_map<CellKey, std::vector<Actor *>, CellKey::Hash> &buildingsInCells;
+        std::unordered_map<CellKey::Offset, std::vector<Actor *>, CellKey::Offset::Hash> &buildingsInCells;
 
     public:
         BuildingLocator(std::unique_ptr<Actor> building, float amount, CoreMod *core, Transforms *tfs,
-                        std::unordered_map<CellKey, std::vector<Actor *>, CellKey::Hash> &buildingsInCells) : core(core),
+                        std::unordered_map<CellKey::Offset, std::vector<Actor *>, CellKey::Offset::Hash> &buildingsInCells) : core(core),
                                                                                                               tfs(tfs),
                                                                                                               building(std::move(building)), amount(amount),
                                                                                                               buildingsInCells(buildingsInCells)
@@ -45,7 +45,7 @@ namespace fog
         {
         }
 
-        void moveTo(CellKey cKey)
+        void moveTo(CellKey::Offset cKey)
         {
             if (this->building)
             {
@@ -53,7 +53,7 @@ namespace fog
             }
         }
 
-        bool tryBuildAt(CellKey cKey)
+        bool tryBuildAt(CellKey::Offset cKey)
         {
             if (this->building)
             {
@@ -75,7 +75,7 @@ namespace fog
         Actor *picked;
         std::unique_ptr<BuildingLocator> locator;
         CoreMod *core;
-        std::unordered_map<CellKey, std::vector<Actor *>, CellKey::Hash> buildingsInCells;
+        std::unordered_map<CellKey::Offset, std::vector<Actor *>, CellKey::Offset::Hash> buildingsInCells;
         InventoryManager *inventoryManager;
         Config *config;
 
@@ -123,7 +123,7 @@ namespace fog
               picked(nullptr), locator(nullptr)
         {
             eventBus-> //
-                subscribe<MouseCellEventType, CellKey>([this](MouseCellEventType type, CellKey cKey)
+                subscribe<MouseCellEventType, CellKey::Offset>([this](MouseCellEventType type, CellKey::Offset cKey)
                                                        {
                                                            if (type == MouseCellEventType::MouseEnterCell)
                                                            {
@@ -137,7 +137,7 @@ namespace fog
                                                            return true; //
                                                        });
             eventBus-> //
-                subscribe<CellEventType, CellKey>([this](CellEventType type, CellKey cKey)
+                subscribe<CellEventType, CellKey::Offset>([this](CellEventType type, CellKey::Offset cKey)
                                                   {
                                                       if (type == CellEventType::CellAsTarget)
                                                       {

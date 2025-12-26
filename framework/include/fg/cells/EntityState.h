@@ -25,7 +25,7 @@ namespace fog
         CoreMod *core;
 
     public:
-        EntityState(std::string mesh, float scale, float height, std::vector<std::string> aniNames, CoreMod *core, SceneNode *sceNode)
+        EntityState(std::string mesh, float scale, float height, std::vector<std::string> aniNames, CoreMod *core, Ogre::SceneNode *sceNode)
             :Actor(sceNode), mesh(mesh),
               core(core),
               scale(scale),
@@ -53,7 +53,7 @@ namespace fog
         {
             return this->entity;
         }
-        AnimationStateSet *getAllAnimationStates()
+        Ogre::AnimationStateSet *getAllAnimationStates()
         {
             return entity->getAllAnimationStates();
         }

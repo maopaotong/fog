@@ -20,7 +20,7 @@ namespace fog
 
         void frameRendered(const Ogre::FrameEvent &evt) override
         {
-            for (InputListener *l : list)
+            for (OgreBites::InputListener *l : list)
             {
                 l->frameRendered(evt);
             }
@@ -139,7 +139,7 @@ namespace fog
         }
         bool axisMoved(const OgreBites::AxisEvent &evt) override
         {
-            for (InputListener *l : list)
+            for (OgreBites::InputListener *l : list)
             {
                 if (l->axisMoved(evt))
                 {

@@ -25,13 +25,13 @@ namespace fog
                           CellsMaterial *cMaterial,
                           Transforms *tfs,
                           Config *config,
-                          CoreMod *core, SceneNode *sceNode, TransformD2TD3::Args tfos)) : Actor(sceNode),
+                          CoreMod *core, Ogre::SceneNode *sceNode, TransformD2TD3::Args tfos)) : Actor(sceNode),
                                                                 config(config),
                                                                 tfs(tfs),
                                                                 tfos(tfos)
         {
 
-            ManualObject *obj = core->createManualObject();
+            Ogre::ManualObject *obj = core->createManualObject();
             //obj->setQueryFlags();
             sceNode->attachObject(obj);
             int step = tfos.cellsTerrainAmp; // / config->cellsMeshQuality;
@@ -56,7 +56,7 @@ namespace fog
                 {
                     int qy = y * step;
                     int qx = x * step;
-                    CellKey cKey = cvs->grids[qx][qy].cKey;
+                    CellKey::Offset cKey = cvs->grids[qx][qy].cKey;
 
                     // HexTile::Key cis = cc->getCell(cKey);
 
@@ -163,7 +163,7 @@ namespace fog
                 {
                     Vector3 p2 = neibersP[i];
                     Vector3 p3 = neibersP[(i + 1) % neibersCount];
-                    Vector4 plane = Ogre::Math::calculateFaceNormalWithoutNormalize(p1, p2, p3);
+                    Ogre::Vector4 plane = Ogre::Math::calculateFaceNormalWithoutNormalize(p1, p2, p3);
                     Vector3 normN(plane.x, plane.y, plane.z);
                     normN.normalise();
                     normNs += normN;

@@ -30,14 +30,14 @@ namespace fog
         virtual ~CoreMod() {}
         // virtual ApplicationContext *getAppContext() = 0;
         virtual ImGuiApp *getImGuiApp() = 0;
-        virtual SceneNode *getRootSceneNode() = 0;
+        virtual Ogre::SceneNode *getRootSceneNode() = 0;
         virtual Ogre::RaySceneQuery *createRayQuery(Ogre::Ray &ray) = 0;
         virtual void destroyQuery(Ogre::RaySceneQuery *) = 0;
 
         // virtual Viewport *getViewport() = 0;
         virtual Box2<float> getViewportBox() = 0;
         virtual Box2<float> getActualViewportBox() = 0;
-        virtual ManualObject *createManualObject() = 0;
+        virtual Ogre::ManualObject *createManualObject() = 0;
         virtual Ogre::Entity * createEntity(std::string mesh) = 0;
 
         // virtual Camera *getCamera() = 0;
@@ -53,14 +53,14 @@ namespace fog
 
         virtual void addStepListener(Stairs *listener) = 0;
 
-        virtual void addInputListener(InputListener *listener) = 0;
+        virtual void addInputListener(OgreBites::InputListener *listener) = 0;
 
         virtual void addFrameListener(Ogre::FrameListener *listener) = 0;
-        virtual MaterialManager *getMaterialManager() = 0;
+        virtual Ogre::MaterialManager *getMaterialManager() = 0;
 
         virtual void setUserObject(const std::string key, std::any value) = 0;
         virtual bool getUserObject(const std::string key, std::any &value) = 0;
-        virtual Light *getLight() = 0;
+        virtual Ogre::Light *getLight() = 0;
 
         template <typename T>
         void setUserObject(const std::string key, T *obj)

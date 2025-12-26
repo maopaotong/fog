@@ -49,7 +49,7 @@ namespace fog
             if (state)
             {
 
-                SceneNode *sNode = state->getSceneNode();
+                Ogre::SceneNode *sNode = state->getSceneNode();
                 ImGui::Text(("Active State: " + std::to_string((uintptr_t)state)).c_str());
                 ImGui::SameLine();
                 ImGuiUtil::Text(sNode->getPosition());

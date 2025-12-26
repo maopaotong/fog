@@ -33,8 +33,8 @@ namespace fog
         PathState *path;
 
     protected:
-        CellKey cKey2;
-        CellKey cKey1;
+        CellKey::Offset cKey2;
+        CellKey::Offset cKey1;
         CostMap *costMap;
         CellInstanceStateManager *cellInstMgrState;
         MovableStateManager *movableStateMgr;
@@ -154,8 +154,8 @@ namespace fog
                 return true;
             }
             //
-            CellKey cKey2 = targetCis->getCellKey();
-            CellKey cKey1 = sourceCis->getCellKey();
+            CellKey::Offset cKey2 = targetCis->getCellKey();
+            CellKey::Offset cKey1 = sourceCis->getCellKey();
             if (this->cKey2 == cKey2 && this->cKey1 == cKey1)
             {                // do nothing.
                 return true; // GOON
@@ -164,7 +164,7 @@ namespace fog
             this->cKey1 = cKey1;
             this->cKey2 = cKey2;
             auto costFunc = *cellsCost;
-            std::vector<CellKey> pathByCellKey =
+            std::vector<CellKey::Offset> pathByCellKey =
                 costMap->findPath(cKey1, cKey2, costFunc);
 
             PathState *pathState2 = new PathState(cellInstMgrState);

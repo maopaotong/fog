@@ -10,13 +10,13 @@
 #include "CellInstanceStateManager.h"
 namespace fog
 {
-    using namespace Ogre;
+    //using namespace Ogre;
 
 #define DEFAULT_HIGH_OFFSET 1.1f
 
     class PathState
     {
-        std::vector<CellKey> currentPath;
+        std::vector<CellKey::Offset> currentPath;
         CellInstanceStateManager *cisManager;
 
     public:
@@ -28,7 +28,7 @@ namespace fog
             this->resetPathColor(true);
         }
 
-        void setPath(const std::vector<CellKey> &path)
+        void setPath(const std::vector<CellKey::Offset> &path)
         {
             this->resetPathColor(true);
             currentPath = path;
@@ -39,7 +39,7 @@ namespace fog
         {
             for (auto it = currentPath.begin(); it != currentPath.end(); ++it)
             {
-                CellKey cKey = *it;
+                CellKey::Offset cKey = *it;
                 CellInstanceState *cis = cisManager->getCellInstanceStateByCellKey(cKey);
                 if (unset)
                 {

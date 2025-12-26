@@ -17,12 +17,12 @@ namespace fog
     struct Sphere : public Actor
     {
 
-        INJECT(Sphere(CoreMod *core, SceneNode *sceNode)) : Actor(sceNode)
+        INJECT(Sphere(CoreMod *core, Ogre::SceneNode *sceNode)) : Actor(sceNode)
         {
 
             sceNode = sceNode->createChildSceneNode(); //
 
-            ManualObject *obj = core->createManualObject();
+            Ogre::ManualObject *obj = core->createManualObject();
             obj->setQueryFlags(0x00000001);
             sceNode->attachObject(obj);
             float scale = 5;

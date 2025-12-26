@@ -8,7 +8,7 @@
 namespace fog
 {
 
-    using CellType = uint8;
+    using CellType = uint8_t;
 
     class CellTypes
     {
@@ -69,7 +69,7 @@ namespace fog
      */
     struct CellRegion
     {
-        using RegionFunc = std::function<bool(CellKey, CellData &, CellRegion &rg)>;
+        using RegionFunc = std::function<bool(CellKey::Offset, CellData &, CellRegion &rg)>;
 
         RegionFunc inner; // inner judge
 
@@ -87,13 +87,13 @@ namespace fog
         void merge(CellRegion &rg)
         {
 
-            RegionFunc inner = [this, &rg](CellKey cKey, CellData &type, CellRegion &rg3)
+            RegionFunc inner = [this, &rg](CellKey::Offset cKey, CellData &type, CellRegion &rg3)
             {
                 return this->inner(cKey, type, rg3) || rg.inner(cKey, type, rg3);
             };
             this->inner = inner;
 
-            RegionFunc border = [this, &rg](CellKey cKey, CellData &type, CellRegion &rg3)
+            RegionFunc border = [this, &rg](CellKey::Offset cKey, CellData &type, CellRegion &rg3)
             {
                 return this->border(cKey, type, rg3) || rg.border(cKey, type, rg3);
             };
@@ -103,13 +103,13 @@ namespace fog
         void intersects(CellRegion &rg)
         {
 
-            RegionFunc inner = [this, &rg](CellKey cKey, CellData &type, CellRegion &rg3)
+            RegionFunc inner = [this, &rg](CellKey::Offset cKey, CellData &type, CellRegion &rg3)
             {
                 return this->inner(cKey, type, rg3) && rg.inner(cKey, type, rg3);
             };
             this->inner = inner;
 
-            RegionFunc border = [this, &rg](CellKey cKey, CellData &type, CellRegion &rg3)
+            RegionFunc border = [this, &rg](CellKey::Offset cKey, CellData &type, CellRegion &rg3)
             {
                 return this->border(cKey, type, rg3) && rg.border(cKey, type, rg3);
             };
@@ -139,14 +139,14 @@ namespace fog
         };
 
     public:
-        static bool forEachCellInSameRegion(std::vector<std::vector<CellData>> &tiles, int w, int h, CellKey cKey, CellData &tile, CellRegion &region)
+        static bool forEachCellInSameRegion(std::vector<std::vector<CellData>> &tiles, int w, int h, CellKey::Offset cKey, CellData &tile, CellRegion &region)
         {
             VisitCtx ctx(tiles, w, h, region);
             return doForEachTileInSameRegion(0, ctx, cKey, tile);
         }
 
     private:
-        static bool doForEachTileInSameRegion(int depth, VisitCtx &ctx, CellKey cKey, CellData &tile0)
+        static bool doForEachTileInSameRegion(int depth, VisitCtx &ctx, CellKey::Offset cKey, CellData &tile0)
         {
             if (ctx.processed.count(&tile0))
             {
@@ -165,8 +165,8 @@ namespace fog
 
             // is Inner, so check the neiber if valid thus recursive calling.
             // is Inner and not border.
-            CellKey neibers[6];
-            CellTopology::getNeibers<CellTopology::Type::TOP_APEX>(cKey.x, cKey.y, neibers);
+            CellKey::Offset neibers[6];
+            CellsLayout::getNeibers<CellsLayout::PointyTop>(cKey.x, cKey.y, neibers);
             // we remember all inner neibers for next recursive calling.
             std::unordered_map<int, CellData *> inners;
             for (int i = 0; i < 6; i++)

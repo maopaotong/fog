@@ -26,4 +26,11 @@
 namespace fog
 {
     using ColourValue = Ogre::ColourValue;
+    using AnimationStateIterator = Ogre::AnimationStateIterator;
+    using AnimationState = Ogre::AnimationState;
+    using Quaternion = Ogre::Quaternion;
+    using GpuSharedParametersPtr = Ogre::GpuSharedParametersPtr;
+    using Node = Ogre::Node;
+    using Ray = Ogre::Ray;
+    using SceneNode = Ogre::SceneNode;
 };

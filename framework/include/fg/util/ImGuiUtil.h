@@ -10,7 +10,7 @@
 
 namespace fog
 {
-    using namespace Ogre;
+    //using namespace Ogre;
 
     class ImGuiUtil
     {

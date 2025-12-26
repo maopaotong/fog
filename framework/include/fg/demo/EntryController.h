@@ -17,13 +17,11 @@
 #include "MouseCellController.h"
 namespace fog
 {
-    using namespace OgreBites;
-    using namespace Ogre;
     // === Custom hash function ===
     //
     // === Input handler for closing application ===
 
-    class EntryController : public OgreBites::InputListener, public FrameListener
+    class EntryController : public OgreBites::InputListener, public Ogre::FrameListener
     {
         PathingStateManager *pathingStateManager;
         MovingStateManager *movingStateManager;
@@ -59,18 +57,18 @@ namespace fog
             core->addFrameListener(this);
         
         }
-        bool mouseWheelRolled(const MouseWheelEvent &evt)
+        bool mouseWheelRolled(const OgreBites::MouseWheelEvent &evt)
         {
             cameraState->mouseWheelRolled(evt.y);
             return false;
         }
-        bool mousePressed(const MouseButtonEvent &evt) override
+        bool mousePressed(const OgreBites::MouseButtonEvent &evt) override
         {
-            if (evt.button == ButtonType::BUTTON_LEFT)
+            if (evt.button == OgreBites::ButtonType::BUTTON_LEFT)
             {
                 return mouseButtonLeftPressed(evt);
             }
-            else if (evt.button == ButtonType::BUTTON_RIGHT)
+            else if (evt.button == OgreBites::ButtonType::BUTTON_RIGHT)
             {
                 // Context<MovingStateManager>::get()
                 movingStateManager->movingActiveStateToCellByMousePosition(evt.x, evt.y);
@@ -78,7 +76,7 @@ namespace fog
             return false;
         }
 
-        bool mouseButtonLeftPressed(const MouseButtonEvent &evt)
+        bool mouseButtonLeftPressed(const OgreBites::MouseButtonEvent &evt)
         {
             // normalized (0,1)
             // Viewport *viewport = Context<CoreMod>::get()->getViewport();
@@ -101,7 +99,7 @@ namespace fog
             return true;
         }
 
-        CONSUMED mouseMoved(const MouseMotionEvent &evt) override
+        CONSUMED mouseMoved(const  OgreBites::MouseMotionEvent &evt) override
         {
             mouseCellController->onMouseMoved(evt.x, evt.y);            
             inputStateController->mouseMoved(evt);
@@ -118,7 +116,7 @@ namespace fog
             inputStateController->keyReleased(evt);
             return true;
         }
-        GOON frameStarted(const FrameEvent &evt) override
+        GOON frameStarted(const Ogre::FrameEvent &evt) override
         {
             pathingStateManager->step(evt.timeSinceLastFrame);
             movableStateManager->step(evt.timeSinceLastFrame);

@@ -23,10 +23,10 @@
 
 namespace fog
 {
-    using namespace Ogre;
-    using namespace OgreBites;
+    //using namespace Ogre;
+    //using namespace OgreBites;
 
-    class ImGuiAppContext : public ApplicationContextSDL
+    class ImGuiAppContext : public OgreBites::ApplicationContextSDL
     {
 
     protected:
@@ -56,7 +56,7 @@ namespace fog
             {
                 throw new std::runtime_error("no window created?");
             }
-            NativeWindowPair window = mWindows[0];
+            OgreBites::NativeWindowPair window = mWindows[0];
             imGuiApp->initApp(window);
 
             // not this->addInputListener() ,us the super class to add the only one entry point listener.
@@ -77,7 +77,7 @@ namespace fog
         {
             return this->imGuiApp;
         }
-        bool frameRenderingQueued(const FrameEvent &evt) override
+        bool frameRenderingQueued(const Ogre::FrameEvent &evt) override
         {
 
             if (!ApplicationContextBase::frameRenderingQueued(evt))
@@ -89,7 +89,7 @@ namespace fog
         }
 
         // To listen a event, use the ImGuiApp for adding listener. We deliver all input event to the imGuiApp.
-        void addInputListener(NativeWindowType *window, InputListener *listener) override
+        void addInputListener(OgreBites::NativeWindowType *window, OgreBites::InputListener *listener) override
         {
             // to take over the dispathing task,so do not add to the entry listener list,
             // only the dispatcher listener can be there.

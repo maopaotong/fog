@@ -7,7 +7,7 @@
 #include "Point2.h"
 namespace fog
 {
-    using namespace Ogre;
+    //using namespace Ogre;
 
     template <typename T>
     class Box2

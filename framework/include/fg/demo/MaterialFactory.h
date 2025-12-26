@@ -23,8 +23,8 @@ namespace fog
     // === Custom hash function ===
     //
     // === Hexagonal Map Visualizer class ===
-    using namespace Ogre;
-    using namespace OgreBites;
+    //using namespace Ogre;
+    //using namespace OgreBites;
 
     class MaterialFactory
     {
@@ -32,36 +32,36 @@ namespace fog
         
         static Ogre::MaterialPtr createVertexColourMaterialForActor(CoreMod *core)
         {
-            using namespace Ogre;
+            //using namespace Ogre;
 
-            MaterialPtr mat = core->createMaterial(MaterialNames::materialNameForActor, "General");
+            Ogre::MaterialPtr mat = core->createMaterial(MaterialNames::materialNameForActor, "General");
 
             //
             mat->setReceiveShadows(false);
 
-            Technique *tech = mat->getTechnique(0);
+            Ogre::Technique *tech = mat->getTechnique(0);
 
-            Pass *pass = tech->getPass(0);
+            Ogre::Pass *pass = tech->getPass(0);
             pass->setLightingEnabled(true);
-            pass->setVertexColourTracking(TrackVertexColourEnum::TVC_DIFFUSE); // 
-            pass->setVertexColourTracking(TrackVertexColourEnum::TVC_AMBIENT); // 
-            pass->setVertexColourTracking(TrackVertexColourEnum::TVC_EMISSIVE);// 
-            pass->setVertexColourTracking(TrackVertexColourEnum::TVC_SPECULAR); // 
+            pass->setVertexColourTracking(Ogre::TrackVertexColourEnum::TVC_DIFFUSE); // 
+            pass->setVertexColourTracking(Ogre::TrackVertexColourEnum::TVC_AMBIENT); // 
+            pass->setVertexColourTracking(Ogre::TrackVertexColourEnum::TVC_EMISSIVE);// 
+            pass->setVertexColourTracking(Ogre::TrackVertexColourEnum::TVC_SPECULAR); // 
             return mat;
         }
         static Ogre::MaterialPtr createVertexColourMaterialBuilding(CoreMod *core)
         {
-            using namespace Ogre;
+            //using namespace Ogre;
 
-            MaterialPtr mat = core->createMaterial(MaterialNames::materialNameBuilding, "General");
+            Ogre::MaterialPtr mat = core->createMaterial(MaterialNames::materialNameBuilding, "General");
 
             mat->setReceiveShadows(true);
 
-            Technique *tech = mat->getTechnique(0);
+            Ogre::Technique *tech = mat->getTechnique(0);
 
-            Pass *pass = tech->getPass(0);
+            Ogre::Pass *pass = tech->getPass(0);
             pass->setLightingEnabled(true);
-            pass->setVertexColourTracking(TrackVertexColourEnum::TVC_NONE //
+            pass->setVertexColourTracking(Ogre::TrackVertexColourEnum::TVC_NONE //
                                                                           //| TrackVertexColourEnum::TVC_AMBIENT  //
                                                                           //| TrackVertexColourEnum::TVC_EMISSIVE //
             );
@@ -71,17 +71,17 @@ namespace fog
             // TextureUnitState *sandTex = pass->createTextureUnitState("tusk.jpg");
             // sandTex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
 
-            TextureUnitState *grassTex = pass->createTextureUnitState("11_13.jpg");
-            grassTex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
+            Ogre::TextureUnitState *grassTex = pass->createTextureUnitState("11_13.jpg");
+            grassTex->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
             // grassTex->setColourOperationEx(LayerBlendOperationEx::LBX_BLEND_CURRENT_ALPHA); //
 
             // TextureUnitState * blendTex = pass->createTextureUnitState("grass_1024.png");
             // blendTex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
 
             grassTex->setColourOperationEx(
-                LayerBlendOperationEx::LBX_BLEND_TEXTURE_ALPHA,
-                LayerBlendSource::LBS_TEXTURE, //
-                LayerBlendSource::LBS_CURRENT  //
+                Ogre::LayerBlendOperationEx::LBX_BLEND_TEXTURE_ALPHA,
+                Ogre::LayerBlendSource::LBS_TEXTURE, //
+                Ogre::LayerBlendSource::LBS_CURRENT  //
             );
 
             // texState1->setColourOperationEx();

@@ -28,12 +28,12 @@ namespace fog
         Args args;
 
     public:
-        INJECT(Building(BuildingType type, Transforms *tfs, CoreMod *core, SceneNode *sceNode, Args args)) : Actor(sceNode),
+        INJECT(Building(BuildingType type, Transforms *tfs, CoreMod *core, Ogre::SceneNode *sceNode, Args args)) : Actor(sceNode),
                                                                                                                              tfs(tfs),
                                                                                                                              args(args),
                                                                                                                              type(type)
         {
-            ManualObject *obj = core->createManualObject();
+            Ogre::ManualObject *obj = core->createManualObject();
             obj->setQueryFlags(0x00000001);
             sceNode->attachObject(obj);
 

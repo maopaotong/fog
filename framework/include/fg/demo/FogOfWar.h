@@ -134,7 +134,7 @@ namespace fog
         }
 
     public:
-        Box2<int> buildBufferBox(CellKey cKey)
+        Box2<int> buildBufferBox(CellKey::Offset cKey)
         {
             Box2<float> box = cKey.getOuterBoxInUV(tlsWidth, tlsHeight); // cover the entire tile.
             // scale from centre of the box, p1 is (0,0),p2 is very small value some thing like: 1/cells*rad.
@@ -145,7 +145,7 @@ namespace fog
             return box.cast<int>();
         }
 
-        void set(CellKey cKey, bool visible)
+        void set(CellKey::Offset cKey, bool visible)
         {
 
             if (config->debugFogOfWar && config->debugCout)
@@ -242,7 +242,7 @@ namespace fog
             // {
             //     this->set(cis, true);
             // }
-            CellKey cis = CellKey::from(state->getPosition(*tfs->d3d2));
+            CellKey::Offset cis = CellKey::Offset::from(state->getPosition(*tfs->d3d2));
             this->set(cis, true);
         }
 

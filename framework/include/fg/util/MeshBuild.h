@@ -3,20 +3,21 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include <Ogre.h>
-#include <OgreVector.h>
+// #include <Ogre.h>
+// #include <OgreVector.h>
+// #include <OgreManualObject.h>
+// #include <OgreColourValue.h>
 #include "fg/util.h"
-#include "fg/util/CostMap.h"
-#include <OgreManualObject.h>
-#include <OgreColourValue.h>
+#include "fg/util/Math.h"
+
 #define FG_REPORT_ERROR_INDEX_OUT_OF_RANGE 0
 #define FG_SPIDER_TOTAL_LAYER 3
 #define FG_TEXTURE_COORD_SCALE 1.0f
 
 namespace fog
 {
-
-    class MeshBuild
+    
+    struct MeshBuild
     {
         using TransformFunc = std::function<Vector3(Vector2)>;
 
@@ -24,11 +25,11 @@ namespace fog
         class PointOnCircle
         {
         public:
-            ManualObject *obj;
+            Ogre::ManualObject *obj;
             int baseIndex;
             float scale;
             TransformFunc transform;
-            PointOnCircle(ManualObject *obj, float scale, TransformFunc transform) : obj(obj), scale(scale), transform(transform) {}
+            PointOnCircle(Ogre::ManualObject *obj, float scale, TransformFunc transform) : obj(obj), scale(scale), transform(transform) {}
             void begin(std::string material)
             {
                 obj->clear();
@@ -36,7 +37,7 @@ namespace fog
                 baseIndex = obj->getCurrentVertexCount();
             }
 
-            void operator()(CellKey &cell, ColourValue color)
+            void operator()(CellKey::Offset &cell, ColourValue color)
             {
                 // Vector2 origin = Cell::getOrigin2D(cell, config->CELL_SCALE);
                 Vector2 origin = cell.getCentre().scale(this->scale);
@@ -44,9 +45,9 @@ namespace fog
 
                 struct Visit
                 {
-                    ManualObject *obj;
+                    Ogre::ManualObject *obj;
                     ColourValue color;
-                    CellKey &cell;
+                    CellKey::Offset &cell;
                     Vector2 origin;
                     Vector3 nom3;
                     TransformFunc transform;
@@ -80,7 +81,7 @@ namespace fog
                 {
                     visit.layer = i + 1;
                     float sizeI = std::powf(2, i) * 6;
-                    CellKey::forEachPointOnCircle(sizeI, 0.0f, visit);
+                    Math::forEachPointOnCircle(sizeI, 0.0f, visit);
                 }
             }
 
@@ -132,13 +133,13 @@ namespace fog
         class NormManualObject
         {
         public:
-            ManualObject *obj;
+            Ogre::ManualObject *obj;
             int baseIndex;
             std::vector<Vertex> vertices;
 
             std::vector<TriangleIndexData> triangles;
 
-            void begin(ManualObject *obj)
+            void begin(Ogre::ManualObject *obj)
             {
                 this->obj = obj;
                 this->resetBaseIndex();
@@ -212,7 +213,7 @@ namespace fog
                     Vector3 p2 = v2.position;
                     Vector3 p3 = v3.position;
 
-                    Vector4 plane = Ogre::Math::calculateFaceNormalWithoutNormalize(p1, p2, p3);
+                    Ogre::Vector4 plane = Ogre::Math::calculateFaceNormalWithoutNormalize(p1, p2, p3);
                     Vector3 norm(plane.x, plane.y, plane.z);
                     norm.normalise();
                     v1.addNormal(norm);
@@ -353,7 +354,7 @@ namespace fog
                 }
             }; // end of Point Visit
 
-            ManualObject *obj;
+            Ogre::ManualObject *obj;
             int baseIndex;
             PointVisit visitPoint;
             bool useDefaultNorm = true;
@@ -361,7 +362,7 @@ namespace fog
             NormManualObject normObj;
             int density;
 
-            Cylinder(ManualObject *obj, int density = 6) : obj(obj), density(density) {}
+            Cylinder(Ogre::ManualObject *obj, int density = 6) : obj(obj), density(density) {}
             void begin(std::string material)
             {
                 obj->clear();
@@ -391,8 +392,9 @@ namespace fog
                     visitPoint.preLayerDensity = visitPoint.layerDensity;
                     visitPoint.layerDensity = densityFunc(i);
 
-                    Circle::forEachPointOnCircle(visitPoint.layerDensity, visitPoint);
+                    Math::forEachPointOnCircle(visitPoint.layerDensity, 0.0f, visitPoint);
                 }
+
                 normObj.commit();
             }
 

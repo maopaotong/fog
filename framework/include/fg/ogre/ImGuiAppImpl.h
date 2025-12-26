@@ -10,8 +10,8 @@
 #include "imgui_impl_opengl3.h"
 
 namespace fog{
-using namespace Ogre;
-using namespace OgreBites;
+//using namespace Ogre;
+//using namespace OgreBites;
 class ImGuiAppImpl : public ImGuiApp, public DispatchInputListener
 {
 public:
@@ -38,7 +38,7 @@ public:
     // The dispatch is the entry listener,key point is: the first child is/must be the UI listener.
     // If a event is consumed by the first listener, it will not be delivered to the next one.
     FrameDispatch frameDispatch;
-    NativeWindowPair window;
+    OgreBites::NativeWindowPair window;
     bool glInited = false;
     ImGuiContext *igc = nullptr;
     bool breakRenderRequested = false;
@@ -59,7 +59,7 @@ public:
         }
     }
 
-    void initApp(NativeWindowPair &window)
+    void initApp(OgreBites::NativeWindowPair &window)
     {
         this->window = window;
         DispatchInputListener::addInputListener(&this->guiListener);
@@ -87,7 +87,7 @@ public:
 
         // 注册自己为输入监听器
     }
-    void addInputListener(InputListener *lis) override
+    void addInputListener(OgreBites::InputListener *lis) override
     {
         DispatchInputListener::addInputListener(lis);
     }
@@ -97,7 +97,7 @@ public:
     }
 
     // ========== 渲染循环 ==========
-    bool frameRenderingQueued(const FrameEvent &evt)
+    bool frameRenderingQueued(const Ogre::FrameEvent &evt)
     {
 
         // 开始 ImGui 帧

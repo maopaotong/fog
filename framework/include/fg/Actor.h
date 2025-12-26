@@ -17,9 +17,9 @@ namespace fog
     class Actor
     {
     public:
-        static Actor *get(Node *node)
+        static Actor *get(Ogre::Node *node)
         {
-            const Any &any = node->getUserAny();
+            const Ogre::Any &any = node->getUserAny();
             if (any.isEmpty())
             {
                 return nullptr;
@@ -28,14 +28,14 @@ namespace fog
             Actor *state = Ogre::any_cast<Actor *>(any);
             return state;
         }
-        static void set(SceneNode *node, Actor *state)
+        static void set(Ogre::SceneNode *node, Actor *state)
         {
             node->setUserAny(state);
         }
 
-        static Actor *get(MovableObject *mo)
+        static Actor *get(Ogre::MovableObject *mo)
         {
-            const Any &any = mo->getUserAny();
+            const Ogre::Any &any = mo->getUserAny();
             if (any.isEmpty())
             {
                 return nullptr;
@@ -50,19 +50,19 @@ namespace fog
         float height = 0.0f;
 
     private:
-        SceneNode *sceNode;
+        Ogre::SceneNode *sceNode;
         //
 
-        CellKey cKey;
+        CellKey::Offset cKey;
 
     public:
-        Actor(SceneNode *sceNode) : sceNode(sceNode)
+        Actor(Ogre::SceneNode *sceNode) : sceNode(sceNode)
         {
             Actor::set(sceNode, this);
         }
         virtual ~Actor()
         {
-            SceneNode *pSNode = sceNode->getParentSceneNode();
+            Ogre::SceneNode *pSNode = sceNode->getParentSceneNode();
             pSNode->removeAndDestroyChild(sceNode);
         }
 
@@ -74,17 +74,17 @@ namespace fog
         }
         // TODO remove dependence of CellKey
         template <typename F>
-        void setPosition(CellKey cKey, F &&d2d3)
+        void setPosition(CellKey::Offset cKey, F &&d2d3)
         {
             Vector3 v3 = cKey.transform3(d2d3);
             this->getSceneNode()->setPosition(v3);
         }
 
-        CellKey getCellKey()
+        CellKey::Offset getCellKey()
         {
             return this->cKey;
         }
-        void setCellKey(CellKey ckey)
+        void setCellKey(CellKey::Offset ckey)
         {
             this->cKey = ckey;
         }
@@ -97,7 +97,7 @@ namespace fog
             return true;
         }
 
-        SceneNode *getSceneNode()
+        Ogre::SceneNode *getSceneNode()
         {
             return this->sceNode;
         }
@@ -112,7 +112,7 @@ namespace fog
             return this->active;
         }
 
-        virtual AnimationStateSet *getAllAnimationStates()
+        virtual Ogre::AnimationStateSet *getAllAnimationStates()
         {
             return nullptr;
         }

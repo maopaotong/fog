@@ -7,6 +7,7 @@
 #include <OgreFrameListener.h>
 #include <OgreAnimationState.h>
 #include <vector>
+#include "fg/ogre.h"
 #include "fg/util.h"
 
 #include "fg/cells.h"
@@ -20,7 +21,7 @@ namespace fog
     {
         PathFollow2 path;
 
-        AnimationStateSet *aniSet;
+        Ogre::AnimationStateSet *aniSet;
 
         Vector3 offset;
 
@@ -33,7 +34,7 @@ namespace fog
     public:
         PathFollow2MissionState(Actor *state, PathFollow2 path, //
 
-                                AnimationStateSet *aniSet,                          //
+                                Ogre::AnimationStateSet *aniSet,                          //
                                 std::vector<std::string> &aniNames, float aniSpeed, //
                                 Transforms *tfs,
                                 float heightOffset = 0.0f) //
@@ -47,7 +48,7 @@ namespace fog
             this->offset = Vector3(0, heightOffset, 0);
             for (std::string name : aniNames)
             {
-                AnimationState *as = this->aniSet->getAnimationState(name);
+                Ogre::AnimationState *as = this->aniSet->getAnimationState(name);
                 as->setEnabled(true);
                 as->setLoop(true);
                 as->setWeight(1.0f);
@@ -102,7 +103,7 @@ namespace fog
             }
 
             //
-            SceneNode *target = this->state->getSceneNode();
+            Ogre::SceneNode *target = this->state->getSceneNode();
             Vector3 prevPos = target->getPosition();
 
             float terH = 0.0f; // Context<Terrains>::get()->getHeightAtPosition(currentPos2D); // TODO in a common place to translate all .

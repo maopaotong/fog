@@ -18,10 +18,10 @@ namespace fog{
 class SceneNodeUI
 {
     template <typename... Args>
-    using NodeVistFunc = bool (*)(int depth, Node *cNode, Args... args);
+    using NodeVistFunc = bool (*)(int depth, Ogre::Node *cNode, Args... args);
 
     template <typename... Args>
-    using SceneNodeVistFunc = bool (*)(int depth, SceneNode *cNode, Args... args);
+    using SceneNodeVistFunc = bool (*)(int depth, Ogre::SceneNode *cNode, Args... args);
 
     CoreMod *core;
     bool breakRenderRequested = false;
@@ -39,9 +39,9 @@ public:
 
         ImGui::Begin("SceneNode Explorer");
 
-        SceneNode *sNode = core->getRootSceneNode();
+        Ogre::SceneNode *sNode = core->getRootSceneNode();
         int id = 0;
-        SceneNodeVistFunc<int &> func = (SceneNodeVistFunc<int &>)[](int depth, SceneNode *cNode, int &id) -> bool
+        SceneNodeVistFunc<int &> func = (SceneNodeVistFunc<int &>)[](int depth, Ogre::SceneNode *cNode, int &id) -> bool
         {
             float indent = (depth + 1) * 10.0f;
             ImGui::Indent(indent);
@@ -68,14 +68,14 @@ public:
         ImGui::End();
     }
     template <typename... Args>
-    static void forEachSceneNode(int depth, SceneNode *cNode, SceneNodeVistFunc<Args...> func, Args... args)
+    static void forEachSceneNode(int depth, Ogre::SceneNode *cNode, SceneNodeVistFunc<Args...> func, Args... args)
     {
 
         forEachNode<SceneNodeVistFunc<Args...>, Args...>( //
             depth, cNode,                                 //
             (NodeVistFunc<SceneNodeVistFunc<Args...>, Args...>)[](int depth, Node *cNode, SceneNodeVistFunc<Args...> func, Args... args) -> bool
             {
-                SceneNode *sceCNode = dynamic_cast<SceneNode *>(cNode);
+                Ogre::SceneNode *sceCNode = dynamic_cast<SceneNode *>(cNode);
                 if (sceCNode)
                 {
                     return func(depth, sceCNode, args...);
@@ -86,7 +86,7 @@ public:
     }
 
     template <typename... Args>
-    static void forEachNode(int depth, Node *cNode, bool (*func)(int, Node *, Args...), Args... args)
+    static void forEachNode(int depth, Ogre::Node *cNode, bool (*func)(int, Ogre::Node *, Args...), Args... args)
     {
         bool goOn = func(depth, cNode, args...);
         if (!goOn)

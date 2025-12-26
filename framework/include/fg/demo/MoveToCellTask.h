@@ -20,7 +20,7 @@ namespace fog
         float actorHighOffset;
 
     protected:
-        CellKey cKey2; // target cell key.
+        CellKey::Offset cKey2; // target cell key.
         Actor *movingState;
         //
         PathFollow2MissionState *mission = nullptr;
@@ -36,7 +36,7 @@ namespace fog
         Transforms * tfs;
 
     public:
-        MoveToCellTask(Actor *state, CellKey cKey2,
+        MoveToCellTask(Actor *state, CellKey::Offset cKey2,
                        CostMap *costMap,
                        EventBus *eventBus,
                        CellsCost *cellsCost,
@@ -57,7 +57,7 @@ namespace fog
         {
             return this->movingState;
         }
-        CellKey getTargetCellKey()
+        CellKey::Offset getTargetCellKey()
         {
             return this->cKey2;
         }
@@ -78,7 +78,7 @@ namespace fog
             return ret;
         }
 
-        std::tuple<CellKey, Point2<float>> resolveOwnerCell()
+        std::tuple<CellKey::Offset, Point2<float>> resolveOwnerCell()
         {
             // Cell::Center *cells = Context<Cell::Center>::get();
 
@@ -92,7 +92,7 @@ namespace fog
             // HexTile::Key cell;
             // // bool hitCell = CellUtil::findCellByPoint(costMap, aPos2, aHexTile::Key);
             // bool hitCell = Context<Cell::Center>::get()->findCellByPosition(actorPosIn2D, cell);
-            CellKey cell = CellKey::from(actorPosIn2D);
+            CellKey::Offset cell = CellKey::Offset::from(actorPosIn2D);
 
             // todo: not hit?
             return {cell, actorPosIn2D};
@@ -101,12 +101,12 @@ namespace fog
         PathFollow2 buildPath()
         {
 
-            std::tuple<CellKey, Point2<float>> stateCellAndPosition = this->resolveOwnerCell();
+            std::tuple<CellKey::Offset, Point2<float>> stateCellAndPosition = this->resolveOwnerCell();
 
-            CellKey cKey1 = std::get<CellKey>(stateCellAndPosition);
+            CellKey::Offset cKey1 = std::get<CellKey::Offset>(stateCellAndPosition);
 
             CellsCost &costFunc = *cellsCost;
-            std::vector<CellKey> pathByCKey = costMap-> //
+            std::vector<CellKey::Offset> pathByCKey = costMap-> //
                                               findPath(cKey1,
                                                        cKey2, //
                                                        costFunc);
@@ -115,7 +115,7 @@ namespace fog
             {
                 // find the nearest cell as the target.
                 // TODO: if the targe is untouchable area, then find the nearest border cell of such area as the new target.
-                std::vector<CellKey> linePath = costMap-> //
+                std::vector<CellKey::Offset> linePath = costMap-> //
                                                 findPath(
                                                     cKey2, // reverse simple line path
                                                     cKey1, //
@@ -142,7 +142,7 @@ namespace fog
             // Context<Node2D>::get()->
 
             std::vector<Point2<float>> centres;
-            CellKey::getCentres(pathByCKey, centres);
+            CellKey::getCentres<CellKey::Offset>(pathByCKey, centres);
             // float pathSpeed = this->Context<Var<float>::Bag>::get()->getVarVal(".pathSpeed", 1.0f);
 
             float pathSpeed = 1.0f; // Context<Var<float>::Bag>::get()->getVarVal(".pathSpeed", 1.0f);
@@ -162,7 +162,7 @@ namespace fog
 
             PathFollow2 path2D = buildPath();
 
-            AnimationStateSet *anisSet = movingState->getAllAnimationStates();
+            Ogre::AnimationStateSet *anisSet = movingState->getAllAnimationStates();
             
             float aniSpeed = 1.0f; // 
 

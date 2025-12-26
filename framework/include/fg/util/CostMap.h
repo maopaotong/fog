@@ -84,7 +84,7 @@ namespace fog
             return p.x >= 0 && p.x < this->width && p.y >= 0 && p.y < this->height;
         }
 
-        CellKey getNeighbor(Point2<int> p, int direction) const
+        CellKey::Offset getNeighbor(Point2<int> p, int direction) const
         {
             if (direction < 0 || direction >= 6)
                 return p;
@@ -126,14 +126,14 @@ namespace fog
         //     return cellPath;
         // }
         template <typename F>
-        std::vector<CellKey> findPath(CellKey start, CellKey end, F &&costFunc)
+        std::vector<CellKey::Offset> findPath(CellKey::Offset start, CellKey::Offset end, F &&costFunc)
         {
             return findPathInternal(start, end, costFunc);
         }
         template <typename F>
-        std::vector<CellKey> findPathInternal(CellKey start, CellKey end, F &&costFunc)
+        std::vector<CellKey::Offset> findPathInternal(CellKey::Offset start, CellKey::Offset end, F &&costFunc)
         {
-            using CellKey = CellKey;
+            using CellKey = CellKey::Offset;
 
             if (!isWalkable(start, costFunc) || !isWalkable(end, costFunc))
             {
@@ -191,20 +191,20 @@ namespace fog
         }
 
     private:
-        std::vector<CellKey> reconstructPath(
-            const std::unordered_map<CellKey, CellKey, CellKey::Hash> &cameFrom,
-            const CellKey &current) const
+        std::vector<CellKey::Offset> reconstructPath(
+            const std::unordered_map<CellKey::Offset, CellKey::Offset, CellKey::Offset::Hash> &cameFrom,
+            const CellKey::Offset &current) const
         {
 
-            std::vector<CellKey> path;
-            CellKey node = current;
+            std::vector<CellKey::Offset> path;
+            CellKey::Offset node = current;
 
             while (cameFrom.find(node) != cameFrom.end())
             {
-                path.push_back(CellKey(node.x, node.y));
+                path.push_back(CellKey::Offset(node.x, node.y));
                 node = cameFrom.at(node);
             }
-            path.push_back(CellKey(node.x, node.y));
+            path.push_back(CellKey::Offset(node.x, node.y));
 
             std::reverse(path.begin(), path.end());
             return path;

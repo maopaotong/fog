@@ -8,6 +8,11 @@
 #include "Point3.h"
 namespace fog
 {
+    
+    template<typename T>
+    struct Point2;
+
+    using Vector2 = Point2<float>;
 
     template <typename T>
     struct Point2
