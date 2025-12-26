@@ -13,8 +13,11 @@ namespace fog
 
     struct CellsTransform
     {
+        using OC = std::tuple<CellKey::OffsetPointy, CellKey::Centre>;
+        using CO = std::tuple<CellKey::Centre, CellKey::OffsetPointy>;
+        // Note: for the reason of template impl limitation, the order is not what you see: Offset => Centre => Point2<float>
+        using OCP = std::tuple<CellKey::OffsetPointy, Point2<float>, CellKey::Centre>;
 
-        
         template <typename K>
         Box2<float> getBoxIn2D(K &cKey)
         {

@@ -134,7 +134,7 @@ namespace fog
             // {
             //     return this->cellInstanceStates[cell];
             // }
-            CellKey::OffsetPointy cKey = CellsTransform::transform<CellKey::CO>(pos);
+            CellKey::OffsetPointy cKey = CellsTransform::transform<CellsTransform::CO>(pos);
             return getCellInstanceStateByCellKey(cKey);
         }
         CellInstanceState *getCellInstanceStateByCellKey(CellKey::OffsetPointy cKey)

@@ -93,7 +93,7 @@ namespace fog
             // {
             //     return false;
             // }
-            CellKey::OffsetPointy cKey2 = CellsTransform::transform<CellKey::CO>(pos);
+            CellKey::OffsetPointy cKey2 = CellsTransform::transform<CellsTransform::CO>(pos);
 
             eventBus->emit<CellEventType, CellKey::OffsetPointy>(CellEventType::CellAsTarget, cKey2);
 
