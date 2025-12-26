@@ -13,6 +13,7 @@
 #include "util/Transform.h"
 #include "util/CellsLayout.h"
 #include "util/CellsTransform.h"
+#include "util/CellsGroup.h"
 #include "util/StringUtil.h"
 #include "util/CellKey.h"
 #include "util/CellUtil.h"

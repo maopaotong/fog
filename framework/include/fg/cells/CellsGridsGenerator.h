@@ -148,7 +148,7 @@ namespace fog
 
             Box2<int> cellOuterBox(CellKey::OffsetPointy cKey)
             {
-                Box2<float> box = CellsTransform::getOuterBoxInUV(cKey, tWidth, tHeight); // cover the entire tile.
+                Box2<float> box =CellsGroup::getOuterBoxInUV(cKey, tWidth, tHeight); // cover the entire tile.
                 box.scale(width, height);
                 return box.cast<int>();
             }

@@ -136,7 +136,7 @@ namespace fog
     public:
         Box2<int> buildBufferBox(CellKey::OffsetPointy cKey)
         {
-            Box2<float> box = CellsTransform::getOuterBoxInUV(cKey, tlsWidth, tlsHeight); // cover the entire tile.
+            Box2<float> box =CellsGroup::getOuterBoxInUV(cKey, tlsWidth, tlsHeight); // cover the entire tile.
             // scale from centre of the box, p1 is (0,0),p2 is very small value some thing like: 1/cells*rad.
             box.expand(3.0); // expand to 3 cell width.
 

@@ -17,43 +17,7 @@ namespace fog
         using CO = std::tuple<CellKey::Centre, CellKey::OffsetPointy>;
         // Note: for the reason of template impl limitation, the order is not what you see: Offset => Centre => Point2<float>
         using OCP = std::tuple<CellKey::OffsetPointy, Point2<float>, CellKey::Centre>;
-
-        template <typename K>
-        Box2<float> getBoxIn2D(K &cKey)
-        {
-            // Vector2 centre = getOrigin2D(cKey);
-            Point2<float> centre = CellsTransform::transform<K, CellKey::Centre>(cKey);
-            float left = centre.x - 1.0; // rad
-            float bottom = centre.y - std::sqrt(3.0) / 2.0;
-            return Box2<float>(left, bottom, left + 2.0, bottom + std::sqrt(3.0));
-        }
-
-        template <typename K>
-        static Box2<float> getOuterBoxIn2D(K &cKey)
-        {
-            // Vector2 centre = getOrigin2D(cKey);
-
-            Point2<float> centre = CellsTransform::transform<K, CellKey::Centre>(cKey);
-
-            float left = centre.x - 1.0;                    // rad
-            float bottom = centre.y - 2.0 / std::sqrt(3.0); // R
-            return Box2<float>(left, bottom, left + 2.0, bottom + 4.0 / std::sqrt(3.0));
-        }
-
-        template <typename K>
-        static Box2<float> getBoxInUV(K &cKey, int width, int height)
-        {
-            Box2<float> r = getBoxIn2D<K>(cKey);
-            return r.transform(Transform::D2CellWorldUV(width, height));
-        }
-
-        template <typename K>
-        static Box2<float> getOuterBoxInUV(K &cKey, int width, int height)
-        {
-            Box2<float> r = getOuterBoxIn2D<K>(cKey);
-            return r.transform(Transform::D2CellWorldUV(width, height));
-        }
-
+        
         //
         template <typename Tuple>
         static typename std::enable_if_t<isTuple<Tuple>::value && std::tuple_size_v<Tuple> == 2, std::vector<std::tuple_element_t<1, Tuple>>>
