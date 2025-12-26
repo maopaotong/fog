@@ -93,7 +93,7 @@ namespace fog
             // {
             //     return false;
             // }
-            CellKey::Offset cKey2 = CellKey::Offset::from(pos);
+            CellKey::Offset cKey2 = CellKey::from<CellKey::Offset>(pos);
 
             eventBus->emit<CellEventType, CellKey::Offset>(CellEventType::CellAsTarget, cKey2);
 

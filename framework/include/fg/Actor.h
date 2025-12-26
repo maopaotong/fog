@@ -76,7 +76,7 @@ namespace fog
         template <typename F>
         void setPosition(CellKey::Offset cKey, F &&d2d3)
         {
-            Vector3 v3 = cKey.transform3(d2d3);
+            Vector3 v3 = CellKey::transform3(cKey, d2d3);
             this->getSceneNode()->setPosition(v3);
         }
 

@@ -149,7 +149,7 @@ namespace fog
 
             Box2<int> cellOuterBox(CellKey::Offset cKey)
             {
-                Box2<float> box = cKey.getOuterBoxInUV(tWidth, tHeight); // cover the entire tile.
+                Box2<float> box = CellKey::getOuterBoxInUV(cKey, tWidth, tHeight); // cover the entire tile.
                 box.scale(width, height);
                 return box.cast<int>();
             }
@@ -396,7 +396,7 @@ namespace fog
                     CellData &cell0 = cells[cKeys[0].x][cKeys[0].y];
                     // tile centre position.
                     // Vector2 tileCentreP = Cell::getOrigin2D(cKeys[0].x, cKeys[0].y);
-                    Vector2 tileCentreP = cKeys[0].getCentre();
+                    Vector2 tileCentreP = CellKey::getCentre(cKeys[0]);
                     //
                     hMap[x][y].cKey = cKeys[0]; // centre cell.
                     hMap[x][y].originInCell = points[0] - tileCentreP;

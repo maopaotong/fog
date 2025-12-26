@@ -49,7 +49,7 @@ namespace fog
         {
             if (this->building)
             {
-                this->building->getSceneNode()->setPosition(cKey.transform3(*tfs->d2td3));
+                this->building->getSceneNode()->setPosition(CellKey::transform3(cKey, *tfs->d2td3));
             }
         }
 

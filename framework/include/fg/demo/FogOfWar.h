@@ -136,7 +136,7 @@ namespace fog
     public:
         Box2<int> buildBufferBox(CellKey::Offset cKey)
         {
-            Box2<float> box = cKey.getOuterBoxInUV(tlsWidth, tlsHeight); // cover the entire tile.
+            Box2<float> box = CellKey::getOuterBoxInUV(cKey, tlsWidth, tlsHeight); // cover the entire tile.
             // scale from centre of the box, p1 is (0,0),p2 is very small value some thing like: 1/cells*rad.
             box.expand(3.0); // expand to 3 cell width.
 
@@ -155,10 +155,10 @@ namespace fog
             // TODO make a new space to transform from ckey to uv.
             // Point2<float> centreP = Cell::getOriginUV(cKey, tlsWidth, tlsHeight);
             //
-            Point2<float> centreP = cKey.getCentre().transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
+            Point2<float> centreP = CellKey::getCentre(cKey).transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
 
             centreP.scale(width, height); // find the position in texture space.
-            // Point2<float> centreP = cKey.getCentre().scale(width,height);
+            // Point2<float> centreP = CellKey::getCentre(cKey).scale(width,height);
 
             Box2<int> box2 = this->bufferBox;
 
@@ -242,7 +242,7 @@ namespace fog
             // {
             //     this->set(cis, true);
             // }
-            CellKey::Offset cis = CellKey::Offset::from(state->getPosition(*tfs->d3d2));
+            CellKey::Offset cis = CellKey::from<CellKey::Offset>(state->getPosition(*tfs->d3d2));
             this->set(cis, true);
         }
 
