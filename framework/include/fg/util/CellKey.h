@@ -13,6 +13,8 @@
 
 #include "CollectionUtil.h"
 #include "Transform.h"
+#include "TemplateUtil.h"
+
 // using namespace Ogre;
 
 namespace fog
@@ -21,9 +23,16 @@ namespace fog
     struct CellKey
     {
         using Type = uint8_t;
-        static constexpr Type OFFSET = 0;
-        static constexpr Type AXIAL = 1;
-        static constexpr Type CENTRE = 2;
+        // static constexpr Type OFFSET = 0;
+        // static constexpr Type AXIAL = 1;
+        // static constexpr Type CENTRE = 2;
+        struct Offset;
+        struct Axial;
+        struct Centre;
+        using OC = std::tuple<Offset, Centre>;
+        using CO = std::tuple<Centre, Offset>;
+        // Note: for the reason of template impl limitation, the order is not what you see: Offset => Centre => Point2<float>
+        using OCP = std::tuple<Offset, Point2<float>, Centre>;
 
         struct Hash
         {
@@ -73,22 +82,14 @@ namespace fog
             }
         };
 
-        struct Centre : public Point2<int>
+        struct Centre : public Point2<float>
         {
             Centre() : Centre(-1, -1) {}
-            Centre(int x, int y) : Point2<int>(x, y)
+            Centre(float x, float y) : Point2<float>(x, y)
             {
             }
-            Centre(const Point2<float> cKey) : Point2<int>(static_cast<int>(cKey.x), static_cast<int>(cKey.y))
+            Centre(const Point2<float> cKey) : Point2<float>(cKey.x, cKey.y)
             {
-            }
-            Centre(const Point2<int> cKey) : Point2<int>(cKey)
-            {
-            }
-
-            bool operator==(const Point2<int> &ck) const
-            {
-                return this->x == ck.x && this->y == ck.y;
             }
         };
 
@@ -157,14 +158,16 @@ namespace fog
         }
         //
 
-        template <typename K>
-        static void getCentres(std::vector<K> &cks, std::vector<Point2<float>> &ret)
-        {
-            CollectionUtil::transform<K, Point2<float>>(cks, ret, [](K &ck)
-                                                        {
-                                                            return CellKey::getCentre(ck); //
-                                                        });
-        }
+        // template <typename K>
+        // static void getCentres(std::vector<K> &cks, std::vector<Point2<float>> &ret)
+        // {
+
+        //     CollectionUtil::transform<K, Point2<float>>(cks, ret, [](K &ck)
+        //                                                 {
+        //                                                 //    return CellKey::getCentre(ck); //
+        //                                                 return CellKey::transform<CellKey::OC>(ck); });
+
+        // }
 
         //
         template <typename K, typename F>
@@ -249,8 +252,107 @@ namespace fog
             Box2<float> r = getOuterBoxIn2D<K>(cKey);
             return r.transform(Transform::D2CellWorldUV(width, height));
         }
+
         /*
          */
+        template <typename Tuple>
+        struct tupleTail;
+        template <typename Head, typename... Tail>
+        struct tupleTail<std::tuple<Head, Tail...>>
+        {
+            using type = std::tuple<Tail...>;
+        };
+
+        template <typename Tuple>
+        struct tupleHead;
+        template <typename Head, typename... Tail>
+        struct tupleHead<std::tuple<Head, Tail...>>
+        {
+            using type = Head;
+        };
+
+        //
+        template <typename Tuple>
+        static typename std::enable_if_t<isTuple<Tuple>::value && std::tuple_size_v<Tuple> == 2, std::vector<std::tuple_element_t<1, Tuple>>>
+        transformAll(std::vector<std::tuple_element_t<0, Tuple>> &cks)
+        {
+            using K1 = std::tuple_element_t<0, Tuple>;
+            using K2 = std::tuple_element_t<1, Tuple>;
+            std::vector<K2> ret;
+
+            CollectionUtil::transform<K1, K2>(cks, ret, [](K &ck)
+                                              { return CellKey::transform<Tuple>(ck); });
+            return ret;
+        }
+
+        template <typename Tuple>
+        static typename std::enable_if_t<isTuple<Tuple>::value && std::tuple_size_v<Tuple> == 3, std::vector<std::tuple_element_t<1, Tuple>>>
+        transformAll(std::vector<std::tuple_element_t<0, Tuple>> &cks)
+        {
+            using K1 = std::tuple_element_t<0, Tuple>;
+            using K3 = std::tuple_element_t<2, Tuple>;
+            using K2 = std::tuple_element_t<1, Tuple>;
+
+            std::vector<K3> cks3;
+
+            CollectionUtil::transform<K1, K3>(cks, cks3, [](K1 &ck)
+                                              { return CellKey::transform<K1, K3>(ck); });
+
+            std::vector<K2> ret;
+            CollectionUtil::transform<K3, K2>(cks3, ret, [](K3 &ck)
+                                              { return CellKey::transform<K3, K2>(ck); });
+            return ret;
+        }
+
+        // transform tuple easy to call.
+        template <typename Tuple>
+        static typename std::enable_if_t<isTuple<Tuple>::value && std::tuple_size_v<Tuple> == 2, std::tuple_element_t<1, Tuple>>
+        transform(const std::tuple_element_t<0, Tuple> &cKey1)
+        {
+            using K1 = std::tuple_element_t<0, Tuple>;
+            using K2 = std::tuple_element_t<1, Tuple>;
+            return transform<K1, K2>(cKey1);
+        }
+
+        template <typename Tuple>
+        static typename std::enable_if_t<isTuple<Tuple>::value && std::tuple_size_v<Tuple> == 3, std::tuple_element_t<1, Tuple>>
+        transform(const std::tuple_element_t<0, Tuple> &cKey1)
+        {
+            using K1 = std::tuple_element_t<0, Tuple>;
+            using K3 = std::tuple_element_t<2, Tuple>;
+            using K2 = std::tuple_element_t<1, Tuple>;
+
+            K3 k3 = transform<K1, K3>(cKey1);
+            return transform<K3, K2>(k3);
+        }
+
+        // transform impl
+        template <typename K1, typename K2>
+        static K2 transform(const K1 &cKey1)
+        {
+            static_assert(!std::is_same(K1, K1), "not supported transform between types.");
+        }
+
+        template <>
+        static Centre transform<Offset, Centre>(const Offset &cKey1)
+        {
+            static Transform::CellKeyToCentre TF_K2C;
+
+            return Point2<float>(cKey1.x, cKey1.y).transform(TF_K2C);
+        }
+
+        template <>
+        static Offset transform<Centre, Offset>(const Centre &cKey1)
+        {
+            static Transform::CentreToCellKey TF_C2K;
+            return Point2<float>(cKey1.x, cKey1.y).transform(TF_C2K);
+        }
+
+        template <>
+        static Point2<float> transform<Centre, Point2<float>>(const Centre &cKey1)
+        {
+            return Point2<float>(cKey1.x, cKey1.y);
+        }
     };
 
 };

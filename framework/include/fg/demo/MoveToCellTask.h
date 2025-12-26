@@ -141,8 +141,10 @@ namespace fog
 
             // Context<Node2D>::get()->
 
-            std::vector<Point2<float>> centres;
-            CellKey::getCentres<CellKey::Offset>(pathByCKey, centres);
+            //std::vector<Point2<float>> centres;
+            //CellKey::getCentres<CellKey::Offset>(pathByCKey, centres);
+            std::vector<Point2<float>> centres = CellKey::transformAll<CellKey::OCP>(pathByCKey);
+
             // float pathSpeed = this->Context<Var<float>::Bag>::get()->getVarVal(".pathSpeed", 1.0f);
 
             float pathSpeed = 1.0f; // Context<Var<float>::Bag>::get()->getVarVal(".pathSpeed", 1.0f);
