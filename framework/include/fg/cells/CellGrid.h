@@ -16,10 +16,10 @@ namespace fog
     struct CellsGrid
     {
         float height;
-        CellKey::OffsetPointy cKey;
+        CellKey cKey;
         Vector2 originInCell;
         std::array<CellType, 3> types;
-        std::array<CellKey::OffsetPointy, 3> cKeys;
+        std::array<CellKey, 3> cKeys;
         bool isPeak;
         int userData;
 
@@ -28,7 +28,7 @@ namespace fog
         }
         CellsGrid(int tx, int ty, float th) : height(UNRESOLVED_HEIGHT), cKey(tx, ty),
                                               types{CellTypes::UNKNOW, CellTypes::UNKNOW, CellTypes::UNKNOW},
-                                              cKeys{CellKey::OffsetPointy(-1, -1), CellKey::OffsetPointy(-1, -1), CellKey::OffsetPointy(-1, -1)},
+                                              cKeys{CellKey(-1, -1), CellKey(-1, -1), CellKey(-1, -1)},
                                               isPeak(false), userData(0)
         {
         }

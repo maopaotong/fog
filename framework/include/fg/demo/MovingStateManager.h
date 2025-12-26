@@ -93,9 +93,9 @@ namespace fog
             // {
             //     return false;
             // }
-            CellKey::OffsetPointy cKey2 = CellsTransform::transform<CellsTransform::CO>(pos);
+            CellKey cKey2 = CellsTransform::transform<CellsTransform::C2K>(pos);
 
-            eventBus->emit<CellEventType, CellKey::OffsetPointy>(CellEventType::CellAsTarget, cKey2);
+            eventBus->emit<CellEventType, CellKey>(CellEventType::CellAsTarget, cKey2);
 
             // state
             this->movingActiveStateToCell(cKey2);
@@ -103,7 +103,7 @@ namespace fog
             return true;
         }
 
-        void movingActiveStateToCell(CellKey::OffsetPointy cKey2)
+        void movingActiveStateToCell(CellKey cKey2)
         {
             if (this->state == nullptr)
             {

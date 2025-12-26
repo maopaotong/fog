@@ -12,7 +12,7 @@ namespace fog
     // === NavNode structure ===
     struct NavNode
     {
-        CellKey::OffsetPointy p;
+        CellKey p;
         float g, h;
         float f() const { return g + h; }
         bool operator>(const NavNode &other) const { return f() > other.f(); }
@@ -48,7 +48,7 @@ namespace fog
         int width, height;
 
         template <typename F>
-        bool isWalkable(const CellKey::OffsetPointy &p, F &&costFunc) const
+        bool isWalkable(const CellKey &p, F &&costFunc) const
         {
             if (!isInSide(p))
             {
@@ -75,16 +75,16 @@ namespace fog
         {
         }
         template <typename F>
-        int getCost(const CellKey::OffsetPointy & p, F &&costFunc) const
+        int getCost(const CellKey & p, F &&costFunc) const
         {
             return costFunc(p);
         }
-        bool isInSide(const CellKey::OffsetPointy & p) const
+        bool isInSide(const CellKey & p) const
         {
             return p.x >= 0 && p.x < this->width && p.y >= 0 && p.y < this->height;
         }
 
-        CellKey::OffsetPointy getNeighbor(CellKey::OffsetPointy& p, int direction) const
+        CellKey getNeighbor(CellKey& p, int direction) const
         {
             if (direction < 0 || direction >= 6)
                 return p;
@@ -98,7 +98,7 @@ namespace fog
             }
         }
 
-        float heuristic(CellKey::OffsetPointy &p1, CellKey::OffsetPointy& p2) const
+        float heuristic(CellKey &p1, CellKey& p2) const
         {
             int q1 = p1.x - (p1.y - (p1.y & 1)) / 2;
             int r1 = p1.y;
@@ -126,14 +126,14 @@ namespace fog
         //     return cellPath;
         // }
         template <typename F>
-        std::vector<CellKey::OffsetPointy> findPath(CellKey::OffsetPointy start, CellKey::OffsetPointy end, F &&costFunc)
+        std::vector<CellKey> findPath(CellKey start, CellKey end, F &&costFunc)
         {
             return findPathInternal(start, end, costFunc);
         }
         template <typename F>
-        std::vector<CellKey::OffsetPointy> findPathInternal(CellKey::OffsetPointy start, CellKey::OffsetPointy end, F &&costFunc)
+        std::vector<CellKey> findPathInternal(CellKey start, CellKey end, F &&costFunc)
         {
-            using CellKey = CellKey::OffsetPointy;
+            using CellKey = CellKey;
 
             if (!isWalkable(start, costFunc) || !isWalkable(end, costFunc))
             {
@@ -191,20 +191,20 @@ namespace fog
         }
 
     private:
-        std::vector<CellKey::OffsetPointy> reconstructPath(
-            const std::unordered_map<CellKey::OffsetPointy, CellKey::OffsetPointy, CellKey::OffsetPointy::Hash> &cameFrom,
-            const CellKey::OffsetPointy &current) const
+        std::vector<CellKey> reconstructPath(
+            const std::unordered_map<CellKey, CellKey, CellKey::Hash> &cameFrom,
+            const CellKey &current) const
         {
 
-            std::vector<CellKey::OffsetPointy> path;
-            CellKey::OffsetPointy node = current;
+            std::vector<CellKey> path;
+            CellKey node = current;
 
             while (cameFrom.find(node) != cameFrom.end())
             {
-                path.push_back(CellKey::OffsetPointy(node.x, node.y));
+                path.push_back(CellKey(node.x, node.y));
                 node = cameFrom.at(node);
             }
-            path.push_back(CellKey::OffsetPointy(node.x, node.y));
+            path.push_back(CellKey(node.x, node.y));
 
             std::reverse(path.begin(), path.end());
             return path;
@@ -219,7 +219,7 @@ namespace fog
             {
                 int x = static_cast<int>(path[i].x);
                 int y = static_cast<int>(path[i].y);
-                totalCost += getCost(CellKey::OffsetPointy(x, y), costFunc);
+                totalCost += getCost(CellKey(x, y), costFunc);
             }
             return totalCost;
         }

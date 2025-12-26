@@ -134,7 +134,7 @@ namespace fog
         }
 
     public:
-        Box2<int> buildBufferBox(CellKey::OffsetPointy cKey)
+        Box2<int> buildBufferBox(CellKey cKey)
         {
             Box2<float> box =CellsGroup::getOuterBoxInUV(cKey, tlsWidth, tlsHeight); // cover the entire tile.
             // scale from centre of the box, p1 is (0,0),p2 is very small value some thing like: 1/cells*rad.
@@ -145,7 +145,7 @@ namespace fog
             return box.cast<int>();
         }
 
-        void set(CellKey::OffsetPointy cKey, bool visible)
+        void set(CellKey cKey, bool visible)
         {
 
             if (config->debugFogOfWar && config->debugCout)
@@ -155,7 +155,7 @@ namespace fog
             // TODO make a new space to transform from ckey to uv.
             // Point2<float> centreP = Cell::getOriginUV(cKey, tlsWidth, tlsHeight);
             //
-            Point2<float> centreP = CellsTransform::transform<CellsTransform::OC>(cKey).transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
+            Point2<float> centreP = CellsTransform::transform<CellsTransform::K2C>(cKey).transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
 
             centreP.scale(width, height); // find the position in texture space.
             // Point2<float> centreP = CellsTransform::transform<CellsTransform::OC>(cKey).scale(width,height);
@@ -242,7 +242,7 @@ namespace fog
             // {
             //     this->set(cis, true);
             // }
-            CellKey::OffsetPointy cis = CellsTransform::transform<CellsTransform::CO>(state->getPosition(*tfs->d3d2));
+            CellKey cis = CellsTransform::transform<CellsTransform::C2K>(state->getPosition(*tfs->d3d2));
             this->set(cis, true);
         }
 

@@ -13,7 +13,7 @@ namespace fog
         Transforms *tfs;
         EventBus *eventBus;
         Geometry *geo;
-        CellKey::OffsetPointy mouseCellKey;
+        CellKey mouseCellKey;
         INJECT(MouseCellController(CoreMod *core, CellInstanceStateManager *cellInstMgrState, Transforms *tfs, EventBus *eventBus, Geometry *geo)) : geo(geo), core(core), cellInstMgrState(cellInstMgrState), tfs(tfs), eventBus(eventBus)
         {
         }
@@ -52,11 +52,11 @@ namespace fog
             }
 
             // cis->pushColour(ColourValue::White);
-            CellKey::OffsetPointy cKey2 = cis->getCellKey();
+            CellKey cKey2 = cis->getCellKey();
             if (this->mouseCellKey != cKey2)
             {
                 this->mouseCellKey = cKey2;
-                eventBus->emit<MouseCellEventType, CellKey::OffsetPointy>(MouseCellEventType::MouseEnterCell, cKey2);
+                eventBus->emit<MouseCellEventType, CellKey>(MouseCellEventType::MouseEnterCell, cKey2);
             }
 
             return false;

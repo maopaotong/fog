@@ -53,7 +53,7 @@ namespace fog
         Ogre::SceneNode *sceNode;
         //
 
-        CellKey::OffsetPointy cKey;
+        CellKey cKey;
 
     public:
         Actor(Ogre::SceneNode *sceNode) : sceNode(sceNode)
@@ -84,11 +84,11 @@ namespace fog
             this->getSceneNode()->setPosition(pos3);
         }
 
-        CellKey::OffsetPointy getCellKey()
+        CellKey getCellKey()
         {
             return this->cKey;
         }
-        void setCellKey(CellKey::OffsetPointy ckey)
+        void setCellKey(CellKey ckey)
         {
             this->cKey = ckey;
         }

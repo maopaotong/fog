@@ -13,7 +13,7 @@ namespace fog
     {
 
         CellsDatas *cDatas;
-        CellKey::OffsetPointy cKey;
+        CellKey cKey;
         Config *config;
         CellsDatas::Args &cdos;
         INJECT(HomeCellKey(CellsDatas *cDatas, Config *config, CellsDatas::Args &cdos)) : cdos(cdos), cDatas(cDatas), config(config)
@@ -22,7 +22,7 @@ namespace fog
         }
 
     private:
-        CellKey::OffsetPointy findCellToStandOn()
+        CellKey findCellToStandOn()
         {
             std::random_device rd;
             std::mt19937 gen(rd());
@@ -39,10 +39,10 @@ namespace fog
                 {
                     continue;
                 }
-                return CellKey::OffsetPointy(x, y);
+                return CellKey(x, y);
             }
 
-            return CellKey::OffsetPointy(0, 0);
+            return CellKey(0, 0);
         }
     }; // end class
 };

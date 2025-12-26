@@ -20,20 +20,22 @@
 namespace fog
 {
 
-    struct CellKey
+    struct Cell
     {
         using LayoutType = uint8_t;
 
         // horizontal odd row move half step to right.
-        static constexpr LayoutType PointyTop = 0; // pointy top.
+        static constexpr LayoutType PointyTopOddRow = 0; // pointy top.
         // vertical odd col move half step up.
-        static constexpr LayoutType FlatTop = 1; // flat top.
+        static constexpr LayoutType FlatTopOddCol = 1; // flat top.
 
         template <LayoutType>
         struct Offset;
-        using OffsetPointy = Offset<PointyTop>;
-        using OffsetFlat = Offset<FlatTop>;
+        friend struct CellsTransfrom;
+        friend struct CellsLayout;
+        friend struct OffsetFlatNeibersOp;
 
+        using Key = Offset<PointyTopOddRow>;
         struct Axial;
         struct Centre;
 
@@ -52,7 +54,7 @@ namespace fog
         {
             struct Hash
             {
-                std::size_t operator()(const OffsetPointy &p) const
+                std::size_t operator()(const Offset &p) const
                 {
                     auto h1 = std::hash<int>{}(p.x);
                     auto h2 = std::hash<int>{}(p.y);
@@ -107,4 +109,5 @@ namespace fog
         };
     };
 
+    using CellKey = Cell::Key;
 };

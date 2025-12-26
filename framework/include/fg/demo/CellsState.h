@@ -56,7 +56,7 @@ namespace fog
                 {
                     int qy = y * step;
                     int qx = x * step;
-                    CellKey::OffsetPointy cKey = cvs->grids[qx][qy].cKey;
+                    CellKey cKey = cvs->grids[qx][qy].cKey;
 
                     // HexTile::Key cis = cc->getCell(cKey);
 
@@ -77,7 +77,7 @@ namespace fog
 
                     //Vector3 position = CellKey::transform3(cKey, cvs->grids[qx][qy].originInCell, h, *tfs->d2hd3);
 
-                    Vector3 position = tfs->transform3(CellsTransform::transform<CellKey::OffsetPointy, CellKey::Centre>(cKey), cvs->grids[qx][qy].originInCell, h, *tfs->d2hd3);
+                    Vector3 position = tfs->transform3(CellsTransform::transform<CellKey, Cell::Centre>(cKey), cvs->grids[qx][qy].originInCell, h, *tfs->d2hd3);
                     // position.y = h;
 
                     positions[x][y] = position;

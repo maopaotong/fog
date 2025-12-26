@@ -9,61 +9,7 @@ namespace fog
     {
     public:
        
-        struct CentreToCellKey
-        {
-            float rad;
-            CentreToCellKey() : rad(1)
-            {
-            }
-            CentreToCellKey(float rad) : rad(rad)
-            {
-            }
-
-            void operator()(float &fx, float &fy) const
-            {
-                float cx = fx;
-                float cy = fy;
-                const float sqrt3 = std::sqrt(3.0f);
-                const float R = (2.0f / sqrt3) * rad; //
-                float q = ((sqrt3 / 3.0f) * cx - (1.0f / 3.0f) * cy) / R;
-                float r = ((2.0f / 3.0f) * cy) / R;
-
-                // Step 2: axial -> cube
-                float x = q;
-                float z = r;
-                float y = -x - z;
-
-                // Step 3: cube rounding to nearest hex
-                int rx = (int)std::round(x);
-                int ry = (int)std::round(y);
-                int rz = (int)std::round(z);
-
-                float dx = std::abs(rx - x);
-                float dy = std::abs(ry - y);
-                float dz = std::abs(rz - z);
-
-                if (dx > dy && dx > dz)
-                {
-                    rx = -ry - rz;
-                }
-                else if (dy > dz)
-                {
-                    ry = -rx - rz;
-                }
-                else
-                {
-                    rz = -rx - ry;
-                }
-
-                // Step 4: cube -> odd-r offset coordinates
-                // 在 odd-r 中：row = z, col = x + (row - (row & 1)) / 2
-                int row = rz;
-                int col = rx + (row - (row & 1)) / 2;
-                fx = col;
-                fy = row;
-            }
-        };
-
+        
         struct CellKeyToCentre
         {
             CellKeyToCentre()
