@@ -27,14 +27,14 @@ namespace fog
      *
      */
 
-    struct PointyTopNeibersOp
+    struct OffsetPointyNeibersOp
     {
         const static inline int offsetEvenX[6] = {0, 1, 0, -1, -1, -1};
         const static inline int offsetEvenY[6] = {-1, 0, 1, 1, 0, -1};
         const static inline int offsetOddX[6] = {1, 1, 1, 0, -1, 0};
         const static inline int offsetOddY[6] = {-1, 0, 1, 1, 0, -1};
 
-        void operator()(int x, int y, CellKey::Offset *neibers)
+        void operator()(int x, int y, CellKey::OffsetPointy *neibers)
         {
             // e.g. :[1,2]
             if (y % 2 == 0)
@@ -69,7 +69,7 @@ namespace fog
      *     *        *        *        *        *        *
      *       ******            ******            ******
      */
-    struct FlatTopNeibersOp
+    struct OffsetFlatNeibersOp
     {
 
         const inline static int offsetEvenX[6] = {-1, 0, 1, 1, 0, -1};
@@ -77,7 +77,7 @@ namespace fog
         const inline static int offsetOddX[6] = {-1, 0, 1, 1, 0, -1};
         const inline static int offsetOddY[6] = {0, -1, 0, 1, 1, 1};
 
-        void operator()(int x, int y, CellKey::Offset *neibers)
+        void operator()(int x, int y, CellKey::OffsetFlat *neibers)
         {
 
             // e.g. :[2,1]
@@ -103,31 +103,25 @@ namespace fog
 
     struct CellsLayout
     {
-        using LayoutType = uint8_t;
 
-        // horizontal odd row move half step to right.
-        static constexpr LayoutType PointyTop = 0; // pointy top.
-        // vertical odd col move half step up.
-        static constexpr LayoutType FlatTop = 1; // flat top.
-
-        template <LayoutType T>
-        static void getNeibers(int x, int y, CellKey::Offset *neibers)
+        template <typename K>
+        static void getNeibers(K &cKey, K *neibers)
         {
-            static_assert(false, "un-supported topology");
+            static_assert(false, "un-supported type of cell ckey.");
         }
 
         template <>
-        static void getNeibers<PointyTop>(int x, int y, CellKey::Offset *neibers)
+        static void getNeibers<CellKey::OffsetPointy>(CellKey::OffsetPointy &cKey, CellKey::OffsetPointy *neibers)
         {
-            static PointyTopNeibersOp neiber;
-            return neiber(x, y, neibers);
+            static OffsetPointyNeibersOp neiber;
+            return neiber(cKey.x, cKey.y, neibers);
         }
 
         template <>
-        static void getNeibers<FlatTop>(int x, int y, CellKey::Offset *neibers)
+        static void getNeibers<CellKey::OffsetFlat>(CellKey::OffsetFlat &off, CellKey::OffsetFlat *neibers)
         {
-            static FlatTopNeibersOp neiber;
-            return neiber(x, y, neibers);
+            static OffsetFlatNeibersOp neiber;
+            return neiber(off.x, off.y, neibers);
         }
     };
 

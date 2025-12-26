@@ -37,17 +37,17 @@ namespace fog
                 baseIndex = obj->getCurrentVertexCount();
             }
 
-            void operator()(CellKey::Offset &cell, Ogre::ColourValue color)
+            void operator()(CellKey::OffsetPointy &cell, Ogre::ColourValue color)
             {
                 // Vector2 origin = Cell::getOrigin2D(cell, config->CELL_SCALE);
-                Vector2 origin = CellKey::transform<CellKey::OC>(cell).scale(this->scale);
+                Vector2 origin = CellsTransform::transform<CellKey::OC>(cell).scale(this->scale);
                 Vector3 nom3(0, 1, 0);
 
                 struct Visit
                 {
                     Ogre::ManualObject *obj;
                     Ogre::ColourValue color;
-                    CellKey::Offset &cell;
+                    CellKey::OffsetPointy &cell;
                     Vector2 origin;
                     Vector3 nom3;
                     TransformFunc transform;

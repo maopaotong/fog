@@ -12,7 +12,7 @@ namespace fog
     // === NavNode structure ===
     struct NavNode
     {
-        CellKey::Offset p;
+        CellKey::OffsetPointy p;
         float g, h;
         float f() const { return g + h; }
         bool operator>(const NavNode &other) const { return f() > other.f(); }
@@ -48,7 +48,7 @@ namespace fog
         int width, height;
 
         template <typename F>
-        bool isWalkable(const CellKey::Offset &p, F &&costFunc) const
+        bool isWalkable(const CellKey::OffsetPointy &p, F &&costFunc) const
         {
             if (!isInSide(p))
             {
@@ -75,16 +75,16 @@ namespace fog
         {
         }
         template <typename F>
-        int getCost(const CellKey::Offset & p, F &&costFunc) const
+        int getCost(const CellKey::OffsetPointy & p, F &&costFunc) const
         {
             return costFunc(p);
         }
-        bool isInSide(const CellKey::Offset & p) const
+        bool isInSide(const CellKey::OffsetPointy & p) const
         {
             return p.x >= 0 && p.x < this->width && p.y >= 0 && p.y < this->height;
         }
 
-        CellKey::Offset getNeighbor(CellKey::Offset& p, int direction) const
+        CellKey::OffsetPointy getNeighbor(CellKey::OffsetPointy& p, int direction) const
         {
             if (direction < 0 || direction >= 6)
                 return p;
@@ -98,7 +98,7 @@ namespace fog
             }
         }
 
-        float heuristic(CellKey::Offset &p1, CellKey::Offset& p2) const
+        float heuristic(CellKey::OffsetPointy &p1, CellKey::OffsetPointy& p2) const
         {
             int q1 = p1.x - (p1.y - (p1.y & 1)) / 2;
             int r1 = p1.y;
@@ -126,14 +126,14 @@ namespace fog
         //     return cellPath;
         // }
         template <typename F>
-        std::vector<CellKey::Offset> findPath(CellKey::Offset start, CellKey::Offset end, F &&costFunc)
+        std::vector<CellKey::OffsetPointy> findPath(CellKey::OffsetPointy start, CellKey::OffsetPointy end, F &&costFunc)
         {
             return findPathInternal(start, end, costFunc);
         }
         template <typename F>
-        std::vector<CellKey::Offset> findPathInternal(CellKey::Offset start, CellKey::Offset end, F &&costFunc)
+        std::vector<CellKey::OffsetPointy> findPathInternal(CellKey::OffsetPointy start, CellKey::OffsetPointy end, F &&costFunc)
         {
-            using CellKey = CellKey::Offset;
+            using CellKey = CellKey::OffsetPointy;
 
             if (!isWalkable(start, costFunc) || !isWalkable(end, costFunc))
             {
@@ -191,20 +191,20 @@ namespace fog
         }
 
     private:
-        std::vector<CellKey::Offset> reconstructPath(
-            const std::unordered_map<CellKey::Offset, CellKey::Offset, CellKey::Offset::Hash> &cameFrom,
-            const CellKey::Offset &current) const
+        std::vector<CellKey::OffsetPointy> reconstructPath(
+            const std::unordered_map<CellKey::OffsetPointy, CellKey::OffsetPointy, CellKey::OffsetPointy::Hash> &cameFrom,
+            const CellKey::OffsetPointy &current) const
         {
 
-            std::vector<CellKey::Offset> path;
-            CellKey::Offset node = current;
+            std::vector<CellKey::OffsetPointy> path;
+            CellKey::OffsetPointy node = current;
 
             while (cameFrom.find(node) != cameFrom.end())
             {
-                path.push_back(CellKey::Offset(node.x, node.y));
+                path.push_back(CellKey::OffsetPointy(node.x, node.y));
                 node = cameFrom.at(node);
             }
-            path.push_back(CellKey::Offset(node.x, node.y));
+            path.push_back(CellKey::OffsetPointy(node.x, node.y));
 
             std::reverse(path.begin(), path.end());
             return path;
@@ -219,7 +219,7 @@ namespace fog
             {
                 int x = static_cast<int>(path[i].x);
                 int y = static_cast<int>(path[i].y);
-                totalCost += getCost(CellKey::Offset(x, y), costFunc);
+                totalCost += getCost(CellKey::OffsetPointy(x, y), costFunc);
             }
             return totalCost;
         }

@@ -20,11 +20,11 @@ namespace fog
         float amount;
         CoreMod *core;
         Transforms *tfs;
-        std::unordered_map<CellKey::Offset, std::vector<Actor *>, CellKey::Offset::Hash> &buildingsInCells;
+        std::unordered_map<CellKey::OffsetPointy, std::vector<Actor *>, CellKey::OffsetPointy::Hash> &buildingsInCells;
 
     public:
         BuildingLocator(std::unique_ptr<Actor> building, float amount, CoreMod *core, Transforms *tfs,
-                        std::unordered_map<CellKey::Offset, std::vector<Actor *>, CellKey::Offset::Hash> &buildingsInCells) : core(core),
+                        std::unordered_map<CellKey::OffsetPointy, std::vector<Actor *>, CellKey::OffsetPointy::Hash> &buildingsInCells) : core(core),
                                                                                                               tfs(tfs),
                                                                                                               building(std::move(building)), amount(amount),
                                                                                                               buildingsInCells(buildingsInCells)
@@ -45,17 +45,17 @@ namespace fog
         {
         }
 
-        void moveTo(CellKey::Offset cKey)
+        void moveTo(CellKey::OffsetPointy cKey)
         {
             if (this->building)
             {
                 //this->building->getSceneNode()->setPosition(CellKey::transform3(cKey, *tfs->d2td3));
-                this->building->getSceneNode()->setPosition(tfs->transform3<CellKey::Offset>(cKey));
+                this->building->getSceneNode()->setPosition(tfs->transform3<CellKey::OffsetPointy>(cKey));
             
             }
         }
 
-        bool tryBuildAt(CellKey::Offset cKey)
+        bool tryBuildAt(CellKey::OffsetPointy cKey)
         {
             if (this->building)
             {
@@ -77,7 +77,7 @@ namespace fog
         Actor *picked;
         std::unique_ptr<BuildingLocator> locator;
         CoreMod *core;
-        std::unordered_map<CellKey::Offset, std::vector<Actor *>, CellKey::Offset::Hash> buildingsInCells;
+        std::unordered_map<CellKey::OffsetPointy, std::vector<Actor *>, CellKey::OffsetPointy::Hash> buildingsInCells;
         InventoryManager *inventoryManager;
         Config *config;
 
@@ -125,7 +125,7 @@ namespace fog
               picked(nullptr), locator(nullptr)
         {
             eventBus-> //
-                subscribe<MouseCellEventType, CellKey::Offset>([this](MouseCellEventType type, CellKey::Offset cKey)
+                subscribe<MouseCellEventType, CellKey::OffsetPointy>([this](MouseCellEventType type, CellKey::OffsetPointy cKey)
                                                        {
                                                            if (type == MouseCellEventType::MouseEnterCell)
                                                            {
@@ -139,7 +139,7 @@ namespace fog
                                                            return true; //
                                                        });
             eventBus-> //
-                subscribe<CellEventType, CellKey::Offset>([this](CellEventType type, CellKey::Offset cKey)
+                subscribe<CellEventType, CellKey::OffsetPointy>([this](CellEventType type, CellKey::OffsetPointy cKey)
                                                   {
                                                       if (type == CellEventType::CellAsTarget)
                                                       {

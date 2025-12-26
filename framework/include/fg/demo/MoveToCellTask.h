@@ -20,7 +20,7 @@ namespace fog
         float actorHighOffset;
 
     protected:
-        CellKey::Offset cKey2; // target cell key.
+        CellKey::OffsetPointy cKey2; // target cell key.
         Actor *movingState;
         //
         PathFollow2MissionState *mission = nullptr;
@@ -36,7 +36,7 @@ namespace fog
         Transforms * tfs;
 
     public:
-        MoveToCellTask(Actor *state, CellKey::Offset cKey2,
+        MoveToCellTask(Actor *state, CellKey::OffsetPointy cKey2,
                        CostMap *costMap,
                        EventBus *eventBus,
                        CellsCost *cellsCost,
@@ -57,7 +57,7 @@ namespace fog
         {
             return this->movingState;
         }
-        CellKey::Offset getTargetCellKey()
+        CellKey::OffsetPointy getTargetCellKey()
         {
             return this->cKey2;
         }
@@ -78,7 +78,7 @@ namespace fog
             return ret;
         }
 
-        std::tuple<CellKey::Offset, Point2<float>> resolveOwnerCell()
+        std::tuple<CellKey::OffsetPointy, Point2<float>> resolveOwnerCell()
         {
             // Cell::Center *cells = Context<Cell::Center>::get();
 
@@ -92,7 +92,7 @@ namespace fog
             // HexTile::Key cell;
             // // bool hitCell = CellUtil::findCellByPoint(costMap, aPos2, aHexTile::Key);
             // bool hitCell = Context<Cell::Center>::get()->findCellByPosition(actorPosIn2D, cell);
-            CellKey::Offset cell = CellKey::transform<CellKey::CO>(actorPosIn2D);
+            CellKey::OffsetPointy cell = CellsTransform::transform<CellKey::CO>(actorPosIn2D);
 
             // todo: not hit?
             return {cell, actorPosIn2D};
@@ -101,12 +101,12 @@ namespace fog
         PathFollow2 buildPath()
         {
 
-            std::tuple<CellKey::Offset, Point2<float>> stateCellAndPosition = this->resolveOwnerCell();
+            std::tuple<CellKey::OffsetPointy, Point2<float>> stateCellAndPosition = this->resolveOwnerCell();
 
-            CellKey::Offset cKey1 = std::get<CellKey::Offset>(stateCellAndPosition);
+            CellKey::OffsetPointy cKey1 = std::get<CellKey::OffsetPointy>(stateCellAndPosition);
 
             CellsCost &costFunc = *cellsCost;
-            std::vector<CellKey::Offset> pathByCKey = costMap-> //
+            std::vector<CellKey::OffsetPointy> pathByCKey = costMap-> //
                                               findPath(cKey1,
                                                        cKey2, //
                                                        costFunc);
@@ -115,11 +115,11 @@ namespace fog
             {
                 // find the nearest cell as the target.
                 // TODO: if the targe is untouchable area, then find the nearest border cell of such area as the new target.
-                std::vector<CellKey::Offset> linePath = costMap-> //
+                std::vector<CellKey::OffsetPointy> linePath = costMap-> //
                                                 findPath(
                                                     cKey2, // reverse simple line path
                                                     cKey1, //
-                                                    [](const CellKey::Offset& cKey) -> int
+                                                    [](const CellKey::OffsetPointy& cKey) -> int
                                                     {
                                                         return 1;
                                                     });
@@ -142,8 +142,8 @@ namespace fog
             // Context<Node2D>::get()->
 
             //std::vector<Point2<float>> centres;
-            //CellKey::transform<CellKey::OC>s<CellKey::Offset>(pathByCKey, centres);
-            std::vector<Point2<float>> centres = CellKey::transformAll<CellKey::OCP>(pathByCKey);
+            //CellsTransform::transform<CellKey::OC>s<CellKey::Offset>(pathByCKey, centres);
+            std::vector<Point2<float>> centres = CellsTransform::transformAll<CellKey::OCP>(pathByCKey);
 
             // float pathSpeed = this->Context<Var<float>::Bag>::get()->getVarVal(".pathSpeed", 1.0f);
 

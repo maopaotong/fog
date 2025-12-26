@@ -125,14 +125,14 @@ namespace fog
                 std::unordered_set<CellType> borderTypes;
                 std::unordered_set<CellData *> inners;
 
-                CellRegion region([&borderTypes, this](CellKey::Offset cKey, CellData &tile, CellRegion &rg)
+                CellRegion region([&borderTypes, this](CellKey::OffsetPointy cKey, CellData &tile, CellRegion &rg)
                                   { return tile.type == this->type; },
-                                  [&borderTypes](CellKey::Offset cKey, CellData &tile, CellRegion &rg)
+                                  [&borderTypes](CellKey::OffsetPointy cKey, CellData &tile, CellRegion &rg)
                                   {
                                       borderTypes.insert(tile.type);
                                       return true; //
                                   },
-                                  [&borderTypes, &inners](CellKey::Offset cKey, CellData &tile, CellRegion &rg)
+                                  [&borderTypes, &inners](CellKey::OffsetPointy cKey, CellData &tile, CellRegion &rg)
                                   {
                                       inners.insert(&tile);
                                       if (inners.size() > 1) // do not change it ; 1. in case it link to deep ocean. 2. large ocean near land or shore is ok?
@@ -142,7 +142,7 @@ namespace fog
                                       return true; //
                                   });
 
-                bool isRegion = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey::Offset(x, y), tl, region); //
+                bool isRegion = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey::OffsetPointy(x, y), tl, region); //
                 if (isRegion)
                 {
                     CellType type2 = this->typeFunc(borderTypes); // it will become: 1. plain, 2. shore.
@@ -176,7 +176,7 @@ namespace fog
                 std::unordered_map<CellType, int> borderTypes;
                 std::unordered_set<CellData *> inners;
 
-                CellRegion region([&innerTypes, &borderTypes](CellKey::Offset cKey, CellData &tile, CellRegion &rg)
+                CellRegion region([&innerTypes, &borderTypes](CellKey::OffsetPointy cKey, CellData &tile, CellRegion &rg)
                                   {
                                       if (tile.type == CellTypes::SHORE || tile.type == CellTypes::OCEAN)
                                       {
@@ -192,7 +192,7 @@ namespace fog
                                       }
                                       return false; //
                                   },
-                                  [&borderTypes, &innerTypes](CellKey::Offset cKey, CellData &tile, CellRegion &rg)
+                                  [&borderTypes, &innerTypes](CellKey::OffsetPointy cKey, CellData &tile, CellRegion &rg)
                                   {
                                       if (auto it = borderTypes.find(tile.type); it == borderTypes.end())
                                       {
@@ -204,7 +204,7 @@ namespace fog
                                       }
                                       return true; //
                                   },
-                                  [this, &borderTypes, &innerTypes, &inners](CellKey::Offset cKey, CellData &tile, CellRegion &rg)
+                                  [this, &borderTypes, &innerTypes, &inners](CellKey::OffsetPointy cKey, CellData &tile, CellRegion &rg)
                                   {
                                       inners.insert(&tile);
                                       if (inners.size() > 1)
@@ -225,7 +225,7 @@ namespace fog
                                       return true; //
                                   });
 
-                bool isLake = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey::Offset(x, y), tl, region); //
+                bool isLake = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey::OffsetPointy(x, y), tl, region); //
                 if (isLake)
                 {
                     tl.type = CellTypes::LAKE;
@@ -251,7 +251,7 @@ namespace fog
                 std::unordered_set<CellType> borderTypes;
                 std::unordered_set<CellData *> inners;
 
-                CellRegion region([&innerTypes, &borderTypes](CellKey::Offset cKey, CellData &tile, CellRegion &rg)
+                CellRegion region([&innerTypes, &borderTypes](CellKey::OffsetPointy cKey, CellData &tile, CellRegion &rg)
                                   {
                                       if (tile.type == CellTypes::SHORE || tile.type == CellTypes::OCEAN)
                                       {
@@ -260,12 +260,12 @@ namespace fog
                                       }
                                       return false; //
                                   },
-                                  [&borderTypes, &innerTypes](CellKey::Offset cKey, CellData &tile, CellRegion &rg)
+                                  [&borderTypes, &innerTypes](CellKey::OffsetPointy cKey, CellData &tile, CellRegion &rg)
                                   {
                                       borderTypes.insert(tile.type);
                                       return true; //
                                   },
-                                  [&borderTypes, &innerTypes, &inners](CellKey::Offset cKey, CellData &tile, CellRegion &rg)
+                                  [&borderTypes, &innerTypes, &inners](CellKey::OffsetPointy cKey, CellData &tile, CellRegion &rg)
                                   {
                                       inners.insert(&tile);
                                       if (inners.size() > 10) // is real ocean.
@@ -275,7 +275,7 @@ namespace fog
                                       return true; //
                                   });
 
-                bool isRegion = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey::Offset(x, y), tl, region); //
+                bool isRegion = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey::OffsetPointy(x, y), tl, region); //
                 if (isRegion)
                 {
                     CellType newType = determineNewTypeForInnerMiddleOcean(borderTypes);

@@ -111,7 +111,7 @@ namespace fog
             hMap[x][y].userData = 1;
         }
 
-        int makeMountainRangeOnRegion(std::unordered_set<CellKey::Offset, CellKey::Offset::Hash> &skips, int loops, CellType type, int rad, std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsGrid *>> &centreRectMap)
+        int makeMountainRangeOnRegion(std::unordered_set<CellKey::OffsetPointy, CellKey::OffsetPointy::Hash> &skips, int loops, CellType type, int rad, std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsGrid *>> &centreRectMap)
         {
             int hits = 0;
             std::mt19937 randGen(23669983);
@@ -123,7 +123,7 @@ namespace fog
             {
                 for (int ty = 0; ty < tHeight; ty++)
                 {
-                    CellKey::Offset cKey(tx, ty);
+                    CellKey::OffsetPointy cKey(tx, ty);
                     if (skips.find(cKey) != skips.end())
                     {
                         continue;
@@ -146,9 +146,9 @@ namespace fog
             {
             }
 
-            Box2<int> cellOuterBox(CellKey::Offset cKey)
+            Box2<int> cellOuterBox(CellKey::OffsetPointy cKey)
             {
-                Box2<float> box = CellKey::getOuterBoxInUV(cKey, tWidth, tHeight); // cover the entire tile.
+                Box2<float> box = CellsTransform::getOuterBoxInUV(cKey, tWidth, tHeight); // cover the entire tile.
                 box.scale(width, height);
                 return box.cast<int>();
             }
@@ -162,7 +162,7 @@ namespace fog
                 {
                     for (int ty = 0; ty < tHeight; ty++)
                     {
-                        CellKey::Offset cKey(tx, ty);
+                        CellKey::OffsetPointy cKey(tx, ty);
                         // if (skips.find(cKey) != skips.end())
                         // {
                         //     continue;
@@ -384,11 +384,11 @@ namespace fog
                     points[3] = Vector2(centreX - amp * rectWidth / 2.0f, centreY + amp * rectHeight / 2.0f); //
                     points[4] = Vector2(centreX - amp * rectWidth / 2.0f, centreY - amp * rectHeight / 2.0f); //
 
-                    CellKey::Offset cKeys[5]; // find the 5 point in which cell.
+                    CellKey::OffsetPointy cKeys[5]; // find the 5 point in which cell.
                     for (int i = 0; i < 5; i++)
                     {
                         // cKeys[i] = Point2<float>(points[i].x, points[i].y).transform(Transform::CentreToCellKey());
-                        cKeys[i] = CellKey::transform<CellKey::CO>(points[i]);
+                        cKeys[i] = CellsTransform::transform<CellKey::CO>(points[i]);
                         cKeys[i].x = std::clamp<int>(cKeys[i].x, 0, tWidth - 1);
                         cKeys[i].y = std::clamp<int>(cKeys[i].y, 0, tHeight - 1);
                     }
@@ -396,7 +396,7 @@ namespace fog
                     CellData &cell0 = cells[cKeys[0].x][cKeys[0].y];
                     // tile centre position.
                     // Vector2 tileCentreP = Cell::getOrigin2D(cKeys[0].x, cKeys[0].y);
-                    Vector2 tileCentreP = CellKey::transform<CellKey::OC>(cKeys[0]);
+                    Vector2 tileCentreP = CellsTransform::transform<CellKey::OC>(cKeys[0]);
                     //
                     hMap[x][y].cKey = cKeys[0]; // centre cell.
                     hMap[x][y].originInCell = points[0] - tileCentreP;
@@ -405,7 +405,7 @@ namespace fog
                     hMap[x][y].cKeys[0] = cKeys[0];
                     // set corner's type
 
-                    std::unordered_set<CellKey::Offset, CellKey::Offset::Hash> keySet; // totol types of 5 cells.
+                    std::unordered_set<CellKey::OffsetPointy, CellKey::OffsetPointy::Hash> keySet; // totol types of 5 cells.
                     for (int i = 1; i < 5; i++)                                        // check other 4 corner's type. normally the max different types is 3, include the centre.
                     {
                         if (cKeys[i] != cKeys[0])
@@ -444,7 +444,7 @@ namespace fog
                     //
                     for (int i = 1; i < 3; i++)
                     {
-                        CellKey::Offset cKey = hMap[x][y].cKeys[i];
+                        CellKey::OffsetPointy cKey = hMap[x][y].cKeys[i];
                         hMap[x][y].types[i] = cells[cKey.x][cKey.y].type;
                     }
 
@@ -503,7 +503,7 @@ namespace fog
                                                               // translate point in the rect to the nearest cell key?
                                                               // the cKey must be one of the 3 cell types calculated above.
                                                               // CellKey::Offset cKey = Point2<float>(x, y).transform(C2CK);
-                                                              CellKey::Offset cKey = CellKey::transform<CellKey::CO>(CellKey::Centre(x, y));
+                                                              CellKey::OffsetPointy cKey = CellsTransform::transform<CellKey::CO>(CellKey::Centre(x, y));
 
                                                               int tx = std::clamp<int>(cKey.x, 0, tWidth - 1);
                                                               int ty = std::clamp<int>(cKey.y, 0, tHeight - 1);

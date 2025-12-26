@@ -16,7 +16,7 @@ namespace fog
 
     class PathState
     {
-        std::vector<CellKey::Offset> currentPath;
+        std::vector<CellKey::OffsetPointy> currentPath;
         CellInstanceStateManager *cisManager;
 
     public:
@@ -28,7 +28,7 @@ namespace fog
             this->resetPathColor(true);
         }
 
-        void setPath(const std::vector<CellKey::Offset> &path)
+        void setPath(const std::vector<CellKey::OffsetPointy> &path)
         {
             this->resetPathColor(true);
             currentPath = path;
@@ -39,7 +39,7 @@ namespace fog
         {
             for (auto it = currentPath.begin(); it != currentPath.end(); ++it)
             {
-                CellKey::Offset cKey = *it;
+                CellKey::OffsetPointy cKey = *it;
                 CellInstanceState *cis = cisManager->getCellInstanceStateByCellKey(cKey);
                 if (unset)
                 {

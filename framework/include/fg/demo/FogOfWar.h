@@ -134,9 +134,9 @@ namespace fog
         }
 
     public:
-        Box2<int> buildBufferBox(CellKey::Offset cKey)
+        Box2<int> buildBufferBox(CellKey::OffsetPointy cKey)
         {
-            Box2<float> box = CellKey::getOuterBoxInUV(cKey, tlsWidth, tlsHeight); // cover the entire tile.
+            Box2<float> box = CellsTransform::getOuterBoxInUV(cKey, tlsWidth, tlsHeight); // cover the entire tile.
             // scale from centre of the box, p1 is (0,0),p2 is very small value some thing like: 1/cells*rad.
             box.expand(3.0); // expand to 3 cell width.
 
@@ -145,7 +145,7 @@ namespace fog
             return box.cast<int>();
         }
 
-        void set(CellKey::Offset cKey, bool visible)
+        void set(CellKey::OffsetPointy cKey, bool visible)
         {
 
             if (config->debugFogOfWar && config->debugCout)
@@ -155,10 +155,10 @@ namespace fog
             // TODO make a new space to transform from ckey to uv.
             // Point2<float> centreP = Cell::getOriginUV(cKey, tlsWidth, tlsHeight);
             //
-            Point2<float> centreP = CellKey::transform<CellKey::OC>(cKey).transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
+            Point2<float> centreP = CellsTransform::transform<CellKey::OC>(cKey).transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
 
             centreP.scale(width, height); // find the position in texture space.
-            // Point2<float> centreP = CellKey::transform<CellKey::OC>(cKey).scale(width,height);
+            // Point2<float> centreP = CellsTransform::transform<CellKey::OC>(cKey).scale(width,height);
 
             Box2<int> box2 = this->bufferBox;
 
@@ -242,7 +242,7 @@ namespace fog
             // {
             //     this->set(cis, true);
             // }
-            CellKey::Offset cis = CellKey::transform<CellKey::CO>(state->getPosition(*tfs->d3d2));
+            CellKey::OffsetPointy cis = CellsTransform::transform<CellKey::CO>(state->getPosition(*tfs->d3d2));
             this->set(cis, true);
         }
 

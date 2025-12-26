@@ -15,12 +15,12 @@ namespace fog
     {
         std::stack<ColourValue> colours;
         Ogre::ManualObject *obj;
-        CellKey::Offset cis;
+        CellKey::OffsetPointy cis;
         CoreMod *core;
         Transforms *tfs;
 
     public:
-        CellInstanceState(CellKey::Offset cis, CoreMod *core, Transforms *tfs, Ogre::SceneNode *sNode)
+        CellInstanceState(CellKey::OffsetPointy cis, CoreMod *core, Transforms *tfs, Ogre::SceneNode *sNode)
             : Actor(sNode),
               tfs(tfs),
               cis(cis), core(core)
@@ -45,7 +45,7 @@ namespace fog
         {
             // return Context<Node2D>::get()->to3D(Cell::getOrigin2D(cis),config->CELL_SCALE);
             //return CellKey::transform3(cis, *tfs->d2td3);
-            tfs->transform3<CellKey::Offset>(cis);
+            tfs->transform3<CellKey::OffsetPointy>(cis);
         }
 
         void buildMesh()
@@ -65,13 +65,13 @@ namespace fog
         }
 
         // Get color based on cost
-        bool getCostColor(CellKey::Offset &cell, Ogre::ColourValue &color) const
+        bool getCostColor(CellKey::OffsetPointy &cell, Ogre::ColourValue &color) const
         {
 
             return false;
         }
 
-        CellKey::Offset getCellKey()
+        CellKey::OffsetPointy getCellKey()
         {
             return this->cis;
         }
@@ -80,7 +80,7 @@ namespace fog
 
     class CellInstanceStateManager : public Manager<CellInstanceState>
     {
-        std::unordered_map<CellKey::Offset, CellInstanceState *, CellKey::Offset::Hash> cellInstanceStates;
+        std::unordered_map<CellKey::OffsetPointy, CellInstanceState *, CellKey::OffsetPointy::Hash> cellInstanceStates;
 
         CoreMod *core;
 
@@ -99,7 +99,7 @@ namespace fog
             {
                 for (int y = 0; y < cdos.cellsRange.getHeight(); y++)
                 {
-                    CellKey::Offset cell{x, y};
+                    CellKey::OffsetPointy cell{x, y};
                     CellInstanceState *state = new CellInstanceState(cell, core, tfs, core->getRootSceneNode()->createChildSceneNode());
                     this->add(state); //
                     this->cellInstanceStates[cell] = state;
@@ -134,10 +134,10 @@ namespace fog
             // {
             //     return this->cellInstanceStates[cell];
             // }
-            CellKey::Offset cKey = CellKey::transform<CellKey::CO>(pos);
+            CellKey::OffsetPointy cKey = CellsTransform::transform<CellKey::CO>(pos);
             return getCellInstanceStateByCellKey(cKey);
         }
-        CellInstanceState *getCellInstanceStateByCellKey(CellKey::Offset cKey)
+        CellInstanceState *getCellInstanceStateByCellKey(CellKey::OffsetPointy cKey)
         {
             auto it = this->cellInstanceStates.find(cKey);
             if (it != this->cellInstanceStates.end())

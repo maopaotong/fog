@@ -53,27 +53,27 @@ namespace fog
         template <typename K>
         Vector3 transform3(K &cKey)
         {
-            CellKey::Centre cKey2 = CellKey::transform<K, CellKey::Centre>(cKey);
+            CellKey::Centre cKey2 = CellsTransform::transform<K, CellKey::Centre>(cKey);
             return transform3(cKey2, 0, *this->d2td3);
         }
 
         template <typename K>
         Vector3 transform3(K &cKey, Point2<float> pInC)
         {
-            CellKey::Centre cKey2 = CellKey::transform<K, CellKey::Centre>(cKey);
+            CellKey::Centre cKey2 = CellsTransform::transform<K, CellKey::Centre>(cKey);
             return transform3(cKey2, pInC);
         }
 
         template <typename F>
         Vector3 transform3(CellKey::Centre &cKey, Point2<float> pInC, float h, F &&func)
         {
-            return transform3(CellKey::transform<CellKey::Centre, Point2<float>>(cKey) + pInC, h, func);
+            return transform3(CellsTransform::transform<CellKey::Centre, Point2<float>>(cKey) + pInC, h, func);
         }
 
         template <typename F>
         Vector3 transform3(CellKey::Centre &cKey, float h, F &&func)
         {
-            return transform3(CellKey::transform<CellKey::Centre, Point2<float>>(cKey), h, func);
+            return transform3(CellsTransform::transform<CellKey::Centre, Point2<float>>(cKey), h, func);
         }
 
         Vector3 transform3(Point2<float> &cKey)
