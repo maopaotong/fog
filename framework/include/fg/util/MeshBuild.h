@@ -40,7 +40,7 @@ namespace fog
             void operator()(CellKey::Offset &cell, Ogre::ColourValue color)
             {
                 // Vector2 origin = Cell::getOrigin2D(cell, config->CELL_SCALE);
-                Vector2 origin = CellKey::getCentre<CellKey::Offset>(cell).scale(this->scale);
+                Vector2 origin = CellKey::transform<CellKey::OC>(cell).scale(this->scale);
                 Vector3 nom3(0, 1, 0);
 
                 struct Visit

@@ -155,10 +155,10 @@ namespace fog
             // TODO make a new space to transform from ckey to uv.
             // Point2<float> centreP = Cell::getOriginUV(cKey, tlsWidth, tlsHeight);
             //
-            Point2<float> centreP = CellKey::getCentre(cKey).transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
+            Point2<float> centreP = CellKey::transform<CellKey::OC>(cKey).transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
 
             centreP.scale(width, height); // find the position in texture space.
-            // Point2<float> centreP = CellKey::getCentre(cKey).scale(width,height);
+            // Point2<float> centreP = CellKey::transform<CellKey::OC>(cKey).scale(width,height);
 
             Box2<int> box2 = this->bufferBox;
 
@@ -242,7 +242,7 @@ namespace fog
             // {
             //     this->set(cis, true);
             // }
-            CellKey::Offset cis = CellKey::from<CellKey::Offset>(state->getPosition(*tfs->d3d2));
+            CellKey::Offset cis = CellKey::transform<CellKey::CO>(state->getPosition(*tfs->d3d2));
             this->set(cis, true);
         }
 

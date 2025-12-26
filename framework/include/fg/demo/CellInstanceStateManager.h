@@ -44,7 +44,8 @@ namespace fog
         Vector3 getOrigin3D()
         {
             // return Context<Node2D>::get()->to3D(Cell::getOrigin2D(cis),config->CELL_SCALE);
-            return CellKey::transform3(cis, *tfs->d2td3);
+            //return CellKey::transform3(cis, *tfs->d2td3);
+            tfs->transform3<CellKey::Offset>(cis);
         }
 
         void buildMesh()
@@ -133,7 +134,7 @@ namespace fog
             // {
             //     return this->cellInstanceStates[cell];
             // }
-            CellKey::Offset cKey = CellKey::from<CellKey::Offset>(pos);
+            CellKey::Offset cKey = CellKey::transform<CellKey::CO>(pos);
             return getCellInstanceStateByCellKey(cKey);
         }
         CellInstanceState *getCellInstanceStateByCellKey(CellKey::Offset cKey)

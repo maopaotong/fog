@@ -9,7 +9,7 @@ namespace fog
 {
     struct TransformD2D3H
     {
-        
+
         float scale;
         INJECT(TransformD2D3H(float scale)) : scale(scale)
         {
@@ -40,11 +40,47 @@ namespace fog
     };
     struct Transforms
     {
-        TransformD2TD3 *d2td3;//d2 terrains height => d3
-        TransformD2D3H *d2hd3; //d2+z=h => d3
+        TransformD2TD3 *d2td3; // d2 terrains height => d3
+        TransformD2D3H *d2hd3; // d2+z=h => d3
         TransformD3D2 *d3d2;
         INJECT(Transforms(TransformD2TD3 *d2d3, TransformD2D3H *d3h, TransformD3D2 *d3d2)) : d2td3(d2d3), d2hd3(d3h), d3d2(d3d2)
         {
+        }
+
+        template <typename K>
+        Vector3 transform3(K &cKey)
+        {
+            CellKey::Centre cKey2 = CellKey::transform<K, CellKey::Centre>(cKey);
+            return transform3(cKey2, 0, *this->d2td3);
+        }
+
+        template <typename K>
+        Vector3 transform3(K &cKey, Point2<float> pInC)
+        {
+            CellKey::Centre cKey2 = CellKey::transform<K, CellKey::Centre>(cKey);
+            return transform3(cKey2, pInC, 0, *this->d2td3);
+        }
+
+        template <typename F>
+        Vector3 transform3(CellKey::Centre &cKey, Point2<float> pInC, float h, F&& func)
+        {
+            return transform3(CellKey::transform<CellKey::Centre, Point2<float>>(cKey) + pInC, h, func);
+        }
+
+        template <typename F>
+        Vector3 transform3(CellKey::Centre &cKey, float h, F &&func)
+        {
+            return transform3(CellKey::transform<CellKey::Centre, Point2<float>>(cKey), h, func);
+        }
+
+        template <typename F>
+        Vector3 transform3(Point2<float> &cKey, float h, F &&func)
+        {
+            float x = cKey.x;
+            float y = cKey.y;
+            float z = h;
+            func(x, y, z);
+            return Vector3(x, y, z);
         }
     };
 

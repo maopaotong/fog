@@ -75,7 +75,9 @@ namespace fog
                     // Vector3 position = ((cis.cast<float>().transform(Transform::CellCentreByKey()) + tts->grids[qx][qy].originInTile) * config->CELL_SCALE).transform3(Transform::D2_NORMAL_D3(h));
                     // Vector3 position = CellKey::transform3(cKey, cvs->grids[qx][qy].originInTile, h, *config->transformFromD2HToD3Ptr);
 
-                    Vector3 position = CellKey::transform3(cKey, cvs->grids[qx][qy].originInCell, h, *tfs->d2hd3);
+                    //Vector3 position = CellKey::transform3(cKey, cvs->grids[qx][qy].originInCell, h, *tfs->d2hd3);
+
+                    Vector3 position = tfs->transform3(CellKey::transform<CellKey::Offset, CellKey::Centre>(cKey), cvs->grids[qx][qy].originInCell, h, *tfs->d2hd3);
                     // position.y = h;
 
                     positions[x][y] = position;

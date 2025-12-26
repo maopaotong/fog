@@ -396,7 +396,7 @@ namespace fog
                     CellData &cell0 = cells[cKeys[0].x][cKeys[0].y];
                     // tile centre position.
                     // Vector2 tileCentreP = Cell::getOrigin2D(cKeys[0].x, cKeys[0].y);
-                    Vector2 tileCentreP = CellKey::getCentre(cKeys[0]);
+                    Vector2 tileCentreP = CellKey::transform<CellKey::OC>(cKeys[0]);
                     //
                     hMap[x][y].cKey = cKeys[0]; // centre cell.
                     hMap[x][y].originInCell = points[0] - tileCentreP;

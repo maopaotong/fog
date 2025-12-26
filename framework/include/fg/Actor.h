@@ -73,11 +73,15 @@ namespace fog
             return Point2<float>::from(positionIn3D, d3_normal_d2);
         }
         // TODO remove dependence of CellKey
-        template <typename F>
-        void setPosition(CellKey::Offset cKey, F &&d2d3)
-        {
-            Vector3 v3 = CellKey::transform3(cKey, d2d3);
-            this->getSceneNode()->setPosition(v3);
+        // template <typename F>
+        // void setPosition(CellKey::Offset cKey, F &&d2d3)
+        // {
+        //     Vector3 v3 = CellKey::transform3(cKey, d2d3);
+        //     Vector3 v3 = CellKey::transform3(cKey, d2d3);
+        //     this->getSceneNode()->setPosition(v3);
+        // }
+        void setPosition(Vector3 pos3){
+            this->getSceneNode()->setPosition(pos3);
         }
 
         CellKey::Offset getCellKey()

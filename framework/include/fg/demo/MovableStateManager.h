@@ -121,7 +121,10 @@ namespace fog
                                                      });
             this->actor2 = new Sphere(core, core->getRootSceneNode()->createChildSceneNode());
             this->add(actor2);
-            actor2->setPosition(home->cKey, *tfs->d2td3);
+            Vector3 pos3 = tfs->transform3(home->cKey);
+            actor2->setPosition(pos3);
+            //actor2->setPosition(home->cKey, *tfs->d2td3);
+        
         }
         virtual ~MovableStateManager()
         {
