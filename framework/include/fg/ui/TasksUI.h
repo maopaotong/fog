@@ -34,7 +34,7 @@ namespace fog
                 std::string label = fmt::format("Task##{}", id);
                 if (ImGui::TreeNode(label.c_str()))
                 {
-                    ImGui::Text(("Target HexTile::Key: " + Cell::KeyUtil::toString(task->getTargetCellKey())).c_str());
+                    ImGui::Text(("Target HexTile::Key: " + CellUtil::toString(task->getTargetCellKey())).c_str());
                     ImGui::Text(("State Active: " + std::to_string(task->getState()->isActive())).c_str());
                     ImGui::TreePop();
                 }

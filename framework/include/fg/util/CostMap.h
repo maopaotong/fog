@@ -4,7 +4,7 @@
  */
 #pragma once
 #include <fg/util/Common.h>
-#include <fg/util/Cell.h>
+#include <fg/util/CellKey.h>
 #include <fg/util/Component.h>
 namespace fog
 {

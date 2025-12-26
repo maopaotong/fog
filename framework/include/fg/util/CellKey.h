@@ -22,7 +22,7 @@ namespace fog
     {
         static inline Transform::CellKeyToCentre TF_K2C{};
         static inline Transform::CentreToCellKey TF_C2K{};
-        
+
         CellKey() : CellKey(-1, -1) {}
         CellKey(int x, int y) : Point2<int>(x, y)
         {
@@ -132,104 +132,6 @@ namespace fog
 
         /*
          */
-    };
-    class Cell
-    {
-
-    public:
-    public:
-        template <typename F>
-        static int forEachNeibers(int x, int y, int width, int height, F &&visit)
-        {
-            CellKey neibers[6];
-            Cell::getNeibers(x, y, neibers);
-            //
-            int count = 0;
-            for (int i = 0; i < 6; i++)
-            {
-                int nX = neibers[i].x;
-                int nY = neibers[i].y;
-
-                if (nX >= 0 && nX < width && nY >= 0 && nY < height)
-                {
-                    visit(i, nX, nY);
-                    count++;
-                }
-            }
-
-            return count;
-        }
-
-        /**
-         *
-         *    * * *     [0,3]     [1,3]    [2,3]
-         *   * * *    [0,2]   [1,2]    [2,2]
-         *    * * *     [0,1]     [1,1]    [2,1]
-         *   * * *    [0,0]   [1,0]    [2,0]
-         *
-         */
-        static void getNeibers(int x, int y, CellKey *neibers)
-        {
-
-            // e.g. :[1,2]
-            if (y % 2 == 0)
-            {
-
-                neibers[0].x = x; //[1,1]
-                neibers[0].y = y - 1;
-
-                neibers[1].x = x + 1; //[2,2]
-                neibers[1].y = y;
-
-                neibers[2].x = x; //[1,3]
-                neibers[2].y = y + 1;
-
-                neibers[3].x = x - 1; //[0,3]
-                neibers[3].y = y + 1;
-
-                neibers[4].x = x - 1; //[0,2]
-                neibers[4].y = y;
-
-                neibers[5].x = x - 1; //[0,1]
-                neibers[5].y = y - 1;
-            }
-            else
-            { // e.g. [1,1]
-
-                neibers[0].x = x + 1; //[2,0]
-                neibers[0].y = y - 1;
-
-                neibers[1].x = x + 1; //[2,1]
-                neibers[1].y = y;
-
-                neibers[2].x = x + 1; //[2,2]
-                neibers[2].y = y + 1;
-
-                neibers[3].x = x; //[1,2]
-                neibers[3].y = y + 1;
-
-                neibers[4].x = x - 1; //[0,1]
-                neibers[4].y = y;
-
-                neibers[5].x = x; //[1,0]
-                neibers[5].y = y - 1;
-            }
-        }
-
-        // static HexTile::Key getCellKey(Ogre::Vector2 p)
-        // {
-
-        //     return (Point2<float>(p.x, p.y)).transform(Transform::CentreToCellKey());
-        // }
-
-        class KeyUtil
-        {
-        public:
-            static std::string toString(const CellKey &cKey)
-            {
-                return "(" + std::to_string(cKey.x) + "," + std::to_string(cKey.y) + ")";
-            }
-        };
     };
 
 };

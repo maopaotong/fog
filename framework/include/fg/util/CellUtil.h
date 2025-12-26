@@ -3,14 +3,15 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 #pragma once
-#include <vector>
-#include <Ogre.h>
-#include "CostMap.h"
+#include <string>
+#include "CellKey.h"
 namespace fog
 {
-    class CellUtil
+    struct CellUtil
     {
-    private:
-        
+        static std::string toString(const CellKey &cKey)
+        {
+            return "(" + std::to_string(cKey.x) + "," + std::to_string(cKey.y) + ")";
+        }
     };
 }; // end of namespace
