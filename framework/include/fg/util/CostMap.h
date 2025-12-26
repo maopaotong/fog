@@ -12,7 +12,7 @@ namespace fog
     // === NavNode structure ===
     struct NavNode
     {
-        Point2<int> p;
+        CellKey::Offset p;
         float g, h;
         float f() const { return g + h; }
         bool operator>(const NavNode &other) const { return f() > other.f(); }
@@ -48,7 +48,7 @@ namespace fog
         int width, height;
 
         template <typename F>
-        bool isWalkable(Point2<int> p, F &&costFunc) const
+        bool isWalkable(const CellKey::Offset &p, F &&costFunc) const
         {
             if (!isInSide(p))
             {
@@ -75,16 +75,16 @@ namespace fog
         {
         }
         template <typename F>
-        int getCost(Point2<int> p, F &&costFunc) const
+        int getCost(const CellKey::Offset & p, F &&costFunc) const
         {
             return costFunc(p);
         }
-        bool isInSide(Point2<int> p) const
+        bool isInSide(const CellKey::Offset & p) const
         {
             return p.x >= 0 && p.x < this->width && p.y >= 0 && p.y < this->height;
         }
 
-        CellKey::Offset getNeighbor(Point2<int> p, int direction) const
+        CellKey::Offset getNeighbor(CellKey::Offset& p, int direction) const
         {
             if (direction < 0 || direction >= 6)
                 return p;
@@ -98,7 +98,7 @@ namespace fog
             }
         }
 
-        float heuristic(Point2<int> p1, Point2<int> p2) const
+        float heuristic(CellKey::Offset &p1, CellKey::Offset& p2) const
         {
             int q1 = p1.x - (p1.y - (p1.y & 1)) / 2;
             int r1 = p1.y;
@@ -219,7 +219,7 @@ namespace fog
             {
                 int x = static_cast<int>(path[i].x);
                 int y = static_cast<int>(path[i].y);
-                totalCost += getCost(Point2<int>(x, y), costFunc);
+                totalCost += getCost(CellKey::Offset(x, y), costFunc);
             }
             return totalCost;
         }

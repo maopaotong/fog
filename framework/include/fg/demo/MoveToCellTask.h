@@ -119,7 +119,7 @@ namespace fog
                                                 findPath(
                                                     cKey2, // reverse simple line path
                                                     cKey1, //
-                                                    [](Point2<int> cKey) -> int
+                                                    [](CellKey::Offset& cKey) -> int
                                                     {
                                                         return 1;
                                                     });

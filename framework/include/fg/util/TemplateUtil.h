@@ -14,26 +14,22 @@ namespace fog
     struct isTuple<std::tuple<Ts...>> : std::true_type
     {
     };
-
-    // 主模板
+    /*
+     */
     template <typename Tuple>
-    struct reverse_tuple;
-
-    // 特化：匹配 std::tuple
-    template <typename... Ts>
-    struct reverse_tuple<std::tuple<Ts...>>
+    struct tupleTail;
+    template <typename Head, typename... Tail>
+    struct tupleTail<std::tuple<Head, Tail...>>
     {
-    private:
-        template <std::size_t... Is>
-        static auto impl(std::index_sequence<Is...>)
-            -> std::tuple<std::tuple_element_t<sizeof...(Ts) - 1 - Is, std::tuple<Ts...>>...>;
-
-    public:
-        using type = decltype(impl(std::make_index_sequence<sizeof...(Ts)>{}));
+        using type = std::tuple<Tail...>;
     };
 
-    // 便捷别名（C++14+）
     template <typename Tuple>
-    using reverse_tuple_t = typename reverse_tuple<Tuple>::type;
+    struct tupleHead;
+    template <typename Head, typename... Tail>
+    struct tupleHead<std::tuple<Head, Tail...>>
+    {
+        using type = Head;
+    };
 
 } // namespace fog

@@ -34,16 +34,15 @@ namespace fog
             MEMBERK(cellsMeshQuality, "TILE_MESH_QUALITY")
 
             INJECT(Args(Config *config, CellsDatas::Args &cells)) : cells(cells),
-                                                                         heightAmpOfHill(config->heightAmpOfHill),
-                                                                         heightAmpOfMountain(config->heightAmpOfMountain),
-                                                                         hillDistribution(config->hillPeakDistribution),
-                                                                         mountainDistribution(config->mountainPeakDistribution),
-                                                                         makeMountainRange(config->makeMountainRange)
+                                                                    heightAmpOfHill(config->heightAmpOfHill),
+                                                                    heightAmpOfMountain(config->heightAmpOfMountain),
+                                                                    hillDistribution(config->hillPeakDistribution),
+                                                                    mountainDistribution(config->mountainPeakDistribution),
+                                                                    makeMountainRange(config->makeMountainRange)
 
             {
-
             }
-            
+
             INIT(init)()
             {
                 quality = cellsTerrainAmp * cellsMeshQuality;
@@ -67,9 +66,9 @@ namespace fog
         Args opts;
 
         INJECT(CellsGridsGenerator(Args opts, Config *config)) : opts(opts),
-                                                                    config(config),
-                                                                    heightAmpOfHill(opts.heightAmpOfHill),
-                                                                    heightAmpOfMountain(opts.heightAmpOfMountain)
+                                                                 config(config),
+                                                                 heightAmpOfHill(opts.heightAmpOfHill),
+                                                                 heightAmpOfMountain(opts.heightAmpOfMountain)
         {
         }
 
@@ -388,7 +387,8 @@ namespace fog
                     CellKey::Offset cKeys[5]; // find the 5 point in which cell.
                     for (int i = 0; i < 5; i++)
                     {
-                        cKeys[i] = Point2<float>(points[i].x, points[i].y).transform(Transform::CentreToCellKey());
+                        // cKeys[i] = Point2<float>(points[i].x, points[i].y).transform(Transform::CentreToCellKey());
+                        cKeys[i] = CellKey::transform<CellKey::CO>(points[i]);
                         cKeys[i].x = std::clamp<int>(cKeys[i].x, 0, tWidth - 1);
                         cKeys[i].y = std::clamp<int>(cKeys[i].y, 0, tHeight - 1);
                     }
@@ -406,7 +406,7 @@ namespace fog
                     // set corner's type
 
                     std::unordered_set<CellKey::Offset, CellKey::Offset::Hash> keySet; // totol types of 5 cells.
-                    for (int i = 1; i < 5; i++)                        // check other 4 corner's type. normally the max different types is 3, include the centre.
+                    for (int i = 1; i < 5; i++)                                        // check other 4 corner's type. normally the max different types is 3, include the centre.
                     {
                         if (cKeys[i] != cKeys[0])
                         {
@@ -502,7 +502,9 @@ namespace fog
                                                           {
                                                               // translate point in the rect to the nearest cell key?
                                                               // the cKey must be one of the 3 cell types calculated above.
-                                                              CellKey::Offset cKey = Point2<float>(x, y).transform(C2CK);
+                                                              // CellKey::Offset cKey = Point2<float>(x, y).transform(C2CK);
+                                                              CellKey::Offset cKey = CellKey::transform<CellKey::CO>(CellKey::Centre(x, y));
+
                                                               int tx = std::clamp<int>(cKey.x, 0, tWidth - 1);
                                                               int ty = std::clamp<int>(cKey.y, 0, tHeight - 1);
 

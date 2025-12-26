@@ -15,7 +15,7 @@ namespace fog
         INJECT(CellsCost(CellsDatas *cDatas)) : tiles(&cDatas->cells)
         {
         }
-        int operator()(Point2<int> &cKey)
+        int operator()(const CellKey::Offset &cKey)
         {
             CellType type = (*tiles)[cKey.x][cKey.y].type;
             int cost = CostMap::DEFAULT_COST;

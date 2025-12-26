@@ -44,41 +44,45 @@ namespace fog
             }
         };
 
-        struct Offset : public Point2<int>
+        struct Offset
         {
+            struct Hash
+            {
+                std::size_t operator()(const Offset &p) const
+                {
+                    auto h1 = std::hash<int>{}(p.x);
+                    auto h2 = std::hash<int>{}(p.y);
+                    return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
+                }
+            };
+            int x;
+            int y;
+            Offset() : Offset(0, 0) {}
+            Offset(int x, int y) : x(x), y(y)
+            {
+            }
 
-            Offset() : Offset(-1, -1) {}
-            Offset(int x, int y) : Point2<int>(x, y)
-            {
-            }
-            Offset(const Point2<float> cKey) : Point2<int>(static_cast<int>(cKey.x), static_cast<int>(cKey.y))
-            {
-            }
-            Offset(const Point2<int> cKey) : Point2<int>(cKey)
-            {
-            }
-
-            bool operator==(const Point2<int> &ck) const
+            bool operator==(const Offset &ck) const
             {
                 return this->x == ck.x && this->y == ck.y;
+            }
+            bool operator!=(const Offset &ck) const
+            {
+                return !operator==(ck);
             }
         };
-        struct Axial : public Point2<int>
+        struct Axial
         {
-            Axial() : Axial(-1, -1) {}
-            Axial(int x, int y) : Point2<int>(x, y)
-            {
-            }
-            Axial(const Point2<float> cKey) : Point2<int>(static_cast<int>(cKey.x), static_cast<int>(cKey.y))
-            {
-            }
-            Axial(const Point2<int> cKey) : Point2<int>(cKey)
+            int q;
+            int r;
+            Axial() : Axial(0, 0) {}
+            Axial(int q, int r) : q(q), r(r)
             {
             }
 
-            bool operator==(const Point2<int> &ck) const
+            bool operator==(const Axial &ck) const
             {
-                return this->x == ck.x && this->y == ck.y;
+                return this->q == ck.q && this->r == ck.r;
             }
         };
 
@@ -91,137 +95,11 @@ namespace fog
             Centre(const Point2<float> cKey) : Point2<float>(cKey.x, cKey.y)
             {
             }
-
         };
 
         struct Pos3D : public Point3<float>
         {
         };
-
-        // transform template dispatcher.
-        template <typename K>
-        struct TransformDispatcher
-        {
-            // template <typename F>
-            // static Vector3 transform3(K &cKey, F &&d2d3)
-            // {
-            //     static_assert(!std::is_same_v<K, K>, "unsuported cell key type.");
-            // }
-
-            // template <typename F>
-            // static Vector3 transform3(K &cKey, Point2<float> pointInCell, float h, F &&d2d3)
-            // {
-            //     static_assert(!std::is_same_v<K, K>, "unsuported cell key type.");
-            // }
-        };
-
-        template <>
-        struct TransformDispatcher<Offset>
-        {
-
-            // template <typename F>
-            // static Vector3 transform3(Offset &cKey, F &&d2d3)
-            // {
-            //     static Transform::CellKeyToCentre TF_K2C;
-            //     return cKey.cast<float>().transform(TF_K2C).transform3(d2d3);
-            // }
-
-            // template <typename F>
-            // static Vector3 transform3(Offset &cKey, Point2<float> pointInCell, float h, F &&d2d3)
-            // {
-            //     static Transform::CellKeyToCentre TF_K2C{};
-            //     return (cKey.cast<float>().transform(TF_K2C) + pointInCell).transform3(h, d2d3);
-            // }
-        };
-
-        template <>
-        struct TransformDispatcher<Axial>
-        {
-
-            // template <typename F>
-            // static Vector3 transform3(Axial &cKey, F &&d2d3)
-            // {
-            //     throw std::runtime_error("TODO");
-            // }
-
-            // template <typename F>
-            // static Vector3 transform3(Axial &cKey, Point2<float> pointInCell, float h, F &&d2d3)
-            // {
-            //     throw std::runtime_error("TODO");
-            // }
-        };
-
-        // transform methods
-
-        // static Transform::CentreToCellKey TF_C2K;
-        // static Transform::CellKeyToCentre TF_K2C;
-
-        // template <typename K, typename F>
-        // static Vector3 transform3(K &cKey, F &&d2d3)
-        // {
-        //     return TransformDispatcher<K>::transform3(cKey, d2d3);
-        // }
-        //
-
-        // template <typename K>
-        // static void getCentres(std::vector<K> &cks, std::vector<Point2<float>> &ret)
-        // {
-
-        //     CollectionUtil::transform<K, Point2<float>>(cks, ret, [](K &ck)
-        //                                                 {
-        //                                                 //    return CellKey::transform<CellKey::OC>(ck); //
-        //                                                 return CellKey::transform<CellKey::OC>(ck); });
-
-        // }
-
-        //
-        // template <typename K, typename F>
-        // static Vector3 transform3(K &cKey, Point2<float> pointInCell, float h, F &&d2d3)
-        // {
-        //     return TransformDispatcher<K>::transform3(cKey, pointInCell, h, d2d3);
-        // }
-
-        // //
-        // template <typename K>
-        // static K from(Point2<float> p)
-        // {
-        //     static_assert(sizeof(T) == 0, "unsupported cell key type.");
-        // };
-
-        // template <>
-        // static Offset from<Offset>(Point2<float> p)
-        // {
-        //     static Transform::CentreToCellKey TF_C2K;
-        //     return p.transform(TF_C2K);
-        // };
-
-        // template <>
-        // static Axial from<Axial>(Point2<float> p)
-        // {
-        //     throw std::runtime_error("TODO");
-        // };
-
-        // transform from key to centre
-
-        // template <typename K>
-        // static Point2<float> getCentre(K &cKey)
-        // {
-        //     static_assert(sizeof(T) == 0, "unsupported cell key type.");
-        // }
-
-        // template <>
-        // static Point2<float> getCentre<Offset>(Offset &cKey)
-        // {
-        //     static Transform::CellKeyToCentre TF_K2C;
-        //     return cKey.Point2<int>::cast<float>().transform(TF_K2C);
-        // }
-
-        // template <>
-        // static Point2<float> getCentre<Axial>(Axial &cKey)
-        // {
-        //     throw std::runtime_error("TODO");
-        // }
-        // //
 
         template <typename K>
         Box2<float> getBoxIn2D(K &cKey)
@@ -258,24 +136,6 @@ namespace fog
             Box2<float> r = getOuterBoxIn2D<K>(cKey);
             return r.transform(Transform::D2CellWorldUV(width, height));
         }
-
-        /*
-         */
-        template <typename Tuple>
-        struct tupleTail;
-        template <typename Head, typename... Tail>
-        struct tupleTail<std::tuple<Head, Tail...>>
-        {
-            using type = std::tuple<Tail...>;
-        };
-
-        template <typename Tuple>
-        struct tupleHead;
-        template <typename Head, typename... Tail>
-        struct tupleHead<std::tuple<Head, Tail...>>
-        {
-            using type = Head;
-        };
 
         //
         template <typename Tuple>
@@ -351,7 +211,8 @@ namespace fog
         static Offset transform<Centre, Offset>(const Centre &cKey1)
         {
             static Transform::CentreToCellKey TF_C2K;
-            return Point2<float>(cKey1.x, cKey1.y).transform(TF_C2K);
+            Point2<float> pC = Point2<float>(cKey1.x, cKey1.y).transform(TF_C2K);
+            return Offset(std::round(pC.x), std::round(pC.y));
         }
 
         template <>
