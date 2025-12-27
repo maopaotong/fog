@@ -25,5 +25,8 @@ namespace fog
                 visit(i, Vector2(dx, dy), args...);
             }
         };
+
+        
+        
     };
 };

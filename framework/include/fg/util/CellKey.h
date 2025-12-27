@@ -40,6 +40,8 @@ namespace fog
         using Centre = Key<OffsetSys, float, PointyTopOddRow>;
         using OffsetPointy = Cell::Key<Cell::OffsetSys, int, Cell::PointyTopOddRow>;
         using OffsetFlat = Cell::Key<Cell::OffsetSys, int, Cell::FlatTopOddCol>;
+        using AxialQ30 = Cell::Key<Cell::AxialSys, int, Cell::Q30>;
+        using AxialQ0 = Cell::Key<Cell::AxialSys, int, Cell::Q0>;
 
         template <System sys, typename T, LayoutType layout>
         struct HashOp
@@ -84,8 +86,8 @@ namespace fog
             T x;
             T y;
             const T *ptr() const { return &x; }
-            Key(){
-
+            Key()
+            {
             }
             Key(T x, T y) : x(x), y(y)
             {

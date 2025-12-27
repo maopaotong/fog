@@ -4,12 +4,13 @@
  */
 #pragma once
 #include "Common.h"
+#include "Math.h"
 #include <OgreVector.h>
 #include "Point3.h"
 namespace fog
 {
-    
-    template<typename T>
+
+    template <typename T>
     struct Point2;
 
     using Vector2 = Point2<float>;
@@ -48,7 +49,7 @@ namespace fog
             return *this;
         }
 
-        Point2<T> operator*(const T& s) const
+        Point2<T> operator*(const T &s) const
         {
             return Point2{x * s, y * s};
         }
@@ -63,7 +64,7 @@ namespace fog
             return Point2<T>{x - p2.x, y - p2.y};
         }
 
-        Point2<T> operator/(const T& s) const
+        Point2<T> operator/(const T &s) const
         {
             return Point2<T>{x / s, y / s};
         }
@@ -75,10 +76,10 @@ namespace fog
             return *this;
         }
 
-        Point2<T> operator+=(const Point2<T> &p) 
+        Point2<T> operator+=(const Point2<T> &p)
         {
-            this->x+=p.x;
-            this->y+=p.y;
+            this->x += p.x;
+            this->y += p.y;
             return *this;
         }
 
@@ -102,10 +103,11 @@ namespace fog
             return sameSign(x, v2.x) && sameSign(y, v2.y);
         }
 
-        float sqrLength(){
+        float sqrLength()
+        {
             return x * x + y * y;
         }
-        
+
         float length()
         {
             return std::sqrt(x * x + y * y);
@@ -166,6 +168,32 @@ namespace fog
             ov.normalise();
             this->x = ov.x;
             this->y = ov.y;
+        }
+
+        template <int degree>
+        Point2<T> rotate() const
+        {
+            return Vector2(rotateX<degree>(), rotateY<degree>());
+        }
+
+        template <int degree>
+        T rotateX() const
+        {
+            const static float radian = degree * Math::PI / 180.0f;
+            const static float c = std::cosf(radian); //
+            const static float s = std::sinf(radian); //
+
+            return c * x - s * y;
+        }
+
+        template <int degree>
+        T rotateY() const
+        {
+            const float radian = degree / 180;
+            const float c = std::cosf(radian); //
+            const float s = std::sinf(radian); //
+
+            return c * x + s * y;
         }
     };
 
