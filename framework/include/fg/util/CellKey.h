@@ -23,99 +23,107 @@ namespace fog
     struct Cell
     {
         using LayoutType = uint8_t;
+        using System = uint8_t;
 
         // horizontal odd row move half step to right.
         static constexpr LayoutType PointyTopOddRow = 0; // pointy top.
         // vertical odd col move half step up.
         static constexpr LayoutType FlatTopOddCol = 1; // flat top.
+        static constexpr LayoutType Q0 = 2;            // Q <=> X , R <=> -X - bY
+        static constexpr LayoutType Q30 = 3;           // Q <=> X + (bY), R <=> 0X - bY
 
-        static constexpr LayoutType Q0 = 2;  // Q <=> X , R <=> -X - bY
-        static constexpr LayoutType Q30 = 3; // Q <=> X + (bY), R <=> 0X - bY
+        static constexpr System OffsetSys = 0;
+        static constexpr System AxialSys = 1;
 
-        template <LayoutType>
-        struct Offset;
-        friend struct CellsTransfrom;
-        friend struct CellsLayout;
-        friend struct OffsetFlatNeibersOp;
+        template <System, typename, LayoutType>
+        struct Key;
+        using Centre = Key<OffsetSys, float, PointyTopOddRow>;
+        using OffsetPointy = Cell::Key<Cell::OffsetSys, int, Cell::PointyTopOddRow>;
+        using OffsetFlat = Cell::Key<Cell::OffsetSys, int, Cell::FlatTopOddCol>;
 
-        template <LayoutType>
-        struct Axial;
-
-        using Key = Offset<PointyTopOddRow>;
-        using QR = Axial<Q30>;
-
-        struct Centre;
-
-        struct Hash
+        template <System sys, typename T, LayoutType layout>
+        struct HashOp
         {
-            std::size_t operator()(const Point2<int> &p) const
+            std::size_t operator()(const Key<sys, T, layout> &k) const
             {
-                auto h1 = std::hash<int>{}(p.x);
-                auto h2 = std::hash<int>{}(p.y);
+                auto h1 = std::hash<T>{}(*k.ptr());
+                auto h2 = std::hash<T>{}(*(k.ptr() + 1));
                 return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
             }
         };
 
-        template <LayoutType layout>
-        struct Offset
+        template <System sys, typename T, LayoutType layout>
+        struct Key
         {
-            struct Hash
-            {
-                std::size_t operator()(const Offset &p) const
-                {
-                    auto h1 = std::hash<int>{}(p.x);
-                    auto h2 = std::hash<int>{}(p.y);
-                    return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
-                }
-            };
-            int x;
-            int y;
-            Offset() : Offset(0, 0) {}
-            Offset(int x, int y) : x(x), y(y)
-            {
-            }
+            using Hash = HashOp<sys, T, layout>;
 
-            bool operator==(const Offset &ck) const
+        protected:
+            T data[2];
+            T *ptr() const
             {
-                return this->x == ck.x && this->y == ck.y;
+                return data;
             }
-            bool operator!=(const Offset &ck) const
+            friend struct Hash;
+
+        public:
+            bool operator==(const Key &ck) const
+            {
+                return ptr()[0] == ck.ptr()[0] && ptr()[1] == ck.ptr()[1];
+            }
+            bool operator!=(const Key &ck) const
             {
                 return !operator==(ck);
             }
         };
 
-        template <LayoutType layout>
-        struct Axial
+        template <typename T, LayoutType layout>
+        struct Key<OffsetSys, T, layout>
         {
-            int q;
-            int r;
-            Axial() : Axial(0, 0) {}
-            Axial(int q, int r) : q(q), r(r)
+            using Hash = HashOp<OffsetSys, T, layout>;
+
+            T x;
+            T y;
+            const T *ptr() const { return &x; }
+            Key(){
+
+            }
+            Key(T x, T y) : x(x), y(y)
             {
             }
-
-            bool operator==(const Axial &ck) const
+            Key(std::tuple<T, T> xy) : x(std::get<0>(xy)), y(std::get<1>(xy))
             {
-                return this->q == ck.q && this->r == ck.r;
+            }
+            bool operator==(const Key<OffsetSys, T, layout> &ck) const
+            {
+                return ptr()[0] == ck.ptr()[0] && ptr()[1] == ck.ptr()[1];
+            }
+            bool operator!=(const Key<OffsetSys, T, layout> &ck) const
+            {
+                return !operator==(ck);
             }
         };
 
-        struct Centre : public Point2<float>
+        template <typename T, LayoutType layout>
+        struct Key<AxialSys, T, layout>
         {
-            Centre() : Centre(-1, -1) {}
-            Centre(float x, float y) : Point2<float>(x, y)
+            T q;
+            T r;
+            const T *ptr() const { return &q; }
+            Key(T q, T r) : q(q), r(r)
             {
             }
-            Centre(const Point2<float> cKey) : Point2<float>(cKey.x, cKey.y)
+            Key(std::tuple<T, T> qr) : q(std::get<0>(qr)), r(std::get<1>(qr))
             {
             }
-        };
-
-        struct Pos3D : public Point3<float>
-        {
+            bool operator==(const Key<AxialSys, T, layout> &ck) const
+            {
+                return ptr()[0] == ck.ptr()[0] && ptr()[1] == ck.ptr()[1];
+            }
+            bool operator!=(const Key<AxialSys, T, layout> &ck) const
+            {
+                return !operator==(ck);
+            }
         };
     };
-
-    using CellKey = Cell::Key;
+    using CellKey = Cell::Key<Cell::OffsetSys, int, Cell::PointyTopOddRow>;
 };

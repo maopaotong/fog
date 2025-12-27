@@ -388,7 +388,7 @@ namespace fog
                     for (int i = 0; i < 5; i++)
                     {
                         // cKeys[i] = Point2<float>(points[i].x, points[i].y).transform(Transform::CentreToCellKey());
-                        cKeys[i] = CellsTransform::transform<CellsTransform::C2K>(points[i]);
+                        cKeys[i] = CellsTransform::transform<CellsTransform::P2K>(points[i]);
                         cKeys[i].x = std::clamp<int>(cKeys[i].x, 0, tWidth - 1);
                         cKeys[i].y = std::clamp<int>(cKeys[i].y, 0, tHeight - 1);
                     }
@@ -396,7 +396,7 @@ namespace fog
                     CellData &cell0 = cells[cKeys[0].x][cKeys[0].y];
                     // tile centre position.
                     // Vector2 tileCentreP = Cell::getOrigin2D(cKeys[0].x, cKeys[0].y);
-                    Vector2 tileCentreP = CellsTransform::transform<CellsTransform::K2C>(cKeys[0]);
+                    Vector2 tileCentreP = CellsTransform::transform<CellsTransform::K2P>(cKeys[0]);
                     //
                     hMap[x][y].cKey = cKeys[0]; // centre cell.
                     hMap[x][y].originInCell = points[0] - tileCentreP;

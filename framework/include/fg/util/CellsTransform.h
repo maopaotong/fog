@@ -10,39 +10,34 @@
 
 namespace fog
 {
-    struct Centre_OffsetPointy
-    {
-        float rad;
-        Centre_OffsetPointy() : rad(1)
-        {
-        }
-        Centre_OffsetPointy(float rad) : rad(rad)
-        {
-        }
-    };
-
     struct CellsTransform
     {
-        using OffsetPointy = Cell::Offset<Cell::PointyTopOddRow>;
-        using OffsetFlat = Cell::Offset<Cell::FlatTopOddCol>;
+        using OffsetPointy = Cell::Key<Cell::OffsetSys, int, Cell::PointyTopOddRow>;
+        using OffsetFlat = Cell::Key<Cell::OffsetSys, int, Cell::FlatTopOddCol>;
+        using AxialQ30 = Cell::Key<Cell::AxialSys, int, Cell::Q30>;
+        using AxialQ0 = Cell::Key<Cell::AxialSys, int, Cell::Q0>;
+        using Centre = Cell::Centre;
 
     private:
         // Pointy top
-        using OPC = std::tuple<Cell::Offset<Cell::PointyTopOddRow>, Cell::Centre>;
-        using COP = std::tuple<Cell::Centre, Cell::Offset<Cell::PointyTopOddRow>>;
+        using OP_C = std::tuple<OffsetPointy, Centre>;
+        using C_OP = std::tuple<Centre, OffsetPointy>;
         // Note: for the reason of template impl limitation, the order is not what you see: Offset => Centre => Point2<float>
-        using OPCP = std::tuple<Cell::Offset<Cell::PointyTopOddRow>, Point2<float>, Cell::Centre>;
+        using OP_C_P = std::tuple<OffsetPointy, Point2<float>, Centre>;
+        using P_C_OP = std::tuple<Point2<float>, OffsetPointy, Centre>;
+
 
         // Flat top
-        using OFC = std::tuple<Cell::Offset<Cell::FlatTopOddCol>, Cell::Centre>;
-        using COF = std::tuple<Cell::Centre, Cell::Offset<Cell::FlatTopOddCol>>;
-        using OFCP = std::tuple<Cell::Offset<Cell::FlatTopOddCol>, Point2<float>, Cell::Centre>; //
+        using OF_C = std::tuple<OffsetFlat, Centre>;
+        using C_OF = std::tuple<Centre, OffsetFlat>;
+        using OF_C_P = std::tuple<OffsetFlat, Point2<float>, Centre>; //
 
     public:
         // default using.
-        using K2C = OPC;  // cellkey to centre in 2d
-        using C2K = COP;  // centre in 2d to cellkey.
-        using K2P = OPCP; //
+        using K2C = OP_C;  // cellkey to centre in 2d
+        using C2K = C_OP;  // centre in 2d to cellkey.
+        using K2P = OP_C_P; // 
+        using P2K = P_C_OP; //
 
         template <typename Tuple>
         static typename std::enable_if_t<isTuple<Tuple>::value && std::tuple_size_v<Tuple> == 2, std::vector<std::tuple_element_t<1, Tuple>>>
@@ -102,29 +97,22 @@ namespace fog
         template <typename K1, typename K2>
         static K2 transform(const K1 &cKey1)
         {
-            static_assert(!std::is_same(K1, K1), "not supported transform between types.");
+            static_assert(sizeof(K1) == 0, "not supported transform between types.");
         }
 
         template <>
-        static Cell::Centre transform<OffsetPointy, Cell::Centre>(const OffsetPointy &cKey1)
+        static Centre transform<OffsetPointy, Centre>(const OffsetPointy &cKey1)
         {
-            static Transform::CellKeyToCentre TF_K2C;
+            int x = cKey1.x;
+                int y = cKey1.y;
+                float fx = x * 2 * 1 + (y % 2 == 0 ? 0 : 1);
+                float fy = y * 1 * std::sqrt(3.0f);
 
-            return Point2<float>(cKey1.x, cKey1.y).transform(TF_K2C);
+            return Centre(fx, fy);
         }
-
-        template <>
-        static Cell::Axial<Cell::Q30> transform<Cell::Centre, Cell::Axial<Cell::Q30>>(const Cell::Centre &cKey1)
+        
+        static std::tuple<int,int> cubeRound(float fq, float fr)
         {
-            constexpr float rad = 1.0f;
-            const static float sqrt3 = std::sqrt(3.0f);
-            const static float R = (2.0f / sqrt3) * rad; //
-            //
-            const float x = cKey1.x;
-            const float y = cKey1.y;
-            float fq = ((sqrt3 / 3.0f) * x + (1.0f / 3.0f) * y) / R; // TODO use angular to calculate the q and r.
-            float fr = -((2.0f / 3.0f) * y) / R;
-            // Step 2: axial -> cube
             const float cx = fq;
             const float cz = fr;
             const float cy = -cx - cz;
@@ -150,15 +138,30 @@ namespace fog
             {
                 rz = -rx - ry;
             }
-
-            return Cell::Axial<Cell::Q30>(rx, rz);
+            return {rx, rz};
         }
 
         template <>
-        static OffsetPointy transform<Cell::Centre, OffsetPointy>(const Cell::Centre &cKey1)
+        static AxialQ30 transform<Cell::Centre, AxialQ30>(const Centre &cKey1)
+        {
+            constexpr float rad = 1.0f;
+            const static float sqrt3 = std::sqrt(3.0f);
+            const static float R = (2.0f / sqrt3) * rad; //
+            //
+            const float x = cKey1.x;
+            const float y = cKey1.y;
+            float fq = ((sqrt3 / 3.0f) * x + (1.0f / 3.0f) * y) / R; // TODO use angular to calculate the q and r.
+            float fr = -((2.0f / 3.0f) * y) / R;
+            // Step 2: axial -> cube
+            
+            return AxialQ30(cubeRound(fq,fr));
+        }
+
+        template <>
+        static OffsetPointy transform<Centre, OffsetPointy>(const Centre &cKey1)
         {
 
-            Cell::Axial<Cell::Q30> cKey2 = transform<Cell::Centre, Cell::Axial<Cell::Q30>>(cKey1);
+            AxialQ30 cKey2 = transform<Cell::Centre, AxialQ30>(cKey1);
 
             // Step 4: cube -> odd-r offset coordinates
             // odd-row ：row = z, col = x + (row - (row & 1)) / 2
@@ -172,6 +175,14 @@ namespace fog
         {
             return Point2<float>(cKey1.x, cKey1.y);
         }
+
+        
+        template <>
+        static Centre transform<Point2<float>, Centre>(const Point2<float> &cKey1)
+        {
+            return Centre(cKey1.x, cKey1.y);
+        }
+
     };
 
 };

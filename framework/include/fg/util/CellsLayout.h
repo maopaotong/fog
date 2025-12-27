@@ -18,6 +18,10 @@
 namespace fog
 {
 
+    using OffsetPointy = Cell::Key<Cell::OffsetSys, int, Cell::PointyTopOddRow>;
+    using OffsetFlat = Cell::Key<Cell::OffsetSys, int, Cell::FlatTopOddCol>;
+        
+
     /**
      *
      *    * * *     [0,3]     [1,3]    [2,3]
@@ -34,7 +38,7 @@ namespace fog
         const static inline int offsetOddX[6] = {1, 1, 1, 0, -1, 0};
         const static inline int offsetOddY[6] = {-1, 0, 1, 1, 0, -1};
 
-        void operator()(int x, int y, Cell::Offset<Cell::PointyTopOddRow> *neibers)
+        void operator()(int x, int y, OffsetPointy *neibers)
         {
             // e.g. :[1,2]
             if (y % 2 == 0)
@@ -77,7 +81,7 @@ namespace fog
         const inline static int offsetOddX[6] = {-1, 0, 1, 1, 0, -1};
         const inline static int offsetOddY[6] = {0, -1, 0, 1, 1, 1};
 
-        void operator()(int x, int y, Cell::Offset<Cell::FlatTopOddCol> *neibers)
+        void operator()(int x, int y, OffsetFlat *neibers)
         {
 
             // e.g. :[2,1]
@@ -118,7 +122,7 @@ namespace fog
         }
 
         template <>
-        static void getNeibers<Cell::Offset<Cell::FlatTopOddCol>>(Cell::Offset<Cell::FlatTopOddCol> &off, Cell::Offset<Cell::FlatTopOddCol> *neibers)
+        static void getNeibers<OffsetFlat>(OffsetFlat &off, OffsetFlat *neibers)
         {
             static OffsetFlatNeibersOp neiber;
             return neiber(off.x, off.y, neibers);

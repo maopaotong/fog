@@ -92,7 +92,7 @@ namespace fog
             // HexTile::Key cell;
             // // bool hitCell = CellUtil::findCellByPoint(costMap, aPos2, aHexTile::Key);
             // bool hitCell = Context<Cell::Center>::get()->findCellByPosition(actorPosIn2D, cell);
-            CellKey cell = CellsTransform::transform<CellsTransform::C2K>(actorPosIn2D);
+            CellKey cell = CellsTransform::transform<CellsTransform::P2K>(actorPosIn2D);
 
             // todo: not hit?
             return {cell, actorPosIn2D};

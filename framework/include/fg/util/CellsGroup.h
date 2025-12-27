@@ -29,7 +29,7 @@ namespace fog
         {
             // Vector2 centre = getOrigin2D(cKey);
 
-            Point2<float> centre = CellsTransform::transform<K, Cell::Centre>(cKey);
+            Point2<float> centre = CellsTransform::transform<std::tuple<K, Point2<float>, Cell::Centre>>(cKey);
 
             float left = centre.x - 1.0;                    // rad
             float bottom = centre.y - 2.0 / std::sqrt(3.0); // R

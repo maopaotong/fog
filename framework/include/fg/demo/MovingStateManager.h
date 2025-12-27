@@ -93,7 +93,7 @@ namespace fog
             // {
             //     return false;
             // }
-            CellKey cKey2 = CellsTransform::transform<CellsTransform::C2K>(pos);
+            CellKey cKey2 = CellsTransform::transform<CellsTransform::P2K>(pos);
 
             eventBus->emit<CellEventType, CellKey>(CellEventType::CellAsTarget, cKey2);
 
