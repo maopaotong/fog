@@ -29,14 +29,21 @@ namespace fog
         // vertical odd col move half step up.
         static constexpr LayoutType FlatTopOddCol = 1; // flat top.
 
+        static constexpr LayoutType Q0 = 2;  // Q <=> X , R <=> -X - bY
+        static constexpr LayoutType Q30 = 3; // Q <=> X + (bY), R <=> 0X - bY
+
         template <LayoutType>
         struct Offset;
         friend struct CellsTransfrom;
         friend struct CellsLayout;
         friend struct OffsetFlatNeibersOp;
 
-        using Key = Offset<PointyTopOddRow>;
+        template <LayoutType>
         struct Axial;
+
+        using Key = Offset<PointyTopOddRow>;
+        using QR = Axial<Q30>;
+
         struct Centre;
 
         struct Hash
@@ -78,6 +85,7 @@ namespace fog
             }
         };
 
+        template <LayoutType layout>
         struct Axial
         {
             int q;
