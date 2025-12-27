@@ -25,7 +25,7 @@ namespace fog
     {
         using OffsetPointy = Cell::Offset<Cell::PointyTopOddRow>;
         using OffsetFlat = Cell::Offset<Cell::FlatTopOddCol>;
-        
+
     private:
         // Pointy top
         using OPC = std::tuple<Cell::Offset<Cell::PointyTopOddRow>, Cell::Centre>;
@@ -114,29 +114,29 @@ namespace fog
         }
 
         template <>
-        static OffsetPointy transform<Cell::Centre, OffsetPointy>(const Cell::Centre &cKey1)
+        static Cell::Axial transform<Cell::Centre, Cell::Axial>(const Cell::Centre &cKey1)
         {
             constexpr float rad = 1.0f;
-            float cx = cKey1.x;
-            float cy = cKey1.y;
-            const float sqrt3 = std::sqrt(3.0f);
-            const float R = (2.0f / sqrt3) * rad; //
-            float q = ((sqrt3 / 3.0f) * cx - (1.0f / 3.0f) * cy) / R;
-            float r = ((2.0f / 3.0f) * cy) / R;
-
+            const static float sqrt3 = std::sqrt(3.0f);
+            const static float R = (2.0f / sqrt3) * rad; //
+            //
+            const float x = cKey1.x;
+            const float y = cKey1.y;
+            float fq = ((sqrt3 / 3.0f) * x - (1.0f / 3.0f) * y) / R;
+            float fr = ((2.0f / 3.0f) * y) / R;
             // Step 2: axial -> cube
-            float x = q;
-            float z = r;
-            float y = -x - z;
+            const float cx = fq;
+            const float cz = fr;
+            const float cy = -cx - cz;
 
             // Step 3: cube rounding to nearest hex
-            int rx = (int)std::round(x);
-            int ry = (int)std::round(y);
-            int rz = (int)std::round(z);
+            int rx = (int)std::round(cx);
+            int ry = (int)std::round(cy);
+            int rz = (int)std::round(cz);
 
-            float dx = std::abs(rx - x);
-            float dy = std::abs(ry - y);
-            float dz = std::abs(rz - z);
+            float dx = std::abs(rx - cx);
+            float dy = std::abs(ry - cy);
+            float dz = std::abs(rz - cz);
 
             if (dx > dy && dx > dz)
             {
@@ -151,11 +151,25 @@ namespace fog
                 rz = -rx - ry;
             }
 
-            // Step 4: cube -> odd-r offset coordinates
-            // 在 odd-r 中：row = z, col = x + (row - (row & 1)) / 2
-            int row = rz;
-            int col = rx + (row - (row & 1)) / 2;
+            return Cell::Axial(rx, rz);
+        }
 
+        template <>
+        static Cell::Centre transform<Cell::Axial, Cell::Centre>(const Cell::Axial &cKey1)
+        {
+            return {0, 0};
+        }
+
+        template <>
+        static OffsetPointy transform<Cell::Centre, OffsetPointy>(const Cell::Centre &cKey1)
+        {
+
+            Cell::Axial cKey2 = transform<Cell::Centre, Cell::Axial>(cKey1);
+
+            // Step 4: cube -> odd-r offset coordinates
+            // odd-row ：row = z, col = x + (row - (row & 1)) / 2
+            int row = cKey2.r;
+            int col = cKey2.q + (row - (row & 1)) / 2;
             return OffsetPointy(std::round(col), std::round(row));
         }
 
