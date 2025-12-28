@@ -121,7 +121,7 @@ namespace fog
                                                      });
             this->actor2 = new Sphere(core, core->getRootSceneNode()->createChildSceneNode());
             this->add(actor2);
-            Vector3 pos3 = tfs->transform3(home->cKey);
+            Vector3 pos3 = tfs->transform3<Cell::Offset>(home->cKey);
             actor2->setPosition(pos3);
             //actor2->setPosition(home->cKey, *tfs->d2td3);
         

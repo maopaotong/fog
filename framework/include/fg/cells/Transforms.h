@@ -50,31 +50,31 @@ namespace fog
         {
         }
 
-        template <typename K>
-        Vector3 transform3(K &cKey)
+        template <Cell::System s1>
+        Vector3 transform3(CellKey &cKey)
         {
-            Cell::PointyCentre cKey2 = CellsTransform::transform<K, Cell::PointyCentre>(cKey);
+            Cell::PointyCentre cKey2 = CellsTransform::transform<Cell::PointyTop, s1, Cell::Centre>(cKey);
             return transform3(cKey2, 0, *this->d2td3);
         }
 
-        template <typename K>
-        Vector3 transform3(K &cKey, Point2<float> pInC)
+        template <Cell::System s1>
+        Vector3 transform3(CellKey &cKey, Point2<float> pInC)
         {
-            Cell::PointyCentre cKey2 = CellsTransform::transform<K, Cell::PointyCentre>(cKey);
+            Cell::PointyCentre cKey2 = CellsTransform::transform<Cell::PointyTop, s1, Cell::Centre>(cKey);
             return transform3(cKey2, pInC);
         }
 
         template <typename F>
         Vector3 transform3(Cell::PointyCentre &cKey, Point2<float> pInC, float h, F &&func)
         {
-            return transform3(CellsTransform::transform<Cell::PointyCentre, Point2<float>>(cKey) + pInC, h, func);
+            return transform3((cKey) + pInC, h, func);
         }
 
-        template <typename F>
-        Vector3 transform3(Cell::PointyCentre &cKey, float h, F &&func)
-        {
-            return transform3(CellsTransform::transform<Cell::PointyCentre, Point2<float>>(cKey), h, func);
-        }
+        // template <typename F>
+        // Vector3 transform3(Cell::PointyCentre &cKey, float h, F &&func)
+        // {
+        //     return transform3(CellsTransform::transform<Cell::PointyCentre, Point2<float>>(cKey), h, func);
+        // }
 
         Vector3 transform3(Point2<float> &cKey)
         {

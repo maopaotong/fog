@@ -45,7 +45,7 @@ namespace fog
         {
             // return Context<Node2D>::get()->to3D(Cell::getOrigin2D(cis),config->CELL_SCALE);
             //return CellKey::transform3(cis, *tfs->d2td3);
-            tfs->transform3<CellKey>(cis);
+            tfs->transform3<Cell::Offset>(cis);
         }
 
         void buildMesh()

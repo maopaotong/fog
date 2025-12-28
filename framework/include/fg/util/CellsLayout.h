@@ -18,10 +18,7 @@
 namespace fog
 {
 
-    using OffsetPointy = Cell::PointyOffset;
-    using OffsetFlat = Cell::FlatOffset;
-        
-
+       
     /**
      *
      *    * * *     [0,3]     [1,3]    [2,3]
@@ -38,7 +35,7 @@ namespace fog
         const static inline int offsetOddX[6] = {1, 1, 1, 0, -1, 0};
         const static inline int offsetOddY[6] = {-1, 0, 1, 1, 0, -1};
 
-        void operator()(int x, int y, OffsetPointy *neibers)
+        void operator()(int x, int y, CellKey *neibers)
         {
             // e.g. :[1,2]
             if (y % 2 == 0)
@@ -81,7 +78,7 @@ namespace fog
         const inline static int offsetOddX[6] = {-1, 0, 1, 1, 0, -1};
         const inline static int offsetOddY[6] = {0, -1, 0, 1, 1, 1};
 
-        void operator()(int x, int y, OffsetFlat *neibers)
+        void operator()(int x, int y, CellKey *neibers)
         {
 
             // e.g. :[2,1]
@@ -108,24 +105,24 @@ namespace fog
     struct CellsLayout
     {
 
-        template <typename K>
+        template <Cell::Layout layout, typename K>
         static void getNeibers(K &cKey, K *neibers)
         {
             static_assert(false, "un-supported type of cell ckey.");
         }
 
         template <>
-        static void getNeibers<CellKey>(CellKey &cKey, CellKey *neibers)
+        static void getNeibers<Cell::PointyTop, CellKey>(CellKey &cKey, CellKey *neibers)
         {
             static OffsetPointyNeibersOp neiber;
             return neiber(cKey.x, cKey.y, neibers);
         }
 
         template <>
-        static void getNeibers<OffsetFlat>(OffsetFlat &off, OffsetFlat *neibers)
+        static void getNeibers<Cell::FlatTop, CellKey>(CellKey &cKey, CellKey *neibers)
         {
             static OffsetFlatNeibersOp neiber;
-            return neiber(off.x, off.y, neibers);
+            return neiber(cKey.x, cKey.y, neibers);
         }
     };
 

@@ -212,6 +212,9 @@ namespace fog
 
             return Point2<T>(static_cast<T>(x), static_cast<T>(y));
         }
+        T * ptr(){
+            return &x;
+        }
     };
 
     template <typename T>
