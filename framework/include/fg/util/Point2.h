@@ -201,7 +201,7 @@ namespace fog
         {
             constexpr double a1 = Math::radian<a1Deg>();
             constexpr double a2 = Math::radian<a2Deg>();
-            const static double delta = std::sin(a2-a1);
+            const static double delta = std::sin(a2 - a1);
             const static double sinA1 = std::sin(a1);
             const static double cosA1 = std::cos(a1);
             const static double sinA2 = std::sin(a2);
@@ -213,5 +213,12 @@ namespace fog
             return Point2<T>(static_cast<T>(x), static_cast<T>(y));
         }
     };
+
+    template <typename T>
+    std::ostream &operator<<(std::ostream &os, const Point2<T> &p)
+    {
+        os << "(" << p.x << "," << p.y << ")";
+        return os;
+    }
 
 }

@@ -24,36 +24,39 @@ namespace fog
     {
 
         using Layout = int;
+        using System = uint8_t;
+
         static constexpr Layout PointyTop = 0;
         static constexpr Layout FlatTop = 1;
+        static constexpr System Offset = 0;
+        static constexpr System Axial = 1;
+        static constexpr System Cartesian = 2;
 
         template <Layout layout>
         struct LayoutInfo
         {
-            constexpr static float innerRad;
-            constexpr static float outerRad;
-            constexpr static float cellWidth;
-            constexpr static float cellHeight;
-            constexpr static float rowHeight;
-            constexpr static float colWidth;
-            constexpr static float oddColOffset;
-            constexpr static float oddRowOffset;
-            constexpr static float qDegree;
-            constexpr static float rDegree;
-            constexpr static float qUnit;
+            constexpr static int type = layout;
+            // constexpr static float innerRad;
+            // constexpr static float outerRad;
+            // constexpr static float cellWidth;
+            // constexpr static float cellHeight;
+            // constexpr static float rowHeight;
+            // constexpr static float colWidth;            
+            // constexpr static float qDegree;
+            // constexpr static float rDegree;
+            // constexpr static float qUnit;
         };
 
         template <>
         struct LayoutInfo<PointyTop>
         {
+            constexpr static int type = PointyTop;
             constexpr static float innerRad = 1.0;
             constexpr static float outerRad = 2 / Math::SQRT3;
             constexpr static float cellWidth = 2;
             constexpr static float cellHeight = outerRad * 2;
             constexpr static float rowHeight = cellHeight * 3 / 4;
-            constexpr static float colWidth = cellWidth;
-            constexpr static float oddColOffset = 0.5f;
-            constexpr static float oddRowOffset = 0.0f;
+            constexpr static float colWidth = cellWidth;            
             constexpr static int qDegree = 30;
             constexpr static int rDegree = 270; //=-90
             constexpr static float qUnit = Math::SQRT3;
@@ -62,14 +65,13 @@ namespace fog
         template <>
         struct LayoutInfo<FlatTop>
         {
+            constexpr static int type = FlatTop;
             constexpr static float innerRad = 1.0;
             constexpr static float outerRad = 2 / Math::SQRT3;
             constexpr static float cellWidth = outerRad * 2;
             constexpr static float cellHeight = 2;
             constexpr static float rowHeight = cellHeight;
-            constexpr static float colWidth = cellWidth * 3 / 4;
-            constexpr static float oddColOffset = 0.0f;
-            constexpr static float oddRowOffset = 0.5f;
+            constexpr static float colWidth = cellWidth * 3 / 4;            
             constexpr static int qDegree = 0;
             constexpr static int rDegree = 120;
             constexpr static float qUnit = Math::SQRT3;
@@ -77,12 +79,6 @@ namespace fog
 
         const static inline LayoutInfo<PointyTop> PointyTopInfo;
         const static inline LayoutInfo<FlatTop> FlatTopInfo;
-
-        using System = uint8_t;
-
-        static constexpr System Offset = 1 << 0;
-        static constexpr System Axial = 1 << 1;
-        static constexpr System Cartesian = 1 << 2;
 
         template <typename, Layout, System>
         struct Key;
