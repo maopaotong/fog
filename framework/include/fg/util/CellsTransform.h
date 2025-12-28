@@ -16,21 +16,21 @@ namespace fog
         using OffsetFlat = Cell::FlatOffset;
         using AxialQ30 = Cell::PointyAxial;
         using AxialQ0 = Cell::FlatAxial;
-        using Centre = Cell::Centre;
+        using PointyCentre = Cell::PointyCentre;
 
     private:
         // Pointy top
-        using Pointy_O_C = std::tuple<OffsetPointy, Centre>;
-        using Pointy_C_O = std::tuple<Centre, OffsetPointy>;
+        using Pointy_O_C = std::tuple<OffsetPointy, PointyCentre>;
+        using Pointy_C_O = std::tuple<PointyCentre, OffsetPointy>;
         // Note: for the reason of template impl limitation, the order is not what you see: Offset => Centre => Point2<float>
-        using Pointy_O_C_P = std::tuple<OffsetPointy, Point2<float>, Centre>;
-        using Pointy_P_C_O = std::tuple<Point2<float>, OffsetPointy, Centre>;
+        using Pointy_O_C_P = std::tuple<OffsetPointy, Point2<float>, PointyCentre>;
+        using Pointy_P_C_O = std::tuple<Point2<float>, OffsetPointy, PointyCentre>;
 
         // Flat top
-        using Flat_O_C = std::tuple<OffsetFlat, Centre>;
-        using Flat_C_O = std::tuple<Centre, OffsetFlat>;
-        using Flat_O_C_P = std::tuple<OffsetFlat, Point2<float>, Centre>; //
-        using Flat_P_C_O = std::tuple<Point2<float>, OffsetFlat, Centre>;
+        using Flat_O_C = std::tuple<OffsetFlat, PointyCentre>;
+        using Flat_C_O = std::tuple<PointyCentre, OffsetFlat>;
+        using Flat_O_C_P = std::tuple<OffsetFlat, Point2<float>, PointyCentre>; //
+        using Flat_P_C_O = std::tuple<Point2<float>, OffsetFlat, PointyCentre>;
 
     public:
         // default using.
@@ -101,7 +101,7 @@ namespace fog
         }
 
         template <>
-        static Centre transform<OffsetPointy, Centre>(const OffsetPointy &cKey1)
+        static PointyCentre transform<OffsetPointy, PointyCentre>(const OffsetPointy &cKey1)
         {
             const static float sqrt3 = std::sqrt(3.0f);
             const static float rUnit = sqrt3;
@@ -114,7 +114,7 @@ namespace fog
             float fx = x * cUnit + (y % 2 == 0 ? 0 : cUnitHalf);
             float fy = y * rUnit;
 
-            return Centre(fx, fy);
+            return PointyCentre(fx, fy);
         }
 
         static std::tuple<int, int> cubeRound(float fq, float fr)
@@ -148,7 +148,7 @@ namespace fog
         }
 
         template <>
-        static AxialQ30 transform<Cell::Centre, AxialQ30>(const Centre &cKey1)
+        static AxialQ30 transform<Cell::PointyCentre, AxialQ30>(const PointyCentre &cKey1)
         {
             const static float sqrt3 = std::sqrt(3.0f);
 
@@ -167,7 +167,7 @@ namespace fog
         }
 
         template <>
-        static AxialQ0 transform<Cell::Centre, AxialQ0>(const Centre &cKey1)
+        static AxialQ0 transform<Cell::PointyCentre, AxialQ0>(const PointyCentre &cKey1)
         {
             const static float sqrt3 = std::sqrt(3.0f);
 
@@ -183,21 +183,22 @@ namespace fog
 
             return AxialQ0(cubeRound(fq, fr));
         }
+
         template <>
-        static Centre transform<AxialQ0, Cell::Centre>(const AxialQ0 &cKey1)
+        static PointyCentre transform<AxialQ0, Cell::PointyCentre>(const AxialQ0 &cKey1)
         {
             const static float sqrt3 = std::sqrt(3.0f);
             const static float qUnit = sqrt3;
-            Point2<float> p = Point2<float>::makeByDistanceToLines<90,210>(cKey1.q, cKey1.r);
+            Point2<float> p = Point2<float>::makeByDistanceToLines<90, 210>(cKey1.q, cKey1.r);
 
-            return Cell::Centre(p.x * qUnit, p.y * qUnit);
+            return PointyCentre(p.x * qUnit, p.y * qUnit);
         }
 
         template <>
-        static OffsetPointy transform<Centre, OffsetPointy>(const Centre &cKey1)
+        static OffsetPointy transform<PointyCentre, OffsetPointy>(const PointyCentre &cKey1)
         {
 
-            AxialQ30 cKey2 = transform<Cell::Centre, AxialQ30>(cKey1);
+            AxialQ30 cKey2 = transform<Cell::PointyCentre, AxialQ30>(cKey1);
 
             // Step 4: cube -> odd-r offset coordinates
             // odd-row ：row = z, col = x + (row - (row & 1)) / 2
@@ -207,15 +208,15 @@ namespace fog
         }
 
         template <>
-        static Point2<float> transform<Cell::Centre, Point2<float>>(const Cell::Centre &cKey1)
+        static Point2<float> transform<Cell::PointyCentre, Point2<float>>(const Cell::PointyCentre &cKey1)
         {
             return Point2<float>(cKey1.x, cKey1.y);
         }
 
         template <>
-        static Centre transform<Point2<float>, Centre>(const Point2<float> &cKey1)
+        static PointyCentre transform<Point2<float>, PointyCentre>(const Point2<float> &cKey1)
         {
-            return Centre(cKey1.x, cKey1.y);
+            return PointyCentre(cKey1.x, cKey1.y);
         }
     };
 

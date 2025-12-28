@@ -26,7 +26,7 @@ namespace fog
         using Layout = int;
         static constexpr Layout PointyTop = 0;
         static constexpr Layout FlatTop = 1;
-        
+
         template <Layout layout>
         struct LayoutInfo
         {
@@ -72,7 +72,7 @@ namespace fog
             constexpr static float oddRowOffset = 0.5f;
             constexpr static int qDegree = 0;
             constexpr static int rDegree = 120;
-            inline static float qUnit = Math::SQRT3;
+            constexpr static float qUnit = Math::SQRT3;
         };
 
         const static inline LayoutInfo<PointyTop> PointyTopInfo;
@@ -82,10 +82,12 @@ namespace fog
 
         static constexpr System Offset = 1 << 0;
         static constexpr System Axial = 1 << 1;
+        static constexpr System Cartesian = 1 << 2;
 
         template <typename, Layout, System>
         struct Key;
-        using Centre = Key<float, Cell::PointyTop, Offset>;
+        using PointyCentre = Key<float, Cell::PointyTop, Cartesian>;
+        using FlatCentre = Key<float, Cell::FlatTop, Cartesian>;
         using PointyOffset = Cell::Key<int, Cell::PointyTop, Offset>;
         using FlatOffset = Cell::Key<int, Cell::FlatTop, Offset>;
         using PointyAxial = Cell::Key<int, Cell::PointyTop, Axial>;
@@ -149,6 +151,33 @@ namespace fog
                 return ptr()[0] == ck.ptr()[0] && ptr()[1] == ck.ptr()[1];
             }
             bool operator!=(const Key<T, layout, Offset> &ck) const
+            {
+                return !operator==(ck);
+            }
+        };
+
+        template <typename T, Layout layout>
+        struct Key<T, layout, Cartesian>
+        {
+            using Hash = HashOp<T, layout, Cartesian>;
+
+            T x;
+            T y;
+            const T *ptr() const { return &x; }
+            Key()
+            {
+            }
+            Key(T x, T y) : x(x), y(y)
+            {
+            }
+            Key(std::tuple<T, T> xy) : x(std::get<0>(xy)), y(std::get<1>(xy))
+            {
+            }
+            bool operator==(const Key<T, layout, Cartesian> &ck) const
+            {
+                return ptr()[0] == ck.ptr()[0] && ptr()[1] == ck.ptr()[1];
+            }
+            bool operator!=(const Key<T, layout, Cartesian> &ck) const
             {
                 return !operator==(ck);
             }

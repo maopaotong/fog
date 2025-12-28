@@ -503,7 +503,7 @@ namespace fog
                                                               // translate point in the rect to the nearest cell key?
                                                               // the cKey must be one of the 3 cell types calculated above.
                                                               // CellKey::Offset cKey = Point2<float>(x, y).transform(C2CK);
-                                                              CellKey cKey = CellsTransform::transform<CellsTransform::C2K>(Cell::Centre(x, y));
+                                                              CellKey cKey = CellsTransform::transform<CellsTransform::C2K>(Cell::PointyCentre(x, y));
 
                                                               int tx = std::clamp<int>(cKey.x, 0, tWidth - 1);
                                                               int ty = std::clamp<int>(cKey.y, 0, tHeight - 1);
