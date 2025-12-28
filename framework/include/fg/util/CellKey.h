@@ -22,31 +22,79 @@ namespace fog
 
     struct Cell
     {
-        using LayoutType = uint8_t;
+
+        using Layout = int;
+        static constexpr Layout PointyTop = 0;
+        static constexpr Layout FlatTop = 1;
+        
+        template <Layout layout>
+        struct LayoutInfo
+        {
+            constexpr static float innerRad;
+            constexpr static float outerRad;
+            constexpr static float cellWidth;
+            constexpr static float cellHeight;
+            constexpr static float rowHeight;
+            constexpr static float colWidth;
+            constexpr static float oddColOffset;
+            constexpr static float oddRowOffset;
+            constexpr static float qDegree;
+            constexpr static float rDegree;
+            constexpr static float qUnit;
+        };
+
+        template <>
+        struct LayoutInfo<PointyTop>
+        {
+            constexpr static float innerRad = 1.0;
+            constexpr static float outerRad = 2 / Math::SQRT3;
+            constexpr static float cellWidth = 2;
+            constexpr static float cellHeight = outerRad * 2;
+            constexpr static float rowHeight = cellHeight * 3 / 4;
+            constexpr static float colWidth = cellWidth;
+            constexpr static float oddColOffset = 0.5f;
+            constexpr static float oddRowOffset = 0.0f;
+            constexpr static int qDegree = 30;
+            constexpr static int rDegree = 270; //=-90
+            constexpr static float qUnit = Math::SQRT3;
+        };
+
+        template <>
+        struct LayoutInfo<FlatTop>
+        {
+            constexpr static float innerRad = 1.0;
+            constexpr static float outerRad = 2 / Math::SQRT3;
+            constexpr static float cellWidth = outerRad * 2;
+            constexpr static float cellHeight = 2;
+            constexpr static float rowHeight = cellHeight;
+            constexpr static float colWidth = cellWidth * 3 / 4;
+            constexpr static float oddColOffset = 0.0f;
+            constexpr static float oddRowOffset = 0.5f;
+            constexpr static int qDegree = 0;
+            constexpr static int rDegree = 120;
+            inline static float qUnit = Math::SQRT3;
+        };
+
+        const static inline LayoutInfo<PointyTop> PointyTopInfo;
+        const static inline LayoutInfo<FlatTop> FlatTopInfo;
+
         using System = uint8_t;
 
-        // horizontal odd row move half step to right.
-        static constexpr LayoutType PointyTopOddRow = 0; // pointy top.
-        // vertical odd col move half step up.
-        static constexpr LayoutType FlatTopOddCol = 1; // flat top.
-        static constexpr LayoutType Q0 = 2;            // Q <=> X , R <=> -X - bY
-        static constexpr LayoutType Q30 = 3;           // Q <=> X + (bY), R <=> 0X - bY
+        static constexpr System Offset = 1 << 0;
+        static constexpr System Axial = 1 << 1;
 
-        static constexpr System OffsetSys = 0;
-        static constexpr System AxialSys = 1;
-
-        template <System, typename, LayoutType>
+        template <typename, Layout, System>
         struct Key;
-        using Centre = Key<OffsetSys, float, PointyTopOddRow>;
-        using OffsetPointy = Cell::Key<Cell::OffsetSys, int, Cell::PointyTopOddRow>;
-        using OffsetFlat = Cell::Key<Cell::OffsetSys, int, Cell::FlatTopOddCol>;
-        using AxialQ30 = Cell::Key<Cell::AxialSys, int, Cell::Q30>;
-        using AxialQ0 = Cell::Key<Cell::AxialSys, int, Cell::Q0>;
+        using Centre = Key<float, Cell::PointyTop, Offset>;
+        using PointyOffset = Cell::Key<int, Cell::PointyTop, Offset>;
+        using FlatOffset = Cell::Key<int, Cell::FlatTop, Offset>;
+        using PointyAxial = Cell::Key<int, Cell::PointyTop, Axial>;
+        using FlatAxial = Cell::Key<int, Cell::FlatTop, Axial>;
 
-        template <System sys, typename T, LayoutType layout>
+        template <typename T, Layout layout, System sys>
         struct HashOp
         {
-            std::size_t operator()(const Key<sys, T, layout> &k) const
+            std::size_t operator()(const Key<T, layout, sys> &k) const
             {
                 auto h1 = std::hash<T>{}(*k.ptr());
                 auto h2 = std::hash<T>{}(*(k.ptr() + 1));
@@ -54,10 +102,11 @@ namespace fog
             }
         };
 
-        template <System sys, typename T, LayoutType layout>
+        template <typename T, Layout layout, System sys>
         struct Key
         {
-            using Hash = HashOp<sys, T, layout>;
+            using Hash = HashOp<T, layout, sys>;
+            using LayoutInfo = LayoutInfo<layout>;
 
         protected:
             T data[2];
@@ -78,10 +127,10 @@ namespace fog
             }
         };
 
-        template <typename T, LayoutType layout>
-        struct Key<OffsetSys, T, layout>
+        template <typename T, Layout layout>
+        struct Key<T, layout, Offset>
         {
-            using Hash = HashOp<OffsetSys, T, layout>;
+            using Hash = HashOp<T, layout, Offset>;
 
             T x;
             T y;
@@ -95,18 +144,18 @@ namespace fog
             Key(std::tuple<T, T> xy) : x(std::get<0>(xy)), y(std::get<1>(xy))
             {
             }
-            bool operator==(const Key<OffsetSys, T, layout> &ck) const
+            bool operator==(const Key<T, layout, Offset> &ck) const
             {
                 return ptr()[0] == ck.ptr()[0] && ptr()[1] == ck.ptr()[1];
             }
-            bool operator!=(const Key<OffsetSys, T, layout> &ck) const
+            bool operator!=(const Key<T, layout, Offset> &ck) const
             {
                 return !operator==(ck);
             }
         };
 
-        template <typename T, LayoutType layout>
-        struct Key<AxialSys, T, layout>
+        template <typename T, Layout layout>
+        struct Key<T, layout, Axial>
         {
             T q;
             T r;
@@ -117,15 +166,16 @@ namespace fog
             Key(std::tuple<T, T> qr) : q(std::get<0>(qr)), r(std::get<1>(qr))
             {
             }
-            bool operator==(const Key<AxialSys, T, layout> &ck) const
+            bool operator==(const Key<T, layout, Axial> &ck) const
             {
                 return ptr()[0] == ck.ptr()[0] && ptr()[1] == ck.ptr()[1];
             }
-            bool operator!=(const Key<AxialSys, T, layout> &ck) const
+            bool operator!=(const Key<T, layout, Axial> &ck) const
             {
                 return !operator==(ck);
             }
         };
     };
-    using CellKey = Cell::Key<Cell::OffsetSys, int, Cell::PointyTopOddRow>;
+
+    using CellKey = Cell::Key<int, Cell::PointyTop, Cell::Offset>;
 };

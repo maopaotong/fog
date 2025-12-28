@@ -173,27 +173,44 @@ namespace fog
         template <int degree>
         Point2<T> rotate() const
         {
-            return Vector2(rotateX<degree>(), rotateY<degree>());
+            return Vector2(rotateAndGetX<degree>(), rotateAndGetY<degree>());
         }
 
         template <int degree>
-        T rotateX() const
+        T rotateAndGetX() const
         {
             const static float radian = degree * Math::PI / 180.0f;
-            const static float c = std::cosf(radian); //
-            const static float s = std::sinf(radian); //
+            const static double c = std::cos(radian); //
+            const static double s = std::sin(radian); //
 
             return c * x - s * y;
         }
 
         template <int degree>
-        T rotateY() const
+        T rotateAndGetY() const
         {
-            const float radian = degree / 180;
-            const float c = std::cosf(radian); //
-            const float s = std::sinf(radian); //
+            const float radian = degree * Math::PI / 180.0f;
+            const double c = std::cos(radian); //
+            const double s = std::sin(radian); //
 
             return c * x + s * y;
+        }
+
+        template <int a1Deg, int a2Deg>
+        static Point2<T> makeByDistanceToLines(T d1, T d2)
+        {
+            constexpr double a1 = Math::radian<a1Deg>();
+            constexpr double a2 = Math::radian<a2Deg>();
+            const static double delta = std::sin(a2-a1);
+            const static double sinA1 = std::sin(a1);
+            const static double cosA1 = std::cos(a1);
+            const static double sinA2 = std::sin(a2);
+            const static double cosA2 = std::cos(a2);
+
+            double x = (d2 * cosA1 - d1 * cosA2) / delta;
+            double y = (d2 * sinA1 - d1 * sinA2) / delta;
+
+            return Point2<T>(static_cast<T>(x), static_cast<T>(y));
         }
     };
 

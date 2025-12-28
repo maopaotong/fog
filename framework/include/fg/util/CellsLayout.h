@@ -18,8 +18,8 @@
 namespace fog
 {
 
-    using OffsetPointy = Cell::Key<Cell::OffsetSys, int, Cell::PointyTopOddRow>;
-    using OffsetFlat = Cell::Key<Cell::OffsetSys, int, Cell::FlatTopOddCol>;
+    using OffsetPointy = Cell::PointyOffset;
+    using OffsetFlat = Cell::FlatOffset;
         
 
     /**
