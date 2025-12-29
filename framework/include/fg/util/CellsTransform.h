@@ -15,14 +15,14 @@ namespace fog
         using Layout = Cell::Layout;
         using System = Cell::System;
 
-        // pointy
-        template <Layout l, System s11, System s22>
-        struct TransformTag
-        {
-            static constexpr Layout layout = l;
-            static constexpr System s1 = s11;
-            static constexpr System s2 = s22;
-        };
+        // // pointy
+        // template <Layout l, System s11, System s22>
+        // struct TransformTag
+        // {
+        //     static constexpr Layout layout = l;
+        //     static constexpr System s1 = s11;
+        //     static constexpr System s2 = s22;
+        // };
 
         static constexpr Layout Pointy = Cell::PointyTop;
         static constexpr Layout Flat = Cell::FlatTop;
@@ -32,49 +32,13 @@ namespace fog
         static constexpr System Axial = Cell::Axial;
         static constexpr System Cartesian = Cell::Cartesian;
 
-        // default using.
-        using K2C = TransformTag<Cell::PointyTop, Cell::Offset, Cell::Centre>; // cellkey to centre in 2d
-        using C2K = TransformTag<Cell::PointyTop, Cell::Centre, Cell::Offset>; // centre in 2d to cellkey.
-        using K2P = TransformTag<Cell::PointyTop, Cell::Offset, Cell::Centre>; //
-        using P2K = TransformTag<Cell::PointyTop, Cell::Centre, Cell::Offset>; //
-
+        
         template <Layout layout>
-        struct Transform
-        {
-        };
+        struct Transform;
         template <>
         struct Transform<Pointy>
         {
-            // template <System s1, System s2>
-            // static typename Cell::SystemInfo<s2>::type
-            //     transform(typename Cell::SystemInfo<s1>::type)
-            // {
-            //     throw static_assert(false, "not supported transfrom layout or system.");
-            // }
-
-            template <typename Tag>
-            static typename std::vector<typename Cell::SystemInfo<Tag::s2>::type>
-            transformAll(std::vector<typename Cell::SystemInfo<Tag::s1>::type> &cks)
-            {
-
-                using K1 = typename Cell::SystemInfo<Tag::s1>::type;
-                using K2 = typename Cell::SystemInfo<Tag::s2>::type;
-
-                std::vector<K2> ret;
-
-                CollectionUtil::transform<K1, K2>(cks, ret, [](K1 &ck)
-                                                  { return Transform<Pointy>::transform<Tag>(ck); });
-                return ret;
-            }
-
-            template <typename Tag>
-            static typename Cell::SystemInfo<Tag::s2>::type
-            transform(const typename Cell::SystemInfo<Tag::s1>::type &cKey1)
-            {
-
-                return transform<Tag::s1, Tag::s2>(cKey1);
-            }
-
+           
             template <System s1, System s2>
             static
                 typename std::enable_if_t<s1 == Offset && s2 == Centre, Cell::SystemInfo<Centre>::type>
@@ -140,55 +104,14 @@ namespace fog
             }
         };
 
-        // template <typename Tag>
-        // static typename std::vector<typename Cell::SystemInfo<Tag::s2>::type>
-        // transformAll(std::vector<typename Cell::SystemInfo<Tag::s1>::type> &cks)
+        // // 
+        // // transform impl
+        // template <Layout l, System s1, System s2>
+        // static typename Cell::SystemInfo<s2>::type transform(const typename Cell::SystemInfo<s1>::type &cKey1)
         // {
-
-        //     using K1 = typename Cell::SystemInfo<Tag::s1>::type;
-        //     using K2 = typename Cell::SystemInfo<Tag::s2>::type;
-
-        //     std::vector<K2> ret;
-
-        //     CollectionUtil::transform<K1, K2>(cks, ret, [](K1 &ck)
-        //                                       { return CellsTransform::Transform<Cell::PointyTop>::transform<Tag>(ck); });
-        //     return ret;
+        //     static_assert(sizeof(Layout) == 0, "not supported transform between types.");
         // }
 
-        // transform tuple easy to call.
-
-        // template <typename Tag>
-        // static typename Cell::SystemInfo<Tag::s2>::type
-        // transform(const typename Cell::SystemInfo<Tag::s1>::type &cKey1)
-        // {
-
-        //     return transform<Tag::layout, Tag::s1, Tag::s2>(cKey1);
-        // }
-
-        // transform impl
-        template <Layout l, System s1, System s2>
-        static typename Cell::SystemInfo<s2>::type transform(const typename Cell::SystemInfo<s1>::type &cKey1)
-        {
-            static_assert(sizeof(Layout) == 0, "not supported transform between types.");
-        }
-
-        // Pointy: Offset => Centre
-        // template <>
-        // static typename Cell::SystemInfo<Centre>::type transform<Pointy, Offset, Centre>(const typename Cell::SystemInfo<Offset>::type &cKey1)
-        // {
-        //     const static float sqrt3 = std::sqrt(3.0f);
-        //     const static float rUnit = sqrt3;
-        //     const static float cUnit = 2.0f;             // 2*radius
-        //     const static float cUnitHalf = cUnit / 2.0f; // half cUnit.
-
-        //     // innerradius = 1.0f;
-        //     int x = cKey1.x;
-        //     int y = cKey1.y;
-        //     float fx = x * cUnit + (y % 2 == 0 ? 0 : cUnitHalf);
-        //     float fy = y * rUnit;
-
-        //     return Point2<float>(fx, fy);
-        // }
 
         // Flat , Offset => Centre
         template <>
@@ -260,56 +183,22 @@ namespace fog
             }
             
         };
-        // template <>
-        // static typename Cell::SystemInfo<Centre>::type transform<Flat, Offset, Centre>(const typename Cell::SystemInfo<Offset>::type &cKey1)
-        // {
-        //     float fx = cKey1.x * Cell::LayoutInfo<Cell::FlatTop>::colWidth;
-        //     float fy = (cKey1.y + (cKey1.x % 2 == 0 ? 0 : 0.5)) * Cell::LayoutInfo<Cell::FlatTop>::rowHeight;
+        // template 
+        
+        template <Layout layout,System s1,System s2>
+            static typename std::vector<typename Cell::SystemInfo<s2>::type>
+            transformAll(std::vector<typename Cell::SystemInfo<s1>::type> &cks)
+            {
 
-        //     return Point2<float>(fx, fy);
-        // }
+                using K1 = typename Cell::SystemInfo<s1>::type;
+                using K2 = typename Cell::SystemInfo<s2>::type;
 
-        // template <>
-        // static typename Cell::SystemInfo<Offset>::type transform<Flat, Centre, Offset>(const typename Cell::SystemInfo<Centre>::type &cKey1)
-        // {
+                std::vector<K2> ret;
 
-        //     float fx = cKey1.x / Cell::LayoutInfo<Cell::FlatTop>::colWidth;
-        //     int x = std::round(fx);
-
-        //     float fy = cKey1.y / Cell::LayoutInfo<Cell::FlatTop>::rowHeight;
-        //     fy -= x % 2 == 0 ? 0.0 : 0.5;
-
-        //     int y = std::round(fy);
-        //     return Cell::OffsetKey(x, y);
-        // }
-
-        // Flat, Point => Centre
-        // template <>
-        // static typename Cell::SystemInfo<Centre>::type transform<Flat, Cartesian, Centre>(const typename Cell::SystemInfo<Cartesian>::type &cKey1)
-        // {
-        //     return Point2<float>(cKey1.x, cKey1.y);
-        // }
-
-        // template <>
-        // static typename Cell::SystemInfo<Cartesian>::type transform<Flat, Centre, Cartesian>(const typename Cell::SystemInfo<Centre>::type &cKey1)
-        // {
-        //     return Point2<float>(cKey1.x, cKey1.y);
-        // }
-
-        // Flat ,Centre => Axial
-        // template <>
-        // static typename Cell::SystemInfo<Axial>::type transform<Flat, Centre, Axial>(const typename Cell::SystemInfo<Centre>::type &cKey1)
-        // {
-
-        // }
-
-        // template <>
-        // static typename Cell::SystemInfo<Centre>::type transform<Flat, Axial, Centre>(const typename Cell::SystemInfo<Axial>::type &cKey1)
-        // {
-
-        // }
-
-        //
+                CollectionUtil::transform<K1, K2>(cks, ret, [](K1 &ck)
+                                                  { return Transform<layout>::transform<s1,s2>(ck); });
+                return ret;
+            }
     private:
         static std::tuple<int, int> cubeRound(float fq, float fr)
         {

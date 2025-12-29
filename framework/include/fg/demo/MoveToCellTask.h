@@ -33,7 +33,7 @@ namespace fog
         EventBus *eventBus;
         CellsCost *cellsCost;
         Config *config;
-        Transforms * tfs;
+        Transforms *tfs;
 
     public:
         MoveToCellTask(Actor *state, CellKey cKey2,
@@ -42,11 +42,11 @@ namespace fog
                        CellsCost *cellsCost,
 
                        Config *config,
-                       Transforms * tfs) : costMap(costMap),
-                                                 tfs(tfs),
-                                                 eventBus(eventBus),
-                                                 cellsCost(cellsCost),
-                                                 movingState(state), cKey2(cKey2), config(config)
+                       Transforms *tfs) : costMap(costMap),
+                                          tfs(tfs),
+                                          eventBus(eventBus),
+                                          cellsCost(cellsCost),
+                                          movingState(state), cKey2(cKey2), config(config)
         {
         }
         virtual ~MoveToCellTask()
@@ -92,7 +92,7 @@ namespace fog
             // HexTile::Key cell;
             // // bool hitCell = CellUtil::findCellByPoint(costMap, aPos2, aHexTile::Key);
             // bool hitCell = Context<Cell::Center>::get()->findCellByPosition(actorPosIn2D, cell);
-            CellKey cell = CellsTransform::Transform<Cell::PointyTop>::transform<CellsTransform::P2K>(actorPosIn2D);
+            CellKey cell = CellsTransform::Transform<Cell::PointyTop>::transform<Cell::Centre, Cell::Offset>(actorPosIn2D);
 
             // todo: not hit?
             return {cell, actorPosIn2D};
@@ -119,7 +119,7 @@ namespace fog
                                                 findPath(
                                                     cKey2, // reverse simple line path
                                                     cKey1, //
-                                                    [](const CellKey& cKey) -> int
+                                                    [](const CellKey &cKey) -> int
                                                     {
                                                         return 1;
                                                     });
@@ -141,9 +141,9 @@ namespace fog
 
             // Context<Node2D>::get()->
 
-            //std::vector<Point2<float>> centres;
-            //CellsTransform::Transform<Cell::PointyTop>::transform<CellsTransform::OC>s<CellKey::Offset>(pathByCKey, centres);
-            std::vector<Point2<float>> centres = CellsTransform::Transform<Cell::PointyTop>::transformAll<CellsTransform::K2P>(pathByCKey);
+            // std::vector<Point2<float>> centres;
+            // CellsTransform::Transform<Cell::PointyTop>::transform<CellsTransform::OC>s<CellKey::Offset>(pathByCKey, centres);
+            std::vector<Point2<float>> centres = CellsTransform::transformAll<Cell::PointyTop, Cell::Offset, Cell::Centre>(pathByCKey);
 
             // float pathSpeed = this->Context<Var<float>::Bag>::get()->getVarVal(".pathSpeed", 1.0f);
 
@@ -165,12 +165,11 @@ namespace fog
             PathFollow2 path2D = buildPath();
 
             Ogre::AnimationStateSet *anisSet = movingState->getAllAnimationStates();
-            
-            float aniSpeed = 1.0f; // 
+
+            float aniSpeed = 1.0f; //
 
             // new child state.
             mission = new PathFollow2MissionState(this->movingState, path2D, anisSet, movingState->getAnimationNames(), aniSpeed, tfs, movingState->getActorHighOffset()); //
-            
         }
 
     }; // end of class
