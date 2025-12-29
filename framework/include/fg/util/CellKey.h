@@ -100,7 +100,7 @@ namespace fog
             constexpr static float unitWidth = cellWidth;
             constexpr static int qDegree = 30;
             constexpr static int qZLDegree = qDegree + 90;
-            constexpr static int rDegree = qDegree + 120 + 120; //=-90
+            constexpr static int rDegree = qDegree + 120 + 120; //=-90, 270
             constexpr static int rZLDegree = rDegree + 90;
             constexpr static float qUnit = Math::SQRT3;
         };
@@ -223,13 +223,7 @@ namespace fog
             static typename std::enable_if_t<s1 == Centre && s2 == Offset, Cell::SystemInfo<Offset>::type> transform(const typename Cell::SystemInfo<Centre>::type &cKey1)
             {
 
-                Cell::AxialKey cKey2 = transform<Cartesian, Axial>(cKey1);//TODO do not use Axial.
-
-                // Step 4: cube -> odd-r offset coordinates
-                // odd-row ：row = z, col = x + (row - (row & 1)) / 2
-                int row = -cKey2.r;
-                int col = cKey2.q + (-row - (row & 1)) / 2;
-                return Cell::OffsetKey(std::round(col), std::round(row));
+                return transform<Cartesian,Offset>(cKey1);
             }
 
             template <System s1, System s2>
@@ -242,8 +236,10 @@ namespace fog
                 // odd-row ：row = z, col = x + (row - (row & 1)) / 2
                 /*
                 */
-                int row = -cKey2.r;
-                int col = cKey2.q + (-row - (row & 1)) / 2;
+               int r = cKey2.r;
+               int q = cKey2.q;
+                int row = -r;
+                int col = q + (r - (r & 1)) / 2;
                 return Cell::OffsetKey(std::round(col), std::round(row));
                 //
                 
@@ -389,7 +385,7 @@ namespace fog
                 //return transform<Centre, Offset>(cKey3);
 
                 int col = cKey2.q;
-                int row = cKey2.r + (cKey2.q - (cKey2.q & 1)) / 2;
+                int row = cKey2.r - (cKey2.q - (cKey2.q & 1)) / 2;
                 return OffsetKey(col,row);
             }
         };
