@@ -65,6 +65,8 @@ namespace fog
             vParams->setNamedConstant("tlsWidthInNum", cdos.cellsRange.getWidth());
             vParams->setNamedConstant("tlsHeightInNum", cdos.cellsRange.getHeight());
             vParams->setNamedConstant("terrQuality", tfos.getTerrainQuality());
+            vParams->setNamedConstant("leiout", CellLayout);
+            
             
 
             if (opts.debugWireFrame)

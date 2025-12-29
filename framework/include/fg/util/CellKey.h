@@ -353,6 +353,7 @@ namespace fog
     };
 
     using CellKey = Cell::OffsetKey;
+    //TODO configurable CellLayout.
     static constexpr Cell::Layout CellLayout = Cell::PointyTop;
     //static constexpr Cell::Layout CellLayout = Cell::FlatTop;
     using CellTransform = Cell::Transform<CellLayout>;
