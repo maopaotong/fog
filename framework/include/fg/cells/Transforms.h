@@ -53,14 +53,14 @@ namespace fog
         template <Cell::System s1>
         Vector3 transform3(CellKey &cKey)
         {
-            Cell::PointyCentre cKey2 = CellsTransform::transform<Cell::PointyTop, s1, Cell::Centre>(cKey);
+            Cell::PointyCentre cKey2 = CellsTransform::Transform<Cell::PointyTop>::transform<s1, Cell::Centre>(cKey);
             return transform3(cKey2, 0, *this->d2td3);
         }
 
         template <Cell::System s1>
         Vector3 transform3(CellKey &cKey, Point2<float> pInC)
         {
-            Cell::PointyCentre cKey2 = CellsTransform::transform<Cell::PointyTop, s1, Cell::Centre>(cKey);
+            Cell::PointyCentre cKey2 = CellsTransform::Transform<Cell::PointyTop>::transform<s1, Cell::Centre>(cKey);
             return transform3(cKey2, pInC);
         }
 
@@ -73,7 +73,7 @@ namespace fog
         // template <typename F>
         // Vector3 transform3(Cell::PointyCentre &cKey, float h, F &&func)
         // {
-        //     return transform3(CellsTransform::transform<Cell::PointyCentre, Point2<float>>(cKey), h, func);
+        //     return transform3(CellsTransform::Transform<Cell::PointyTop>::transform<Cell::PointyCentre, Point2<float>>(cKey), h, func);
         // }
 
         Vector3 transform3(Point2<float> &cKey)

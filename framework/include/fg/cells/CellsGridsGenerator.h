@@ -388,7 +388,7 @@ namespace fog
                     for (int i = 0; i < 5; i++)
                     {
                         // cKeys[i] = Point2<float>(points[i].x, points[i].y).transform(Transform::CentreToCellKey());
-                        cKeys[i] = CellsTransform::transform<CellsTransform::P2K>(points[i]);
+                        cKeys[i] = CellsTransform::Transform<Cell::PointyTop>::transform<CellsTransform::P2K>(points[i]);
                         cKeys[i].x = std::clamp<int>(cKeys[i].x, 0, tWidth - 1);
                         cKeys[i].y = std::clamp<int>(cKeys[i].y, 0, tHeight - 1);
                     }
@@ -396,7 +396,7 @@ namespace fog
                     CellData &cell0 = cells[cKeys[0].x][cKeys[0].y];
                     // tile centre position.
                     // Vector2 tileCentreP = Cell::getOrigin2D(cKeys[0].x, cKeys[0].y);
-                    Vector2 tileCentreP = CellsTransform::transform<CellsTransform::K2P>(cKeys[0]);
+                    Vector2 tileCentreP = CellsTransform::Transform<Cell::PointyTop>::transform<CellsTransform::K2P>(cKeys[0]);
                     //
                     hMap[x][y].cKey = cKeys[0]; // centre cell.
                     hMap[x][y].originInCell = points[0] - tileCentreP;
@@ -503,7 +503,7 @@ namespace fog
                                                               // translate point in the rect to the nearest cell key?
                                                               // the cKey must be one of the 3 cell types calculated above.
                                                               // CellKey::Offset cKey = Point2<float>(x, y).transform(C2CK);
-                                                              CellKey cKey = CellsTransform::transform<CellsTransform::C2K>(Point2<float>(x, y));
+                                                              CellKey cKey = CellsTransform::Transform<Cell::PointyTop>::transform<CellsTransform::C2K>(Point2<float>(x, y));
 
                                                               int tx = std::clamp<int>(cKey.x, 0, tWidth - 1);
                                                               int ty = std::clamp<int>(cKey.y, 0, tHeight - 1);

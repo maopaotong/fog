@@ -86,15 +86,6 @@ namespace fog
         struct LayoutInfo
         {
             constexpr static int type = layout;
-            // constexpr static float innerRad;
-            // constexpr static float outerRad;
-            // constexpr static float cellWidth;
-            // constexpr static float cellHeight;
-            // constexpr static float rowHeight;
-            // constexpr static float colWidth;
-            // constexpr static float qDegree;
-            // constexpr static float rDegree;
-            // constexpr static float qUnit;
         };
 
         template <>
@@ -128,10 +119,7 @@ namespace fog
         };
 
         template <System sys>
-        struct SystemInfo
-        {
-            constexpr static int sys = sys;
-        };
+        struct SystemInfo;
         template <>
         struct SystemInfo<Cartesian>
         {

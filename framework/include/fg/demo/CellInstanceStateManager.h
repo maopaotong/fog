@@ -134,7 +134,7 @@ namespace fog
             // {
             //     return this->cellInstanceStates[cell];
             // }
-            CellKey cKey = CellsTransform::transform<CellsTransform::P2K>(pos);
+            CellKey cKey = CellsTransform::Transform<Cell::PointyTop>::transform<CellsTransform::P2K>(pos);
             return getCellInstanceStateByCellKey(cKey);
         }
         CellInstanceState *getCellInstanceStateByCellKey(CellKey cKey)
