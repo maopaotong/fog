@@ -92,7 +92,7 @@ namespace fog
             // HexTile::Key cell;
             // // bool hitCell = CellUtil::findCellByPoint(costMap, aPos2, aHexTile::Key);
             // bool hitCell = Context<Cell::Center>::get()->findCellByPosition(actorPosIn2D, cell);
-            CellKey cell = CellsTransform::Transform<Cell::PointyTop>::transform<Cell::Centre, Cell::Offset>(actorPosIn2D);
+            CellKey cell = CellTransform::transform<Cell::Centre, Cell::Offset>(actorPosIn2D);
 
             // todo: not hit?
             return {cell, actorPosIn2D};
@@ -142,7 +142,7 @@ namespace fog
             // Context<Node2D>::get()->
 
             // std::vector<Point2<float>> centres;
-            // CellsTransform::Transform<Cell::PointyTop>::transform<CellsTransform::OC>s<CellKey::Offset>(pathByCKey, centres);
+            // CellTransform::transform<CellsTransform::OC>s<CellKey::Offset>(pathByCKey, centres);
             std::vector<Point2<float>> centres = CellsTransform::transformAll<Cell::PointyTop, Cell::Offset, Cell::Centre>(pathByCKey);
 
             // float pathSpeed = this->Context<Var<float>::Bag>::get()->getVarVal(".pathSpeed", 1.0f);

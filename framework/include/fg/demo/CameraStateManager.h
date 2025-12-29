@@ -64,7 +64,7 @@ namespace fog
             Vector3 viewCenterOnGround = ray.getPoint(hitGrd.second);
 
             auto p2 = Point2<float>::from(viewCenterOnGround, *tfs->d2td3);
-            CellKey cell = CellsTransform::Transform<Cell::PointyTop>::transform<Cell::Centre,Cell::Offset>(p2);
+            CellKey cell = CellTransform::transform<Cell::Centre,Cell::Offset>(p2);
             // if (Context<Cell::Center>::get()->findCellByPosition(p2, cell))
             // {
             //     return true;

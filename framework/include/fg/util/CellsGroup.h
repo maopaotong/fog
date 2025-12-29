@@ -18,7 +18,7 @@ namespace fog
         Box2<float> getBoxIn2D(K &cKey)
         {
             // Vector2 centre = getOrigin2D(cKey);
-            Point2<float> centre = CellsTransform::Transform<Cell::PointyTop>::transform<Cell::Offset, Cell::Centre>(cKey);
+            Point2<float> centre = CellTransform::transform<Cell::Offset, Cell::Centre>(cKey);
             float left = centre.x - 1.0; // rad
             float bottom = centre.y - std::sqrt(3.0) / 2.0;
             return Box2<float>(left, bottom, left + 2.0, bottom + std::sqrt(3.0));
@@ -29,7 +29,7 @@ namespace fog
         {
             // Vector2 centre = getOrigin2D(cKey);
 
-            Point2<float> centre = CellsTransform::Transform<Cell::PointyTop>::transform<Cell::Offset, Cell::Centre>(cKey);
+            Point2<float> centre = CellTransform::transform<Cell::Offset, Cell::Centre>(cKey);
 
             float left = centre.x - 1.0;                    // rad
             float bottom = centre.y - 2.0 / std::sqrt(3.0); // R
