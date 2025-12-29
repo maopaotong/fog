@@ -386,7 +386,7 @@ namespace fog
                     for (int i = 0; i < 5; i++)
                     {
                         // cKeys[i] = Point2<float>(points[i].x, points[i].y).transform(Transform::CentreToCellKey());
-                        cKeys[i] = CellTransform::transform<Cell::Centre,Cell::Offset>(points[i]);
+                        cKeys[i] = CellTransform::transform<Cell::Cartesian,Cell::Offset>(points[i]);
                         cKeys[i].x = std::clamp<int>(cKeys[i].x, 0, tWidth - 1);
                         cKeys[i].y = std::clamp<int>(cKeys[i].y, 0, tHeight - 1);
                     }
