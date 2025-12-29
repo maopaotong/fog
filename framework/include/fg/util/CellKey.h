@@ -223,7 +223,16 @@ namespace fog
             static typename std::enable_if_t<s1 == Centre && s2 == Offset, Cell::SystemInfo<Offset>::type> transform(const typename Cell::SystemInfo<Centre>::type &cKey1)
             {
 
-                return transform<Cartesian,Offset>(cKey1);
+                //return transform<Cartesian, Offset>(cKey1);
+
+                float fy = cKey1.y / Cell::LayoutInfo<Cell::PointyTop>::unitHeight;
+                int y = std::round(fy);
+
+                float fx = cKey1.x / Cell::LayoutInfo<Cell::PointyTop>::unitWidth;
+                fx -= y % 2 == 0 ? 0.0 : 0.5;
+
+                int x = std::round(fx);
+                return Cell::OffsetKey(x, y);
             }
 
             template <System s1, System s2>
@@ -235,19 +244,19 @@ namespace fog
                 // Step 4: cube -> odd-r offset coordinates
                 // odd-row ：row = z, col = x + (row - (row & 1)) / 2
                 /*
-                */
-               int r = cKey2.r;
-               int q = cKey2.q;
+                 */
+                int r = cKey2.r;
+                int q = cKey2.q;
                 int row = -r;
                 int col = q + (r - (r & 1)) / 2;
                 return Cell::OffsetKey(std::round(col), std::round(row));
                 //
-                
-                //Cell::AxialKey cKey2 = transform<Cartesian, Axial>(cKey1);
 
-                //Point2<float> cKey3 = transform<Axial, Centre>(cKey2);
+                // Cell::AxialKey cKey2 = transform<Cartesian, Axial>(cKey1);
 
-                //return transform<Centre, Offset>(cKey3);
+                // Point2<float> cKey3 = transform<Axial, Centre>(cKey2);
+
+                // return transform<Centre, Offset>(cKey3);
             }
 
             template <System s1, System s2>
@@ -282,14 +291,14 @@ namespace fog
                 // int r = std::round(fr);
                 return Cell::AxialKey(cubeRound(fq, fr));
             }
-             template <System s1, System s2>
+            template <System s1, System s2>
             static typename std::enable_if_t<s1 == Axial && s2 == Centre, Cell::SystemInfo<Centre>::type> transform(const typename Cell::SystemInfo<Axial>::type &cKey1)
             {
                 // const static float sqrt3 = Math::SQRT3;
                 const static float qUnit = Math::SQRT3;
                 constexpr int qZLDegree = LayoutInfo<PointyTop>::qZLDegree;
                 constexpr int rZLDegree = LayoutInfo<PointyTop>::rZLDegree;
-                
+
                 Point2<float> p = Point2<float>::makeByDistanceToLines<qZLDegree, rZLDegree>(cKey1.q, cKey1.r);
 
                 return Point2<float>(p.x * qUnit, p.y * qUnit);
@@ -380,13 +389,12 @@ namespace fog
             {
                 Cell::AxialKey cKey2 = transform<Cartesian, Axial>(cKey1);
 
-
-                //Point2<float> cKey3 = transform<Axial, Centre>(cKey2);
-                //return transform<Centre, Offset>(cKey3);
+                // Point2<float> cKey3 = transform<Axial, Centre>(cKey2);
+                // return transform<Centre, Offset>(cKey3);
 
                 int col = cKey2.q;
                 int row = cKey2.r - (cKey2.q - (cKey2.q & 1)) / 2;
-                return OffsetKey(col,row);
+                return OffsetKey(col, row);
             }
         };
 
