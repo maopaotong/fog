@@ -143,7 +143,7 @@ namespace fog
 
             // std::vector<Point2<float>> centres;
             // CellTransform::transform<CellsTransform::OC>s<CellKey::Offset>(pathByCKey, centres);
-            std::vector<Point2<float>> centres = CellsTransform::transformAll<Cell::PointyTop, Cell::Offset, Cell::Centre>(pathByCKey);
+            std::vector<Point2<float>> centres = CellsTransform::transformAll<CellLayout, Cell::Offset, Cell::Centre>(pathByCKey);
 
             // float pathSpeed = this->Context<Var<float>::Bag>::get()->getVarVal(".pathSpeed", 1.0f);
 
