@@ -26,8 +26,8 @@ namespace fog
             MEMBERK(cellsTerrainAmp, "CELLS_TERRAIN_AMP")
             MEMBERK(cellsMeshQuality, "TILE_MESH_QUALITY")
 
-            INJECT(Args(CellsDatas::Args& cdos)) : tlsWidth(cdos.cellsRange.getWidth()),
-                                                                        tlsHeight(cdos.cellsRange.getHeight())
+            INJECT(Args(CellsDatas::Args &cdos)) : tlsWidth(cdos.cellsRange.getWidth()),
+                                                   tlsHeight(cdos.cellsRange.getHeight())
 
             {
             }
@@ -35,8 +35,8 @@ namespace fog
             INIT(init)()
             {
                 int quality = getTerrainQuality();
-                this->terWidth = tlsWidth * quality;                          //
-                this->terHeight = tlsHeight * quality * std::sqrt(3.0) / 2.0; // based on the toploy of cells.
+                this->terWidth = tlsWidth * quality;                                  //
+                this->terHeight = tlsHeight * quality * cellRowHeight / cellColWidth; // based on the toploy of cells.
             }
 
             int getTerrainQuality()
@@ -54,11 +54,11 @@ namespace fog
         float scale;
         Args opts;
         INJECT(TransformD2TD3(Args opts, Config *config, CellsGrids *cvs)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
-                                                                                terWidth(opts.terWidth), terHeight(opts.terHeight),
-                                                                                config(config),
-                                                                                cvs(cvs),
-                                                                                scale(config->cellScale),
-                                                                                opts(opts)
+                                                                             terWidth(opts.terWidth), terHeight(opts.terHeight),
+                                                                             config(config),
+                                                                             cvs(cvs),
+                                                                             scale(config->cellScale),
+                                                                             opts(opts)
         {
         }
 
@@ -77,7 +77,7 @@ namespace fog
             pIn2D = pIn2D / config->cellScale; //
 
             // Point2<float> pUV = Cell::getPointInUV(pIn2D, tlsWidth, tlsHeight); // UV
-            Point2<float> pUV = pIn2D.transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
+            Point2<float> pUV = pIn2D.transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight, cellColWidth, cellRowHeight));
             Point2<float> p = pUV;
             p.scale(terWidth, terHeight);
 

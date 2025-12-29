@@ -24,17 +24,9 @@ namespace fog
         //     static constexpr System s2 = s22;
         // };
 
-        static constexpr Layout Pointy = Cell::PointyTop;
-        static constexpr Layout Flat = Cell::FlatTop;
-
-        static constexpr System Offset = Cell::Offset;
-        static constexpr System Centre = Cell::Centre;
-        static constexpr System Axial = Cell::Axial;
-        static constexpr System Cartesian = Cell::Cartesian;
-
         // template
 
-        template <Layout layout, System s1, System s2>
+        template <Cell::Layout layout, Cell::System s1, Cell::System s2>
         static typename std::vector<typename Cell::SystemInfo<s2>::type>
         transformAll(std::vector<typename Cell::SystemInfo<s1>::type> &cks)
         {
@@ -52,7 +44,7 @@ namespace fog
     private:
     };
 
-    using CellKey = Cell::OffsetKey;
+    //using CellKey = Cell::OffsetKey;
     // using Hash = Cell::HashOp<Cell::Offset>;
 
 };

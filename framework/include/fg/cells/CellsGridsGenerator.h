@@ -48,7 +48,7 @@ namespace fog
                 quality = cellsTerrainAmp * cellsMeshQuality;
                 hillRad = quality;
                 this->terWidth = cells.cellsRange.getWidth() * quality;                          //
-                this->terHeight = cells.cellsRange.getHeight() * quality * std::sqrt(3.0) / 2.0; // based on the toploy of cells.
+                this->terHeight = cells.cellsRange.getHeight() * quality * cellRowHeight / cellColWidth; // based on the toploy of cells.
             }
         };
 
@@ -83,8 +83,6 @@ namespace fog
             rectWidth = 2.0 / opts.quality; // rad of tile = 1 , width of tile = 2;
             rectHeight = rectWidth;         // rect height == width
             this->rectRad = (rectHeight + rectWidth) / 2.0;
-            // float rectWidth = static_cast<float>(tWidth) * 2.0f / static_cast<float>(width);
-            // float rectHeight = static_cast<float>(tHeight) * 2.0f / static_cast<float>(height) * std::sqrt(3) / 2.0f;
             //
             std::vector<std::vector<CellsGrid *>> centreRectMap(tWidth, std::vector<CellsGrid *>(tHeight, nullptr));
             // resove the terrain height of the centre rect for each tile.

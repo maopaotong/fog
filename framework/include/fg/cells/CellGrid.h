@@ -53,7 +53,7 @@ namespace fog
             {
                 p.y = -p.y;
             }
-            if (p.y > (1.0 / std::sqrt(3.0) * p.x))
+            if (p.y > (1.0 / Math::SQRT3 * p.x))
             {
                 p = rotateClockwise60(p);
             }
@@ -63,7 +63,7 @@ namespace fog
         Vector2 rotateClockwise60(Vector2 p)
         {
             const float c = 0.5;                // cos(60°)
-            const float s = std::sqrt(3) / 2.0; // sin(60°)
+            const float s = Math::SQRT3 / 2.0; // sin(60°)
             return Vector2(c * p.x + s * p.y, -s * p.x + c * p.y);
         }
 

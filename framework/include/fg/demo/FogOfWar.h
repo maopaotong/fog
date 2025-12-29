@@ -155,7 +155,7 @@ namespace fog
             // TODO make a new space to transform from ckey to uv.
             // Point2<float> centreP = Cell::getOriginUV(cKey, tlsWidth, tlsHeight);
             //
-            Point2<float> centreP = CellTransform::transform<Cell::Offset,Cell::Centre>(cKey).transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight));
+            Point2<float> centreP = CellTransform::transform<Cell::Offset,Cell::Centre>(cKey).transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight, cellColWidth, cellRowHeight));
 
             centreP.scale(width, height); // find the position in texture space.
             // Point2<float> centreP = CellTransform::transform<CellsTransform::OC>(cKey).scale(width,height);

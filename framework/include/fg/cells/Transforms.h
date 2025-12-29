@@ -7,6 +7,7 @@
 #include "TransformD2D3.h"
 namespace fog
 {
+
     struct TransformD2D3H
     {
 
@@ -40,13 +41,15 @@ namespace fog
     };
     struct Transforms
     {
-        //TODO private:
+        // TODO private:
         TransformD2TD3 *d2td3; // d2 + terrains height => d3
         TransformD2D3H *d2hd3; // d2 + z= fixed h => d3
         TransformD3D2 *d3d2;
 
     public:
-        INJECT(Transforms(TransformD2TD3 *d2d3, TransformD2D3H *d3h, TransformD3D2 *d3d2)) : d2td3(d2d3), d2hd3(d3h), d3d2(d3d2)
+        INJECT(Transforms(TransformD2TD3 *d2d3,
+                          TransformD2D3H *d3h,
+                          TransformD3D2 *d3d2)) : d2td3(d2d3), d2hd3(d3h), d3d2(d3d2)
         {
         }
 

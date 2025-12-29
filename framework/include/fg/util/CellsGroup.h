@@ -13,15 +13,15 @@ namespace fog
 
     struct CellsGroup
     {
-       
+
         template <typename K>
         Box2<float> getBoxIn2D(K &cKey)
         {
             // Vector2 centre = getOrigin2D(cKey);
             Point2<float> centre = CellTransform::transform<Cell::Offset, Cell::Centre>(cKey);
-            float left = centre.x - 1.0; // rad
-            float bottom = centre.y - std::sqrt(3.0) / 2.0;
-            return Box2<float>(left, bottom, left + 2.0, bottom + std::sqrt(3.0));
+            float left = centre.x - cellColWidth / 2.0f; // rad
+            float bottom = centre.y - cellRowHeight / 2.0;
+            return Box2<float>(left, bottom, left + cellColWidth, bottom + cellRowHeight);
         }
 
         template <typename K>
@@ -31,9 +31,9 @@ namespace fog
 
             Point2<float> centre = CellTransform::transform<Cell::Offset, Cell::Centre>(cKey);
 
-            float left = centre.x - 1.0;                    // rad
-            float bottom = centre.y - 2.0 / std::sqrt(3.0); // R
-            return Box2<float>(left, bottom, left + 2.0, bottom + 4.0 / std::sqrt(3.0));
+            float left = centre.x - cellWidth / 2.0; // rad
+            float bottom = centre.y - cellHeight / 2.0f;// R
+            return Box2<float>(left, bottom, left + cellWidth, bottom + cellHeight);
         }
 
         template <typename K>
@@ -47,9 +47,8 @@ namespace fog
         static Box2<float> getOuterBoxInUV(K &cKey, int width, int height)
         {
             Box2<float> r = getOuterBoxIn2D<K>(cKey);
-            return r.transform(Transform::D2CellWorldUV(width, height));
+            return r.transform(Transform::D2CellWorldUV(width, height, cellColWidth, cellRowHeight));
         }
-
     };
 
 };

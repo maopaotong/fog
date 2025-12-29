@@ -180,7 +180,7 @@ namespace fog
                 typename std::enable_if_t<s1 == Offset && s2 == Centre, Cell::SystemInfo<Centre>::type>
                 transform(const typename Cell::SystemInfo<Offset>::type &cKey1)
             {
-                const static float sqrt3 = std::sqrt(3.0f);
+                const static float sqrt3 = Math::SQRT3;
                 const static float rUnit = sqrt3;
                 const static float cUnit = 2.0f;             // 2*radius
                 const static float cUnitHalf = cUnit / 2.0f; // half cUnit.
@@ -197,7 +197,7 @@ namespace fog
             template <System s1, System s2>
             static typename std::enable_if_t<s1 == Centre && s2 == Axial, Cell::SystemInfo<Axial>::type> transform(const typename Cell::SystemInfo<Centre>::type &cKey1)
             {
-                const static float sqrt3 = std::sqrt(3.0f);
+                const static float sqrt3 = Math::SQRT3;
 
                 // innerradius = 1.0f
                 const static float qUnit = sqrt3;
@@ -268,7 +268,7 @@ namespace fog
             template <System s1, System s2>
             static typename std::enable_if_t<s1 == Centre && s2 == Axial, Cell::SystemInfo<Axial>::type> transform(const typename Cell::SystemInfo<Centre>::type &cKey1)
             {
-                const static float sqrt3 = std::sqrt(3.0f);
+                const static float sqrt3 = Math::SQRT3;
 
                 // innerradius = 1.0f
                 const static float qUnit = sqrt3;
@@ -301,8 +301,8 @@ namespace fog
             template <System s1, System s2>
             static typename std::enable_if_t<s1 == Axial && s2 == Centre, Cell::SystemInfo<Centre>::type> transform(const typename Cell::SystemInfo<Axial>::type &cKey1)
             {
-                const static float sqrt3 = std::sqrt(3.0f);
-                const static float qUnit = sqrt3;
+                // const static float sqrt3 = Math::SQRT3;
+                const static float qUnit = Math::SQRT3;
                 Point2<float> p = Point2<float>::makeByDistanceToLines<90, 210>(cKey1.q, cKey1.r);
 
                 return Point2<float>(p.x * qUnit, p.y * qUnit);
@@ -356,4 +356,10 @@ namespace fog
     static constexpr Cell::Layout CellLayout = Cell::PointyTop;
     using CellTransform = Cell::Transform<CellLayout>;
     // using Hash = Cell::HashOp<Cell::Offset>;
+
+    static constexpr float cellRowHeight = Cell::LayoutInfo<CellLayout>::rowHeight;
+    static constexpr float cellColWidth = Cell::LayoutInfo<CellLayout>::colWidth;
+    static constexpr float cellWidth = Cell::LayoutInfo<CellLayout>::cellWidth;
+    static constexpr float cellHeight = Cell::LayoutInfo<CellLayout>::cellHeight;
+    
 };
