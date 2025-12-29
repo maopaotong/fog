@@ -48,7 +48,7 @@ namespace fog
                 quality = cellsTerrainAmp * cellsMeshQuality;
                 hillRad = quality;
                 this->terWidth = cells.cellsRange.getWidth() * quality;                          //
-                this->terHeight = cells.cellsRange.getHeight() * quality * cellRowHeight / cellColWidth; // based on the toploy of cells.
+                this->terHeight = cells.cellsRange.getHeight() * quality * unitHeight / unitWidth; // based on the toploy of cells.
             }
         };
 

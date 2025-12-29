@@ -8,24 +8,22 @@ namespace fog
 {
     struct Transform
     {
-              
-        
+
         struct D2CellWorldUV
         {
             int tlsWidth;
             int tlsHeight;
-            int colWidth;
-            int rowHeight;
-            D2CellWorldUV(int width, int height, int cw, int rh) : tlsWidth(width), tlsHeight(height),colWidth(cw),rowHeight(rh)
+            float unitWidth;
+            float unitHeight;
+            D2CellWorldUV(int width, int height, float cw, float rh) : tlsWidth(width), tlsHeight(height), unitWidth(cw), unitHeight(rh)
             {
             }
             void operator()(float &fx, float &fy)
             {
-                fx /= (colWidth * static_cast<float>(tlsWidth));
-                fy /= (rowHeight * static_cast<float>(tlsHeight));
+                fx = fx / (unitWidth * static_cast<float>(tlsWidth));
+                fy = fy / (unitHeight * static_cast<float>(tlsHeight));
             }
         };
-
     };
 
 }; // end of namespace

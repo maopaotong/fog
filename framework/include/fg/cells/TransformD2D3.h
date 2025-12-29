@@ -36,7 +36,7 @@ namespace fog
             {
                 int quality = getTerrainQuality();
                 this->terWidth = tlsWidth * quality;                                  //
-                this->terHeight = tlsHeight * quality * cellRowHeight / cellColWidth; // based on the toploy of cells.
+                this->terHeight = tlsHeight * quality * unitHeight / unitWidth; // based on the toploy of cells.
             }
 
             int getTerrainQuality()
@@ -77,7 +77,7 @@ namespace fog
             pIn2D = pIn2D / config->cellScale; //
 
             // Point2<float> pUV = Cell::getPointInUV(pIn2D, tlsWidth, tlsHeight); // UV
-            Point2<float> pUV = pIn2D.transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight, cellColWidth, cellRowHeight));
+            Point2<float> pUV = pIn2D.transform(Transform::D2CellWorldUV(tlsWidth, tlsHeight, unitWidth, unitHeight));
             Point2<float> p = pUV;
             p.scale(terWidth, terHeight);
 

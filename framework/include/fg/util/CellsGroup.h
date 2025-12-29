@@ -19,9 +19,9 @@ namespace fog
         {
             // Vector2 centre = getOrigin2D(cKey);
             Point2<float> centre = CellTransform::transform<Cell::Offset, Cell::Centre>(cKey);
-            float left = centre.x - cellColWidth / 2.0f; // rad
-            float bottom = centre.y - cellRowHeight / 2.0;
-            return Box2<float>(left, bottom, left + cellColWidth, bottom + cellRowHeight);
+            float left = centre.x - unitWidth / 2.0f; // rad
+            float bottom = centre.y - unitHeight / 2.0;
+            return Box2<float>(left, bottom, left + unitWidth, bottom + unitHeight);
         }
 
         template <typename K>
@@ -47,7 +47,7 @@ namespace fog
         static Box2<float> getOuterBoxInUV(K &cKey, int width, int height)
         {
             Box2<float> r = getOuterBoxIn2D<K>(cKey);
-            return r.transform(Transform::D2CellWorldUV(width, height, cellColWidth, cellRowHeight));
+            return r.transform(Transform::D2CellWorldUV(width, height, unitWidth, unitHeight));
         }
     };
 

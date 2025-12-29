@@ -96,8 +96,8 @@ namespace fog
             constexpr static float outerRad = 2 / Math::SQRT3;
             constexpr static float cellWidth = 2;
             constexpr static float cellHeight = outerRad * 2;
-            constexpr static float rowHeight = cellHeight * 3 / 4;
-            constexpr static float colWidth = cellWidth;
+            constexpr static float unitHeight = cellHeight * 3 / 4;
+            constexpr static float unitWidth = cellWidth;
             constexpr static int qDegree = 30;
             constexpr static int rDegree = 270; //=-90
             constexpr static float qUnit = Math::SQRT3;
@@ -111,8 +111,8 @@ namespace fog
             constexpr static float outerRad = 2 / Math::SQRT3;
             constexpr static float cellWidth = outerRad * 2;
             constexpr static float cellHeight = 2;
-            constexpr static float rowHeight = cellHeight;
-            constexpr static float colWidth = cellWidth * 3 / 4;
+            constexpr static float unitHeight = cellHeight;
+            constexpr static float unitWidth = cellWidth * 3 / 4;
             constexpr static int qDegree = 0;
             constexpr static int rDegree = 120;
             constexpr static float qUnit = Math::SQRT3;
@@ -259,8 +259,8 @@ namespace fog
                 typename std::enable_if_t<s1 == Offset && s2 == Centre, Cell::SystemInfo<Centre>::type>
                 transform(const typename Cell::SystemInfo<Offset>::type &cKey1)
             {
-                float fx = cKey1.x * Cell::LayoutInfo<Cell::FlatTop>::colWidth;
-                float fy = (cKey1.y + (cKey1.x % 2 == 0 ? 0 : 0.5)) * Cell::LayoutInfo<Cell::FlatTop>::rowHeight;
+                float fx = cKey1.x * Cell::LayoutInfo<Cell::FlatTop>::unitWidth;
+                float fy = (cKey1.y + (cKey1.x % 2 == 0 ? 0 : 0.5)) * Cell::LayoutInfo<Cell::FlatTop>::unitHeight;
 
                 return Point2<float>(fx, fy);
             }
@@ -288,10 +288,10 @@ namespace fog
             template <System s1, System s2>
             static typename std::enable_if_t<s1 == Centre && s2 == Offset, Cell::SystemInfo<Offset>::type> transform(const typename Cell::SystemInfo<Centre>::type &cKey1)
             {
-                float fx = cKey1.x / Cell::LayoutInfo<Cell::FlatTop>::colWidth;
+                float fx = cKey1.x / Cell::LayoutInfo<Cell::FlatTop>::unitWidth;
                 int x = std::round(fx);
 
-                float fy = cKey1.y / Cell::LayoutInfo<Cell::FlatTop>::rowHeight;
+                float fy = cKey1.y / Cell::LayoutInfo<Cell::FlatTop>::unitHeight;
                 fy -= x % 2 == 0 ? 0.0 : 0.5;
 
                 int y = std::round(fy);
@@ -354,11 +354,12 @@ namespace fog
 
     using CellKey = Cell::OffsetKey;
     static constexpr Cell::Layout CellLayout = Cell::PointyTop;
+    //static constexpr Cell::Layout CellLayout = Cell::FlatTop;
     using CellTransform = Cell::Transform<CellLayout>;
     // using Hash = Cell::HashOp<Cell::Offset>;
 
-    static constexpr float cellRowHeight = Cell::LayoutInfo<CellLayout>::rowHeight;
-    static constexpr float cellColWidth = Cell::LayoutInfo<CellLayout>::colWidth;
+    static constexpr float unitHeight = Cell::LayoutInfo<CellLayout>::unitHeight;
+    static constexpr float unitWidth = Cell::LayoutInfo<CellLayout>::unitWidth;
     static constexpr float cellWidth = Cell::LayoutInfo<CellLayout>::cellWidth;
     static constexpr float cellHeight = Cell::LayoutInfo<CellLayout>::cellHeight;
     
