@@ -98,7 +98,7 @@ namespace fog
             constexpr static float cellHeight = outerRad * 2;
             constexpr static float unitHeight = cellHeight * 3 / 4;
             constexpr static float unitWidth = cellWidth;
-            constexpr static int qDegree = 30;
+            constexpr static int qDegree = 30;     
             constexpr static int qZLDegree = qDegree + 90;
             constexpr static int rDegree = qDegree + 120 + 120; //=-90, 270
             constexpr static int rZLDegree = rDegree + 90;
@@ -222,14 +222,24 @@ namespace fog
                     fx = x * unitWidth + (y % 2 == 0 ? 0 : unitWidth / 2.0);
                     fy = y * unitHeight;
                 }
-                else
+                else if (constexpr(layout == Cell::FlatTop))
                 {
                     fx = x * unitWidth;
                     fy = y * unitHeight + (x % 2 == 0 ? 0 : unitHeight / 2.0);
                 }
+
                 return Point2<float>(fx, fy);
             }
-            //
+            /**   PointyTop(V1)                  FlatTop                   PointyTop(V2)
+             *    . . . . .-3. . . . . .        . . . . . . . . . . .      . . . . . .r3. . . . . .
+             *    . . . . .-2 . . . .q2       r2. . . . . . . . . . .      -2. . . . .r2. . . . . .
+             *    . . . . .-1 .q1 . . .         . .r1 . . . . . . . .      . . . -1. .r1. . . . . .
+             *    . . . . .00 . . . . .         . . . . .00q1q2 3 4 5      . . . . . .00. . . . . .
+             *    . .-1 . .r1 . . . . .         . .s1 . . . . . . . .      . . . . . .-1. .q1 . . .
+             *  -2. . . . .r2 . . . . .       s2. . . . . . . . . . .      . . . . . .-2. . . . q2. 
+             *    . . . . .r3 . . . . .         . . . . . . . . . . .      . . . . . .-2. . . . . . 
+             * 
+             */
             template <System s1, System s2>
             static typename std::enable_if_t<s1 == Cartesian && s2 == Offset, Cell::SystemInfo<Offset>::type> transform(const typename Cell::SystemInfo<Cartesian>::type &cKey1)
             {
@@ -240,13 +250,13 @@ namespace fog
                 int col;
                 if (constexpr(layout == Cell::PointyTop))
                 {
-                    row = -r;
                     col = q + (r - (r & 1)) / 2;
+                    row = -r;
                 }
-                else
+                else if (constexpr(layout == Cell::FlatTop))
                 {
                     col = q;
-                    row = r - (q - (q & 1)) / 2;
+                    row = r + (q - (q & 1)) / 2;
                 }
                 return OffsetKey(col, row);
             }
@@ -258,48 +268,23 @@ namespace fog
             }
 
             template <System s1, System s2>
-            static typename std::enable_if_t<s1 == Cartesian && s2 == Centre, Cell::SystemInfo<Centre>::type> transform(const typename Cell::SystemInfo<Centre>::type &cKey1)
-            {
-                // return Point2<float>(cKey1.x, cKey1.y);
-                static_assert(false, "todo");
-            }
-
-            template <System s1, System s2>
             static typename std::enable_if_t<s1 == Cartesian && s2 == Axial, Cell::SystemInfo<Axial>::type> transform(const typename Cell::SystemInfo<Cartesian>::type &cKey1)
             {
                 const static float axialUnit = LayoutInfo<layout>::axialUnit;
-                Point2<float> centreP(cKey1.x, cKey1.y);
-                constexpr int aDegree = constexpr(layout == Cell::PointyTop) ? LayoutInfo<layout>::qDegree : LayoutInfo<layout>::rDegree;
-
+                constexpr int qDegree = LayoutInfo<layout>::qDegree;
+                constexpr int rDegree = LayoutInfo<layout>::rDegree;
+                
                 float x = cKey1.x;
                 float y = cKey1.y;
+                Point2<float> p(x, y);
+                
+                float qDistance = p.rotateAndGetX<-qDegree>(); // distance to the number line of .
+                float rDistance = p.rotateAndGetX<-rDegree>(); // distance to the number line of .
 
-                float aDistance = centreP.rotateAndGetX<-aDegree>(); // distance to the number line of q.
-
-                float fq;
-                float fr;
-                if (constexpr(layout == Cell::PointyTop))
-                {
-                    //
-
-                    fq = aDistance / axialUnit;
-                    fr = -y / axialUnit;
-                }
-                else
-                {
-
-                    fq = x / axialUnit;
-                    fr = aDistance / axialUnit;
-                }
+                float fq = qDistance / axialUnit;
+                float fr = rDistance / axialUnit;
+                
                 return Cell::AxialKey(cubeRound(fq, fr));
-            }
-            template <System s1, System s2>
-            static typename std::enable_if_t<s1 == Axial && s2 == Centre, Cell::SystemInfo<Centre>::type> transform(const typename Cell::SystemInfo<Axial>::type &cKey1)
-            {
-                constexpr float axialUnit = LayoutInfo<layout>::axialUnit;
-                constexpr int qZLDegree = LayoutInfo<layout>::qZLDegree;
-                constexpr int rZLDegree = LayoutInfo<layout>::rZLDegree;
-                return Point2<float>(p.x * axialUnit, p.y * axialUnit);
             }
         };
 
