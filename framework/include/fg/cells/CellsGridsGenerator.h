@@ -80,7 +80,8 @@ namespace fog
             auto &tiles = cDatas->cells;
             width = opts.terWidth;
             height = opts.terHeight;
-            rectWidth = 2.0 / opts.quality; // rad of tile = 1 , width of tile = 2;
+            //select a proper react width.
+            rectWidth = Cell::LayoutInfo<CellLayout>::unitWidth / opts.quality; // rad of tile = 1 , width of tile = 2;
             rectHeight = rectWidth;         // rect height == width
             this->rectRad = (rectHeight + rectWidth) / 2.0;
             //

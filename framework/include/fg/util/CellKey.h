@@ -96,7 +96,7 @@ namespace fog
             constexpr static float outerRad = 2 / Math::SQRT3;
             constexpr static float cellWidth = 2;
             constexpr static float cellHeight = outerRad * 2;
-            constexpr static float unitHeight = cellHeight * 3 / 4;
+            constexpr static float unitHeight = cellHeight * 3 / 4;// (2/sqrt3) * 2 *3 / 4 = sqrt3; 
             constexpr static float unitWidth = cellWidth;
             constexpr static int qDegree = -30;     
             constexpr static int qZLDegree = qDegree + 90;
@@ -322,8 +322,8 @@ namespace fog
 
     using CellKey = Cell::OffsetKey;
     // TODO configurable CellLayout.
-    static constexpr Cell::Layout CellLayout = Cell::PointyTop;
-    // static constexpr Cell::Layout CellLayout = Cell::FlatTop;
+    // static constexpr Cell::Layout CellLayout = Cell::PointyTop;
+    static constexpr Cell::Layout CellLayout = Cell::FlatTop;
     using CellTransform = Cell::Transform<CellLayout>;
     // using Hash = Cell::HashOp<Cell::Offset>;
 
