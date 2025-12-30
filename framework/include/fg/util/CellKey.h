@@ -102,7 +102,7 @@ namespace fog
             constexpr static int qZLDegree = qDegree + 90;
             constexpr static int rDegree = qDegree + 120 + 120; //=-90, 270
             constexpr static int rZLDegree = rDegree + 90;
-            constexpr static float qUnit = Math::SQRT3;
+            constexpr static float axialUnit = Math::SQRT3;
         };
 
         template <>
@@ -119,7 +119,7 @@ namespace fog
             constexpr static int qZLDegree = qDegree + 90;
             constexpr static int rDegree = qDegree + 120;
             constexpr static int rZLDegree = rDegree + 90;
-            constexpr static float qUnit = Math::SQRT3;
+            constexpr static float axialUnit = Math::SQRT3;
         };
 
         template <System sys>
@@ -174,89 +174,81 @@ namespace fog
         };
 
         template <Layout layout>
-        struct Transform;
-        template <>
-        struct Transform<PointyTop>
+        struct Transform
         {
 
+            template <System s1, System s2>
+            static typename std::enable_if_t<s1 == Centre && s2 == Offset, Cell::SystemInfo<Offset>::type> transform(const typename Cell::SystemInfo<Centre>::type &cKey1)
+            {
+
+                constexpr float unitHeight = Cell::LayoutInfo<layout>::unitHeight;
+                constexpr float unitWidth = Cell::LayoutInfo<layout>::unitWidth;
+                float fx = cKey1.x / unitWidth;
+                float fy = cKey1.y / unitHeight;
+                int col;
+                int row;
+                if (constexpr(layout == Cell::PointyTop))
+                {
+
+                    row = std::round(fy);
+                    fx -= row % 2 == 0 ? 0.0 : 0.5;
+
+                    col = std::round(fx);
+                }
+                else
+                {
+                    col = std::round(fx);
+                    fy -= col % 2 == 0 ? 0.0 : 0.5;
+                    row = std::round(fy);
+                }
+                return Cell::OffsetKey(col, row);
+            }
             template <System s1, System s2>
             static
                 typename std::enable_if_t<s1 == Offset && s2 == Centre, Cell::SystemInfo<Centre>::type>
                 transform(const typename Cell::SystemInfo<Offset>::type &cKey1)
             {
-                const static float sqrt3 = Math::SQRT3;
-                const static float rUnit = sqrt3;
-                const static float cUnit = 2.0f;             // 2*radius
-                const static float cUnitHalf = cUnit / 2.0f; // half cUnit.
+                constexpr float unitHeight = LayoutInfo<layout>::unitHeight;
+                constexpr float unitWidth = LayoutInfo<layout>::unitWidth;
 
                 // innerradius = 1.0f;
                 int x = cKey1.x;
                 int y = cKey1.y;
-                float fx = x * cUnit + (y % 2 == 0 ? 0 : cUnitHalf);
-                float fy = y * rUnit;
 
+                float fx;
+                float fy;
+                if (constexpr(layout == Cell::PointyTop))
+                {
+                    fx = x * unitWidth + (y % 2 == 0 ? 0 : unitWidth / 2.0);
+                    fy = y * unitHeight;
+                }
+                else
+                {
+                    fx = x * unitWidth;
+                    fy = y * unitHeight + (x % 2 == 0 ? 0 : unitHeight / 2.0);
+                }
                 return Point2<float>(fx, fy);
             }
-
-            // template <System s1, System s2>
-            // static typename std::enable_if_t<s1 == Centre && s2 == Axial, Cell::SystemInfo<Axial>::type> transform(const typename Cell::SystemInfo<Centre>::type &cKey1)
-            // {
-            //     const static float sqrt3 = Math::SQRT3;
-
-            //     // innerradius = 1.0f
-            //     const static float qUnit = sqrt3;
-            //     const static float rUnit = sqrt3;
-            //     //
-
-            //     Point2<float> centreP(cKey1.x, cKey1.y);
-
-            //     float rotateX = centreP.rotateAndGetX<-30>(); // distance to the number line of q.
-            //     float fq = rotateX / qUnit;
-            //     float fr = -cKey1.y / rUnit;
-            //     // int q = std::round(fq);
-            //     // int r = std::round(fr);
-            //     return Cell::AxialKey(cubeRound(fq, fr));
-            // }
-
-            // Pointy,Centre => Offset.
-            template <System s1, System s2>
-            static typename std::enable_if_t<s1 == Centre && s2 == Offset, Cell::SystemInfo<Offset>::type> transform(const typename Cell::SystemInfo<Centre>::type &cKey1)
-            {
-
-                //return transform<Cartesian, Offset>(cKey1);
-
-                float fy = cKey1.y / Cell::LayoutInfo<Cell::PointyTop>::unitHeight;
-                int y = std::round(fy);
-
-                float fx = cKey1.x / Cell::LayoutInfo<Cell::PointyTop>::unitWidth;
-                fx -= y % 2 == 0 ? 0.0 : 0.5;
-
-                int x = std::round(fx);
-                return Cell::OffsetKey(x, y);
-            }
-
+            //
             template <System s1, System s2>
             static typename std::enable_if_t<s1 == Cartesian && s2 == Offset, Cell::SystemInfo<Offset>::type> transform(const typename Cell::SystemInfo<Cartesian>::type &cKey1)
             {
-
                 Cell::AxialKey cKey2 = transform<Cartesian, Axial>(cKey1);
-
-                // Step 4: cube -> odd-r offset coordinates
-                // odd-row ：row = z, col = x + (row - (row & 1)) / 2
-                /*
-                 */
-                int r = cKey2.r;
                 int q = cKey2.q;
-                int row = -r;
-                int col = q + (r - (r & 1)) / 2;
-                return Cell::OffsetKey(std::round(col), std::round(row));
-                //
-
-                // Cell::AxialKey cKey2 = transform<Cartesian, Axial>(cKey1);
-
-                // Point2<float> cKey3 = transform<Axial, Centre>(cKey2);
-
-                // return transform<Centre, Offset>(cKey3);
+                int r = cKey2.r;
+                int row;
+                int col;
+                if (constexpr(layout == Cell::PointyTop))
+                {
+                    row = -r;
+                    col = q + (r - (r & 1)) / 2;
+                }
+                else
+                {
+                    col = q;
+                    row = r - (q - (q & 1)) / 2;
+                }
+                return OffsetKey(col, row);
             }
 
             template <System s1, System s2>
@@ -275,126 +267,39 @@ namespace fog
             template <System s1, System s2>
             static typename std::enable_if_t<s1 == Cartesian && s2 == Axial, Cell::SystemInfo<Axial>::type> transform(const typename Cell::SystemInfo<Cartesian>::type &cKey1)
             {
-                const static float sqrt3 = Math::SQRT3;
-
-                // innerradius = 1.0f
-                const static float qUnit = sqrt3;
-                const static float rUnit = sqrt3;
-                //
-
+                const static float axialUnit = LayoutInfo<layout>::axialUnit;
                 Point2<float> centreP(cKey1.x, cKey1.y);
+                constexpr int aDegree = constexpr(layout == Cell::PointyTop) ? LayoutInfo<layout>::qDegree : LayoutInfo<layout>::rDegree;
 
-                float rotateX = centreP.rotateAndGetX<-30>(); // distance to the number line of q.
-                float fq = rotateX / qUnit;
-                float fr = -cKey1.y / rUnit;
-                // int q = std::round(fq);
-                // int r = std::round(fr);
+                float x = cKey1.x;
+                float y = cKey1.y;
+
+                float aDistance = centreP.rotateAndGetX<-aDegree>(); // distance to the number line of q.
+
+                float fq;
+                float fr;
+                if (constexpr(layout == Cell::PointyTop))
+                {
+                    //
+
+                    fq = aDistance / axialUnit;
+                    fr = -y / axialUnit;
+                }
+                else
+                {
+
+                    fq = x / axialUnit;
+                    fr = aDistance / axialUnit;
+                }
                 return Cell::AxialKey(cubeRound(fq, fr));
             }
             template <System s1, System s2>
             static typename std::enable_if_t<s1 == Axial && s2 == Centre, Cell::SystemInfo<Centre>::type> transform(const typename Cell::SystemInfo<Axial>::type &cKey1)
             {
-                // const static float sqrt3 = Math::SQRT3;
-                const static float qUnit = Math::SQRT3;
-                constexpr int qZLDegree = LayoutInfo<PointyTop>::qZLDegree;
-                constexpr int rZLDegree = LayoutInfo<PointyTop>::rZLDegree;
-
-                Point2<float> p = Point2<float>::makeByDistanceToLines<qZLDegree, rZLDegree>(cKey1.q, cKey1.r);
-
-                return Point2<float>(p.x * qUnit, p.y * qUnit);
-            }
-        };
-
-        // //
-        // // transform impl
-        // template <Layout l, System s1, System s2>
-        // static typename Cell::SystemInfo<s2>::type transform(const typename Cell::SystemInfo<s1>::type &cKey1)
-        // {
-        //     static_assert(sizeof(Layout) == 0, "not supported transform between types.");
-        // }
-
-        // Flat , Offset => Centre
-        template <>
-        struct Transform<FlatTop>
-        {
-
-            template <System s1, System s2>
-            static
-                typename std::enable_if_t<s1 == Offset && s2 == Centre, Cell::SystemInfo<Centre>::type>
-                transform(const typename Cell::SystemInfo<Offset>::type &cKey1)
-            {
-                float fx = cKey1.x * Cell::LayoutInfo<Cell::FlatTop>::unitWidth;
-                float fy = (cKey1.y + (cKey1.x % 2 == 0 ? 0 : 0.5)) * Cell::LayoutInfo<Cell::FlatTop>::unitHeight;
-
-                return Point2<float>(fx, fy);
-            }
-
-            // Centre => Offset.
-            template <System s1, System s2>
-            static typename std::enable_if_t<s1 == Centre && s2 == Offset, Cell::SystemInfo<Offset>::type> transform(const typename Cell::SystemInfo<Centre>::type &cKey1)
-            {
-                float fx = cKey1.x / Cell::LayoutInfo<Cell::FlatTop>::unitWidth;
-                int x = std::round(fx);
-
-                float fy = cKey1.y / Cell::LayoutInfo<Cell::FlatTop>::unitHeight;
-                fy -= x % 2 == 0 ? 0.0 : 0.5;
-
-                int y = std::round(fy);
-                return Cell::OffsetKey(x, y);
-            }
-
-            template <System s1, System s2>
-            static typename std::enable_if_t<s1 == Axial && s2 == Centre, Cell::SystemInfo<Centre>::type> transform(const typename Cell::SystemInfo<Axial>::type &cKey1)
-            {
-                // const static float sqrt3 = Math::SQRT3;
-                const static float qUnit = Math::SQRT3;
-                Point2<float> p = Point2<float>::makeByDistanceToLines<90, 210>(cKey1.q, cKey1.r);
-
-                return Point2<float>(p.x * qUnit, p.y * qUnit);
-            }
-
-            template <System s1, System s2>
-            static typename std::enable_if_t<s1 == Cartesian && s2 == Centre, Cell::SystemInfo<Centre>::type> transform(const typename Cell::SystemInfo<Centre>::type &cKey1)
-            {
-                // return Point2<float>(cKey1.x, cKey1.y);
-                static_assert(false, "TODO");
-            }
-            template <System s1, System s2>
-            static typename std::enable_if_t<s1 == Centre && s2 == Cartesian, Cell::SystemInfo<Centre>::type> transform(const typename Cell::SystemInfo<Cartesian>::type &cKey1)
-            {
-                return Point2<float>(cKey1.x, cKey1.y);
-            }
-
-            template <System s1, System s2>
-            static typename std::enable_if_t<s1 == Cartesian && s2 == Axial, Cell::SystemInfo<Axial>::type> transform(const typename Cell::SystemInfo<Cartesian>::type &cKey1)
-            {
-                const static float sqrt3 = Math::SQRT3;
-
-                // innerradius = 1.0f
-                const static float qUnit = sqrt3;
-                const static float rUnit = sqrt3;
-                //
-                float fq = cKey1.x / qUnit;
-                //
-                Point2<float> centreP(cKey1.x, cKey1.y);
-                float rotateY = centreP.rotateAndGetX<-120>(); // distance to the number line of r.
-                float fr = rotateY / rUnit;
-                // int q = std::round(fq);
-                // int r = std::round(fr);
-                return Cell::AxialKey(cubeRound(fq, fr));
-            }
-            // Centre => Offset.
-            template <System s1, System s2>
-            static typename std::enable_if_t<s1 == Cartesian && s2 == Offset, Cell::SystemInfo<Offset>::type> transform(const typename Cell::SystemInfo<Cartesian>::type &cKey1)
-            {
-                Cell::AxialKey cKey2 = transform<Cartesian, Axial>(cKey1);
-
-                // Point2<float> cKey3 = transform<Axial, Centre>(cKey2);
-                // return transform<Centre, Offset>(cKey3);
-
-                int col = cKey2.q;
-                int row = cKey2.r - (cKey2.q - (cKey2.q & 1)) / 2;
-                return OffsetKey(col, row);
+                constexpr float axialUnit = LayoutInfo<layout>::axialUnit;
+                constexpr int qZLDegree = LayoutInfo<layout>::qZLDegree;
+                constexpr int rZLDegree = LayoutInfo<layout>::rZLDegree;
+                return Point2<float>(p.x * axialUnit, p.y * axialUnit);
             }
         };
 
@@ -433,7 +338,7 @@ namespace fog
     using CellKey = Cell::OffsetKey;
     // TODO configurable CellLayout.
     static constexpr Cell::Layout CellLayout = Cell::PointyTop;
-    //static constexpr Cell::Layout CellLayout = Cell::FlatTop;
+    // static constexpr Cell::Layout CellLayout = Cell::FlatTop;
     using CellTransform = Cell::Transform<CellLayout>;
     // using Hash = Cell::HashOp<Cell::Offset>;
 
