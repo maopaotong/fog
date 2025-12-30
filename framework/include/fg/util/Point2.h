@@ -180,8 +180,8 @@ namespace fog
         T rotateAndGetX() const
         {
             const static float radian = degree * Math::PI / 180.0f;
-            const static double c = std::cos(radian); //
-            const static double s = std::sin(radian); //
+            const static float c = std::cosf(radian); //
+            const static float s = std::sinf(radian); //
 
             return c * x - s * y;
         }
@@ -190,8 +190,8 @@ namespace fog
         T rotateAndGetY() const
         {
             const float radian = degree * Math::PI / 180.0f;
-            const double c = std::cos(radian); //
-            const double s = std::sin(radian); //
+            const float c = std::cosf(radian); //
+            const float s = std::sinf(radian); //
 
             return c * x + s * y;
         }
@@ -199,16 +199,16 @@ namespace fog
         template <int a1Deg, int a2Deg>
         static Point2<T> makeByDistanceToLines(T d1, T d2)
         {
-            constexpr double a1 = Math::radian<a1Deg>();
-            constexpr double a2 = Math::radian<a2Deg>();
-            const static double delta = std::sin(a2 - a1);
-            const static double sinA1 = std::sin(a1);
-            const static double cosA1 = std::cos(a1);
-            const static double sinA2 = std::sin(a2);
-            const static double cosA2 = std::cos(a2);
+            constexpr float a1 = Math::radian<a1Deg>();
+            constexpr float a2 = Math::radian<a2Deg>();
+            const static float delta = std::sinf(a2 - a1);
+            const static float sinA1 = std::sinf(a1);
+            const static float cosA1 = std::cosf(a1);
+            const static float sinA2 = std::sinf(a2);
+            const static float cosA2 = std::cosf(a2);
 
-            double x = (d2 * cosA1 - d1 * cosA2) / delta;
-            double y = (d2 * sinA1 - d1 * sinA2) / delta;
+            float x = (d2 * cosA1 - d1 * cosA2) / delta;
+            float y = (d2 * sinA1 - d1 * sinA2) / delta;
 
             return Point2<T>(static_cast<T>(x), static_cast<T>(y));
         }

@@ -27,9 +27,9 @@ namespace fog
             }
         };
         template <int Deg>
-        static constexpr double radian()
+        static constexpr float radian()
         {
-            return Deg * PI / 180;
+            return Deg * PI / 180.0f;
         }
 
     };
