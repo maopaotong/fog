@@ -98,9 +98,9 @@ namespace fog
             constexpr static float cellHeight = outerRad * 2;
             constexpr static float unitHeight = cellHeight * 3 / 4;
             constexpr static float unitWidth = cellWidth;
-            constexpr static int qDegree = 30;     
+            constexpr static int qDegree = -30;     
             constexpr static int qZLDegree = qDegree + 90;
-            constexpr static int rDegree = qDegree + 120 + 120; //=-90, 270
+            constexpr static int rDegree = qDegree + 120 ; //=90
             constexpr static int rZLDegree = rDegree + 90;
             constexpr static float axialUnit = Math::SQRT3;
         };
@@ -251,7 +251,7 @@ namespace fog
                 if (constexpr(layout == Cell::PointyTop))
                 {
                     col = q + (r - (r & 1)) / 2;
-                    row = -r;
+                    row = r;
                 }
                 else if (constexpr(layout == Cell::FlatTop))
                 {
