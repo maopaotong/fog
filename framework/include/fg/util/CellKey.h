@@ -24,6 +24,8 @@ namespace fog
     {
         using Layout = int;
         using System = uint8_t;
+        using Parity = int;
+        using Direction = int;
 
         static constexpr Layout PointyTop = 0;
         static constexpr Layout FlatTop = 1;
@@ -31,6 +33,10 @@ namespace fog
         static constexpr System Axial = 1;
         static constexpr System Centre = 2;
         static constexpr System Cartesian = 3;
+
+        static constexpr Parity Even = 0;
+        static constexpr Parity Odd = 1;
+
         template <System sys>
         struct HashOp;
         struct OffsetKey
@@ -55,6 +61,11 @@ namespace fog
             bool operator!=(const OffsetKey &ck) const
             {
                 return !operator==(ck);
+            }
+
+            OffsetKey operator+(std::tuple<int, int> xy)
+            {
+                return OffsetKey(x + std::get<0>(xy), y + std::get<1>(xy));
             }
         };
 
@@ -82,6 +93,72 @@ namespace fog
             }
         };
 
+        template <Layout layout, Parity parity>
+        struct NeibersDelta;
+        template <>
+        struct NeibersDelta<PointyTop, Even>
+        {
+            // constexpr static int deltaX[6] = {+1, 0, -1, -1, -1, 0};
+            // constexpr static int deltaY[6] = {0, 1, 1, 0, -1, -1};
+
+            constexpr static std::tuple<int, int> deltaKey[6] = {
+                {+1, 0},
+                {0, +1},
+                {-1, +1},
+                {-1, 0},
+                {-1, -1},
+                {0, -1},
+            };
+        };
+
+        template <>
+        struct NeibersDelta<PointyTop, Odd>
+        {
+            // constexpr static int deltaX[6] = {+1, +1, 0, -1, 0, +1};
+            // constexpr static int deltaY[6] = {0, 1, 1, 0, -1, -1};
+
+            constexpr static std::tuple<int, int> deltaKey[6] = {
+                {+1, 0},
+                {+1, +1},
+                {0, +1},
+                {-1, 0},
+                {0, -1},
+                {+1, -1},
+            };
+        };
+
+        template <>
+        struct NeibersDelta<FlatTop, Even>
+        {
+            // constexpr static int deltaX[6] = {-1, -1, 0, 1, 1, 0};
+            // constexpr static int deltaY[6] = {0, -1, -1, -1, 0, +1};
+
+            constexpr static std::tuple<int, int> deltaKey[6] = {
+                {-1, 0},
+                {-1, -1},
+                {0, -1},
+                {+1, -1},
+                {+1, 0},
+                {0, +1},
+            };
+        };
+
+        template <>
+        struct NeibersDelta<FlatTop, Odd>
+        {
+            // constexpr static int deltaX[6] = {-1, -1, 0, 1, 1, 0};
+            // constexpr static int deltaY[6] = {+1, 0, -1, 0, +1, +1};
+
+            constexpr static std::tuple<int, int> deltaKey[6] = {
+                {-1, +1},
+                {-1, 0},
+                {0, -1},
+                {+1, 0},
+                {+1, +1},
+                {0, +1},
+            };
+        };
+
         template <Layout layout>
         struct LayoutInfo
         {
@@ -96,11 +173,11 @@ namespace fog
             constexpr static float outerRad = 2 / Math::SQRT3;
             constexpr static float cellWidth = 2;
             constexpr static float cellHeight = outerRad * 2;
-            constexpr static float unitHeight = cellHeight * 3 / 4;// (2/sqrt3) * 2 *3 / 4 = sqrt3; 
+            constexpr static float unitHeight = cellHeight * 3 / 4; // (2/sqrt3) * 2 *3 / 4 = sqrt3;
             constexpr static float unitWidth = cellWidth;
-            constexpr static int qDegree = -30;     
+            constexpr static int qDegree = -30;
             constexpr static int qZLDegree = qDegree + 90;
-            constexpr static int rDegree = qDegree + 120 ; //=90
+            constexpr static int rDegree = qDegree + 120; //=90
             constexpr static int rZLDegree = rDegree + 90;
             constexpr static float axialUnit = Math::SQRT3;
         };
@@ -236,16 +313,15 @@ namespace fog
              *    . . . . .-1 .q1 . . .         . .r1 . . . . . . . .      . . . -1. .r1. . . . . .
              *    . . . . .00 . . . . .         . . . . .00q1q2 3 4 5      . . . . . .00. . . . . .
              *    . .-1 . .r1 . . . . .         . .s1 . . . . . . . .      . . . . . .-1. .q1 . . .
-             *  -2. . . . .r2 . . . . .       s2. . . . . . . . . . .      . . . . . .-2. . . . q2. 
-             *    . . . . .r3 . . . . .         . . . . . . . . . . .      . . . . . .-2. . . . . . 
-             * 
+             *  -2. . . . .r2 . . . . .       s2. . . . . . . . . . .      . . . . . .-2. . . . q2.
+             *    . . . . .r3 . . . . .         . . . . . . . . . . .      . . . . . .-2. . . . . .
+             *
              */
             template <System s1, System s2>
-            static typename std::enable_if_t<s1 == Cartesian && s2 == Offset, Cell::SystemInfo<Offset>::type> transform(const typename Cell::SystemInfo<Cartesian>::type &cKey1)
+            static typename std::enable_if_t<s1 == Axial && s2 == Offset, Cell::SystemInfo<Offset>::type> transform(const typename Cell::SystemInfo<Axial>::type &cKey1)
             {
-                Cell::AxialKey cKey2 = transform<Cartesian, Axial>(cKey1);
-                int q = cKey2.q;
-                int r = cKey2.r;
+                int q = cKey1.q;
+                int r = cKey1.r;
                 int row;
                 int col;
                 if (constexpr(layout == Cell::PointyTop))
@@ -262,6 +338,32 @@ namespace fog
             }
 
             template <System s1, System s2>
+            static typename std::enable_if_t<s1 == Offset && s2 == Axial, Cell::SystemInfo<Axial>::type> transform(const typename Cell::SystemInfo<Offset>::type &cKey1)
+            {
+                int col = cKey1.x;
+                int row = cKey1.y;
+                int r;
+                int q;
+                if (constexpr(layout == Cell::PointyTop))
+                {
+                    q = col - (row - (row & 1)) / 2;
+                    r = row;
+                }
+                else if (constexpr(layout == Cell::FlatTop))
+                {
+                    q = col;
+                    r = row - (col - (col & 1)) / 2;
+                }
+                return AxialKey(q, r);
+            }
+            template <System s1, System s2>
+            static typename std::enable_if_t<s1 == Cartesian && s2 == Offset, Cell::SystemInfo<Offset>::type> transform(const typename Cell::SystemInfo<Cartesian>::type &cKey1)
+            {
+                Cell::AxialKey cKey2 = transform<Cartesian, Axial>(cKey1);
+                return transform<Axial, Offset>(cKey2);
+            }
+
+            template <System s1, System s2>
             static typename std::enable_if_t<s1 == Centre && s2 == Cartesian, Cell::SystemInfo<Cartesian>::type> transform(const typename Cell::SystemInfo<Centre>::type &cKey1)
             {
                 return Point2<float>(cKey1.x, cKey1.y);
@@ -273,17 +375,17 @@ namespace fog
                 const static float axialUnit = LayoutInfo<layout>::axialUnit;
                 constexpr int qDegree = LayoutInfo<layout>::qDegree;
                 constexpr int rDegree = LayoutInfo<layout>::rDegree;
-                
+
                 float x = cKey1.x;
                 float y = cKey1.y;
                 Point2<float> p(x, y);
-                
+
                 float qDistance = p.rotateAndGetX<-qDegree>(); // distance to the number line of .
                 float rDistance = p.rotateAndGetX<-rDegree>(); // distance to the number line of .
 
                 float fq = qDistance / axialUnit;
                 float fr = rDistance / axialUnit;
-                
+
                 return Cell::AxialKey(cubeRound(fq, fr));
             }
         };
@@ -316,14 +418,29 @@ namespace fog
                 rz = -rx - ry;
             }
             return {rx, rz};
-        }
+        };
         // using PointyCentre = SystemInfo<Centre>::type;//Point2<float>;
+
+        template <Layout layout, System s>
+        static typename std::enable_if_t<s == Offset, SystemInfo<Offset>::type> getNeighbor(SystemInfo<Offset>::type &cKey1, Direction direction)
+        {
+            int col = cKey1.x;
+            int row = cKey1.y;
+            if (row % 2 == 0)
+            {
+                return cKey1 + Cell::NeibersDelta<layout, Cell::Even>::deltaKey[direction];
+            }
+            else
+            {
+                return cKey1 + Cell::NeibersDelta<layout, Cell::Odd>::deltaKey[direction];
+            }
+        }
     };
 
     using CellKey = Cell::OffsetKey;
     // TODO configurable CellLayout.
-    // static constexpr Cell::Layout CellLayout = Cell::PointyTop;
-    static constexpr Cell::Layout CellLayout = Cell::FlatTop;
+    static constexpr Cell::Layout CellLayout = Cell::PointyTop;
+    // static constexpr Cell::Layout CellLayout = Cell::FlatTop;
     using CellTransform = Cell::Transform<CellLayout>;
     // using Hash = Cell::HashOp<Cell::Offset>;
 

@@ -36,11 +36,11 @@ namespace fog
         static constexpr float hexSize = 30.0f; // inner radius
 
     private:
-        // === Fixed hexagon neighbor offsets (flat-top) ===
-        int dx_even[6] = {+1, 0, -1, -1, -1, 0};
-        int dy_even[6] = {0, -1, -1, 0, +1, +1};
-        int dx_odd[6] = {+1, +1, 0, -1, 0, +1};
-        int dy_odd[6] = {0, -1, -1, 0, +1, +1};
+        // pointy top.
+        // int dx_even[6] =  {+1, 0, -1, -1, -1, 0};
+        // int dy_even[6] = {0, 1, 1, 0, -1, -1};
+        // int dx_odd[6] = {+1, +1, 0, -1, 0, +1};
+        // int dy_odd[6] = {0, 1, 1, 0, -1, -1};
 
     public:
         // std::vector<std::vector<int>> costGrid;
@@ -70,35 +70,28 @@ namespace fog
             {
             }
         };
-        
-        INJECT(CostMap(Options opts)): width(opts.width), height(opts.height)
+
+        INJECT(CostMap(Options opts)) : width(opts.width), height(opts.height)
         {
         }
         template <typename F>
-        int getCost(const CellKey & p, F &&costFunc) const
+        int getCost(const CellKey &p, F &&costFunc) const
         {
             return costFunc(p);
         }
-        bool isInSide(const CellKey & p) const
+        bool isInSide(const CellKey &p) const
         {
             return p.x >= 0 && p.x < this->width && p.y >= 0 && p.y < this->height;
         }
 
-        CellKey getNeighbor(CellKey& p, int direction) const
+        CellKey getNeighbor(CellKey &p, int direction) const
         {
             if (direction < 0 || direction >= 6)
                 return p;
-            if (p.y % 2 == 0)
-            {
-                return {p.x + dx_even[direction], p.y + dy_even[direction]};
-            }
-            else
-            {
-                return {p.x + dx_odd[direction], p.y + dy_odd[direction]};
-            }
+            return Cell::getNeighbor<CellLayout,Cell::Offset>(p,direction);
         }
 
-        float heuristic(CellKey &p1, CellKey& p2) const
+        float heuristic(CellKey &p1, CellKey &p2) const
         {
             int q1 = p1.x - (p1.y - (p1.y & 1)) / 2;
             int r1 = p1.y;
