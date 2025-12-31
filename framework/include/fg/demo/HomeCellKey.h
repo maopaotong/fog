@@ -33,7 +33,7 @@ namespace fog
             for (int i = 0; i < 100; i++)
             {
                 int x = rPosX(gen);
-                int y = rPosX(gen);
+                int y = rPosY(gen);
                 CellType type = cDatas->cells[x][y].type;
                 if (type == CellTypes::OCEAN || type == CellTypes::MOUNTAIN)
                 {

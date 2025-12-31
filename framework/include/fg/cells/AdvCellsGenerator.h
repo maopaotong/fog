@@ -57,7 +57,7 @@ namespace fog
         void generateFrozenTypes(GenerateOpCtx &goc) 
         {
             // make sub type by temperature.
-            Iteration::forEach<float>(goc.heightmap, goc.cols, goc.cols, [this, &goc](int x, int y, float h)
+            Iteration::forEach<float>(goc.heightmap, goc.cols, goc.rows, [this, &goc](int x, int y, float h)
                                       {
                                           CellType &type = goc.tiles[x][y].type;
                                           float tp = goc.tpMap[x][y];
