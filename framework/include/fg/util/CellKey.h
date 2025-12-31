@@ -75,7 +75,7 @@ namespace fog
         private:
             OffsetKey(int x, int y) : col(x), row(y)
             {
-            }            
+            }
 
         public:
             static OffsetKey colRow(int col, int row)
@@ -106,7 +106,6 @@ namespace fog
             {
                 return OffsetKey::colRow(col + cKey1.col, row + cKey1.row);
             }
-
         };
 
         struct AxialKey
@@ -452,7 +451,17 @@ namespace fog
         // using PointyCentre = SystemInfo<Centre>::type;//Point2<float>;
 
         template <Layout layout, System s>
-        static typename std::enable_if_t<s == Offset, SystemInfo<Offset>::type> getNeighbor(SystemInfo<Offset>::type &cKey1, Direction direction)
+        static typename std::enable_if_t<s == Offset, std::array<SystemInfo<Offset>::type, 6>> getNeighbors(SystemInfo<Offset>::type &cKey1)
+        {
+            std::array<SystemInfo<Offset>::type, 6> ret;
+            for (int i = 0; i < 6; i++)
+            {
+                ret[i] = getNeibor<layout, s>(cKey1, i);
+            }
+            return ret;
+        }
+        template <Layout layout, System s>
+        static typename std::enable_if_t<s == Offset, SystemInfo<Offset>::type> getNeibor(SystemInfo<Offset>::type &cKey1, Direction direction)
         {
             int col = cKey1.col;
             int row = cKey1.row;

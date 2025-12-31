@@ -165,8 +165,9 @@ namespace fog
 
             // is Inner, so check the neiber if valid thus recursive calling.
             // is Inner and not border.
-            CellKey neibers[6];
-            CellsLayout::getNeibers<CellLayout>(cKey, neibers);
+            //CellKey neibers[6];
+            //CellsLayout::getNeibers<CellLayout>(cKey, neibers);
+            std::array<CellKey, 6> neibers = Cell::getNeighbors<CellLayout, Cell::Offset>(cKey);
             // we remember all inner neibers for next recursive calling.
             std::unordered_map<int, CellData *> inners;
             for (int i = 0; i < 6; i++)

@@ -88,7 +88,7 @@ namespace fog
         {
             if (direction < 0 || direction >= 6)
                 return p;
-            return Cell::getNeighbor<CellLayout,Cell::Offset>(p,direction);
+            return Cell::getNeibor<CellLayout,Cell::Offset>(p,direction);
         }
 
         float heuristic(CellKey &p1, CellKey &p2) const
