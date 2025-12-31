@@ -48,7 +48,7 @@ namespace fog
                 quality = cellsTerrainAmp * cellsMeshQuality;
                 hillRad = quality;
                 this->terWidth = cells.cellsRange.getWidth() * quality;                          //
-                this->terHeight = cells.cellsRange.getHeight() * quality * unitHeight / unitWidth; // based on the toploy of cells.
+                this->terHeight = cells.cellsRange.getHeight() * quality ;//* unitHeight / unitWidth; // based on the toploy of cells.
             }
         };
 
@@ -82,7 +82,8 @@ namespace fog
             height = opts.terHeight;
             //select a proper react width.
             rectWidth = Cell::LayoutInfo<CellLayout>::unitWidth / opts.quality; // rad of tile = 1 , width of tile = 2;
-            rectHeight = rectWidth;         // rect height == width
+            rectHeight = Cell::LayoutInfo<CellLayout>::unitHeight / opts.quality; // rad of tile = 1 , width of tile = 2;
+            //rectHeight = rectWidth;         // rect height == width
             this->rectRad = (rectHeight + rectWidth) / 2.0;
             //
             std::vector<std::vector<CellsGrid *>> centreRectMap(tWidth, std::vector<CellsGrid *>(tHeight, nullptr));
