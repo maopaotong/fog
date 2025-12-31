@@ -85,7 +85,7 @@ namespace fog
                                });
             createWorldTexture(name2, [](unsigned char *data, int idx, CellsGrid &v)
                                {
-                                   if (v.cKey.x > 255 || v.cKey.y > 255)
+                                   if (v.cKey.col > 255 || v.cKey.row > 255)
                                    {
                                        data[idx] = 0;
                                        data[idx + 1] = 0;
@@ -94,10 +94,10 @@ namespace fog
                                    }
                                    else
                                    {
-                                       data[idx] = v.cKey.x;         //
-                                       data[idx + 1] = v.cKey.y;     //
-                                       data[idx + 2] = v.cKeys[1].x; //
-                                       data[idx + 3] = v.cKeys[1].y; //
+                                       data[idx] = v.cKey.col;         //
+                                       data[idx + 1] = v.cKey.row;     //
+                                       data[idx + 2] = v.cKeys[1].col; //
+                                       data[idx + 3] = v.cKeys[1].row; //
 
                                    } //
                                });

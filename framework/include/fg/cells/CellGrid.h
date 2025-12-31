@@ -26,9 +26,9 @@ namespace fog
         CellsGrid() : CellsGrid(UNRESOLVED_HEIGHT, -1, -1)
         {
         }
-        CellsGrid(int tx, int ty, float th) : height(UNRESOLVED_HEIGHT), cKey(tx, ty),
+        CellsGrid(int tx, int ty, float th) : height(UNRESOLVED_HEIGHT), cKey(CellKey::colRow(tx, ty)),
                                               types{CellTypes::UNKNOW, CellTypes::UNKNOW, CellTypes::UNKNOW},
-                                              cKeys{CellKey(-1, -1), CellKey(-1, -1), CellKey(-1, -1)},
+                                              cKeys{CellKey::colRow(-1, -1), CellKey::colRow(-1, -1), CellKey::colRow(-1, -1)},
                                               isPeak(false), userData(0)
         {
         }

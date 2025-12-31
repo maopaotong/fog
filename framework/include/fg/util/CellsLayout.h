@@ -42,8 +42,8 @@ namespace fog
             {
                 for (int i = 0; i < 6; i++)
                 {
-                    neibers[i].x = x + offsetEvenX[i];
-                    neibers[i].y = y + offsetEvenY[i];
+                    neibers[i].col = x + offsetEvenX[i];
+                    neibers[i].row = y + offsetEvenY[i];
                 }
             }
             else
@@ -51,8 +51,8 @@ namespace fog
 
                 for (int i = 0; i < 6; i++)
                 {
-                    neibers[i].x = x + offsetOddX[i];
-                    neibers[i].y = y + offsetOddY[i];
+                    neibers[i].col = x + offsetOddX[i];
+                    neibers[i].row = y + offsetOddY[i];
                 }
             }
         }
@@ -86,8 +86,8 @@ namespace fog
             {
                 for (int i = 0; i < 6; i++)
                 {
-                    neibers[i].x = x + offsetEvenX[i];
-                    neibers[i].y = y + offsetEvenY[i];
+                    neibers[i].col = x + offsetEvenX[i];
+                    neibers[i].row = y + offsetEvenY[i];
                 }
             }
             else
@@ -95,8 +95,8 @@ namespace fog
 
                 for (int i = 0; i < 6; i++)
                 {
-                    neibers[i].x = x + offsetOddX[i];
-                    neibers[i].y = y + offsetOddY[i];
+                    neibers[i].col = x + offsetOddX[i];
+                    neibers[i].row = y + offsetOddY[i];
                 }
             }
         }
@@ -115,14 +115,14 @@ namespace fog
         static void getNeibers<Cell::PointyTop, CellKey>(CellKey &cKey, CellKey *neibers)
         {
             static OffsetPointyNeibersOp neiber;
-            return neiber(cKey.x, cKey.y, neibers);
+            return neiber(cKey.col, cKey.row, neibers);
         }
 
         template <>
         static void getNeibers<Cell::FlatTop, CellKey>(CellKey &cKey, CellKey *neibers)
         {
             static OffsetFlatNeibersOp neiber;
-            return neiber(cKey.x, cKey.y, neibers);
+            return neiber(cKey.col, cKey.row, neibers);
         }
     };
 

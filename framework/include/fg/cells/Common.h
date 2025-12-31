@@ -172,12 +172,12 @@ namespace fog
             for (int i = 0; i < 6; i++)
             {
 
-                if (!isValid(neibers[i].x, neibers[i].y, ctx.w, ctx.h))
+                if (!isValid(neibers[i].col, neibers[i].row, ctx.w, ctx.h))
                 {
                     continue;
                 }
 
-                CellData &tileI = ctx.tiles[neibers[i].x][neibers[i].y];
+                CellData &tileI = ctx.tiles[neibers[i].col][neibers[i].row];
 
                 if (ctx.region.inner(cKey, tileI, ctx.region))
                 {

@@ -99,7 +99,7 @@ namespace fog
             {
                 for (int y = 0; y < cdos.cellsRange.getHeight(); y++)
                 {
-                    CellKey cell{x, y};
+                    CellKey cell = CellKey::colRow(x, y);
                     CellInstanceState *state = new CellInstanceState(cell, core, tfs, core->getRootSceneNode()->createChildSceneNode());
                     this->add(state); //
                     this->cellInstanceStates[cell] = state;

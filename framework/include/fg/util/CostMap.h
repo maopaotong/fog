@@ -81,7 +81,7 @@ namespace fog
         }
         bool isInSide(const CellKey &p) const
         {
-            return p.x >= 0 && p.x < this->width && p.y >= 0 && p.y < this->height;
+            return p.col >= 0 && p.col < this->width && p.row >= 0 && p.row < this->height;
         }
 
         CellKey getNeighbor(CellKey &p, int direction) const
@@ -93,12 +93,12 @@ namespace fog
 
         float heuristic(CellKey &p1, CellKey &p2) const
         {
-            int q1 = p1.x - (p1.y - (p1.y & 1)) / 2;
-            int r1 = p1.y;
+            int q1 = p1.col - (p1.row - (p1.row & 1)) / 2;
+            int r1 = p1.row;
             int s1 = -q1 - r1;
 
-            int q2 = p2.x - (p2.y - (p2.y & 1)) / 2;
-            int r2 = p2.y;
+            int q2 = p2.col - (p2.row - (p2.row & 1)) / 2;
+            int r2 = p2.row;
             int s2 = -q2 - r2;
 
             int dq = abs(q1 - q2);
@@ -194,10 +194,10 @@ namespace fog
 
             while (cameFrom.find(node) != cameFrom.end())
             {
-                path.push_back(CellKey(node.x, node.y));
+                path.push_back(CellKey::colRow(node.col, node.row));
                 node = cameFrom.at(node);
             }
-            path.push_back(CellKey(node.x, node.y));
+            path.push_back(CellKey::colRow(node.col, node.row));
 
             std::reverse(path.begin(), path.end());
             return path;
@@ -212,7 +212,7 @@ namespace fog
             {
                 int x = static_cast<int>(path[i].x);
                 int y = static_cast<int>(path[i].y);
-                totalCost += getCost(CellKey(x, y), costFunc);
+                totalCost += getCost(CellKey::colRow(x,y), costFunc);
             }
             return totalCost;
         }

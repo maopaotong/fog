@@ -11,7 +11,7 @@ namespace fog
     {
         static std::string toString(const CellKey &cKey)
         {
-            return "(" + std::to_string(cKey.x) + "," + std::to_string(cKey.y) + ")";
+            return "(" + std::to_string(cKey.col) + "," + std::to_string(cKey.row) + ")";
         }
     };
 }; // end of namespace

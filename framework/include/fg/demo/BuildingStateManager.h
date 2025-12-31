@@ -132,7 +132,7 @@ namespace fog
                                                                if (this->locator) // move the position if has plan
                                                                {
                                                                    this->locator->moveTo(cKey);
-                                                                   std::cout << "Locator move to cell: (" << cKey.x << "," << cKey.y << ")" << std::endl;
+                                                                   std::cout << "Locator move to cell: (" << cKey.col << "," << cKey.row << ")" << std::endl;
                                                                }
                                                            }
 

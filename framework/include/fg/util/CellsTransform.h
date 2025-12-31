@@ -44,7 +44,7 @@ namespace fog
     private:
     };
 
-    //using CellKey = Cell::OffsetKey;
+    // using CellKey = Cell::OffsetKey;
     // using Hash = Cell::HashOp<Cell::Offset>;
 
 };

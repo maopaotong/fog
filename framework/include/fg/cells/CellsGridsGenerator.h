@@ -122,7 +122,7 @@ namespace fog
             {
                 for (int ty = 0; ty < tHeight; ty++)
                 {
-                    CellKey cKey(tx, ty);
+                    CellKey cKey= CellKey::colRow(tx, ty);
                     if (skips.find(cKey) != skips.end())
                     {
                         continue;
@@ -161,7 +161,7 @@ namespace fog
                 {
                     for (int ty = 0; ty < tHeight; ty++)
                     {
-                        CellKey cKey(tx, ty);
+                        CellKey cKey = CellKey::colRow(tx, ty);
                         // if (skips.find(cKey) != skips.end())
                         // {
                         //     continue;
@@ -388,11 +388,11 @@ namespace fog
                     {
                         // cKeys[i] = Point2<float>(points[i].x, points[i].y).transform(Transform::CentreToCellKey());
                         cKeys[i] = CellTransform::transform<Cell::Cartesian,Cell::Offset>(points[i]);
-                        cKeys[i].x = std::clamp<int>(cKeys[i].x, 0, tWidth - 1);
-                        cKeys[i].y = std::clamp<int>(cKeys[i].y, 0, tHeight - 1);
+                        cKeys[i].col = std::clamp<int>(cKeys[i].col, 0, tWidth - 1);
+                        cKeys[i].row = std::clamp<int>(cKeys[i].row, 0, tHeight - 1);
                     }
 
-                    CellData &cell0 = cells[cKeys[0].x][cKeys[0].y];
+                    CellData &cell0 = cells[cKeys[0].col][cKeys[0].row];
                     // tile centre position.
                     // Vector2 tileCentreP = Cell::getOrigin2D(cKeys[0].x, cKeys[0].y);
                     Vector2 tileCentreP = CellTransform::transform<Cell::Offset,Cell::Centre>(cKeys[0]);
@@ -444,7 +444,7 @@ namespace fog
                     for (int i = 1; i < 3; i++)
                     {
                         CellKey cKey = hMap[x][y].cKeys[i];
-                        hMap[x][y].types[i] = cells[cKey.x][cKey.y].type;
+                        hMap[x][y].types[i] = cells[cKey.col][cKey.row].type;
                     }
 
                     float typeHeight = cellTypeHeight(cell0);
@@ -455,7 +455,7 @@ namespace fog
                     {                                                                       // is the center rect of the tile.
 
                         // remember the centre rect for each tile.
-                        centreRectMap[cKeys[0].x][cKeys[0].y] = &hMap[x][y];
+                        centreRectMap[cKeys[0].col][cKeys[0].row] = &hMap[x][y];
                     }
 
                     int regions = hMap[x][y].getRegions();
@@ -504,8 +504,8 @@ namespace fog
                                                               // CellKey::Offset cKey = Point2<float>(x, y).transform(C2CK);
                                                               CellKey cKey = CellTransform::transform<Cell::Centre,Cell::Offset>(Point2<float>(x, y));
 
-                                                              int tx = std::clamp<int>(cKey.x, 0, tWidth - 1);
-                                                              int ty = std::clamp<int>(cKey.y, 0, tHeight - 1);
+                                                              int tx = std::clamp<int>(cKey.col, 0, tWidth - 1);
+                                                              int ty = std::clamp<int>(cKey.row, 0, tHeight - 1);
 
                                                               CellData &ttl = cells[tx][ty];
                                                               return cellTypeHeight(ttl); //

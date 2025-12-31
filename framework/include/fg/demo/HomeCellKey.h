@@ -39,10 +39,10 @@ namespace fog
                 {
                     continue;
                 }
-                return CellKey(x, y);
+                return CellKey::colRow(x,y);
             }
 
-            return CellKey(0, 0);
+            return CellKey::colRow(0, 0);
         }
     }; // end class
 };

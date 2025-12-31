@@ -42,18 +42,48 @@ namespace fog
         struct OffsetKey
         {
             using Hash = Cell::HashOp<Cell::Offset>;
-            int x;
-            int y;
-            const int *ptr() const { return &x; }
+            int row;
+            int col;
+            const int *ptr() const { return &row; }
             OffsetKey()
             {
             }
-            OffsetKey(int x, int y) : x(x), y(y)
+
+            OffsetKey(const OffsetKey &cKey)
+            {
+                col = cKey.col;
+                row = cKey.row;
+            }
+            OffsetKey(const OffsetKey &&cKey)
+            {
+                col = cKey.col;
+                row = cKey.row;
+            }
+            OffsetKey& operator=(const OffsetKey & cKey){
+                col = cKey.col;
+                row = cKey.row;
+                return *this;
+            }
+            OffsetKey& operator=(const OffsetKey && cKey){
+                col = cKey.col;
+                row = cKey.row;
+                return *this;
+            }
+
+        private:
+            OffsetKey(int x, int y) : col(x), row(y)
             {
             }
-            OffsetKey(std::tuple<int, int> xy) : x(std::get<0>(xy)), y(std::get<1>(xy))
+            OffsetKey(std::tuple<int, int> xy) : col(std::get<0>(xy)), row(std::get<1>(xy))
             {
             }
+
+        public:
+            static OffsetKey colRow(int col, int row)
+            {
+                return OffsetKey(col, row);
+            }
+
             bool operator==(const OffsetKey &ck) const
             {
                 return ptr()[0] == ck.ptr()[0] && ptr()[1] == ck.ptr()[1];
@@ -65,7 +95,7 @@ namespace fog
 
             OffsetKey operator+(std::tuple<int, int> xy)
             {
-                return OffsetKey(x + std::get<0>(xy), y + std::get<1>(xy));
+                return OffsetKey(col + std::get<0>(xy), row + std::get<1>(xy));
             }
         };
 
@@ -97,10 +127,7 @@ namespace fog
         struct NeibersDelta;
         template <>
         struct NeibersDelta<PointyTop, Even>
-        {
-            // constexpr static int deltaX[6] = {+1, 0, -1, -1, -1, 0};
-            // constexpr static int deltaY[6] = {0, 1, 1, 0, -1, -1};
-
+        {           
             constexpr static std::tuple<int, int> deltaKey[6] = {
                 {+1, 0},
                 {0, +1},
@@ -114,8 +141,6 @@ namespace fog
         template <>
         struct NeibersDelta<PointyTop, Odd>
         {
-            // constexpr static int deltaX[6] = {+1, +1, 0, -1, 0, +1};
-            // constexpr static int deltaY[6] = {0, 1, 1, 0, -1, -1};
 
             constexpr static std::tuple<int, int> deltaKey[6] = {
                 {+1, 0},
@@ -130,9 +155,6 @@ namespace fog
         template <>
         struct NeibersDelta<FlatTop, Even>
         {
-            // constexpr static int deltaX[6] = {-1, -1, 0, 1, 1, 0};
-            // constexpr static int deltaY[6] = {0, -1, -1, -1, 0, +1};
-
             constexpr static std::tuple<int, int> deltaKey[6] = {
                 {-1, 0},
                 {-1, -1},
@@ -146,8 +168,6 @@ namespace fog
         template <>
         struct NeibersDelta<FlatTop, Odd>
         {
-            // constexpr static int deltaX[6] = {-1, -1, 0, 1, 1, 0};
-            // constexpr static int deltaY[6] = {+1, 0, -1, 0, +1, +1};
 
             constexpr static std::tuple<int, int> deltaKey[6] = {
                 {-1, +1},
@@ -278,7 +298,7 @@ namespace fog
                     fy -= col % 2 == 0 ? 0.0 : 0.5;
                     row = std::round(fy);
                 }
-                return Cell::OffsetKey(col, row);
+                return Cell::OffsetKey::colRow(col, row);
             }
             template <System s1, System s2>
             static
@@ -289,8 +309,8 @@ namespace fog
                 constexpr float unitWidth = LayoutInfo<layout>::unitWidth;
 
                 // innerradius = 1.0f;
-                int x = cKey1.x;
-                int y = cKey1.y;
+                int x = cKey1.col;
+                int y = cKey1.row;
 
                 float fx;
                 float fy;
@@ -334,14 +354,14 @@ namespace fog
                     col = q;
                     row = r + (q - (q & 1)) / 2;
                 }
-                return OffsetKey(col, row);
+                return OffsetKey::colRow(col, row);
             }
 
             template <System s1, System s2>
             static typename std::enable_if_t<s1 == Offset && s2 == Axial, Cell::SystemInfo<Axial>::type> transform(const typename Cell::SystemInfo<Offset>::type &cKey1)
             {
-                int col = cKey1.x;
-                int row = cKey1.y;
+                int col = cKey1.col;
+                int row = cKey1.row;
                 int r;
                 int q;
                 if (constexpr(layout == Cell::PointyTop))
@@ -424,8 +444,8 @@ namespace fog
         template <Layout layout, System s>
         static typename std::enable_if_t<s == Offset, SystemInfo<Offset>::type> getNeighbor(SystemInfo<Offset>::type &cKey1, Direction direction)
         {
-            int col = cKey1.x;
-            int row = cKey1.y;
+            int col = cKey1.col;
+            int row = cKey1.row;
             if (row % 2 == 0)
             {
                 return cKey1 + Cell::NeibersDelta<layout, Cell::Even>::deltaKey[direction];
@@ -439,8 +459,8 @@ namespace fog
 
     using CellKey = Cell::OffsetKey;
     // TODO configurable CellLayout.
-    static constexpr Cell::Layout CellLayout = Cell::PointyTop;
-    // static constexpr Cell::Layout CellLayout = Cell::FlatTop;
+    // static constexpr Cell::Layout CellLayout = Cell::PointyTop;
+    static constexpr Cell::Layout CellLayout = Cell::FlatTop;
     using CellTransform = Cell::Transform<CellLayout>;
     // using Hash = Cell::HashOp<Cell::Offset>;
 

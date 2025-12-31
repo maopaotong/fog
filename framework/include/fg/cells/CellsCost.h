@@ -17,7 +17,7 @@ namespace fog
         }
         int operator()(const CellKey &cKey)
         {
-            CellType type = (*tiles)[cKey.x][cKey.y].type;
+            CellType type = (*tiles)[cKey.col][cKey.row].type;
             int cost = CostMap::DEFAULT_COST;
             switch (type)
             {

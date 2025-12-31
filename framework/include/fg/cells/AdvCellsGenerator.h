@@ -142,7 +142,7 @@ namespace fog
                                       return true; //
                                   });
 
-                bool isRegion = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
+                bool isRegion = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey::colRow(x,y), tl, region); //
                 if (isRegion)
                 {
                     CellType type2 = this->typeFunc(borderTypes); // it will become: 1. plain, 2. shore.
@@ -225,7 +225,7 @@ namespace fog
                                       return true; //
                                   });
 
-                bool isLake = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
+                bool isLake = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey::colRow(x,y), tl, region); //
                 if (isLake)
                 {
                     tl.type = CellTypes::LAKE;
@@ -275,7 +275,7 @@ namespace fog
                                       return true; //
                                   });
 
-                bool isRegion = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey(x, y), tl, region); //
+                bool isRegion = CellRegion::forEachCellInSameRegion(tiles, w, h, CellKey::colRow(x, y), tl, region); //
                 if (isRegion)
                 {
                     CellType newType = determineNewTypeForInnerMiddleOcean(borderTypes);
