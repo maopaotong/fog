@@ -45,19 +45,19 @@ namespace fog
             // 1. must have a mountain on border.
             // 2. single tile lake.
             //
-            MakeLakeByOceanShore makeLakeOp1(goc.tiles, goc.w, goc.h);
-            Iteration::forEach<CellData>(goc.tiles, goc.w, goc.h, makeLakeOp1);
+            MakeLakeByOceanShore makeLakeOp1(goc.tiles, goc.cols, goc.rows);
+            Iteration::forEach<CellData>(goc.tiles, goc.cols, goc.rows, makeLakeOp1);
 
             if (makeLakeOp1.totalLakes == 0)
             {
-                Iteration::forEach<CellData>(goc.tiles, goc.w, goc.h, ChangeSingleTileTypeOp(goc.tiles, goc.w, goc.h, CellTypes::PLAIN, determineTileTypeForMakeLakeByPlain));
+                Iteration::forEach<CellData>(goc.tiles, goc.cols, goc.rows, ChangeSingleTileTypeOp(goc.tiles, goc.cols, goc.rows, CellTypes::PLAIN, determineTileTypeForMakeLakeByPlain));
             }
         }
 
         void generateFrozenTypes(GenerateOpCtx &goc) 
         {
             // make sub type by temperature.
-            Iteration::forEach<float>(goc.heightmap, goc.w, goc.w, [this, &goc](int x, int y, float h)
+            Iteration::forEach<float>(goc.heightmap, goc.cols, goc.cols, [this, &goc](int x, int y, float h)
                                       {
                                           CellType &type = goc.tiles[x][y].type;
                                           float tp = goc.tpMap[x][y];
@@ -89,16 +89,16 @@ namespace fog
         {
 
             // remove all other inner ocean/shore
-            Iteration::forEach<CellData>(goc.tiles, goc.w, goc.h, RemoveOceanShoreInLand(goc.tiles, goc.w, goc.h));
+            Iteration::forEach<CellData>(goc.tiles, goc.cols, goc.rows, RemoveOceanShoreInLand(goc.tiles, goc.cols, goc.rows));
 
             // remove single ocean.
-            Iteration::forEach<CellData>(goc.tiles, goc.w, goc.h, ChangeSingleTileTypeOp(goc.tiles, goc.w, goc.h, CellTypes::OCEAN, determineNewTypeForSingleOcean));
+            Iteration::forEach<CellData>(goc.tiles, goc.cols, goc.rows, ChangeSingleTileTypeOp(goc.tiles, goc.cols, goc.rows, CellTypes::OCEAN, determineNewTypeForSingleOcean));
 
             // remove single shore
-            Iteration::forEach<CellData>(goc.tiles, goc.w, goc.h, ChangeSingleTileTypeOp(goc.tiles, goc.w, goc.h, CellTypes::SHORE, determineNewTypeForSingleShore));
+            Iteration::forEach<CellData>(goc.tiles, goc.cols, goc.rows, ChangeSingleTileTypeOp(goc.tiles, goc.cols, goc.rows, CellTypes::SHORE, determineNewTypeForSingleShore));
 
             // resolve single plain
-            Iteration::forEach<CellData>(goc.tiles, goc.w, goc.h, ChangeSingleTileTypeOp(goc.tiles, goc.w, goc.h, CellTypes::PLAIN, determineNewTypeForSingleShore));
+            Iteration::forEach<CellData>(goc.tiles, goc.cols, goc.rows, ChangeSingleTileTypeOp(goc.tiles, goc.cols, goc.rows, CellTypes::PLAIN, determineNewTypeForSingleShore));
             /*
              */
         }

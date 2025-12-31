@@ -36,8 +36,8 @@ namespace fog
             sceNode->attachObject(obj);
             int step = tfos.cellsTerrainAmp; // / config->cellsMeshQuality;
 
-            int qWidth = cvs->opts.terWidth / step;
-            int qHeight = cvs->opts.terHeight / step;
+            int qWidth = cvs->opts.terCols / step;
+            int qHeight = cvs->opts.terRows / step;
 
             obj->clear();
             obj->begin(MaterialNames::materialNameForCells, Ogre::RenderOperation::OT_TRIANGLE_LIST);

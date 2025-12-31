@@ -15,8 +15,8 @@ namespace fog
     {
         struct Args
         {
-            int terWidth;
-            int terHeight;
+            int terCols;
+            int terRows;
             int quality;
             float heightAmpOfHill;
             float heightAmpOfMountain;
@@ -47,16 +47,16 @@ namespace fog
             {
                 quality = cellsTerrainAmp * cellsMeshQuality;
                 hillRad = quality;
-                this->terWidth = cells.cellsRange.getWidth() * quality;                          //
-                this->terHeight = cells.cellsRange.getHeight() * quality ;//* unitHeight / unitWidth; // based on the toploy of cells.
+                this->terCols = cells.cellsRange.getWidth() * quality;                          //
+                this->terRows = cells.cellsRange.getHeight() * quality ;//* unitHeight / unitWidth; // based on the toploy of cells.
             }
         };
 
         Config *config;
-        int tWidth;
-        int tHeight;
-        int width;
-        int height;
+        int cellsCols;
+        int cellsRows;
+        int cols;
+        int rows;
         float rectWidth;
         float rectHeight;
         float rectRad;
@@ -75,18 +75,18 @@ namespace fog
         void generate(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas)
         {
 
-            tWidth = opts.cells.cellsRange.getWidth();
-            tHeight = opts.cells.cellsRange.getHeight();
+            cellsCols = opts.cells.cellsRange.getWidth();
+            cellsRows = opts.cells.cellsRange.getHeight();
             auto &tiles = cDatas->cells;
-            width = opts.terWidth;
-            height = opts.terHeight;
+            cols = opts.terCols;
+            rows = opts.terRows;
             //select a proper react width.
             rectWidth = Cell::LayoutInfo<CellLayout>::unitWidth / opts.quality; // rad of tile = 1 , width of tile = 2;
             rectHeight = Cell::LayoutInfo<CellLayout>::unitHeight / opts.quality; // rad of tile = 1 , width of tile = 2;
             //rectHeight = rectWidth;         // rect height == width
             this->rectRad = (rectHeight + rectWidth) / 2.0;
             //
-            std::vector<std::vector<CellsGrid *>> centreRectMap(tWidth, std::vector<CellsGrid *>(tHeight, nullptr));
+            std::vector<std::vector<CellsGrid *>> centreRectMap(cellsCols, std::vector<CellsGrid *>(cellsRows, nullptr));
             // resove the terrain height of the centre rect for each tile.
 
             makeHeight(hMap, cDatas, centreRectMap);
@@ -95,7 +95,7 @@ namespace fog
 
             if (opts.makeMountainRange)
             {
-                MakeMountainRangeOnCellOp(tWidth, tHeight, width, height).makeMountainRangeOnCell(hMap, [](CellsGrid &cv)
+                MakeMountainRangeOnCellOp(cellsCols, cellsRows, cols, rows).makeMountainRangeOnCell(hMap, [](CellsGrid &cv)
                                                                                                   { return cv.types[0] == CellTypes::MOUNTAIN || cv.types[0] == CellTypes::FRZ_MOUNTAIN; });
             }
         }
@@ -119,9 +119,9 @@ namespace fog
             float randHeightHigh = 1.0;
             std::uniform_real_distribution<float> randHeight(randHeightLow, randHeightHigh);
             int totalHit = 0;
-            for (int tx = 0; tx < tWidth; tx++)
+            for (int tx = 0; tx < cellsCols; tx++)
             {
-                for (int ty = 0; ty < tHeight; ty++)
+                for (int ty = 0; ty < cellsRows; ty++)
                 {
                     CellKey cKey= CellKey::colRow(tx, ty);
                     if (skips.find(cKey) != skips.end())
@@ -283,9 +283,9 @@ namespace fog
         // Connect peaks of hills by make the rect height .
         void makeHillRange(CellType type, int rad, std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas)
         {
-            for (int x = 0; x < width; x++)
+            for (int x = 0; x < cols; x++)
             {
-                for (int y = 0; y < height; y++)
+                for (int y = 0; y < rows; y++)
                 {
                     CellsGrid &vert = hMap[x][y]; // centre of rect.
                     int regions = vert.getRegions();
@@ -310,7 +310,7 @@ namespace fog
                         for (int py = py1; py < py2; py++)
                         {
 
-                            if ((px >= 0 && px < width && py >= 0 && py < height) && (hMap[px][py].types[0] == type && hMap[px][py].isPeak))
+                            if ((px >= 0 && px < cols && py >= 0 && py < rows) && (hMap[px][py].types[0] == type && hMap[px][py].isPeak))
                             {
 
                                 float distance = centre.distance(Point2<float>(px, py));
@@ -353,9 +353,9 @@ namespace fog
             DiamondSquare::generateAndNormalise(hMap2, width2, config->generatorRoughness2, config->seedOfGenerator2);
             */
 
-            for (int x = 0; x < width; x++)
+            for (int x = 0; x < cols; x++)
             {
-                for (int y = 0; y < height; y++)
+                for (int y = 0; y < rows; y++)
                 {
 
                     auto &cells = cDatas->cells;
@@ -389,8 +389,8 @@ namespace fog
                     {
                         // cKeys[i] = Point2<float>(points[i].x, points[i].y).transform(Transform::CentreToCellKey());
                         cKeys[i] = CellTransform::transform<Cell::Cartesian,Cell::Offset>(points[i]);
-                        cKeys[i].col = std::clamp<int>(cKeys[i].col, 0, tWidth - 1);
-                        cKeys[i].row = std::clamp<int>(cKeys[i].row, 0, tHeight - 1);
+                        cKeys[i].col = std::clamp<int>(cKeys[i].col, 0, cellsCols - 1);
+                        cKeys[i].row = std::clamp<int>(cKeys[i].row, 0, cellsRows - 1);
                     }
 
                     CellData &cell0 = cells[cKeys[0].col][cKeys[0].row];
@@ -505,8 +505,8 @@ namespace fog
                                                               // CellKey::Offset cKey = Point2<float>(x, y).transform(C2CK);
                                                               CellKey cKey = CellTransform::transform<Cell::Centre,Cell::Offset>(Point2<float>(x, y));
 
-                                                              int tx = std::clamp<int>(cKey.col, 0, tWidth - 1);
-                                                              int ty = std::clamp<int>(cKey.row, 0, tHeight - 1);
+                                                              int tx = std::clamp<int>(cKey.col, 0, cellsCols - 1);
+                                                              int ty = std::clamp<int>(cKey.row, 0, cellsRows - 1);
 
                                                               CellData &ttl = cells[tx][ty];
                                                               return cellTypeHeight(ttl); //

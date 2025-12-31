@@ -20,8 +20,8 @@ namespace fog
         INJECT(WorldTexGenerator(Config *config,
                                  CellsGrids *grids,
                                  CellsGridsGenerator::Args opts)) : hMap(grids->grids), config(config),
-                                                                       width(opts.terWidth),
-                                                                       height(opts.terHeight)
+                                                                       width(opts.terCols),
+                                                                       height(opts.terRows)
         {
         }
         ~WorldTexGenerator()

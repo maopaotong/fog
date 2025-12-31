@@ -21,7 +21,7 @@ namespace fog
 
         CellsGridsGenerator::Args opts;
 
-        INJECT(CellsGrids(CellsGridsGenerator::Args opts, CellsDatas *cDatas, CellsGridsGenerator *generator, Config *config)) : config(config), opts(opts), grids(opts.terWidth, std::vector<CellsGrid>(opts.terHeight, CellsGrid()))
+        INJECT(CellsGrids(CellsGridsGenerator::Args opts, CellsDatas *cDatas, CellsGridsGenerator *generator, Config *config)) : config(config), opts(opts), grids(opts.terCols, std::vector<CellsGrid>(opts.terRows, CellsGrid()))
         {
             generator->generate(grids, cDatas);
         }
@@ -89,11 +89,11 @@ namespace fog
         // World texture is used as the meta data for the shader to determine the child texture.
         void createWorldTexture(std::string name, std::vector<std::vector<CellsGrid>> &hMap)
         {
-            WorldTexOp texOp(hMap, opts.terWidth, opts.terHeight, config);
+            WorldTexOp texOp(hMap, opts.terCols, opts.terRows, config);
             texOp();
-            Ogre::TexturePtr texture = TextureFactory::createTexture(name, opts.terWidth, opts.terHeight);
+            Ogre::TexturePtr texture = TextureFactory::createTexture(name, opts.terCols, opts.terRows);
 
-            TextureFactory::updateTexture(texture, opts.terWidth, opts.terHeight, texOp.data);
+            TextureFactory::updateTexture(texture, opts.terCols, opts.terRows, texOp.data);
 
             for (int i = 0; i < 11; i++)
             {

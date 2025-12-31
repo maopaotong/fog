@@ -66,8 +66,8 @@ namespace fog
         struct GenerateOpCtx
         {
             std::vector<std::vector<CellData>> &tiles;
-            int w;
-            int h;
+            int cols;
+            int rows;
             std::vector<std::vector<float>> &heightmap;
             std::vector<std::vector<float>> &tpMap;
         };
@@ -101,19 +101,19 @@ namespace fog
 
         virtual void generateHeightmap(GenerateOpCtx &goc)
         {
-            DiamondSquare::generate(goc.heightmap, goc.w, opts.generatorRoughness1, opts.seedOfGenerator1);
-            Normaliser::normalise(goc.heightmap, goc.w, goc.h);
+            DiamondSquare::generate(goc.heightmap, goc.cols, opts.generatorRoughness1, opts.seedOfGenerator1);
+            Normaliser::normalise(goc.heightmap, goc.cols, goc.rows);
         }
 
         virtual void generateTemperaturemap(GenerateOpCtx &goc)
         {
-            TemperatureGenerator::generate(goc.heightmap, goc.tpMap, goc.w, goc.h, opts.temperatureLatitudeWeightPower);
-            Normaliser::normalise(goc.tpMap, goc.w, goc.h);
+            TemperatureGenerator::generate(goc.heightmap, goc.tpMap, goc.cols, goc.rows, opts.temperatureLatitudeWeightPower);
+            Normaliser::normalise(goc.tpMap, goc.cols, goc.rows);
         }
 
         virtual void generateCellsTypes(GenerateOpCtx &goc)
         {
-            Iteration::forEach<float>(goc.heightmap, goc.w, goc.w, [this, &goc](int x, int y, float h)
+            Iteration::forEach<float>(goc.heightmap, goc.cols, goc.cols, [this, &goc](int x, int y, float h)
                                       {
                                           CellType type = CellTypes::UNKNOW;
                                           if (h < opts.GENERATOR1_OCEAN_RATIO) // TODo calculate the actual ratio instead of the height.
