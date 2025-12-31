@@ -59,12 +59,14 @@ namespace fog
                 col = cKey.col;
                 row = cKey.row;
             }
-            OffsetKey& operator=(const OffsetKey & cKey){
+            OffsetKey &operator=(const OffsetKey &cKey)
+            {
                 col = cKey.col;
                 row = cKey.row;
                 return *this;
             }
-            OffsetKey& operator=(const OffsetKey && cKey){
+            OffsetKey &operator=(const OffsetKey &&cKey)
+            {
                 col = cKey.col;
                 row = cKey.row;
                 return *this;
@@ -73,15 +75,22 @@ namespace fog
         private:
             OffsetKey(int x, int y) : col(x), row(y)
             {
-            }
-            OffsetKey(std::tuple<int, int> xy) : col(std::get<0>(xy)), row(std::get<1>(xy))
-            {
-            }
+            }            
 
         public:
             static OffsetKey colRow(int col, int row)
             {
                 return OffsetKey(col, row);
+            }
+
+            static OffsetKey rowCol(int row, int col)
+            {
+                return OffsetKey(col, row);
+            }
+
+            static OffsetKey colRow(std::tuple<int, int> colRow)
+            {
+                return OffsetKey(std::get<0>(colRow), std::get<1>(colRow));
             }
 
             bool operator==(const OffsetKey &ck) const
@@ -93,10 +102,11 @@ namespace fog
                 return !operator==(ck);
             }
 
-            OffsetKey operator+(std::tuple<int, int> xy)
+            OffsetKey operator+(OffsetKey cKey1)
             {
-                return OffsetKey(col + std::get<0>(xy), row + std::get<1>(xy));
+                return OffsetKey::colRow(col + cKey1.col, row + cKey1.row);
             }
+
         };
 
         struct AxialKey
@@ -127,7 +137,7 @@ namespace fog
         struct NeibersDelta;
         template <>
         struct NeibersDelta<PointyTop, Even>
-        {           
+        {
             constexpr static std::tuple<int, int> deltaKey[6] = {
                 {+1, 0},
                 {0, +1},
@@ -448,11 +458,11 @@ namespace fog
             int row = cKey1.row;
             if (row % 2 == 0)
             {
-                return cKey1 + Cell::NeibersDelta<layout, Cell::Even>::deltaKey[direction];
+                return cKey1 + OffsetKey::colRow(Cell::NeibersDelta<layout, Cell::Even>::deltaKey[direction]);
             }
             else
             {
-                return cKey1 + Cell::NeibersDelta<layout, Cell::Odd>::deltaKey[direction];
+                return cKey1 + OffsetKey::colRow(Cell::NeibersDelta<layout, Cell::Odd>::deltaKey[direction]);
             }
         }
     };
