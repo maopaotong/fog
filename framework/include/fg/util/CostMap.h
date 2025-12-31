@@ -88,17 +88,20 @@ namespace fog
         {
             if (direction < 0 || direction >= 6)
                 return p;
-            return Cell::getNeibor<CellLayout,Cell::Offset>(p,direction);
+            return Cell::getNeibor<CellLayout, Cell::Offset>(p, direction);
         }
 
         float heuristic(CellKey &p1, CellKey &p2) const
         {
-            int q1 = p1.col - (p1.row - (p1.row & 1)) / 2;
-            int r1 = p1.row;
+            Cell::AxialKey a1 = CellTransform::transform<Cell::Offset, Cell::Axial>(p1);
+            Cell::AxialKey a2 = CellTransform::transform<Cell::Offset, Cell::Axial>(p2);
+
+            int q1 = a1.q; 
+            int r1 = a1.r; 
             int s1 = -q1 - r1;
 
-            int q2 = p2.col - (p2.row - (p2.row & 1)) / 2;
-            int r2 = p2.row;
+            int q2 = a2.q; 
+            int r2 = a2.r; 
             int s2 = -q2 - r2;
 
             int dq = abs(q1 - q2);
@@ -108,16 +111,6 @@ namespace fog
             return static_cast<float>(std::max({dq, dr, ds}) * DEFAULT_COST);
         }
 
-        // std::vector<HexTile::Key> findPath(HexTile::Key start, HexTile::Key end)
-        // {
-        //     std::vector<HexTile::Key> path = findPathInternal(start, end);
-        //     std::vector<HexTile::Key> cellPath;
-        //     for (const auto &pos : path)
-        //     {
-        //         cellPath.emplace_back(static_cast<int>(pos.x), static_cast<int>(pos.y));
-        //     }
-        //     return cellPath;
-        // }
         template <typename F>
         std::vector<CellKey> findPath(CellKey start, CellKey end, F &&costFunc)
         {
@@ -212,7 +205,7 @@ namespace fog
             {
                 int x = static_cast<int>(path[i].x);
                 int y = static_cast<int>(path[i].y);
-                totalCost += getCost(CellKey::colRow(x,y), costFunc);
+                totalCost += getCost(CellKey::colRow(x, y), costFunc);
             }
             return totalCost;
         }

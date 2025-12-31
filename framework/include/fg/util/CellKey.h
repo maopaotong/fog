@@ -465,14 +465,30 @@ namespace fog
         {
             int col = cKey1.col;
             int row = cKey1.row;
-            if (row % 2 == 0)
+            if (constexpr(layout == PointyTop))
             {
-                return cKey1 + OffsetKey::colRow(Cell::NeibersDelta<layout, Cell::Even>::deltaKey[direction]);
+                if (row % 2 == 0)
+                {
+                    return cKey1 + OffsetKey::colRow(Cell::NeibersDelta<layout, Cell::Even>::deltaKey[direction]);
+                }
+                else
+                {
+                    return cKey1 + OffsetKey::colRow(Cell::NeibersDelta<layout, Cell::Odd>::deltaKey[direction]);
+                }
             }
-            else
+            else if (constexpr(layout == FlatTop))
             {
-                return cKey1 + OffsetKey::colRow(Cell::NeibersDelta<layout, Cell::Odd>::deltaKey[direction]);
+                if (col % 2 == 0)
+                {
+                    return cKey1 + OffsetKey::colRow(Cell::NeibersDelta<layout, Cell::Even>::deltaKey[direction]);
+                }
+                else
+                {
+                    return cKey1 + OffsetKey::colRow(Cell::NeibersDelta<layout, Cell::Odd>::deltaKey[direction]);
+                }
             }
+
+            //
         }
     };
 
