@@ -13,10 +13,10 @@ namespace fog
     {
         struct Args
         {
-            int tlsWidth;
-            int tlsHeight;
-            int terWidth;
-            int terHeight;
+            int cellsCols;
+            int cellsRows;
+            int terCols;
+            int terRows;
             int heightScale;
             int cellsTerrainAmp;
             int cellsMeshQuality;
@@ -26,8 +26,9 @@ namespace fog
             MEMBERK(cellsTerrainAmp, "CELLS_TERRAIN_AMP")
             MEMBERK(cellsMeshQuality, "TILE_MESH_QUALITY")
 
-            INJECT(Args(CellsDatas::Args &cdos)) : tlsWidth(cdos.cellsRange.getWidth()),
-                                                   tlsHeight(cdos.cellsRange.getHeight())
+            INJECT(Args(CellsDatas::Args &cdos, CellsGridsGenerator::Args &gArgs)) : cellsCols(cdos.cellsRange.getWidth()), //
+                                                                                     cellsRows(cdos.cellsRange.getHeight()),
+                                                                                     terCols(gArgs.terCols), terRows(gArgs.terRows)
 
             {
             }
@@ -35,8 +36,8 @@ namespace fog
             INIT(init)()
             {
                 int quality = getTerrainQuality();
-                this->terWidth = tlsWidth * quality;                                  //
-                this->terHeight = tlsHeight * quality * unitHeight / unitWidth; // based on the toploy of cells.
+                // this->terWidth = tlsWidth * quality;                                  //
+                // this->terHeight = tlsHeight * quality ;//* unitHeight / unitWidth; // based on the toploy of cells.
             }
 
             int getTerrainQuality()
@@ -53,8 +54,8 @@ namespace fog
         Config *config;
         float scale;
         Args opts;
-        INJECT(TransformD2TD3(Args opts, Config *config, CellsGrids *cvs)) : tlsWidth(opts.tlsWidth), tlsHeight(opts.tlsHeight),
-                                                                             terWidth(opts.terWidth), terHeight(opts.terHeight),
+        INJECT(TransformD2TD3(Args opts, Config *config, CellsGrids *cvs)) : tlsWidth(opts.cellsCols), tlsHeight(opts.cellsRows),
+                                                                             terWidth(opts.terCols), terHeight(opts.terRows),
                                                                              config(config),
                                                                              cvs(cvs),
                                                                              scale(config->cellScale),
