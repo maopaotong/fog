@@ -209,6 +209,9 @@ namespace fog
             constexpr static int rDegree = qDegree + 120; //=90
             constexpr static int rZLDegree = rDegree + 90;
             constexpr static float axialUnit = Math::SQRT3;
+            constexpr static int unitCols = 2;
+            constexpr static int unitRows = 3;
+
         };
 
         template <>
@@ -226,6 +229,8 @@ namespace fog
             constexpr static int rDegree = qDegree + 120;
             constexpr static int rZLDegree = rDegree + 90;
             constexpr static float axialUnit = Math::SQRT3;
+            constexpr static int unitCols = 3;
+            constexpr static int unitRows = 2;
         };
 
         template <System sys>

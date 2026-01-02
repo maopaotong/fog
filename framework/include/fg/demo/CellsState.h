@@ -34,10 +34,9 @@ namespace fog
             Ogre::ManualObject *obj = core->createManualObject();
             //obj->setQueryFlags();
             sceNode->attachObject(obj);
-            int step = tfos.cellsTerrainAmp; // / config->cellsMeshQuality;
-
-            int qWidth = cvs->opts.terCols / step;
-            int qHeight = cvs->opts.terRows / step;
+            
+            int qWidth = cvs->opts.terCols / Cell::LayoutInfo<CellLayout>::unitCols;
+            int qHeight = cvs->opts.terRows / Cell::LayoutInfo<CellLayout>::unitRows;
 
             obj->clear();
             obj->begin(MaterialNames::materialNameForCells, Ogre::RenderOperation::OT_TRIANGLE_LIST);
@@ -54,8 +53,8 @@ namespace fog
             {
                 for (int x = 0; x < qWidth; x++)
                 {
-                    int qy = y * step;
-                    int qx = x * step;
+                    int qy = y * Cell::LayoutInfo<CellLayout>::unitRows;
+                    int qx = x * Cell::LayoutInfo<CellLayout>::unitCols;
                     CellKey cKey = cvs->grids[qx][qy].cKey;
 
                     // HexTile::Key cis = cc->getCell(cKey);

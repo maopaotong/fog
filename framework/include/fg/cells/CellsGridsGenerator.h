@@ -17,20 +17,16 @@ namespace fog
         {
             int terCols;
             int terRows;
-            int quality;
             float heightAmpOfHill;
             float heightAmpOfMountain;
             float hillDistribution;
             float mountainDistribution;
-            int hillRad;
             bool makeMountainRange;
             CellsDatas::Args &cells;
 
-            int cellsTerrainAmp;
             int cellsMeshQuality;
 
             SELFG(Args, "config")
-            MEMBERK(cellsTerrainAmp, "CELLS_TERRAIN_AMP")
             MEMBERK(cellsMeshQuality, "TILE_MESH_QUALITY")
 
             INJECT(Args(Config *config, CellsDatas::Args &cells)) : cells(cells),
@@ -45,10 +41,8 @@ namespace fog
 
             INIT(init)()
             {
-                quality = cellsTerrainAmp * cellsMeshQuality;
-                hillRad = quality;
-                this->terCols = cells.cellsRange.getWidth() * quality;                          //
-                this->terRows = cells.cellsRange.getHeight() * quality ;//* unitHeight / unitWidth; // based on the toploy of cells.
+                this->terCols = cells.cellsRange.getWidth() * Cell::LayoutInfo<CellLayout>::unitCols * cellsMeshQuality;                          //
+                this->terRows = cells.cellsRange.getHeight() * Cell::LayoutInfo<CellLayout>::unitRows * cellsMeshQuality;//* unitHeight / unitWidth; // based on the toploy of cells.
             }
         };
 
@@ -81,8 +75,8 @@ namespace fog
             cols = opts.terCols;
             rows = opts.terRows;
             //select a proper react width.
-            rectWidth = Cell::LayoutInfo<CellLayout>::unitWidth / opts.quality; // rad of tile = 1 , width of tile = 2;
-            rectHeight = Cell::LayoutInfo<CellLayout>::unitHeight / opts.quality; // rad of tile = 1 , width of tile = 2;
+            rectWidth = Cell::LayoutInfo<CellLayout>::unitWidth / Cell::LayoutInfo<CellLayout>::unitCols / opts.cellsMeshQuality; // rad of tile = 1 , width of tile = 2;
+            rectHeight = Cell::LayoutInfo<CellLayout>::unitHeight / Cell::LayoutInfo<CellLayout>::unitRows / opts.cellsMeshQuality; // rad of tile = 1 , width of tile = 2;
             //rectHeight = rectWidth;         // rect height == width
             this->rectRad = (rectHeight + rectWidth) / 2.0;
             //

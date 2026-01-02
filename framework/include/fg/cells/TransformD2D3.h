@@ -18,12 +18,10 @@ namespace fog
             int terCols;
             int terRows;
             int heightScale;
-            int cellsTerrainAmp;
             int cellsMeshQuality;
 
             SELFG(Args, "config")
             MEMBERD(heightScale, 100.0f)
-            MEMBERK(cellsTerrainAmp, "CELLS_TERRAIN_AMP")
             MEMBERK(cellsMeshQuality, "TILE_MESH_QUALITY")
 
             INJECT(Args(CellsDatas::Args &cdos, CellsGridsGenerator::Args &gArgs)) : cellsCols(cdos.cellsRange.getWidth()), //
@@ -35,15 +33,11 @@ namespace fog
 
             INIT(init)()
             {
-                int quality = getTerrainQuality();
+                // int quality = getTerrainQuality();
                 // this->terWidth = tlsWidth * quality;                                  //
                 // this->terHeight = tlsHeight * quality ;//* unitHeight / unitWidth; // based on the toploy of cells.
             }
 
-            int getTerrainQuality()
-            {
-                return cellsTerrainAmp * this->cellsMeshQuality;
-            }
         };
         int tlsWidth;
         int tlsHeight;
