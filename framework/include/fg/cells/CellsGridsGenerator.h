@@ -66,7 +66,7 @@ namespace fog
         {
         }
 
-        void generate(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas)
+        virtual void generate(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas) 
         {
 
             cellsCols = opts.cells.cellsRange.getWidth();

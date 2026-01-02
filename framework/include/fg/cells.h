@@ -17,6 +17,7 @@
 #include "cells/WorldTexGenerator.h"
 #include "cells/AdvCellsGenerator.h"
 #include "cells/Geometry.h"
+#include "cells/AdvGridsGenerator.h"
 
 
 
