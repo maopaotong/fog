@@ -11,15 +11,21 @@
 #include "Common.h"
 namespace fog
 {
+    struct InventoryTypeInfo
+    {
+        std::unordered_map<InventoryType, float> material;
+        std::unordered_map<InventoryType, float> dailyCost;
+        std::unordered_map<InventoryType, float> dailyProfit;
 
-    class Inventory
+    };
+    
+    struct Inventory
     {
         InventoryType type;
         float amount;
-        float capacity;
 
     public:
-        Inventory(InventoryType type) : type(type), amount(0.0f), capacity(1e6f)
+        Inventory(InventoryType type) : type(type), amount(0.0f)
         {
         }
         virtual ~Inventory()
@@ -50,10 +56,7 @@ namespace fog
         {
             return this->amount;
         }
-        float getCapacity() const
-        {
-            return this->capacity;
-        }
+       
     };
 
     class InventoryMonitor : public Stairs
@@ -68,6 +71,7 @@ namespace fog
 
         bool step(float time) override
         {
+            
 
             return true;
         }
@@ -80,8 +84,10 @@ namespace fog
     public:
         INJECT(InventoryManager())
         {
+            this->add(InventoryType::Food, 100.0f);
             this->add(InventoryType::BuildingPermit, 100.0f);
-            this->add(InventoryType::Population, 10.0f);
+            this->add(InventoryType::Worker, 10.0f);
+            
         }
         virtual ~InventoryManager()
         {
@@ -123,16 +129,7 @@ namespace fog
             }
             return inv->getAmount();
         }
-        float getCapacity(InventoryType type)
-        {
-            Inventory *inv = this->getInventory(type);
-            if (!inv)
-            {
-                return 0.0f;
-            }
-            return inv->getCapacity();
-        }
-
+        
         Inventory *getInventory(InventoryType type)
         {
             Inventory *result = nullptr;

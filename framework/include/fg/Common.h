@@ -110,12 +110,29 @@ namespace fog
     enum class InventoryType
     {
         BuildingPermit,
+        ConstructionInProgress,
         Population,
         Food,
+        Water,
+        Gold,
+        Soldier,
+        Merchant,
+        Taxpayer,
+        Army,
         Building,
-        LandScape,
         WaterSource,
+        WaterSourceDay,
         FarmLand,
+        Day,
+        Worker,
+        WorkerDay,
+        Farmer,
+        FarmerDay,
+        CityCenter,
+        CityCenterPermit,
+        Land,
+        FoodDay,
+        CityCenterDay,
 
     };
 
