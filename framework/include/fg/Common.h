@@ -141,7 +141,6 @@ namespace fog
         {InventoryType::Population, "Population"},
         {InventoryType::Food, "Food"},
         {InventoryType::Building, "Building"},
-        {InventoryType::LandScape, "LandScape"},
         {InventoryType::WaterSource, "WaterSource"},
 
     };

@@ -19,11 +19,7 @@ namespace fog
         {
             return inventoryManager->getAmount(type);
         }
-        static float getCapacity(InventoryManager *inventoryManager, InventoryType type)
-        {
-            return inventoryManager->getCapacity(type);
-        }
-
+        
         InventoryManager *inventoryManager;
 
     public:
@@ -42,7 +38,7 @@ namespace fog
             {
                 InventoryType type = it->first;
                 std::string name = it->second;
-                ImGui::Text("%s: %.0f/%.0f", name.c_str(), getAmount(inventoryManager, type), getCapacity(inventoryManager, type));
+                ImGui::Text("%s: %.0f", name.c_str(), getAmount(inventoryManager, type));
                 ImGui::SameLine();
             }
             ImGui::NewLine();
