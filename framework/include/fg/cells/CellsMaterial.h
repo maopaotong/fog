@@ -11,6 +11,7 @@
 #include "WorldTexGenerator.h"
 #include "MaterialNames.h"
 #include "TransformD2D3.h"
+#include "CellsTexGenerator.h"
 namespace fog
 {
 
@@ -35,6 +36,7 @@ namespace fog
             CellsDatas::Args &cdos,
             TransformD2TD3::Args tfos,
             CellsGridsGenerator::Args ggopts,
+            CellsTexGenerator * ctg,
             Args opts)) : opts(opts), ggopts(ggopts)
         {
             // material
@@ -42,17 +44,23 @@ namespace fog
             // tex0
             std::string texName001 = "TerrainsTex001";
             std::string texName010 = "TerrainsTex010";
+            std::string texName011 = "TerrainsTex011";
+
             // Context<CellsTerrains>::get()->createWorldTexture(texName0, tts->vertexs);
             // cvs->createWorldTexture(texName0, cvs->grids); // TODO texture create by a manager.
             wtg->createWorlTextures(texName001, texName010);
+            ctg->createCellsTextures(texName011);
 
             Ogre::Pass *pass = mat->getTechnique(0)->getPass(0);
-            // text 01
+            // tex 01
             pass->getTextureUnitState(0)->setTextureName(texName001);
             pass->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
-            // text 02
+            // tex 02
             pass->getTextureUnitState(10)->setTextureName(texName010);
             pass->getTextureUnitState(10)->setTextureFiltering(Ogre::TFO_NONE);
+            // tex 03
+            pass->getTextureUnitState(11)->setTextureName(texName011);
+            pass->getTextureUnitState(11)->setTextureFiltering(Ogre::TFO_NONE);
 
             // tex9
 

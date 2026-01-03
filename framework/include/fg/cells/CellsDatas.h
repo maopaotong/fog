@@ -24,9 +24,13 @@ namespace fog
             Args &operator()(const Args &&) = delete;
         };
         std::vector<std::vector<CellData>> cells;
+        int cols;
+        int rows;
         INJECT(CellsDatas(Args& pts, CellsGenerator *generator))
         {
-            generator->generateCells(cells, pts.cellsRange.getWidth(), pts.cellsRange.getHeight());
+            this->cols =pts.cellsRange.getWidth();
+            this->rows = pts.cellsRange.getHeight();
+            generator->generateCells(cells, cols,rows);
         }
     };
 
