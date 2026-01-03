@@ -35,8 +35,10 @@ namespace fog
             //obj->setQueryFlags();
             sceNode->attachObject(obj);
             
-            int qWidth = cvs->opts.terCols / Cell::LayoutInfo<CellLayout>::unitCols;
-            int qHeight = cvs->opts.terRows / Cell::LayoutInfo<CellLayout>::unitRows;
+            int stepX = cvs->opts.unitCols;
+            int stepY = cvs->opts.unitRows;
+            int qWidth = cvs->opts.terCols / stepX;
+            int qHeight = cvs->opts.terRows / stepY;
 
             obj->clear();
             obj->begin(MaterialNames::materialNameForCells, Ogre::RenderOperation::OT_TRIANGLE_LIST);
@@ -53,8 +55,8 @@ namespace fog
             {
                 for (int x = 0; x < qWidth; x++)
                 {
-                    int qy = y * Cell::LayoutInfo<CellLayout>::unitRows;
-                    int qx = x * Cell::LayoutInfo<CellLayout>::unitCols;
+                    int qy = y * stepY;
+                    int qx = x * stepX;
                     CellKey cKey = cvs->grids[qx][qy].cKey;
 
                     // HexTile::Key cis = cc->getCell(cKey);

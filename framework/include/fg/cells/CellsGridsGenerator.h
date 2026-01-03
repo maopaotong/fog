@@ -22,12 +22,18 @@ namespace fog
             float hillDistribution;
             float mountainDistribution;
             bool makeMountainRange;
+            int unitCols;
+            int unitRows;
+            int unitColsAmp;
+            int unitRowsAmp;
             CellsDatas::Args &cells;
 
             int cellsMeshQuality;
 
             SELFG(Args, "config")
             MEMBERK(cellsMeshQuality, "TILE_MESH_QUALITY")
+            MEMBERK(unitColsAmp, "unitColsAmp")
+            MEMBERK(unitRowsAmp, "unitRowsAmp")
 
             INJECT(Args(Config *config, CellsDatas::Args &cells)) : cells(cells),
                                                                     heightAmpOfHill(config->heightAmpOfHill),
@@ -41,8 +47,11 @@ namespace fog
 
             INIT(init)()
             {
-                this->terCols = cells.cellsRange.getWidth() * Cell::LayoutInfo<CellLayout>::unitCols * cellsMeshQuality;                          //
-                this->terRows = cells.cellsRange.getHeight() * Cell::LayoutInfo<CellLayout>::unitRows * cellsMeshQuality;//* unitHeight / unitWidth; // based on the toploy of cells.
+                this->unitCols = this->unitColsAmp * Cell::LayoutInfo<CellLayout>::unitCols;
+                this->unitRows = this->unitRowsAmp * Cell::LayoutInfo<CellLayout>::unitRows;
+                
+                this->terCols = cells.cellsRange.getWidth() * this->unitCols * cellsMeshQuality;  //
+                this->terRows = cells.cellsRange.getHeight() * this->unitRows * cellsMeshQuality; //* unitHeight / unitWidth; // based on the toploy of cells.
             }
         };
 
@@ -66,7 +75,7 @@ namespace fog
         {
         }
 
-        virtual void generate(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas) 
+        virtual void generate(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas)
         {
 
             cellsCols = opts.cells.cellsRange.getWidth();
@@ -74,10 +83,10 @@ namespace fog
             auto &tiles = cDatas->cells;
             cols = opts.terCols;
             rows = opts.terRows;
-            //select a proper react width.
-            rectWidth = Cell::LayoutInfo<CellLayout>::unitWidth / Cell::LayoutInfo<CellLayout>::unitCols / opts.cellsMeshQuality; // rad of tile = 1 , width of tile = 2;
-            rectHeight = Cell::LayoutInfo<CellLayout>::unitHeight / Cell::LayoutInfo<CellLayout>::unitRows / opts.cellsMeshQuality; // rad of tile = 1 , width of tile = 2;
-            //rectHeight = rectWidth;         // rect height == width
+            // select a proper react width.
+            rectWidth = Cell::LayoutInfo<CellLayout>::unitWidth / opts.unitCols / opts.cellsMeshQuality;   // rad of tile = 1 , width of tile = 2;
+            rectHeight = Cell::LayoutInfo<CellLayout>::unitHeight / opts.unitRows / opts.cellsMeshQuality; // rad of tile = 1 , width of tile = 2;
+            // rectHeight = rectWidth;         // rect height == width
             this->rectRad = (rectHeight + rectWidth) / 2.0;
             //
             std::vector<std::vector<CellsGrid *>> centreRectMap(cellsCols, std::vector<CellsGrid *>(cellsRows, nullptr));
@@ -90,7 +99,7 @@ namespace fog
             if (opts.makeMountainRange)
             {
                 MakeMountainRangeOnCellOp(cellsCols, cellsRows, cols, rows).makeMountainRangeOnCell(hMap, [](CellsGrid &cv)
-                                                                                                  { return cv.types[0] == CellTypes::MOUNTAIN || cv.types[0] == CellTypes::FRZ_MOUNTAIN; });
+                                                                                                    { return cv.types[0] == CellTypes::MOUNTAIN || cv.types[0] == CellTypes::FRZ_MOUNTAIN; });
             }
         }
 
@@ -117,7 +126,7 @@ namespace fog
             {
                 for (int ty = 0; ty < cellsRows; ty++)
                 {
-                    CellKey cKey= CellKey::colRow(tx, ty);
+                    CellKey cKey = CellKey::colRow(tx, ty);
                     if (skips.find(cKey) != skips.end())
                     {
                         continue;
@@ -142,7 +151,7 @@ namespace fog
 
             Box2<int> cellOuterBox(CellKey cKey)
             {
-                Box2<float> box =CellsGroup::getOuterBoxInUV(cKey, tWidth, tHeight); // cover the entire tile.
+                Box2<float> box = CellsGroup::getOuterBoxInUV(cKey, tWidth, tHeight); // cover the entire tile.
                 box.scale(width, height);
                 return box.cast<int>();
             }
@@ -382,7 +391,7 @@ namespace fog
                     for (int i = 0; i < 5; i++)
                     {
                         // cKeys[i] = Point2<float>(points[i].x, points[i].y).transform(Transform::CentreToCellKey());
-                        cKeys[i] = CellTransform::transform<Cell::Cartesian,Cell::Offset>(points[i]);
+                        cKeys[i] = CellTransform::transform<Cell::Cartesian, Cell::Offset>(points[i]);
                         cKeys[i].col = std::clamp<int>(cKeys[i].col, 0, cellsCols - 1);
                         cKeys[i].row = std::clamp<int>(cKeys[i].row, 0, cellsRows - 1);
                     }
@@ -390,7 +399,7 @@ namespace fog
                     CellData &cell0 = cells[cKeys[0].col][cKeys[0].row];
                     // tile centre position.
                     // Vector2 tileCentreP = Cell::getOrigin2D(cKeys[0].x, cKeys[0].y);
-                    Vector2 tileCentreP = CellTransform::transform<Cell::Offset,Cell::Centre>(cKeys[0]);
+                    Vector2 tileCentreP = CellTransform::transform<Cell::Offset, Cell::Centre>(cKeys[0]);
                     //
                     hMap[x][y].cKey = cKeys[0]; // centre cell.
                     hMap[x][y].originInCell = points[0] - tileCentreP;
@@ -400,7 +409,7 @@ namespace fog
                     // set corner's type
 
                     std::unordered_set<CellKey, CellKey::Hash> keySet; // totol types of 5 cells.
-                    for (int i = 1; i < 5; i++)                                        // check other 4 corner's type. normally the max different types is 3, include the centre.
+                    for (int i = 1; i < 5; i++)                        // check other 4 corner's type. normally the max different types is 3, include the centre.
                     {
                         if (cKeys[i] != cKeys[0])
                         {
@@ -497,7 +506,7 @@ namespace fog
                                                               // translate point in the rect to the nearest cell key?
                                                               // the cKey must be one of the 3 cell types calculated above.
                                                               // CellKey::Offset cKey = Point2<float>(x, y).transform(C2CK);
-                                                              CellKey cKey = CellTransform::transform<Cell::Centre,Cell::Offset>(Point2<float>(x, y));
+                                                              CellKey cKey = CellTransform::transform<Cell::Centre, Cell::Offset>(Point2<float>(x, y));
 
                                                               int tx = std::clamp<int>(cKey.col, 0, cellsCols - 1);
                                                               int ty = std::clamp<int>(cKey.row, 0, cellsRows - 1);
