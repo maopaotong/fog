@@ -49,7 +49,7 @@ namespace fog
             {
                 this->unitCols = this->unitColsAmp * Cell::LayoutInfo<CellLayout>::unitCols;
                 this->unitRows = this->unitRowsAmp * Cell::LayoutInfo<CellLayout>::unitRows;
-                
+
                 this->terCols = cells.cellsRange.getWidth() * this->unitCols * cellsMeshQuality;  //
                 this->terRows = cells.cellsRange.getHeight() * this->unitRows * cellsMeshQuality; //* unitHeight / unitWidth; // based on the toploy of cells.
             }
@@ -89,10 +89,10 @@ namespace fog
             // rectHeight = rectWidth;         // rect height == width
             this->rectRad = (rectHeight + rectWidth) / 2.0;
             //
-            std::vector<std::vector<CellsGrid *>> centreRectMap(cellsCols, std::vector<CellsGrid *>(cellsRows, nullptr));
+            // std::vector<std::vector<CellsGrid *>> centreRectMap(cellsCols, std::vector<CellsGrid *>(cellsRows, nullptr));
             // resove the terrain height of the centre rect for each tile.
 
-            makeHeight(hMap, cDatas, centreRectMap);
+            makeHeight(hMap, cDatas);
             // makeMountainRange(CellTypes::MOUNTAIN, hMap, cDatas, centreRectMap);
             // makeHillRange(CellTypes::HILL, opts.hillRad, hMap, cDatas);
 
@@ -335,7 +335,7 @@ namespace fog
             }
         }
 
-        void makeHeight(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas, std::vector<std::vector<CellsGrid *>> &centreRectMap)
+        void makeHeight(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas)
         {
 
             std::mt19937 randGen(23665289);
@@ -363,29 +363,16 @@ namespace fog
 
                     auto &cells = cDatas->cells;
 
-                    float centreX = static_cast<float>(x) * rectWidth;
-                    float centreY = static_cast<float>(y) * rectHeight;
+                    float centreX = static_cast<float>(x) * rectWidth + rectWidth / 2.0;
+                    float centreY = static_cast<float>(y) * rectHeight + rectHeight / 2.0;
                     Vector2 points[5];
-                    // amplify the rect helps to make the boder jugment at shader program more easy.
-                    // But, this kind of solution for some reason does now work well.
-                    // The root cause is the that the uv cords geting the wrong cell/type value from texture few border rects.
-                    // Even set the amp to 2 it is still have mis-match and wrong cell for points on border.
-                    // Thus we should find another way to deal with this mismatch on the boder of regions.
-                    // No need to process the non-border cells for rendering.
-                    // Option 1. Mix the color or some other rendering operation on the border of regions.
-                    // Option 2. Finger out the boder rect; and convert the near border but inner-region rects into border rect.
-                    // Border rect is charactered by:
-                    // 1. Span multiple regions .
-                    // 2. In another word, two or three types and cells related to it.
-                    // So we should wilden the border line and get more cells involed for texture generation for shader's using.
 
-                    float amp = 1;
                     // 0th is the centre point of the rect.
                     points[0] = Vector2(centreX, centreY);
-                    points[1] = Vector2(centreX + amp * rectWidth / 2.0f, centreY - amp * rectHeight / 2.0f); //
-                    points[2] = Vector2(centreX + amp * rectWidth / 2.0f, centreY + amp * rectHeight / 2.0f); //
-                    points[3] = Vector2(centreX - amp * rectWidth / 2.0f, centreY + amp * rectHeight / 2.0f); //
-                    points[4] = Vector2(centreX - amp * rectWidth / 2.0f, centreY - amp * rectHeight / 2.0f); //
+                    points[1] = Vector2(centreX + rectWidth / 2.0f, centreY - rectHeight / 2.0f); //
+                    points[2] = Vector2(centreX + rectWidth / 2.0f, centreY + rectHeight / 2.0f); //
+                    points[3] = Vector2(centreX - rectWidth / 2.0f, centreY + rectHeight / 2.0f); //
+                    points[4] = Vector2(centreX - rectWidth / 2.0f, centreY - rectHeight / 2.0f); //
 
                     CellKey cKeys[5]; // find the 5 point in which cell.
                     for (int i = 0; i < 5; i++)
@@ -454,13 +441,13 @@ namespace fog
                     float typeHeight = cellTypeHeight(cell0);
                     float ht = 0.0f;
 
-                    // tile's centre is in this rect.
-                    if (Rect::isPointInSide(tileCentreP, points[0], rectWidth, rectHeight)) //
-                    {                                                                       // is the center rect of the tile.
+                    // // tile's centre is in this rect.
+                    // if (Rect::isPointInSide(tileCentreP, points[0], rectWidth, rectHeight)) //
+                    // {                                                                       // is the center rect of the tile.
 
-                        // remember the centre rect for each tile.
-                        centreRectMap[cKeys[0].col][cKeys[0].row] = &hMap[x][y];
-                    }
+                    //     // remember the centre rect for each tile.
+                    //     centreRectMap[cKeys[0].col][cKeys[0].row] = &hMap[x][y];
+                    // }
 
                     int regions = hMap[x][y].getRegions();
 
