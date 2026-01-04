@@ -79,11 +79,11 @@ namespace fog
         //     return transform3(CellTransform::transform<Cell::SystemInfo<Centre>::type, Point2<float>>(cKey), h, func);
         // }
 
-        Vector3 transform3(Point2<float> &cKey)
+        Vector3 transform3(Point2<float> &p2D, float h)
         {
-            float x = cKey.x;
-            float y = cKey.y;
-            float z;
+            float x = p2D.x;
+            float y = p2D.y;
+            float z = h;
             (*this->d2td3)(x, y, z);
             return Vector3(x, y, z);
         }

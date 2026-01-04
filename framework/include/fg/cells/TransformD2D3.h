@@ -26,7 +26,7 @@ namespace fog
 
             INJECT(Args(CellsDatas::Args &cdos, CellsGridsGenerator::Args &gArgs)) : cellsCols(cdos.cellsRange.getWidth()), //
                                                                                      cellsRows(cdos.cellsRange.getHeight()),
-                                                                                     terCols(gArgs.terCols), terRows(gArgs.terRows)
+                                                                                     terCols(gArgs.gridsCols), terRows(gArgs.gridsRows)
 
             {
             }
@@ -89,7 +89,7 @@ namespace fog
                 y = y + terHeight;
                 y = 0;
             }
-            float ret = cvs->grids[x][y].height * opts.heightScale;
+            float ret = cvs->grids[x][y].aHeight * opts.heightScale;
             if (config->debugCout)
             {
                 std::cout << fmt::format(":[{:>.2f},{:>.2f}],[{:>3},{:>3}].h={:>3.1f}", pUV.x, pUV.y, x, y, ret) << std::endl;

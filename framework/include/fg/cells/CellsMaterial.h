@@ -74,9 +74,9 @@ namespace fog
             Ogre::GpuProgramParametersSharedPtr vParams = mat->getTechnique(0)->getPass(0)->getVertexProgramParameters();
             vParams->setNamedConstant("cellsCols", cdos.cellsRange.getWidth());
             vParams->setNamedConstant("cellsRows", cdos.cellsRange.getHeight());
-            vParams->setNamedConstant("meshQuality", tfos.cellsMeshQuality);
-            vParams->setNamedConstant("unitCols", ggopts.unitCols);
-            vParams->setNamedConstant("unitRows", ggopts.unitRows);
+            // vParams->setNamedConstant("meshQuality", tfos.cellsMeshQuality);
+            // vParams->setNamedConstant("unitCols", ggopts.unitCols);
+            // vParams->setNamedConstant("unitRows", ggopts.unitRows);
             vParams->setNamedConstant("unitWidth", Cell::LayoutInfo<CellLayout>::unitWidth);
             vParams->setNamedConstant("unitHeight", Cell::LayoutInfo<CellLayout>::unitHeight);
 

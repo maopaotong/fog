@@ -20,8 +20,8 @@ namespace fog
         INJECT(WorldTexGenerator(Config *config,
                                  CellsGrids *grids,
                                  CellsGridsGenerator::Args opts)) : hMap(grids->grids), config(config),
-                                                                       width(opts.terCols),
-                                                                       height(opts.terRows)
+                                                                       width(opts.gridsCols),
+                                                                       height(opts.gridsRows)
         {
         }
         ~WorldTexGenerator()
@@ -37,27 +37,27 @@ namespace fog
                 for (int y = 0; y < height; y++)
                 {
 
-                    Box2<int> debugRange = config->debugPrintTerrainsTexRange;
-                    CellsGrid &v = hMap[x][y];
-                    if (v.types[0] < 10)
-                    {
-                        typePlot[v.types[0]]++;
-                    }
-                    else
-                    {
-                        typePlot[10]++;
-                    }
+                    // Box2<int> debugRange = config->debugPrintTerrainsTexRange;
+                    // CellsGrid &v = hMap[x][y];
+                    // if (v.types[0] < 10)
+                    // {
+                    //     typePlot[v.types[0]]++;
+                    // }
+                    // else
+                    // {
+                    //     typePlot[10]++;
+                    // }
 
-                    int idx = (y * width + x) * 4;
+                    // int idx = (y * width + x) * 4;
 
-                    // R as the type of the centre point of the rect, the precision is based on the qulity parameter configred.
+                    // // R as the type of the centre point of the rect, the precision is based on the qulity parameter configred.
 
-                    func(data, idx, v);
-                    // data[idx + 3] = v.temperature * 100; //
-                    if (debugRange.isIn(x, y))
-                    {
-                        std::cout << fmt::format("texure[{:>2},{:>2}]:({:>3}|{:>3}|{:>3}|{:>3})", x, y, data[idx], data[idx + 1], data[idx + 2], data[idx + 3]) << std::endl;
-                    }
+                    // func(data, idx, v);
+                    // // data[idx + 3] = v.temperature * 100; //
+                    // if (debugRange.isIn(x, y))
+                    // {
+                    //     std::cout << fmt::format("texure[{:>2},{:>2}]:({:>3}|{:>3}|{:>3}|{:>3})", x, y, data[idx], data[idx + 1], data[idx + 2], data[idx + 3]) << std::endl;
+                    // }
                 }
             }
 
@@ -75,31 +75,31 @@ namespace fog
 
             createWorldTexture(name1, [](unsigned char *data, int idx, CellsGrid &v)
                                {
-                                   data[idx] = v.types[0]; /** 0 .. 15 **/
-                                   // G 2rd type of the rect.
-                                   data[idx + 1] = v.types[1];
-                                   // B 3rd type of the rect.
-                                   data[idx + 2] = v.types[2];
-                                   // A
-                                   data[idx + 3] = v.distanceToEdge(1.0) * 100; //
+                                //    data[idx] = v.types[0]; /** 0 .. 15 **/
+                                //    // G 2rd type of the rect.
+                                //    data[idx + 1] = v.types[1];
+                                //    // B 3rd type of the rect.
+                                //    data[idx + 2] = v.types[2];
+                                //    // A
+                                //    data[idx + 3] = v.distanceToEdge(1.0) * 100; //
                                });
             createWorldTexture(name2, [](unsigned char *data, int idx, CellsGrid &v)
                                {
-                                   if (v.cKey.col > 255 || v.cKey.row > 255)
-                                   {
-                                       data[idx] = 0;
-                                       data[idx + 1] = 0;
-                                       data[idx + 2] = 0;
-                                       data[idx + 3] = 0;
-                                   }
-                                   else
-                                   {
-                                       data[idx] = v.cKey.col;         //
-                                       data[idx + 1] = v.cKey.row;     //
-                                       data[idx + 2] = v.cKeys[1].col; //
-                                       data[idx + 3] = v.cKeys[1].row; //
+                                //    if (v.cKey.col > 255 || v.cKey.row > 255)
+                                //    {
+                                //        data[idx] = 0;
+                                //        data[idx + 1] = 0;
+                                //        data[idx + 2] = 0;
+                                //        data[idx + 3] = 0;
+                                //    }
+                                //    else
+                                //    {
+                                //        data[idx] = v.cKey.col;         //
+                                //        data[idx + 1] = v.cKey.row;     //
+                                //        data[idx + 2] = v.cKeys[1].col; //
+                                //        data[idx + 3] = v.cKeys[1].row; //
 
-                                   } //
+                                //    } //
                                });
         }
         template <typename F>

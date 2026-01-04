@@ -35,50 +35,33 @@ namespace fog
             //obj->setQueryFlags();
             sceNode->attachObject(obj);
             
-            int stepX = cvs->opts.unitCols;
-            int stepY = cvs->opts.unitRows;
-            int qWidth = cvs->opts.terCols / stepX;
-            int qHeight = cvs->opts.terRows / stepY;
+            
+            int gridsCols = cvs->opts.gridsCols;
+            int gridsRows = cvs->opts.gridsRows;
 
             obj->clear();
             obj->begin(MaterialNames::materialNameForCells, Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
             int baseIdx = obj->getCurrentVertexCount();
 
-            std::vector<std::vector<Vector3>> norms(qWidth, std::vector<Vector3>(qHeight, Ogre::Vector3::UNIT_Y));
-            std::vector<std::vector<Vector3>> positions(qWidth, std::vector<Vector3>(qHeight, Ogre::Vector3::ZERO));
+            std::vector<std::vector<Vector3>> norms(gridsCols, std::vector<Vector3>(gridsRows, Ogre::Vector3::UNIT_Y));
+            std::vector<std::vector<Vector3>> positions(gridsCols, std::vector<Vector3>(gridsRows, Ogre::Vector3::ZERO));
 
             // Cell::Center *cc = Context<Cell::Center>::get();
 
             // collect position.
-            for (int y = 0; y < qHeight; y++)
+            for (int y = 0; y < gridsRows; y++)
             {
-                for (int x = 0; x < qWidth; x++)
+                for (int x = 0; x < gridsCols; x++)
                 {
-                    int qy = y * stepY;
-                    int qx = x * stepX;
-                    CellKey cKey = cvs->grids[qx][qy].cKey;
+                    int qy = y ;
+                    int qx = x;
+                    
+                    float h = cvs->grids[qx][qy].aHeight * tfos.heightScale;
 
-                    // HexTile::Key cis = cc->getCell(cKey);
-
-                    // float scale = Context<Node2D>::get()->getScale();
-                    // Vector2 tP = Cell::getOrigin2D(cis,scale);
-
-                    // Vector2 qP = tP + tts->grids[qx][qy].originInTile * scale;
-                    // Point2<float> qP = tP + tts->grids[qx][qy].originInTile * scale;
-                    //  scale
-                    float h = cvs->grids[qx][qy].height * tfos.heightScale;
-
-                    // Vector3 position3 = Context<Node2D>::get()->to3D(qP, 1);
-                    // position.y = h;
-
-                    // Vector3 position = qP.transform3(Transform::D2_NORMAL_D3(h));
-                    // Vector3 position = ((cis.cast<float>().transform(Transform::CellCentreByKey()) + tts->grids[qx][qy].originInTile) * config->CELL_SCALE).transform3(Transform::D2_NORMAL_D3(h));
-                    // Vector3 position = CellKey::transform3(cKey, cvs->grids[qx][qy].originInTile, h, *config->transformFromD2HToD3Ptr);
-
-                    //Vector3 position = CellKey::transform3(cKey, cvs->grids[qx][qy].originInCell, h, *tfs->d2hd3);
-
-                    Vector3 position = tfs->transform3(CellTransform::transform<Cell::Offset, Cell::Centre>(cKey), cvs->grids[qx][qy].originInCell, h, *tfs->d2hd3);
+                    
+                    //Vector3 position = tfs->transform3(CellTransform::transform<Cell::Offset, Cell::Centre>(cKey), cvs->grids[qx][qy].originInCell, h, *tfs->d2hd3);
+                    Vector3 position = tfs->transform3(cvs->grids[qx][qy].a, h);//
                     // position.y = h;
 
                     positions[x][y] = position;
@@ -86,28 +69,28 @@ namespace fog
             }
             // calculate norms
 
-            for (int y = 0; y < qHeight; y++)
+            for (int y = 0; y < gridsRows; y++)
             {
-                for (int x = 0; x < qWidth; x++)
+                for (int x = 0; x < gridsCols; x++)
                 {
                     Vector3 p1 = positions[x][y];
                     obj->position(p1);
-                    Vector3 normNs = calculateNorm(positions, x, y, qWidth, qHeight);
+                    Vector3 normNs = calculateNorm(positions, x, y, gridsCols, gridsRows);
                     obj->normal(normNs);
                     obj->textureCoord(p1.x, -p1.z);
                 } // end of for
             } // end of for
 
             // triangle
-            for (int y = 0; y < qHeight - 1; y++)
+            for (int y = 0; y < gridsRows - 1; y++)
             {
-                for (int x = 0; x < qWidth - 1; x++)
+                for (int x = 0; x < gridsCols - 1; x++)
                 {
 
-                    int a = y * qWidth + x;
-                    int b = y * qWidth + (x + 1);
-                    int c = (y + 1) * qWidth + (x + 1);
-                    int d = (y + 1) * qWidth + x;
+                    int a = y * gridsCols + x;
+                    int b = y * gridsCols + (x + 1);
+                    int c = (y + 1) * gridsCols + (x + 1);
+                    int d = (y + 1) * gridsCols + x;
 
                     int ba = baseIdx + a;
                     int bb = baseIdx + b;
@@ -116,9 +99,9 @@ namespace fog
 
                     //
 
-                    obj->triangle(ba, bb, bc);
+                    obj->triangle(ba, bb, bd);
 
-                    obj->triangle(ba, bc, bd);
+                    obj->triangle(bb, bc, bd);
                 }
             }
 
