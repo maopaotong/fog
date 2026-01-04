@@ -24,7 +24,7 @@ namespace fog
             CellsDatas::Args &cells;
 
             SELFG(Args, "config")
-            MEMBERKD(gridAmp, "gridAmp", 8)
+            MEMBERKD(gridAmp, "gridAmp", 1)
             INJECT(Args(Config *config, CellsDatas::Args &cells)) : cells(cells)
             {
             }
@@ -33,8 +33,8 @@ namespace fog
             {
                 if (CellLayout == Cell::FlatTop)
                 {
-                    this->gridsCols = cells.cellsRange.getWidth() * this->gridAmp * 3 / 2; //
-                    this->gridsRows = cells.cellsRange.getHeight() * this->gridAmp * 2;    //
+                    this->gridsCols = cells.cellsRange.getWidth() * this->gridAmp * 1.5; //
+                    this->gridsRows = cells.cellsRange.getHeight() * this->gridAmp * 2;  //
                     this->gridEdgeLength = Cell::LayoutInfo<CellLayout>::outerRad / gridAmp;
                     this->gridHeight = Cell::LayoutInfo<CellLayout>::innerRad / gridAmp;
                     this->gridHalfEdgeLength = this->gridEdgeLength / 2;
@@ -90,8 +90,8 @@ namespace fog
                     Point2<float> c{xC, yC};
                     Point2<float> d{xD, yD};
 
-                    Point2<float> centre1 = (a + b + d) / 2;
-                    Point2<float> centre2 = (b + c + d) / 2;
+                    Point2<float> centre1 = (a + b + d) / 3;
+                    Point2<float> centre2 = (b + c + d) / 3;
 
                     hMap[x][y].a = a;
                     hMap[x][y].b = b;
@@ -103,8 +103,8 @@ namespace fog
                     CellKey cKey1 = CellTransform::transform<Cell::Cartesian, Cell::Offset>(centre1);
                     CellKey cKey2 = CellTransform::transform<Cell::Cartesian, Cell::Offset>(centre2);
 
-                    CellData & cell1 = cell(cDatas,cKey1);
-                    CellData & cell2 = cell(cDatas,cKey2);
+                    CellData &cell1 = cell(cDatas, cKey1);
+                    CellData &cell2 = cell(cDatas, cKey2);
 
                     hMap[x][y].cKey1 = cKey1;
                     hMap[x][y].cKey2 = cKey2;
@@ -122,20 +122,40 @@ namespace fog
             {
                 for (int y = 0; y < gridsRows; y++)
                 {
-                    float hs[6];
-                    hs[0] = hMap[x][y].height1;
-                    hs[1] = grid(hMap, x - 1, y).height2;
-                    hs[2] = grid(hMap, x - 1, y).height1;
-                    hs[3] = grid(hMap, x - 2, y - 1).height2;
-                    hs[4] = grid(hMap, x - 1, y - 1).height2;
-                    hs[5] = grid(hMap, x - 1, y - 1).height1;
+                    std::unordered_set<CellType> typeSet;
+                    std::vector<std::tuple<int, int, int>> offset;
+                    offset.push_back({0, 0, 1});
+                    offset.push_back({-1, 0, 2});
+                    offset.push_back({-1, 0, 1});
+                    offset.push_back({-2, -1, 2});
+                    offset.push_back({-1, -1, 2});
+                    offset.push_back({-1, -1, 1});
 
                     float h = 0;
                     for (int i = 0; i < 6; i++)
                     {
-                        h += hs[i];
+                        std::tuple<int, int, int> tp = offset[i];
+                        CellsGrid &g = grid(hMap, x + std::get<0>(tp), y + std::get<1>(tp));
+
+                        CellType type;
+                        float height;
+                        if (std::get<2>(tp) == 1)
+                        {
+                            type = g.type1;
+                            height = g.height1;
+                        }
+                        else
+                        {
+                            type = g.type2;
+                            height = g.height2;
+                        }
+                        if (auto it = typeSet.find(type); it == typeSet.end())
+                        {
+                            typeSet.insert(type);
+                            h += height;
+                        }
                     }
-                    hMap[x][y].aHeight = h / 6;
+                    hMap[x][y].aHeight = h / typeSet.size();
                 }
             }
         }
