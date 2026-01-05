@@ -69,39 +69,51 @@ namespace fog
         virtual void generate(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas)
         {
 
-            for (int x = 0; x < gridsCols; x++)
+            for (int y = 0; y < gridsRows; y++)
             {
-                for (int y = 0; y < gridsRows; y++)
+                bool evenRow = (y % 2 == 0);
+                float offsetBottomEdge = evenRow ? 0 : opts.gridEdgeLength / 2;
+                float offsetTopEdge = evenRow ? opts.gridEdgeLength / 2 : 0;
+
+                for (int x = 0; x < gridsCols; x++)
                 {
 
                     auto &cells = cDatas->cells;
-                    float offsetX = (y % 2 == 0) ? 0 : opts.gridEdgeLength / 2;
 
-                    float xA = opts.gridEdgeLength * x + offsetX;
-                    float xB = opts.gridEdgeLength * (x + 1) + offsetX;
-                    float xC = opts.gridEdgeLength * (x + 1.5f) + offsetX;
-                    float xD = opts.gridEdgeLength * (x + 0.5f) + offsetX;
+                    float xA = opts.gridEdgeLength * x + offsetBottomEdge;
+                    float xB = opts.gridEdgeLength * (x + 1) + offsetBottomEdge;
+                    float xC = opts.gridEdgeLength * (x + 1) + offsetTopEdge;
+                    float xD = opts.gridEdgeLength * x + offsetTopEdge;
+
                     float yA = opts.gridHeight * y;
-                    float yB = yA;
+                    float yB = opts.gridHeight * y;
                     float yC = opts.gridHeight * (y + 1);
-                    float yD = yC;
+                    float yD = opts.gridHeight * (y + 1);
+
                     Point2<float> a{xA, yA};
                     Point2<float> b{xB, yB};
                     Point2<float> c{xC, yC};
                     Point2<float> d{xD, yD};
 
-                    Point2<float> centre1 = (a + b + d) / 3;
-                    Point2<float> centre2 = (b + c + d) / 3;
-
                     hMap[x][y].a = a;
                     hMap[x][y].b = b;
                     hMap[x][y].c = c;
                     hMap[x][y].d = d;
-                    hMap[x][y].centre1 = centre1;
-                    hMap[x][y].centre2 = centre2;
+                    if (evenRow)
+                    {
+
+                        hMap[x][y].centre1 = (a + b + d) / 3;
+                        hMap[x][y].centre2 = (b + c + d) / 3;
+                    }
+                    else
+                    {
+                        hMap[x][y].centre1 = (a + b + c) / 3;
+                        hMap[x][y].centre2 = (a + c + d) / 3;
+                    }
+
                     //
-                    CellKey cKey1 = CellTransform::transform<Cell::Cartesian, Cell::Offset>(centre1);
-                    CellKey cKey2 = CellTransform::transform<Cell::Cartesian, Cell::Offset>(centre2);
+                    CellKey cKey1 = CellTransform::transform<Cell::Cartesian, Cell::Offset>(hMap[x][y].centre1);
+                    CellKey cKey2 = CellTransform::transform<Cell::Cartesian, Cell::Offset>(hMap[x][y].centre2);
 
                     CellData &cell1 = cell(cDatas, cKey1);
                     CellData &cell2 = cell(cDatas, cKey2);
@@ -118,34 +130,47 @@ namespace fog
             }
 
             // calculate point a height.
-            for (int x = 0; x < gridsCols; x++)
+            for (int y = 0; y < gridsRows; y++)
             {
-                for (int y = 0; y < gridsRows; y++)
+                bool evenRow = (y % 2 == 0);
+                for (int x = 0; x < gridsCols; x++)
                 {
                     std::unordered_set<CellType> typeSet;
-                    std::vector<std::tuple<int, int, int>> offset;
-                    offset.push_back({0, 0, 1});
-                    offset.push_back({-1, 0, 2});
-                    offset.push_back({-1, 0, 1});
-                    offset.push_back({-2, -1, 2});
-                    offset.push_back({-1, -1, 2});
-                    offset.push_back({-1, -1, 1});
+                    std::array<std::tuple<int, int, int>, 6> triangles;
+                    if (evenRow)
+                    {
+                        triangles[0] = {0, 0, 1};
+                        triangles[1] = {-1, 0, 2};
+                        triangles[2] = {-1, 0, 1};
+                        triangles[3] = {-1, -1, 2};
+                        triangles[4] = {-1, -1, 1};
+                        triangles[5] = {0, -1, 2};
+                    }
+                    else
+                    {
+                        triangles[0] = {0, 0, 1};
+                        triangles[1] = {0, 0, 2};
+                        triangles[2] = {-1, 0, 1};
+                        triangles[3] = {-1, -1, 2};
+                        triangles[4] = {0, -1, 1};
+                        triangles[5] = {0, -1, 2};
+                    }
 
                     float h = 0;
                     for (int i = 0; i < 6; i++)
                     {
-                        std::tuple<int, int, int> tp = offset[i];
-                        CellsGrid &g = grid(hMap, x + std::get<0>(tp), y + std::get<1>(tp));
+                        std::tuple<int, int, int> tp = triangles[i];
+                        CellsGrid &g = grid(hMap, x + std::get<0>(tp), y + std::get<1>(tp)); // index of grid.
 
                         CellType type;
                         float height;
-                        if (std::get<2>(tp) == 1)
+                        if (std::get<2>(tp) == 1) // first trigangle
                         {
                             type = g.type1;
                             height = g.height1;
                         }
                         else
-                        {
+                        { // second triangle
                             type = g.type2;
                             height = g.height2;
                         }
@@ -231,4 +256,4 @@ namespace fog
         }
     };
 
-}; // end of namespace
+}; // end of

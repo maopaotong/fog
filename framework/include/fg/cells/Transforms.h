@@ -60,38 +60,16 @@ namespace fog
             return transform3(cKey2, 0, *this->d2td3);
         }
 
-        template <Cell::System s1>
-        Vector3 transform3(CellKey &cKey, Point2<float> pInC)
+        Vector3 transform3(Point2<float> &p2D, float h)
         {
-            Cell::SystemInfo<Cell::Centre>::type cKey2 = CellTransform::transform<s1, Cell::Centre>(cKey);
-            return transform3(cKey2, pInC);
+            return transform3(p2D, h, *this->d2hd3);
         }
 
         template <typename F>
-        Vector3 transform3(Point2<float> &cKey, Point2<float> pInC, float h, F &&func)
-        {
-            return transform3((cKey) + pInC, h, func);
-        }
-
-        // template <typename F>
-        // Vector3 transform3(Cell::SystemInfo<Centre>::type &cKey, float h, F &&func)
-        // {
-        //     return transform3(CellTransform::transform<Cell::SystemInfo<Centre>::type, Point2<float>>(cKey), h, func);
-        // }
-
-        Vector3 transform3(Point2<float> &p2D, float h)
+        Vector3 transform3(Point2<float> &p2D, float h, F &&func)
         {
             float x = p2D.x;
             float y = p2D.y;
-            float z = h;
-            (*this->d2td3)(x, y, z);
-            return Vector3(x, y, z);
-        }
-        template <typename F>
-        Vector3 transform3(Point2<float> &cKey, float h, F &&func)
-        {
-            float x = cKey.x;
-            float y = cKey.y;
             float z = h;
             func(x, y, z);
             return Vector3(x, y, z);

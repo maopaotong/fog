@@ -26,16 +26,15 @@ namespace fog
                           Transforms *tfs,
                           Config *config,
                           CoreMod *core, Ogre::SceneNode *sceNode, TransformD2TD3::Args tfos)) : Actor(sceNode),
-                                                                config(config),
-                                                                tfs(tfs),
-                                                                tfos(tfos)
+                                                                                                 config(config),
+                                                                                                 tfs(tfs),
+                                                                                                 tfos(tfos)
         {
 
             Ogre::ManualObject *obj = core->createManualObject();
-            //obj->setQueryFlags();
+            // obj->setQueryFlags();
             sceNode->attachObject(obj);
-            
-            
+
             int gridsCols = cvs->opts.gridsCols;
             int gridsRows = cvs->opts.gridsRows;
 
@@ -54,14 +53,13 @@ namespace fog
             {
                 for (int x = 0; x < gridsCols; x++)
                 {
-                    int qy = y ;
+                    int qy = y;
                     int qx = x;
-                    
+
                     float h = cvs->grids[qx][qy].aHeight * tfos.heightScale;
 
-                    
-                    //Vector3 position = tfs->transform3(CellTransform::transform<Cell::Offset, Cell::Centre>(cKey), cvs->grids[qx][qy].originInCell, h, *tfs->d2hd3);
-                    Vector3 position = tfs->transform3(cvs->grids[qx][qy].a, h);//
+                    // Vector3 position = tfs->transform3(CellTransform::transform<Cell::Offset, Cell::Centre>(cKey), cvs->grids[qx][qy].originInCell, h, *tfs->d2hd3);
+                    Vector3 position = tfs->transform3(cvs->grids[qx][qy].a, h); //
                     // position.y = h;
 
                     positions[x][y] = position;
@@ -84,6 +82,7 @@ namespace fog
             // triangle
             for (int y = 0; y < gridsRows - 1; y++)
             {
+                bool evenRow = (y % 2 == 0);
                 for (int x = 0; x < gridsCols - 1; x++)
                 {
 
@@ -92,16 +91,23 @@ namespace fog
                     int c = (y + 1) * gridsCols + (x + 1);
                     int d = (y + 1) * gridsCols + x;
 
-                    int ba = baseIdx + a;
-                    int bb = baseIdx + b;
-                    int bc = baseIdx + c;
-                    int bd = baseIdx + d;
+                    int A = baseIdx + a;
+                    int B = baseIdx + b;
+                    int C = baseIdx + c;
+                    int D = baseIdx + d;
 
                     //
+                    if (evenRow)
+                    {
 
-                    obj->triangle(ba, bb, bd);
-
-                    obj->triangle(bb, bc, bd);
+                        obj->triangle(A, B, D);
+                        obj->triangle(B, C, D);
+                    }
+                    else
+                    {
+                        obj->triangle(A, B, C);
+                        obj->triangle(A, C, D);
+                    }
                 }
             }
 
