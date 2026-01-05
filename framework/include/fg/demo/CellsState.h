@@ -63,6 +63,7 @@ namespace fog
                 }
             }
             // calculate norms
+            
 
             for (int y = 0; y < rows; y++)
             {
@@ -138,36 +139,11 @@ namespace fog
         Vector3 calculateNorm(std::vector<std::vector<Vector3>> &positions, int x, int y, int cols, int rows)
         {
 
-            std::array<std::tuple<int, int>, 6> neibers;
-            bool evenRow = (y % 2 == 0);
-            if (evenRow)
-            {
-
-                neibers[0] = {1, 0};
-                neibers[1] = {0, 1};
-                neibers[2] = {-1, 1};
-                neibers[3] = {-1, 0};
-                neibers[4] = {-1, -1};
-                neibers[5] = {0, -1};
-            }
-            else
-            {
-                neibers[0] = {1, 0};
-                neibers[1] = {1, 1};
-                neibers[2] = {0, 1};
-                neibers[3] = {-1, 0};
-                neibers[4] = {0, -1};
-                neibers[5] = {1, -1};
-            }
-
-            // Cell::getNeibers(qx, qy, neibersX, neibersY); // TODO
-            //
-
             std::array<Vector3, 6> neibersP;
 
             for (int i = 0; i < 6; i++)
             {
-                neibersP[i] = get(positions, x + std::get<0>(neibers[i]), y + std::get<1>(neibers[i]), cols, rows);
+                neibersP[i] = get(positions, x + std::get<0>(CellsGrid::neiberPointsOffset[y % 2][i]), y + std::get<1>(CellsGrid::neiberPointsOffset[y % 2][i]), cols, rows);
             }
 
             Vector3 p0 = positions[x][y];

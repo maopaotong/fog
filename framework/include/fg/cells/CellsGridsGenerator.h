@@ -66,6 +66,7 @@ namespace fog
             gridsRows = opts.gridsRows;
         }
 
+
         virtual void generate(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas)
         {
 
@@ -102,78 +103,51 @@ namespace fog
                     if (evenRow)
                     {
 
-                        hMap[x][y].centre1 = (a + b + d) / 3;
-                        hMap[x][y].centre2 = (b + c + d) / 3;
+                        hMap[x][y].triangles[0].centre = (a + b + d) / 3;
+                        hMap[x][y].triangles[1].centre = (b + c + d) / 3;
                     }
                     else
                     {
-                        hMap[x][y].centre1 = (a + b + c) / 3;
-                        hMap[x][y].centre2 = (a + c + d) / 3;
+                        hMap[x][y].triangles[0].centre = (a + b + c) / 3;
+                        hMap[x][y].triangles[1].centre = (a + c + d) / 3;
                     }
 
                     //
-                    CellKey cKey1 = CellTransform::transform<Cell::Cartesian, Cell::Offset>(hMap[x][y].centre1);
-                    CellKey cKey2 = CellTransform::transform<Cell::Cartesian, Cell::Offset>(hMap[x][y].centre2);
+                    CellKey cKey0 = CellTransform::transform<Cell::Cartesian, Cell::Offset>(hMap[x][y].triangles[0].centre);
+                    CellKey cKey1 = CellTransform::transform<Cell::Cartesian, Cell::Offset>(hMap[x][y].triangles[1].centre);
 
+                    CellData &cell0 = cell(cDatas, cKey0);
                     CellData &cell1 = cell(cDatas, cKey1);
-                    CellData &cell2 = cell(cDatas, cKey2);
 
-                    hMap[x][y].cKey1 = cKey1;
-                    hMap[x][y].cKey2 = cKey2;
-                    hMap[x][y].type1 = cell1.type;
-                    hMap[x][y].type2 = cell2.type;
+                    hMap[x][y].triangles[0].cKey = cKey0;
+                    hMap[x][y].triangles[1].cKey = cKey1;
+                    hMap[x][y].triangles[0].type = cell0.type;
+                    hMap[x][y].triangles[1].type = cell1.type;
 
-                    hMap[x][y].height1 = cellTypeHeight(cell1);
-                    hMap[x][y].height2 = cellTypeHeight(cell2);
+                    hMap[x][y].triangles[0].height = cellTypeHeight(cell0);
+                    hMap[x][y].triangles[1].height = cellTypeHeight(cell1);
                     // todo
                 }
             }
+            
 
             // calculate point a height.
             for (int y = 0; y < gridsRows; y++)
             {
-                bool evenRow = (y % 2 == 0);
+
                 for (int x = 0; x < gridsCols; x++)
                 {
                     std::unordered_set<CellType> typeSet;
-                    std::array<std::tuple<int, int, int>, 6> triangles;
-                    if (evenRow)
-                    {
-                        triangles[0] = {0, 0, 1};
-                        triangles[1] = {-1, 0, 2};
-                        triangles[2] = {-1, 0, 1};
-                        triangles[3] = {-1, -1, 2};
-                        triangles[4] = {-1, -1, 1};
-                        triangles[5] = {0, -1, 2};
-                    }
-                    else
-                    {
-                        triangles[0] = {0, 0, 1};
-                        triangles[1] = {0, 0, 2};
-                        triangles[2] = {-1, 0, 1};
-                        triangles[3] = {-1, -1, 2};
-                        triangles[4] = {0, -1, 1};
-                        triangles[5] = {0, -1, 2};
-                    }
 
                     float h = 0;
                     for (int i = 0; i < 6; i++)
                     {
-                        std::tuple<int, int, int> tp = triangles[i];
+                        std::tuple<int, int, int> &tp = CellsGrid::neiberTrianglesOffset[y % 2][i];
                         CellsGrid &g = grid(hMap, x + std::get<0>(tp), y + std::get<1>(tp)); // index of grid.
+                        int T = std::get<2>(tp);
+                        CellType type = g.triangles[T].type;
+                        float height = g.triangles[T].height;
 
-                        CellType type;
-                        float height;
-                        if (std::get<2>(tp) == 1) // first trigangle
-                        {
-                            type = g.type1;
-                            height = g.height1;
-                        }
-                        else
-                        { // second triangle
-                            type = g.type2;
-                            height = g.height2;
-                        }
                         if (auto it = typeSet.find(type); it == typeSet.end())
                         {
                             typeSet.insert(type);
