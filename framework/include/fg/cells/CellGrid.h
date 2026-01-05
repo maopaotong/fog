@@ -29,6 +29,8 @@ namespace fog
         float height1;
         float height2;      
         float aHeight;  
+
+      
         
     };
 
