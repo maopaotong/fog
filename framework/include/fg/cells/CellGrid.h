@@ -101,6 +101,9 @@ namespace fog
         Triangle triangles[2];
 
         float aHeight;
+        // distance between a and the centre of the the cell0, the cell contains the triangle0.
+        bool isACellCentre;
+        bool isACellEdge;
     };
 
 }; // end of namespace

@@ -10,8 +10,12 @@ namespace fog
         std::mt19937 randGen;
         std::bernoulli_distribution randHill;
         std::uniform_real_distribution<float> randHeightHill;
+        std::bernoulli_distribution randMountain;
+        std::uniform_real_distribution<float> randHeightMountain;
 
-        INJECT(AdvGridsGenerator(Args opts, Config *config)) : CellsGridsGenerator(opts, config), randGen(23665289), randHill(0.1f), randHeightHill(-0.1f, 0.9f)
+        INJECT(AdvGridsGenerator(Args opts, Config *config)) : CellsGridsGenerator(opts, config), randGen(23665289), //
+                                                               randHill(0.5f), randHeightHill(0.01f, 0.03f),         //
+                                                               randMountain(0.01), randHeightMountain(0.05, 0.1)
         {
             std::mt19937 randGen(23665289);
             std::bernoulli_distribution randHill(0.1f);
@@ -22,67 +26,33 @@ namespace fog
             CellsGridsGenerator::generate(hMap, cDatas);
         }
 
-        float makeHeight(std::vector<std::vector<CellsGrid>> &hMap, int x, int y) override
+        void makeHeight(std::vector<std::vector<CellsGrid>> &hMap) override
         {
-            float h = CellsGridsGenerator::makeHeight(hMap, x, y);
 
-            return h;
+            for (int y = 0; y < gridsRows; y++)
+            {
+                for (int x = 0; x < gridsCols; x++)
+                {
+                    float maxH = -1;
+                    float minH = 2;
+
+                    CellsGrid::forEachNeiberTriangle(hMap, gridsCols, gridsRows, x, y, [&maxH, &minH](CellsGrid &g, int idx, CellsGrid::Triangle &t)
+                                                     {
+                                                         CellType type = t.type;
+                                                         float height = t.height;
+                                                         if (height > maxH)
+                                                         {
+                                                             maxH = height;
+                                                         }
+                                                         if (height < minH)
+                                                         {
+                                                             minH = height;
+                                                         } //
+                                                     });
+
+                    hMap[x][y].aHeight = (maxH + minH) / 2;
+                                }
+            }
         }
-        // struct ExpandCtx
-        // {
-        //     std::vector<std::vector<CellsGrid>> &hMap;
-        //     CellsDatas *cDatas;
-        //     std::unordered_set<int> processed;
-        //     ExpandCtx(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas) : hMap(hMap), cDatas(cDatas)
-        //     {
-        //     }
-        // };
-        // void expandBorderRects(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas)
-        // {
-        //     ExpandCtx ctx(hMap, cDatas);
-        //     for (int x = 0; x < gridsCols; x++)
-        //     {
-        //         for (int y = 0; y < gridsRows; y++)
-        //         {
-        //             doExpand(x, y, ctx);
-        //         }
-        //     }
-        // }
-
-        // void doExpand(int x, int y, ExpandCtx &ctx)
-        // {
-
-        //     if (ctx.processed.count(makeKey(x, y)))
-        //     {
-        //         return;
-        //     }
-        //     if (ctx.hMap[x][y].types[0] != ctx.hMap[x][y].types[2])
-        //     {
-        //         doExpanded(x, y, ctx, x, y + 1);
-        //         doExpanded(x, y, ctx, x + 1, y);
-        //         doExpanded(x, y, ctx, x, y - 1);
-        //         doExpanded(x, y, ctx, x - 1, y);
-        //     }
-        // }
-
-        // int makeKey(int x, int y)
-        // {
-        //     return y * gridsCols + x;
-        // }
-
-        // void doExpanded(int x, int y, ExpandCtx &ctx, int x1, int y1)
-        // {
-        //     // if (x1 < 0 || x1 > gridsCols - 1 || y1 < 0 || y1 > gridsRows - 1)
-        //     // {
-        //     //     return;
-        //     // }
-        //     // if (ctx.hMap[x1][y1].cKeys[0] == ctx.hMap[x][y].cKeys[0] && ctx.hMap[x1][y1].cKeys[0] != ctx.hMap[x1][y1].cKeys[2])
-        //     // {
-        //     //     ctx.hMap[x1][y1].types[2] = ctx.hMap[x][y].types[2];
-        //     //     ctx.hMap[x1][y1].cKeys[2] = ctx.hMap[x][y].cKeys[2];
-
-        //     //     ctx.processed.insert(makeKey(x1, y1));
-        //     // }
-        // }
     };
 };

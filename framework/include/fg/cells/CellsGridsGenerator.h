@@ -125,38 +125,52 @@ namespace fog
 
                     hMap[x][y].triangles[0].height = cellTypeHeight(cell0);
                     hMap[x][y].triangles[1].height = cellTypeHeight(cell1);
+                    //
+                    Point2<float> centre0 = CellTransform::transform<Cell::Offset, Cell::Centre>(cKey0);
+                    float aDisC0 = a.distance(centre0);
+                    if (aDisC0 < (1.0f / opts.gridAmp))
+                    {
+                        hMap[x][y].isACellCentre = true;
+                    }
+                    else
+                    {
+                        hMap[x][y].isACellCentre = false;
+                    }
+
                     // todo
                 }
             }
 
             // calculate point a height.
+            makeHeight(hMap);
+        }
+
+        virtual void makeHeight(std::vector<std::vector<CellsGrid>> &hMap)
+        {
             for (int y = 0; y < gridsRows; y++)
             {
                 for (int x = 0; x < gridsCols; x++)
                 {
-                    hMap[x][y].aHeight = makeHeight(hMap, x, y);
+                    float maxH = -1;
+                    float minH = 2;
+
+                    CellsGrid::forEachNeiberTriangle(hMap, gridsCols, gridsRows, x, y, [&maxH, &minH](CellsGrid &g, int idx, CellsGrid::Triangle &t)
+                                                     {
+                                                         CellType type = t.type;
+                                                         float height = t.height;
+                                                         if (height > maxH)
+                                                         {
+                                                             maxH = height;
+                                                         }
+                                                         if (height < minH)
+                                                         {
+                                                             minH = height;
+                                                         } //
+                                                     });
+
+                    hMap[x][y].aHeight = (maxH + minH) / 2;
                 }
             }
-        }
-
-        virtual float makeHeight(std::vector<std::vector<CellsGrid>> &hMap, int x, int y)
-        {
-            std::unordered_set<CellType> typeSet;
-            float h = 0;
-
-            CellsGrid::forEachNeiberTriangle(hMap, gridsCols, gridsRows, x, y, [&h, &typeSet](CellsGrid &g, int idx, CellsGrid::Triangle &t)
-                                             {
-                                                 CellType type = t.type;
-                                                 float height = t.height;
-
-                                                 if (auto it = typeSet.find(type); it == typeSet.end())
-                                                 {
-                                                     typeSet.insert(type);
-                                                     h += height;
-                                                 } //
-                                             });
-
-            return h / typeSet.size();
         }
 
         CellData &cell(CellsDatas *cDatas, CellKey cKey)
