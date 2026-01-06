@@ -66,7 +66,6 @@ namespace fog
             gridsRows = opts.gridsRows;
         }
 
-
         virtual void generate(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas)
         {
 
@@ -129,35 +128,37 @@ namespace fog
                     // todo
                 }
             }
-            
 
             // calculate point a height.
             for (int y = 0; y < gridsRows; y++)
             {
-
                 for (int x = 0; x < gridsCols; x++)
                 {
-                    std::unordered_set<CellType> typeSet;
-
-                    float h = 0;
-                    for (int i = 0; i < 6; i++)
-                    {
-                        std::tuple<int, int, int> &tp = CellsGrid::neiberTrianglesOffset[y % 2][i];
-                        CellsGrid &g = grid(hMap, x + std::get<0>(tp), y + std::get<1>(tp)); // index of grid.
-                        int T = std::get<2>(tp);
-                        CellType type = g.triangles[T].type;
-                        float height = g.triangles[T].height;
-
-                        if (auto it = typeSet.find(type); it == typeSet.end())
-                        {
-                            typeSet.insert(type);
-                            h += height;
-                        }
-                    }
-                    hMap[x][y].aHeight = h / typeSet.size();
+                    hMap[x][y].aHeight = makeHeight(hMap, x, y);
                 }
             }
         }
+
+        virtual float makeHeight(std::vector<std::vector<CellsGrid>> &hMap, int x, int y)
+        {
+            std::unordered_set<CellType> typeSet;
+            float h = 0;
+
+            CellsGrid::forEachNeiberTriangle(hMap, gridsCols, gridsRows, x, y, [&h, &typeSet](CellsGrid &g, int idx, CellsGrid::Triangle &t)
+                                             {
+                                                 CellType type = t.type;
+                                                 float height = t.height;
+
+                                                 if (auto it = typeSet.find(type); it == typeSet.end())
+                                                 {
+                                                     typeSet.insert(type);
+                                                     h += height;
+                                                 } //
+                                             });
+
+            return h / typeSet.size();
+        }
+
         CellData &cell(CellsDatas *cDatas, CellKey cKey)
         {
             int x = cKey.col % cellsCols;
@@ -172,19 +173,6 @@ namespace fog
                 y += cellsRows;
             }
             return cDatas->cells[x][y];
-        }
-
-        CellsGrid &grid(std::vector<std::vector<CellsGrid>> &hMap, int x, int y)
-        {
-            if (x < 0)
-            {
-                x += gridsCols;
-            }
-            if (y < 0)
-            {
-                y += gridsRows;
-            }
-            return hMap[x][y];
         }
 
         static float map(float low1, float heigh1, float low2, float high2, float value)

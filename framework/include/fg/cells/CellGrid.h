@@ -15,7 +15,7 @@ namespace fog
     {
 
     private:
-        inline static std::array<std::array<std::tuple<int, int>, 6>, 2> initNeiberPointsOffset()
+        static std::array<std::array<std::tuple<int, int>, 6>, 2> initNeiberPointsOffset()
         {
             std::array<std::array<std::tuple<int, int>, 6>, 2> points;
 
@@ -34,7 +34,7 @@ namespace fog
             points[1][5] = {1, -1};
             return points;
         }
-        
+
         static std::array<std::array<std::tuple<int, int, int>, 6>, 2> initNeiberTrianglesOffset()
         {
             std::array<std::array<std::tuple<int, int, int>, 6>, 2> triangles;
@@ -55,9 +55,34 @@ namespace fog
             return triangles;
         }
 
+        static CellsGrid &grid(std::vector<std::vector<CellsGrid>> &hMap, int cols, int rows, int x, int y)
+        {
+            if (x < 0)
+            {
+                x += cols;
+            }
+            if (y < 0)
+            {
+                y += rows;
+            }
+            return hMap[x][y];
+        }
+
     public:
         inline static std::array<std::array<std::tuple<int, int>, 6>, 2> neiberPointsOffset = initNeiberPointsOffset();
         inline static std::array<std::array<std::tuple<int, int, int>, 6>, 2> neiberTrianglesOffset = initNeiberTrianglesOffset();
+
+        template <typename F>
+        static void forEachNeiberTriangle(std::vector<std::vector<CellsGrid>> &hMap, int cols, int rows, int x, int y, F &&visit)
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                std::tuple<int, int, int> &tp = CellsGrid::neiberTrianglesOffset[y % 2][i];
+                CellsGrid &g = grid(hMap, cols, rows, x + std::get<0>(tp), y + std::get<1>(tp)); // index of grid.
+                int T = std::get<2>(tp);
+                visit(g, i, g.triangles[T]);
+            }
+        }
 
         struct Triangle
         {

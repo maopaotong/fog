@@ -6,15 +6,27 @@ namespace fog
 
     struct AdvGridsGenerator : public CellsGridsGenerator
     {
-        INJECT(AdvGridsGenerator(Args opts, Config *config)) : CellsGridsGenerator(opts, config)
+
+        std::mt19937 randGen;
+        std::bernoulli_distribution randHill;
+        std::uniform_real_distribution<float> randHeightHill;
+
+        INJECT(AdvGridsGenerator(Args opts, Config *config)) : CellsGridsGenerator(opts, config), randGen(23665289), randHill(0.1f), randHeightHill(-0.1f, 0.9f)
         {
+            std::mt19937 randGen(23665289);
+            std::bernoulli_distribution randHill(0.1f);
         }
 
         void generate(std::vector<std::vector<CellsGrid>> &hMap, CellsDatas *cDatas) override
         {
             CellsGridsGenerator::generate(hMap, cDatas);
-            //
-            //expandBorderRects(hMap, cDatas);
+        }
+
+        float makeHeight(std::vector<std::vector<CellsGrid>> &hMap, int x, int y) override
+        {
+            float h = CellsGridsGenerator::makeHeight(hMap, x, y);
+
+            return h;
         }
         // struct ExpandCtx
         // {
