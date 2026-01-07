@@ -15,7 +15,7 @@ namespace fog
     {
         int cols;
         int rows;
-        INJECT(WorldTexGenerator(CellsGridsGenerator::Args &opts)) : cols(std::pow(2, 12) + 1),
+        INJECT(WorldTexGenerator(CellsGridsGenerator::Args &opts)) : cols(std::pow(2, 10) + 1),
                                                                      rows(cols)
         {
         }
@@ -29,7 +29,7 @@ namespace fog
             createWorldTexture(texName, [this, size](unsigned char *data)
                                {
                                    std::vector<std::vector<float>> heightmap(size, std::vector<float>(size, 0));
-                                   DiamondSquare::generate(heightmap, size, 0.8f, 123546782);
+                                   DiamondSquare::generate(heightmap, size, 0.8, 123546782);
                                    Normaliser::normalise(heightmap, size, size); //
                                    for (int y = 0; y < rows; y++)
                                    {
