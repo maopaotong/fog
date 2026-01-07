@@ -13,104 +13,43 @@ namespace fog
 
     struct WorldTexGenerator
     {
-        int width;
-        int height;
-        Config *config;
-        std::vector<std::vector<CellsGrid>> &hMap;
-        INJECT(WorldTexGenerator(Config *config,
-                                 CellsGrids *grids,
-                                 CellsGridsGenerator::Args opts)) : hMap(grids->grids), config(config),
-                                                                       width(opts.gridsCols),
-                                                                       height(opts.gridsRows)
+        int cols;
+        int rows;
+        INJECT(WorldTexGenerator(CellsGridsGenerator::Args &opts)) : cols(std::pow(2, 12) + 1),
+                                                                     rows(cols)
         {
         }
         ~WorldTexGenerator()
         {
         }
 
-        template <typename F>
-        void generateData(unsigned char *data, F &&func)
+        void createWorlTextures(std::string texName)
         {
-            int typePlot[11] = {0}; // for debug.
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-
-                    // Box2<int> debugRange = config->debugPrintTerrainsTexRange;
-                    // CellsGrid &v = hMap[x][y];
-                    // if (v.types[0] < 10)
-                    // {
-                    //     typePlot[v.types[0]]++;
-                    // }
-                    // else
-                    // {
-                    //     typePlot[10]++;
-                    // }
-
-                    // int idx = (y * width + x) * 4;
-
-                    // // R as the type of the centre point of the rect, the precision is based on the qulity parameter configred.
-
-                    // func(data, idx, v);
-                    // // data[idx + 3] = v.temperature * 100; //
-                    // if (debugRange.isIn(x, y))
-                    // {
-                    //     std::cout << fmt::format("texure[{:>2},{:>2}]:({:>3}|{:>3}|{:>3}|{:>3})", x, y, data[idx], data[idx + 1], data[idx + 2], data[idx + 3]) << std::endl;
-                    // }
-                }
-            }
-
-            for (int i = 0; i < 11; i++)
-            {
-                // std::cout << fmt::format("typePlot[{}] is {:>3}", i, texOp.typePlot[i]) << std::endl;
-            }
-        }
-
-        // TODO create texture by a texture manager.
-        // TODO as well as the FogOfWar Texture creation.
-        // World texture is used as the meta data for the shader to determine the child texture.
-        void createWorlTextures(std::string name1, std::string name2)
-        {
-
-            createWorldTexture(name1, [](unsigned char *data, int idx, CellsGrid &v)
+            int size = std::max(cols, rows);
+            createWorldTexture(texName, [this, size](unsigned char *data)
                                {
-                                //    data[idx] = v.types[0]; /** 0 .. 15 **/
-                                //    // G 2rd type of the rect.
-                                //    data[idx + 1] = v.types[1];
-                                //    // B 3rd type of the rect.
-                                //    data[idx + 2] = v.types[2];
-                                //    // A
-                                //    data[idx + 3] = v.distanceToEdge(1.0) * 100; //
-                               });
-            createWorldTexture(name2, [](unsigned char *data, int idx, CellsGrid &v)
-                               {
-                                //    if (v.cKey.col > 255 || v.cKey.row > 255)
-                                //    {
-                                //        data[idx] = 0;
-                                //        data[idx + 1] = 0;
-                                //        data[idx + 2] = 0;
-                                //        data[idx + 3] = 0;
-                                //    }
-                                //    else
-                                //    {
-                                //        data[idx] = v.cKey.col;         //
-                                //        data[idx + 1] = v.cKey.row;     //
-                                //        data[idx + 2] = v.cKeys[1].col; //
-                                //        data[idx + 3] = v.cKeys[1].row; //
-
-                                //    } //
+                                   std::vector<std::vector<float>> heightmap(size, std::vector<float>(size, 0));
+                                   DiamondSquare::generate(heightmap, size, 0.8f, 123546782);
+                                   Normaliser::normalise(heightmap, size, size); //
+                                   for (int y = 0; y < rows; y++)
+                                   {
+                                       for (int x = 0; x < cols; x++)
+                                       {
+                                           int idx = (y * cols + x) * 4;
+                                           data[idx] = heightmap[x][y] * 255;
+                                       }
+                                   } //
                                });
         }
         template <typename F>
         void createWorldTexture(std::string name, F &&dataF)
         {
-            unsigned char *data = new unsigned char[width * height * 4];
-            this->generateData(data, dataF);
+            unsigned char *data = new unsigned char[cols * rows * 4];
+            dataF(data);
 
-            Ogre::TexturePtr texture = TextureFactory::createTexture(name, width, height);
+            Ogre::TexturePtr texture = TextureFactory::createTexture(name, cols, rows);
 
-            TextureFactory::updateTexture(texture, width, height, data);
+            TextureFactory::updateTexture(texture, cols, rows, data);
 
             delete[] data;
         }

@@ -48,7 +48,7 @@ namespace fog
 
             // Context<CellsTerrains>::get()->createWorldTexture(texName0, tts->vertexs);
             // cvs->createWorldTexture(texName0, cvs->grids); // TODO texture create by a manager.
-            wtg->createWorlTextures(texName001, texName010);
+            wtg->createWorlTextures(texName001);
             ctg->createCellsTextures(texName011);
 
             Ogre::Pass *pass = mat->getTechnique(0)->getPass(0);
