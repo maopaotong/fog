@@ -106,7 +106,7 @@ namespace fog
         struct Vertex
         {
             Vector3 position;
-            ColourValue colour;
+            Ogre::ColourValue colour;
             Vector3 normal;
             TextureCoord textureCoord;
             bool isNormalInit = false;
@@ -162,7 +162,7 @@ namespace fog
                 vertices.push_back(v);
             }
 
-            void colour(ColourValue color)
+            void colour(Ogre::ColourValue color)
             {
                 int size1 = vertices.size();
                 vertices[size1 - 1].colour = color;
@@ -322,7 +322,7 @@ namespace fog
             struct PointVisit
             {
                 NormManualObject *obj;
-                ColourValue color;
+                Ogre::ColourValue color;
                 std::function<Vector3(Vector2, int)> position;
                 std::function<void(NormManualObject *, int, int, int, int, int)> triangle;
 
@@ -378,7 +378,7 @@ namespace fog
 
             // each cell visit op.
             template <typename F, typename TF, typename DF>
-            void operator()(int layers, F &&positionFunc, TF &&triangleFunc, DF &&densityFunc, ColourValue color)
+            void operator()(int layers, F &&positionFunc, TF &&triangleFunc, DF &&densityFunc, Ogre::ColourValue color)
             {
 
                 visitPoint.color = color;
