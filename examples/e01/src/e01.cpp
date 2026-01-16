@@ -1,5 +1,5 @@
 
-#include "fg/Example01.h"
+#include "fg/e01.h"
 
 namespace fog
 {
@@ -26,14 +26,14 @@ namespace fog
             injector.bindImpl<App, Example01>();
             injector.bindImpl<ImGuiAppContext::Args>();
             injector.bindArgOfConstructor<std::string, ImGuiAppContext::Args>([]() -> std::string *
-                                                                              { return new std::string("HexagonalGridVisualizer"); });
+                                                                              { return new std::string("e01"); });
             injector.bindImpl<ImGuiAppContext, Example01::TheImGuiAppContext>();
 
             injector.bindImpl<CoreMod, SimpleCore>();                
             injector.bindImpl<ImGuiAppImpl>();
             CoreMod * core = injector.get<CoreMod>();
-            Game01::setup(injector);
-            injector.get<Game01>();
+            Example01::setup(injector);
+            injector.get<Example01>();
             core->startRendering();
 
             App *app = injector.get<App>();

@@ -1,17 +1,11 @@
-/*------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------*/
 #pragma once
-#include <fmt/format.h>
-#include <random>
-#include "fg.h"
-#include "fg/util.h"
-#include "fg/ogre.h"
-#include "imgui.h"
-#include "fg/ui.h"
-#include "fg/cells.h"
+
 #include "fg/demo.h"
+#include "fg/util.h"
+#include "fg/ui.h"
 namespace fog
 {
+
     struct CostMapOptions : public CostMap::Options
     {
         INJECT(CostMapOptions(Config *config, CellsDatas::Args &cdos)) : CostMap::Options(cdos.cellsRange.getWidth(), cdos.cellsRange.getHeight())
@@ -19,8 +13,39 @@ namespace fog
         }
     };
 
-    struct Game01
+    struct Example01 : public App
     {
+        struct TheImGuiAppContext : public ImGuiAppContext
+        {
+            INJECT(TheImGuiAppContext(Args opts, ImGuiAppImpl *imGuiApp)) : ImGuiAppContext(opts, imGuiApp)
+            {
+            }
+
+            SELF(TheImGuiAppContext)
+            INIT(init)()
+            {
+                ImGuiAppContext::init();
+            }
+
+            void locateResources() override
+            {
+                // ApplicationContextBase::locateResources();
+                auto &rgm = Ogre::ResourceGroupManager::getSingleton();
+
+                rgm.addResourceLocation("build/vcpkg_installed/x64-windows/share/ogre/Media/Main", "FileSystem", "OgreInternal");
+                rgm.addResourceLocation("build/vcpkg_installed/x64-windows/share/ogre/Media/RTShaderLib", "FileSystem", "OgreInternal");
+                rgm.addResourceLocation("build/vcpkg_installed/x64-windows/share/ogre/Media/Terrain", "FileSystem", "OgreInternal");
+
+                /*
+                rgm.addResourceLocation("fog/examples/e00/materials", "FileSystem", "App");
+                */
+                rgm.addResourceLocation("doc/material", "FileSystem", "App");
+                rgm.addResourceLocation("doc/textures", "FileSystem", "General");
+                rgm.addResourceLocation("doc/sinbad", "FileSystem", "App");
+            }
+        };
+
+        
         static void setup(Injector &injector)
         {
             // context binding
@@ -105,7 +130,7 @@ namespace fog
             injector.bindImpl<WorldManager, WorldManager>();
 
             // binding mod.
-            injector.bindImpl<Game01, Game01>();
+            injector.bindImpl<Example01, Example01>();
         };
 
         bool breakRenderRequested = false;
@@ -124,7 +149,7 @@ namespace fog
         int cellsRows;
 
     public:
-        INJECT(Game01(OnFrameUI *onFrameUI, FogOfWar *fog, WorldManager *world,
+        INJECT(Example01(OnFrameUI *onFrameUI, FogOfWar *fog, WorldManager *world,
                       //   RenderWindow *window,
                       CellInstanceStateManager *cellInstances,
                       MovableStateManager *msm,
@@ -158,8 +183,10 @@ namespace fog
             sParams->setNamedConstant<int>("cellsRows", cellsRows);
         }
 
-        virtual ~Game01()
+        virtual ~Example01()
         {
         }
+
+        static int run(Options::Groups &ogs);
     };
 };
