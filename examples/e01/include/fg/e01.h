@@ -3,7 +3,7 @@
 #include "fg/demo.h"
 #include "fg/util.h"
 #include "fg/ui.h"
-namespace fog
+namespace fog::examples::e01
 {
 
     struct CostMapOptions : public CostMap::Options

@@ -2,29 +2,9 @@
 #include "fg/e00.h"
 #include <fmt/format.h>
 
-namespace fog
+namespace fog::examples::e00
 {
-    struct TheImGuiAppContext : public ImGuiAppContext
-    {
-        INJECT(TheImGuiAppContext(Args opts, ImGuiAppImpl *imGuiApp)) : ImGuiAppContext(opts, imGuiApp)
-        {
-        }
-
-        SELF(TheImGuiAppContext)
-        INIT(init)()
-        {
-            ImGuiAppContext::init();
-        }
-
-        void locateResources() override
-        {
-            auto &rgm = Ogre::ResourceGroupManager::getSingleton();
-            rgm.addResourceLocation("build/vcpkg_installed/x64-windows/share/ogre/Media/Main", "FileSystem", "OgreInternal");
-            rgm.addResourceLocation("build/vcpkg_installed/x64-windows/share/ogre/Media/RTShaderLib", "FileSystem", "OgreInternal");
-            rgm.addResourceLocation("build/vcpkg_installed/x64-windows/share/ogre/Media/Terrain", "FileSystem", "OgreInternal");
-            rgm.addResourceLocation("fog/examples/e00/materials", "FileSystem", "App");           
-        }
-    };
+   
 
     int Example00::run(Options::Groups &ogs)
     {

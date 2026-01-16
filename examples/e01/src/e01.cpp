@@ -1,7 +1,7 @@
 
 #include "fg/e01.h"
 
-namespace fog
+namespace fog::examples::e01
 {
 
     int Example01::run(Options::Groups &ogs)

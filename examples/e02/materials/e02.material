@@ -1,11 +1,11 @@
 
 vertex_program vertexShader glsl
 {
-    source e00_vertex.glsl	
+    source e02_vertex.glsl	
 }
 fragment_program fragmentShader glsl
 {
-    source e00_fragment.glsl
+    source e02_fragment.glsl
 }
 shared_params FragSharedParams
 {
