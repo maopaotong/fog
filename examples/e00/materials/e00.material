@@ -1,17 +1,17 @@
 
 vertex_program vertexShader glsl
 {
-    source cells_vertex.glsl	
+    source e00_vertex.glsl	
 }
 fragment_program fragmentShader glsl
 {
-    source cells_fragment.glsl
+    source e00_fragment.glsl
 }
 shared_params FragSharedParams
 {
    
 }
-material CellsMaterial
+material E00Material
 {
 	receive_shadows on
 	technique
