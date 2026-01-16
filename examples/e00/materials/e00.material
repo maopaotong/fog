@@ -1,0 +1,36 @@
+
+vertex_program vertexShader glsl
+{
+    source cells_vertex.glsl	
+}
+fragment_program fragmentShader glsl
+{
+    source cells_fragment.glsl
+}
+shared_params FragSharedParams
+{
+   
+}
+material CellsMaterial
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			
+			vertex_program_ref vertexShader
+			{
+	 			param_named_auto worldviewproj_matrix worldviewproj_matrix								
+			}
+			fragment_program_ref fragmentShader
+			{				
+								
+				//
+				shared_params_ref FragSharedParams
+
+			}
+			
+		}
+	}
+}
