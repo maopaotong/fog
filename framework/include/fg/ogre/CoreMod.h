@@ -12,7 +12,7 @@
 namespace fog
 {
 
-    class CoreMod : public Mod
+    class CoreMod
     {
 
     public:

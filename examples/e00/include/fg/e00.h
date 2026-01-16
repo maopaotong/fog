@@ -7,7 +7,7 @@ namespace fog
 {
     struct Example00 : public App
     {
-        struct Mod : public fog::Mod
+        struct Mod
         {
             INJECT(Mod(CoreMod *core, Ogre::SceneNode *sceNode))
             {
@@ -30,22 +30,17 @@ namespace fog
                 sceNode->setScale(30, 30, 30);
             }
         };
-        struct Setup
+
+        static void setup(Injector &injector)
         {
-            Mod *operator()(Injector &injector)
-            {
-                injector.bindFunc<SceneNode>([&injector]() -> SceneNode *
-                                             { return injector.get<CoreMod>()->getRootSceneNode()->createChildSceneNode(); });
-                injector.bindImpl<Example00::Mod>();
-                return injector.get<Example00::Mod>();
-            }
-        };
+            injector.bindFunc<SceneNode>([&injector]() -> SceneNode *
+                                         { return injector.get<CoreMod>()->getRootSceneNode()->createChildSceneNode(); });
+            injector.bindImpl<Example00::Mod>();
+        }
 
         INJECT(Example00(Injector *injector))
         {
-            this->add(*injector, SimpleCore::Setup());
-            this->add(*injector, Example00::Setup()); //
-            injector->get<CoreMod>()->startRendering();
+            
         }
         static int run(Options::Groups &ogs);
     };

@@ -29,6 +29,13 @@ namespace fog
                                                                               { return new std::string("HexagonalGridVisualizer"); });
             injector.bindImpl<ImGuiAppContext, Example01::TheImGuiAppContext>();
 
+            injector.bindImpl<CoreMod, SimpleCore>();                
+            injector.bindImpl<ImGuiAppImpl>();
+            CoreMod * core = injector.get<CoreMod>();
+            Game01::setup(injector);
+            injector.get<Game01>();
+            core->startRendering();
+
             App *app = injector.get<App>();
             // Ogre::Root *root = injector.getPtr<CoreMod>()->getRoot();
             // root->startRendering(); //

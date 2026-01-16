@@ -47,6 +47,11 @@ namespace fog
         injector.bindArgOfConstructor<std::string, ImGuiAppContext::Args>([]() -> std::string *
                                                                           { return new std::string("e00"); });
         injector.bindImpl<ImGuiAppContext, TheImGuiAppContext>();
+        SimpleCore::setup(injector);
+        CoreMod * core = injector.get<CoreMod>();
+        Example00::setup(injector); //
+        injector.get<Example00::Mod>();
+        core->startRendering();
         std::cout << "done" << std::endl;
         App *app = injector.get<App>();
 

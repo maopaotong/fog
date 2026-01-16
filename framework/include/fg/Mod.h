@@ -7,7 +7,4 @@
 namespace fog
 {
 
-    struct Mod
-    {
-    };
 };

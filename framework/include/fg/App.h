@@ -11,25 +11,6 @@ namespace fog
 {
     class App
     {
-        struct ModHolder
-        {
-            Mod *mod;
-            Injector &injector;
-            ModHolder(Mod *mod, Injector &injector) : mod(mod), injector(injector)
-            {
-            }
-        };
-
-    protected:
-        std::vector<ModHolder> mods;
-
-    public:
-        template <typename F>
-        void add(Injector &injector, F &&setup)
-        {
-            Mod *mod = setup(injector);
-            mods.push_back(ModHolder(mod, injector));
-        }
-
+        
     };
 };

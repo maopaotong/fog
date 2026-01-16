@@ -19,99 +19,93 @@ namespace fog
         }
     };
 
-    struct Game01 : public Mod
+    struct Game01
     {
-        struct Setup
+        static void setup(Injector &injector)
         {
-            Mod *operator()(Injector &injector)
-            {
-                // context binding
-                // injector.bindCtx<CellKey>();
-                // method binding
-                injector.bindMethod<ImGuiApp, CoreMod>(&CoreMod::getImGuiApp);
-                // function binding
-                injector.bindFunc<SceneNode>([&injector]() -> SceneNode *
-                                             { return injector.get<CoreMod>()->getRootSceneNode()->createChildSceneNode(); });
-                // as value
-                injector.bindImpl<CostMap::Options, CostMapOptions>();
+            // context binding
+            // injector.bindCtx<CellKey>();
+            // method binding
+            injector.bindMethod<ImGuiApp, CoreMod>(&CoreMod::getImGuiApp);
+            // function binding
+            injector.bindFunc<SceneNode>([&injector]() -> SceneNode *
+                                         { return injector.get<CoreMod>()->getRootSceneNode()->createChildSceneNode(); });
+            // as value
+            injector.bindImpl<CostMap::Options, CostMapOptions>();
 
-                injector.bindArgOfConstructor<float, TransformD2D3H>([&injector]()
-                                                                     { return &injector.get<Config>()->cellScale; } //
-                );
-                injector.bindArgOfConstructor<float, TransformD3D2>([&injector]()
-                                                                    { return new float(1.0f / injector.get<Config>()->cellScale); } //
-                );
+            injector.bindArgOfConstructor<float, TransformD2D3H>([&injector]()
+                                                                 { return &injector.get<Config>()->cellScale; } //
+            );
+            injector.bindArgOfConstructor<float, TransformD3D2>([&injector]()
+                                                                { return new float(1.0f / injector.get<Config>()->cellScale); } //
+            );
 
-                injector.bindImpl<Building::Args>();
-                injector.bindImpl<Geometry::Args>();
+            injector.bindImpl<Building::Args>();
+            injector.bindImpl<Geometry::Args>();
 
-                injector.bindAllImpl<
-                    FogOfWar::Args,
-                    FogOfWarTexture::Args,
-                    TransformD2TD3::Args,
-                    CellsDatas::Args,
-                    CellsGridsGenerator::Args,
-                    CellsGenerator::Args,
-                    CellsMaterial::Args>();
+            injector.bindAllImpl<
+                FogOfWar::Args,
+                FogOfWarTexture::Args,
+                TransformD2TD3::Args,
+                CellsDatas::Args,
+                CellsGridsGenerator::Args,
+                CellsGenerator::Args,
+                CellsMaterial::Args>();
 
-                // impl as pointer
-                injector.bindImpl<MovableStateManager>();
-                // ui as pointer
-                injector.bindAllImpl<
-                    QuitUI,
-                    TopBarUI,
-                    InventoryUI,
-                    OptionsUI,
-                    PropertyRefsUI,
-                    ActiveTrayUI,
-                    BuildingTrayUI,
-                    StatisticTrayUI,
-                    TasksUI>();
+            // impl as pointer
+            injector.bindImpl<MovableStateManager>();
+            // ui as pointer
+            injector.bindAllImpl<
+                QuitUI,
+                TopBarUI,
+                InventoryUI,
+                OptionsUI,
+                PropertyRefsUI,
+                ActiveTrayUI,
+                BuildingTrayUI,
+                StatisticTrayUI,
+                TasksUI>();
 
-                injector.bindImpl<CellsGenerator, AdvCellsGenerator>();
-                injector.bindImpl<CellsGridsGenerator,AdvGridsGenerator>(),
+            injector.bindImpl<CellsGenerator, AdvCellsGenerator>();
+            injector.bindImpl<CellsGridsGenerator, AdvGridsGenerator>();
 
-                // others as pointer
-                injector.bindAllImpl<
-                    BuildingStateManager,
-                    CameraStateManager,
-                    CellsMaterial,
-                    CellInstanceStateManager,
-                    CellsCost,
-                    CellsDatas,
-                    CellsGrids,
-                    CellsState,
-                    CellsTexGenerator,
-                    Config,
-                    CostMap,
-                    EntryController,
-                    EntryUI,
-                    EntryUI::Children,
-                    EventBus,
-                    FogOfWar,
-                    FogOfWarTexture,
-                    Geometry,
-                    InputStateController,
-                    InventoryManager,
-                    MovingStateManager,
-                    MouseCellController,
-                    OnFrameUI,
-                    PathingStateManager,
-                    ShaderManager,
-                    HomeCellKey,
-                    Transforms,
-                    TransformD2D3H,
-                    TransformD3D2,
-                    TransformD2TD3,
-                    WorldTexGenerator>();
-                injector.bindImpl<WorldManager, WorldManager>();
+            // others as pointer
+            injector.bindAllImpl<
+                BuildingStateManager,
+                CameraStateManager,
+                CellsMaterial,
+                CellInstanceStateManager,
+                CellsCost,
+                CellsDatas,
+                CellsGrids,
+                CellsState,
+                CellsTexGenerator,
+                Config,
+                CostMap,
+                EntryController,
+                EntryUI,
+                EntryUI::Children,
+                EventBus,
+                FogOfWar,
+                FogOfWarTexture,
+                Geometry,
+                InputStateController,
+                InventoryManager,
+                MovingStateManager,
+                MouseCellController,
+                OnFrameUI,
+                PathingStateManager,
+                ShaderManager,
+                HomeCellKey,
+                Transforms,
+                TransformD2D3H,
+                TransformD3D2,
+                TransformD2TD3,
+                WorldTexGenerator>();
+            injector.bindImpl<WorldManager, WorldManager>();
 
-                // binding mod.
-                injector.bindImpl<Game01, Game01, Mod>();
-
-                // create mod.
-                return injector.get<Game01>();
-            }
+            // binding mod.
+            injector.bindImpl<Game01, Game01>();
         };
 
         bool breakRenderRequested = false;
@@ -128,6 +122,7 @@ namespace fog
         Config *config;
         int cellsCols;
         int cellsRows;
+
     public:
         INJECT(Game01(OnFrameUI *onFrameUI, FogOfWar *fog, WorldManager *world,
                       //   RenderWindow *window,
@@ -136,7 +131,7 @@ namespace fog
                       CoreMod *core,
                       ImGuiApp *imGuiApp,
                       Config *config,
-                      CellsDatas::Args& cdargs,
+                      CellsDatas::Args &cdargs,
                       MovingStateManager *movingStateManager))
             : movingStateManager(movingStateManager),
               config(config),
@@ -161,7 +156,6 @@ namespace fog
             sParams->setNamedConstant<int>("leiout", CellLayout);
             sParams->setNamedConstant<int>("cellsCols", cellsCols);
             sParams->setNamedConstant<int>("cellsRows", cellsRows);
-            
         }
 
         virtual ~Game01()

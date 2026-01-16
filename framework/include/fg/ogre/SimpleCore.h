@@ -96,16 +96,11 @@ namespace fog
         }
         // HexagonalGridVisualizer
 
-        struct Setup
+        static void setup(Injector &injector)
         {
-            Mod *operator()(Injector &injector)
-            {
-                injector.bindImpl<CoreMod, SimpleCore>();                
-                //injector.bindImpl<ImGuiAppContext>();
-                injector.bindImpl<ImGuiAppImpl>();
-
-                return injector.get<CoreMod>();
-            };
+            injector.bindImpl<CoreMod, SimpleCore>();
+            // injector.bindImpl<ImGuiAppContext>();
+            injector.bindImpl<ImGuiAppImpl>();
         };
 
         void addCallback(Callback *callback)
