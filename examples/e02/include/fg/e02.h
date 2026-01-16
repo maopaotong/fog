@@ -5,7 +5,7 @@
 #include "fg/demo.h"
 namespace fog::examples::e02
 {
-    struct Example02
+    struct Example02 : public Ogre::FrameListener
     {
         struct TheImGuiAppContext : public ImGuiAppContext
         {
@@ -29,12 +29,22 @@ namespace fog::examples::e02
             }
         };
 
-        INJECT(Example02(CoreMod *core, Ogre::SceneNode *sceNode))
+        Ogre::ManualObject *obj;
+        CoreMod *core;
+        Ogre::SceneNode *sceNode;
+        SELF(Example02)
+
+        INJECT(Example02(CoreMod *core, Ogre::SceneNode *sceNode)) : core(core), sceNode(sceNode)
         {
-            Ogre::ManualObject *obj = core->createManualObject();
+        }
+        INIT(init)()
+        {
+            obj = core->createManualObject();
             sceNode->attachObject(obj);
             obj->clear();
-            obj->begin("E02Material", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+            std::string mName;
+            mName = "BaseWhiteNoLighting";
+            obj->begin(mName, Ogre::RenderOperation::OT_TRIANGLE_LIST);
             int baseIdx = obj->getCurrentVertexCount();
             Vector3 a{0, 0, 0};
             Vector3 b{1, 0, 0};
@@ -48,6 +58,17 @@ namespace fog::examples::e02
 
             obj->end();
             sceNode->setScale(30, 30, 30);
+            //
+            core->addFrameListener(this);
+        }
+
+        bool frameRenderingQueued(const Ogre::FrameEvent &evt) override
+        {
+
+            obj->setMaterialName(0, "E02Material");
+            //obj->setVisible(false);
+
+            return true;
         }
 
         static int run(Options::Groups &ogs);
