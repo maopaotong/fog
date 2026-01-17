@@ -1,0 +1,29 @@
+
+compositor E02Comp01
+{
+    technique
+    {
+        texture rt0 target_width target_height PF_BYTE_RGB
+
+        target rt0 
+        {            
+            
+            pass clear
+            {
+
+            }
+            pass render_scene 
+            {
+                
+            }
+        }
+        target_output
+        {            
+            pass render_quad
+            {
+                material E02Mat02
+                input 0 rt0
+            }
+        }
+    }
+}

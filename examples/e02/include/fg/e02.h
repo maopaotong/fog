@@ -37,13 +37,23 @@ namespace fog::examples::e02
         INJECT(Example02(CoreMod *core, Ogre::SceneNode *sceNode)) : core(core), sceNode(sceNode)
         {
         }
-        INIT(init)()
+        INIT(setupAll)()
         {
+            setupObj();
+            setupCompositor();
+            core->addFrameListener(this);
+        }
+        void setupCompositor(){
+            Ogre::Viewport * vp = core->getViewport();
+            Ogre::CompositorManager::getSingleton().addCompositor(vp, "E02Comp01");
+            Ogre::CompositorManager::getSingleton().setCompositorEnabled(vp, "E02Comp01", true);
+        }
+        void setupObj(){
             obj = core->createManualObject();
             sceNode->attachObject(obj);
             obj->clear();
             std::string mName;
-            mName = "BaseWhiteNoLighting";
+            mName = "E02Mat01";
             obj->begin(mName, Ogre::RenderOperation::OT_TRIANGLE_LIST);
             int baseIdx = obj->getCurrentVertexCount();
             Vector3 a{0, 0, 0};
@@ -58,14 +68,15 @@ namespace fog::examples::e02
 
             obj->end();
             sceNode->setScale(30, 30, 30);
+            obj->setBoundingBox(Ogre::AxisAlignedBox(-50, -50, -50, 50, 50, 50));
+
             //
-            core->addFrameListener(this);
         }
 
         bool frameRenderingQueued(const Ogre::FrameEvent &evt) override
         {
 
-            obj->setMaterialName(0, "E02Material");
+            //obj->setMaterialName(0, "E02Material");
             //obj->setVisible(false);
 
             return true;

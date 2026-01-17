@@ -61,7 +61,7 @@ namespace fog
             // Sand: cost 2
 
             // 假设你已经有 sceneMgr 和 camera
-            light = sceMgr->createLight("MyLight");
+            light = sceMgr->createLight("Light01");
             // light->setType(Ogre::Light::LT_POINT);
             light->setType(Ogre::Light::LT_DIRECTIONAL);
             light->setDiffuseColour(Ogre::ColourValue(1.0, 1.0, 1.0)); // 白色漫反射
@@ -74,7 +74,7 @@ namespace fog
 
             lightNode->attachObject(light);
             // Create camera
-            camera = sceMgr->createCamera("HexMapCamera");
+            camera = sceMgr->createCamera("Cam01");
             camera->setNearClipDistance(0.1f);
             camera->setFarClipDistance(0.0f);
             camera->setAutoAspectRatio(true);
@@ -181,6 +181,9 @@ namespace fog
         Ogre::Light *getLight()
         {
             return this->light;
+        }
+        Ogre::Viewport * getViewport() override {
+            return this->vp;
         }
         ImGuiApp *getImGuiApp() override
         {

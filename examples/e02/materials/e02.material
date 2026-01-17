@@ -1,36 +1,72 @@
 
-vertex_program vertexShader glsl
+vertex_program vertexShader_01 glsl
 {
-    source e02_vertex.glsl	
+    source e02_01_vertex.glsl	
 }
-fragment_program fragmentShader glsl
+fragment_program fragmentShader_01 glsl
 {
-    source e02_fragment.glsl
+    source e02_01_fragment.glsl
 }
+vertex_program vertexShader_02 glsl
+{
+    source e02_02_vertex.glsl	
+}
+fragment_program fragmentShader_02 glsl
+{
+    source e02_02_fragment.glsl
+}
+
 shared_params FragSharedParams
 {
    
 }
-material E02Material
+
+
+material E02Mat01
 {
 	receive_shadows on
 	technique
 	{
 		pass
-		{
-			
-			vertex_program_ref vertexShader
+		{			
+			vertex_program_ref vertexShader_01
 			{
 	 			param_named_auto worldviewproj_matrix worldviewproj_matrix								
 			}
-			fragment_program_ref fragmentShader
-			{				
-								
+			fragment_program_ref fragmentShader_01
+			{												
 				//
 				shared_params_ref FragSharedParams
-
-			}
+			}		
 			
 		}
-	}
+	}	
+}
+
+
+material E02Mat02
+{
+	technique
+	{
+		pass
+		{	
+			lighting off		
+			vertex_program_ref vertexShader_02
+			{
+	 			param_named_auto worldviewproj_matrix worldviewproj_matrix								
+			}
+			fragment_program_ref fragmentShader_02
+			{												
+				//
+				shared_params_ref FragSharedParams
+			}		
+			
+			texture_unit
+	        {				
+				tex_address_mode clamp
+				filtering none
+	        }
+			
+		}
+	}	
 }
