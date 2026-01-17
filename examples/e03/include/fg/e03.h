@@ -57,7 +57,8 @@ namespace fog::examples::e03
             subMesh->useSharedVertices = false;
             Ogre::VertexDeclaration *decl = Ogre::HardwareBufferManager::getSingleton().createVertexDeclaration();
             decl->addElement(0, 0, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
-            decl->addElement(0, sizeof(float) * 3, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES);
+            decl->addElement(0, 4 * 3, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES);
+            decl->addElement(0, 4 * 5, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES, 1);
 
             subMesh->vertexData = new Ogre::VertexData();
             subMesh->vertexData->vertexDeclaration = decl;
@@ -75,18 +76,27 @@ namespace fog::examples::e03
             vData[idx++] = 0; // z
             vData[idx++] = 0; // u
             vData[idx++] = 0; // v
+            vData[idx++] = 0; // u
+            vData[idx++] = 0; // v
+            
 
             vData[idx++] = 1; // x
             vData[idx++] = 0; // y
             vData[idx++] = 0; // z
-            vData[idx++] = 0; // u
+            vData[idx++] = 1; // u
             vData[idx++] = 0; // v
+            vData[idx++] = 1; // u
+            vData[idx++] = 0; // v
+            
 
             vData[idx++] = 0;  // x
             vData[idx++] = 0;  // y
             vData[idx++] = -1; // z
             vData[idx++] = 0;  // u
-            vData[idx++] = 0;  // v
+            vData[idx++] = -1;  // v
+            vData[idx++] = 0;  // u
+            vData[idx++] = -2;  // v
+            
 
             vBufPtr->unlock();
             subMesh->vertexData->vertexBufferBinding->setBinding(0, vBufPtr);

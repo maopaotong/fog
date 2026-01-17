@@ -1,7 +1,8 @@
-#version 120
+#version 330 core
 
 uniform sampler2D tex0;
-varying vec2 fUV;
+in vec2 fUV;
+
 void main() {
 
     
