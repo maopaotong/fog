@@ -5,6 +5,10 @@
 #include "fg/demo.h"
 namespace fog::examples::e03
 {
+    struct Data
+    {
+        std::vector<PoissonDisk::Point> points;
+    };
     struct Example : public Ogre::FrameListener
     {
         struct TheImGuiAppContext : public ImGuiAppContext
@@ -39,9 +43,17 @@ namespace fog::examples::e03
         }
         INIT(setupAll)()
         {
-            setupObj();
+            Data data = setupData();
+            setupObj(data);
             setupCompositor();
             core->addFrameListener(this);
+        }
+        Data setupData()
+        {
+            PoissonDisk::Generator<std::mt19937> gen({0, 0, 10, 10}, 50, 30, std::mt19937{187});
+            std::vector<PoissonDisk::Point> points = gen.fill();
+
+            return {points};
         }
         void setupCompositor()
         {
@@ -49,7 +61,8 @@ namespace fog::examples::e03
             Ogre::CompositorManager::getSingleton().addCompositor(vp, "E03Comp01");
             Ogre::CompositorManager::getSingleton().setCompositorEnabled(vp, "E03Comp01", true);
         }
-        void setupObj()
+
+        void setupObj(Data &data)
         {
 
             Ogre::MeshPtr meshPtr = Ogre::MeshManager::getSingleton().createManual("LandMesh", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -78,7 +91,6 @@ namespace fog::examples::e03
             vData[idx++] = 0; // v
             vData[idx++] = 0; // u
             vData[idx++] = 0; // v
-            
 
             vData[idx++] = 1; // x
             vData[idx++] = 0; // y
@@ -87,16 +99,14 @@ namespace fog::examples::e03
             vData[idx++] = 0; // v
             vData[idx++] = 1; // u
             vData[idx++] = 0; // v
-            
 
             vData[idx++] = 0;  // x
             vData[idx++] = 0;  // y
             vData[idx++] = -1; // z
             vData[idx++] = 0;  // u
-            vData[idx++] = -1;  // v
+            vData[idx++] = -1; // v
             vData[idx++] = 0;  // u
-            vData[idx++] = -2;  // v
-            
+            vData[idx++] = -2; // v
 
             vBufPtr->unlock();
             subMesh->vertexData->vertexBufferBinding->setBinding(0, vBufPtr);

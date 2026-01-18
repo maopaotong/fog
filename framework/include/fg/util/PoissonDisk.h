@@ -146,7 +146,7 @@ namespace fog
             {
                 std::vector<Point> active_list(points_.begin(), points_.end());
 
-                std::uniform_real_distribution<double> angle_dist(0.0, 2.0 * M_PI);
+                std::uniform_real_distribution<double> angle_dist(0.0, 2.0 * Math::PI);
                 std::uniform_real_distribution<double> radius_dist(min_dist_, 2.0 * min_dist_);
 
                 while (!active_list.empty())
