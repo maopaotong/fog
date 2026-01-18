@@ -39,9 +39,9 @@ namespace fog::examples::e01
                 /*
                 rgm.addResourceLocation("fog/examples/e00/materials", "FileSystem", "App");
                 */
-                rgm.addResourceLocation("doc/material", "FileSystem", "App");
-                rgm.addResourceLocation("doc/textures", "FileSystem", "General");
-                rgm.addResourceLocation("doc/sinbad", "FileSystem", "App");
+                rgm.addResourceLocation("fog/examples/e01/doc/material", "FileSystem", "App");
+                rgm.addResourceLocation("fog/examples/e01/doc/textures", "FileSystem", "General");
+                rgm.addResourceLocation("fog/examples/e01/doc/sinbad", "FileSystem", "App");
             }
         };
 

@@ -1,0 +1,35 @@
+
+vertex_program buildingsVertexShader glsl
+{
+    source buildings_vertex.glsl	
+}
+fragment_program buildingsFragmentShader glsl
+{
+    source buildings_fragment.glsl
+}
+shared_params BuildingsFragSharedParams
+{
+	shared_param_named cameraPos float3 0 0 0
+	shared_param_named debug int 0
+}
+material BuildingsMaterial
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			
+			vertex_program_ref buildingsVertexShader
+			{
+				param_named_auto world_matrix world_matrix
+	 			param_named_auto worldviewproj_matrix worldviewproj_matrix
+				
+			}
+			fragment_program_ref buildingsFragmentShader
+			{				
+				shared_params_ref BuildingsFragSharedParams
+			}			
+		}
+	}
+}

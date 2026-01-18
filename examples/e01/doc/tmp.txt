@@ -1,0 +1,89 @@
+
+        template <typename Tuple, size_t N = std::tuple_size_v<Tuple>>
+        struct Transformer;
+
+        template <typename Tuple>
+        struct Transformer<Tuple, 2>
+        {
+            using Type0 = std::tuple_element_t<0, Tuple>;
+            using Type2 = std::tuple_element_t<1, Tuple>;            
+            
+            static Type2 transform(Type0 &k0)
+            {
+                return transform<Type0, Type2>(k0);
+            }
+        };
+
+        template <typename Tuple>
+        struct Transformer<Tuple, 3>
+        {
+            using Type0 = std::tuple_element_t<0, Tuple>;
+            using Type1 = std::tuple_element_t<1, Tuple>;
+            using Type2 = std::tuple_element_t<2, Tuple>;
+            
+            static Type2 transform(Type0 &k0)
+            {
+
+                Type1 k1 = transform<Type0, Type1>(k0);
+                return transform<Type1,Type2>(k1);
+            }
+        };
+
+        // template <typename Tuple>
+        // static std::enable_if_t<std::tuple_size_v<Tuple> == 2, void> transformAll(std::vector<std::tuple_element_t<0, Tuple>> &cks,
+        //                                                                           std::vector<decltype(std::get<1>(std::declval<Tuple>()))> &ret)
+        // {
+        //     for (auto it = cks.begin(); it != cks.end(); it++)
+        //     {
+        //         ret.push_back(Transformer::transform<Tuple2>(*it));
+        //     }
+        // }
+
+        // template <typename Tuple>
+        // static std::enable_if_t<std::tuple_size_v<Tuple> == 3, void> transformAll(std::vector<std::tuple_element_t<0, Tuple>> &cks,
+        //                                                                           std::vector<decltype(std::get<2>(std::declval<Tuple>()))> &ret)
+        // {
+        //     for (auto it = cks.begin(); it != cks.end(); it++)
+        //     {
+        //         ret.push_back(Transformer::transform<Tuple>(*it));
+        //     }
+        // }
+
+
+        template <typename Tuple>
+        static std::enable_if_t<std::tuple_size_v<Tuple> == 2, std::tuple_element_t<1, Tuple>> transform(std::tuple_element_t<0, Tuple> &k1)
+        {            
+            return Transformer::transform<Tuple>(k1);            
+        }
+        
+        template <typename Tuple>
+        static std::enable_if_t<std::tuple_size_v<Tuple> == 3, std::tuple_element_t<2, Tuple>> transform(std::tuple_element_t<0, Tuple> &k1)
+        {            
+            return Transformer::transform<Tuple>(k1);            
+        }
+        
+        template <typename K1, typename K2>
+        static K2 transform(K1 &cKey)
+        {
+            static_assert(!std::is_same(K1, K1), "not supported transform between types.");
+        }
+
+        template <>
+        static Centre transform<Offset, Centre>(Offset &cKey)
+        {
+            static Transform::CellKeyToCentre TF_K2C;
+            return cKey.Point2<int>::cast<float>().transform(TF_K2C);
+        }
+
+        template <>
+        static Offset transform<Centre, Offset>(Centre &p)
+        {
+            static Transform::CentreToCellKey TF_C2K;
+            return p.transform(TF_C2K);
+        }
+
+        template <>
+        static Point2<float> transform<Centre, Point2<float>>(Centre &p)
+        {
+            return Point2<float>(p.x, p.y);
+        }

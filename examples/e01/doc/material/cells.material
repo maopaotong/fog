@@ -1,0 +1,132 @@
+
+vertex_program vertexShader glsl
+{
+    source cells_vertex.glsl	
+}
+fragment_program fragmentShader glsl
+{
+    source cells_fragment.glsl
+}
+shared_params FragSharedParams
+{
+    shared_param_named showCellEdge int 0
+	shared_param_named showRegionEdge int 0
+	shared_param_named cameraPos float3 0 0 0
+	shared_param_named actorPos2D float2 0 0
+	shared_param_named debug int 0
+	shared_param_named leiout int 0
+	shared_param_named cellsCols int 0
+	shared_param_named cellsRows int 0
+}
+material CellsMaterial
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			
+			vertex_program_ref vertexShader
+			{
+				param_named_auto world_matrix world_matrix
+	 			param_named_auto worldviewproj_matrix worldviewproj_matrix
+				param_named cellsCols int 1
+				param_named cellsRows int 1
+				//param_named meshQuality int 1
+				//param_named unitCols int 1
+				//param_named unitRows int 1
+				param_named unitWidth float 1
+				param_named unitHeight float 1
+				
+				
+			}
+			fragment_program_ref fragmentShader
+			{				
+				param_named tex_t	int 0
+				param_named tex_o 	int 1  
+				param_named tex_s 	int 2
+				param_named tex_p 	int 3
+				param_named tex_h 	int 4
+				param_named tex_m 	int 5
+				param_named tex_f 	int 6	
+				param_named tex_b 	int 7 //beach				
+				param_named tex_l 	int 8 //lake
+				param_named tex_fo  int 9 //FFogOfWarTex
+				param_named tex_w2  int 10 
+				param_named tex_cs  int 11 
+				param_named tex_i   int 12 
+				
+				//
+				shared_params_ref FragSharedParams
+
+			}
+
+			//0:world texture terrain types as RGB.
+			texture_unit { 
+				//not set name here, avoid error report in ogre.log				
+				//name is set programally by calling MaterialManager's methods.
+			}					
+			//1
+			texture_unit
+			{
+				texture tex_o.png
+			}
+			//2
+			texture_unit
+			{
+				texture tex_s.png
+			}
+			//3
+			texture_unit
+			{
+				texture tex_p.png
+			}
+			//4
+			texture_unit
+			{
+				texture tex_h.png
+			}
+			//5
+			texture_unit
+			{
+				texture tex_m.png
+			}
+			//6
+			texture_unit
+			{
+				texture tex_f.png
+			}		
+			//7
+			texture_unit
+			{
+				texture tex_b.png
+			}
+			//8
+			texture_unit
+			{
+				texture tex_l.png
+			}		
+			//9 FogOfWarTex
+			texture_unit { 
+				//not set name here, avoid error report in ogre.log				
+				//name is set programally by calling MaterialManager's methods.
+			}			
+			//10: additional world tex, cellKey.x, cellKey.y as RG
+			texture_unit { 		
+				//		
+			}
+			//11: cells tex
+			texture_unit { 				
+				//
+			}
+			//12 ice	
+			texture_unit
+			{
+				texture tex_i.png
+			}		
+			
+				
+			
+		}
+	}
+}

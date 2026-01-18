@@ -1,0 +1,35 @@
+
+vertex_program actorsVertexShader glsl
+{
+    source actors_vertex.glsl	
+}
+fragment_program actorsFragmentShader glsl
+{
+    source actors_fragment.glsl
+}
+shared_params ActorsFragSharedParams
+{
+	shared_param_named cameraPos float3 0 0 0
+	shared_param_named debug int 0
+}
+material ActorsMaterial
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			
+			vertex_program_ref actorsVertexShader
+			{
+				param_named_auto world_matrix world_matrix
+	 			param_named_auto worldviewproj_matrix worldviewproj_matrix
+				
+			}
+			fragment_program_ref actorsFragmentShader
+			{				
+				shared_params_ref ActorsFragSharedParams
+			}			
+		}
+	}
+}
