@@ -7,12 +7,29 @@
 
 namespace fog::examples::e03
 {
+
+    static std::vector<double> toFlatPoints(std::vector<PoissonDisk::Point> points)
+    {
+        std::vector<double> ps2;
+        for (PoissonDisk::Point p : points)
+        {
+            ps2.push_back(p.x);
+            ps2.push_back(p.y);
+        }
+        return ps2;
+    }
     using namespace delaunator;
     struct MeshData
     {
         std::vector<PoissonDisk::Point> points;
         Delaunator delaunator;
         int numBoundaryPoints;
+        MeshData(std::vector<PoissonDisk::Point> points, int numBoundaryPoints) : points(points),
+                                                                                  numBoundaryPoints(numBoundaryPoints),
+                                                                                  delaunator(Delaunator{toFlatPoints(points)})
+        {
+            
+        }
     };
 
     struct TriangleMesh
@@ -69,6 +86,7 @@ namespace fog::examples::e03
             double mountainSpacing = 35;
             double boundarySpacing = spacing * std::sqrt(2);
             int mountainRetries = 30;
+            int retries = 6;
             unsigned int seed = 12345;
 
             PoissonDisk::Bounds bounds(0, 0, 1000, 1000);
@@ -87,7 +105,7 @@ namespace fog::examples::e03
             std::vector<PoissonDisk::Point> interiorPoints = mountainPointsGen.fill();
             int numMoutainPoints = interiorPoints.size() - interiorBoundaryPoints.size();
 
-            PoissonDisk::Generator<std::mt19937> pointsGen(bounds, spacing, mountainRetries, std::mt19937{seed});
+            PoissonDisk::Generator<std::mt19937> pointsGen(bounds, spacing, retries, std::mt19937{seed});
             for (auto p : interiorPoints)
             {
                 if (!pointsGen.add_point(p))
@@ -98,9 +116,11 @@ namespace fog::examples::e03
 
             interiorPoints = pointsGen.fill();
 
+            std::vector<PoissonDisk::Point> points;
+            points.insert(points.end(), std::make_move_iterator(exteriorBoundaryPoints.begin()), std::make_move_iterator(exteriorBoundaryPoints.end()));
+            points.insert(points.end(), std::make_move_iterator(interiorPoints.begin()), std::make_move_iterator(interiorPoints.end()));
 
-
-            return MeshData{interiorPoints, Delaunator{toFlatPoints(interiorPoints)}, 0};
+            return MeshData{points, static_cast<int>(exteriorBoundaryPoints.size())};
         }
 
         std::vector<PoissonDisk::Point> generateInteriorBoundaryPoints(PoissonDisk::Bounds bounds, double boundarySpacing)
@@ -163,17 +183,6 @@ namespace fog::examples::e03
             points.push_back({bounds.x - diagonal, bounds.y + bounds.height + diagonal});
             points.push_back({bounds.x + bounds.width + diagonal, bounds.y + bounds.height + diagonal});
             return points;
-        }
-
-        std::vector<double> toFlatPoints(std::vector<PoissonDisk::Point> points)
-        {
-            std::vector<double> ps2;
-            for (PoissonDisk::Point p : points)
-            {
-                ps2.push_back(p.x);
-                ps2.push_back(p.y);
-            }
-            return ps2;
         }
 
         void setupCompositor()
