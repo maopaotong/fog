@@ -19,24 +19,131 @@ namespace fog::examples::e03
         return ps2;
     }
     using namespace delaunator;
-    struct MeshData
+    struct Data
     {
         std::vector<PoissonDisk::Point> points;
         Delaunator delaunator;
         int numBoundaryPoints;
-        MeshData(std::vector<PoissonDisk::Point> points, int numBoundaryPoints) : points(points),
-                                                                                  numBoundaryPoints(numBoundaryPoints),
-                                                                                  delaunator(Delaunator{toFlatPoints(points)})
+        Data(std::vector<PoissonDisk::Point> points, int numBoundaryPoints) : points(points),
+                                                                              numBoundaryPoints(numBoundaryPoints),
+                                                                              delaunator(Delaunator{toFlatPoints(points)})
         {
-            
         }
     };
 
-    struct TriangleMesh
+    struct DualMesh
     {
-        TriangleMesh(MeshData &data)
+        static int t_from_s(int s) { return s / 3; }
+
+        unsigned int numRegions;
+        unsigned int numTriangles;
+        unsigned int numSolidSides;
+        std::vector<PoissonDisk::Point> _vertex_r;
+        std::vector<std::size_t> _triangles; // actually the sides of triangles, size = 3 * real_triangles_size.
+        std::vector<std::size_t> _halfedges;
+        std::vector<std::array<double, 2>> _vertex_t;
+        unsigned int numSides;
+        DualMesh(Data &data) : _vertex_r(data.points),
+                           _triangles(data.delaunator.triangles),
+                           _halfedges(data.delaunator.halfedges),
+                           numRegions(_vertex_r.size()),
+                           numSides(_triangles.size()),      // numSolidSides + ghost_sides.
+                           numSolidSides(_triangles.size()), //
+                           numTriangles(_triangles.size() / 3),
+                           _vertex_t({numTriangles, std::array<double, 2>{2, 0.0}})
         {
+            for (int i = 0; i < numTriangles; i++)
+            {
+                int aI = _triangles[i * 3 + 0] / 2;
+                int bI = _triangles[i * 3 + 1] / 2;
+                int cI = _triangles[i * 3 + 2] / 2;
+
+                PoissonDisk::Point a = _vertex_r[_triangles[aI]];
+                PoissonDisk::Point b = _vertex_r[_triangles[bI]];
+                PoissonDisk::Point c = _vertex_r[_triangles[cI]];
+
+                _vertex_t[i][0] = (a.x + b.x + c.x) / 3;
+                _vertex_t[i][1] = (a.y + b.y + c.y) / 3;
+            }
         }
+
+        int x_of_r(int r) { return this->_vertex_r[r].x; }
+        int y_of_r(int r) { return this->_vertex_r[r].y; }
+        int x_of_t(int t) { return this->_vertex_t[t][0]; }
+        int y_of_t(int t) { return this->_vertex_t[t][1]; }
+
+        int r_begin_s(int s) { return this->_triangles[s]; }
+        int r_end_s(int s) { return this->_triangles[DualMesh::s_next_s(s)]; }
+
+        int t_inner_s(int s) { return DualMesh::t_from_s(s); }
+        int t_outer_s(int s) { return DualMesh::t_from_s(this->_halfedges[s]); }
+
+        int s_next_s(int s) { return DualMesh::s_next_s(s); }
+        int s_prev_s(int s) { return DualMesh::s_prev_s(s); }
+
+        int s_opposite_s(int s) { return this->_halfedges[s]; }
+        bool is_ghost_r(int r) { return r == this->numRegions - 1; }
+    };
+    struct Map
+    {
+    };
+
+    struct Geometry
+    {
+
+        void setMeshGeometry(DualMesh mesh, float *vData, int vSize)
+        {
+            int idx = 0;
+            for (int r = 0; r < mesh.numRegions; r++)
+            {
+
+                vData[idx * vSize + 0] = mesh.is_ghost_r(r) ? 0.0 : mesh.x_of_r(r);
+                vData[idx * vSize + 1] = mesh.is_ghost_r(r) ? 0.0 : mesh.y_of_r(r);
+                idx++;
+            }
+            for (int t = 0; t < mesh.numTriangles; t++)
+            {
+                vData[idx * vSize + 0] = mesh.x_of_t(t);
+                vData[idx * vSize + 1] = mesh.y_of_t(t);
+            }
+        };
+
+        void setMapGeometry(DualMesh mesh, Map map, uint32_t *iData)
+        {
+
+            float mountain_folds = 0.05;
+
+            int i = 0;
+            for (int s = 0; s < mesh.numSolidSides; s++)
+            {
+                int s_opposite = mesh.s_opposite_s(s);
+                int r1 = mesh.r_begin_s(s);
+                int r2 = mesh.r_begin_s(s_opposite);
+                int t1 = mesh.t_inner_s(s);
+                int t2 = mesh.t_inner_s(s_opposite);
+
+                // Each quadrilateral is turned into two triangles, so each
+                // half-edge gets turned into one. There are two ways to fold
+                // a quadrilateral. This is usually a nuisance but in this
+                // case it's a feature. See the explanation here
+                // https://www.redblobgames.com/x/1725-procedural-elevation/#rendering
+                bool is_valley = false;
+                if (is_valley)
+                {
+                    // It's a coastal or river edge, forming a valley
+                    iData[i++] = r1;
+                    iData[i++] = mesh.numRegions + t2;
+                    iData[i++] = mesh.numRegions + t1;
+                }
+                else
+                {
+                    // It's a ridge
+                    iData[i++] = r1;
+                    iData[i++] = r2;
+                    iData[i++] = mesh.numRegions + t1;
+                }
+            }
+        };
     };
 
     struct Example : public Ogre::FrameListener
@@ -73,13 +180,13 @@ namespace fog::examples::e03
         }
         INIT(setupAll)()
         {
-            MeshData data = setupData();
+            Data data = setupData();
             setupObj(data);
             setupCompositor();
             core->addFrameListener(this);
         }
 
-        MeshData setupData()
+        Data setupData()
         {
 
             double spacing = 5.5;
@@ -120,7 +227,7 @@ namespace fog::examples::e03
             points.insert(points.end(), std::make_move_iterator(exteriorBoundaryPoints.begin()), std::make_move_iterator(exteriorBoundaryPoints.end()));
             points.insert(points.end(), std::make_move_iterator(interiorPoints.begin()), std::make_move_iterator(interiorPoints.end()));
 
-            return MeshData{points, static_cast<int>(exteriorBoundaryPoints.size())};
+            return Data{points, static_cast<int>(exteriorBoundaryPoints.size())};
         }
 
         std::vector<PoissonDisk::Point> generateInteriorBoundaryPoints(PoissonDisk::Bounds bounds, double boundarySpacing)
@@ -192,7 +299,7 @@ namespace fog::examples::e03
             Ogre::CompositorManager::getSingleton().setCompositorEnabled(vp, "E03Comp01", true);
         }
 
-        void setupObj(MeshData &data)
+        void setupObj(Data &data)
         {
 
             Ogre::MeshPtr meshPtr = Ogre::MeshManager::getSingleton().createManual("LandMesh", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
