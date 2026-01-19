@@ -132,7 +132,12 @@ namespace fog
             // Returns true on success, false if too close to existing point
             bool add_point(Point p)
             {
-                if (!grid_.is_valid(p, points_, min_dist_sq_, bounds_.x, bounds_.y))
+                return add_point(p, min_dist_sq_);
+            }
+
+            bool add_point(Point p, double minDistSqr)
+            {
+                if (!grid_.is_valid(p, points_, minDistSqr, bounds_.x, bounds_.y))
                 {
                     return false;
                 }
@@ -197,4 +202,4 @@ namespace fog
             return gen.fill();
         }
     };
-} // namespace 
+} // namespace
