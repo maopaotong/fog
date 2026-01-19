@@ -21,12 +21,12 @@ namespace fog::examples::e03
     using namespace delaunator;
     struct Data
     {
-        std::vector<PoissonDisk::Point> points;
-        Delaunator delaunator;
+        std::vector<double> points;
         int numBoundaryPoints;
-        Data(std::vector<PoissonDisk::Point> points, int numBoundaryPoints) : points(points),
-                                                                              numBoundaryPoints(numBoundaryPoints),
-                                                                              delaunator(Delaunator{toFlatPoints(points)})
+        Delaunator delaunator;
+        Data(std::vector<double> points, int numBoundaryPoints) : points(points),
+                                                                  numBoundaryPoints(numBoundaryPoints),
+                                                                  delaunator(this->points)
         {
         }
     };
@@ -35,22 +35,23 @@ namespace fog::examples::e03
     {
         static int t_from_s(int s) { return s / 3; }
 
-        unsigned int numRegions;
-        unsigned int numTriangles;
-        unsigned int numSolidSides;
-        std::vector<PoissonDisk::Point> _vertex_r;
+        std::vector<double> _vertex_r;
         std::vector<std::size_t> _triangles; // actually the sides of triangles, size = 3 * real_triangles_size.
         std::vector<std::size_t> _halfedges;
         std::vector<std::array<double, 2>> _vertex_t;
         unsigned int numSides;
+        unsigned int numRegions;
+        unsigned int numTriangles;
+        unsigned int numSolidSides;
+
         DualMesh(Data &data) : _vertex_r(data.points),
-                           _triangles(data.delaunator.triangles),
-                           _halfedges(data.delaunator.halfedges),
-                           numRegions(_vertex_r.size()),
-                           numSides(_triangles.size()),      // numSolidSides + ghost_sides.
-                           numSolidSides(_triangles.size()), //
-                           numTriangles(_triangles.size() / 3),
-                           _vertex_t({numTriangles, std::array<double, 2>{2, 0.0}})
+                               _triangles(data.delaunator.triangles),
+                               _halfedges(data.delaunator.halfedges),
+                               numRegions(data.points.size() / 2),
+                               numSides(data.delaunator.triangles.size()),      // numSolidSides + ghost_sides.
+                               numSolidSides(data.delaunator.triangles.size()), //
+                               numTriangles(data.delaunator.triangles.size() / 3),
+                               _vertex_t(data.delaunator.triangles.size() / 3, std::array<double, 2>{2, 0.0})
         {
             for (int i = 0; i < numTriangles; i++)
             {
@@ -58,30 +59,33 @@ namespace fog::examples::e03
                 int bI = _triangles[i * 3 + 1] / 2;
                 int cI = _triangles[i * 3 + 2] / 2;
 
-                PoissonDisk::Point a = _vertex_r[_triangles[aI]];
-                PoissonDisk::Point b = _vertex_r[_triangles[bI]];
-                PoissonDisk::Point c = _vertex_r[_triangles[cI]];
+                double aX = _vertex_r[_triangles[aI] * 2 + 0];
+                double aY = _vertex_r[_triangles[aI] * 2 + 1];
+                double bX = _vertex_r[_triangles[bI] * 2 + 0];
+                double bY = _vertex_r[_triangles[bI] * 2 + 1];
+                double cX = _vertex_r[_triangles[cI] * 2 + 0];
+                double cY = _vertex_r[_triangles[cI] * 2 + 1];
 
-                _vertex_t[i][0] = (a.x + b.x + c.x) / 3;
-                _vertex_t[i][1] = (a.y + b.y + c.y) / 3;
+                _vertex_t[i][0] = (aX + bX + cX) / 3;
+                _vertex_t[i][1] = (aY + bY + cY) / 3;
             }
         }
 
-        int x_of_r(int r) { return this->_vertex_r[r].x; }
-        int y_of_r(int r) { return this->_vertex_r[r].y; }
-        int x_of_t(int t) { return this->_vertex_t[t][0]; }
-        int y_of_t(int t) { return this->_vertex_t[t][1]; }
+        double x_of_r(int r) { return this->_vertex_r[r * 2 + 0]; }
+        double y_of_r(int r) { return this->_vertex_r[r * 2 + 1]; }
+        double x_of_t(int t) { return this->_vertex_t[t][0]; }
+        double y_of_t(int t) { return this->_vertex_t[t][1]; }
 
-        int r_begin_s(int s) { return this->_triangles[s]; }
-        int r_end_s(int s) { return this->_triangles[DualMesh::s_next_s(s)]; }
+        unsigned int r_begin_s(int s) { return this->_triangles[s]; }
+        unsigned int r_end_s(int s) { return this->_triangles[DualMesh::s_next_s(s)]; }
 
-        int t_inner_s(int s) { return DualMesh::t_from_s(s); }
-        int t_outer_s(int s) { return DualMesh::t_from_s(this->_halfedges[s]); }
+        unsigned int t_inner_s(int s) { return DualMesh::t_from_s(s); }
+        unsigned int t_outer_s(int s) { return DualMesh::t_from_s(this->_halfedges[s]); }
 
-        int s_next_s(int s) { return DualMesh::s_next_s(s); }
-        int s_prev_s(int s) { return DualMesh::s_prev_s(s); }
+        unsigned int s_next_s(int s) { return DualMesh::s_next_s(s); }
+        unsigned int s_prev_s(int s) { return DualMesh::s_prev_s(s); }
 
-        int s_opposite_s(int s) { return this->_halfedges[s]; }
+        unsigned int s_opposite_s(int s) { return this->_halfedges[s]; }
         bool is_ghost_r(int r) { return r == this->numRegions - 1; }
     };
     struct Map
@@ -91,24 +95,24 @@ namespace fog::examples::e03
     struct Geometry
     {
 
-        void setMeshGeometry(DualMesh mesh, float *vData, int vSize)
+        static void setMeshGeometry(DualMesh &mesh, float *vData, unsigned int vSize, int offset)
         {
             int idx = 0;
             for (int r = 0; r < mesh.numRegions; r++)
             {
 
-                vData[idx * vSize + 0] = mesh.is_ghost_r(r) ? 0.0 : mesh.x_of_r(r);
-                vData[idx * vSize + 1] = mesh.is_ghost_r(r) ? 0.0 : mesh.y_of_r(r);
+                vData[idx * vSize + offset + 0] = mesh.is_ghost_r(r) ? 0.0 : mesh.x_of_r(r);
+                vData[idx * vSize + offset + 1] = mesh.is_ghost_r(r) ? 0.0 : mesh.y_of_r(r);
                 idx++;
             }
             for (int t = 0; t < mesh.numTriangles; t++)
             {
-                vData[idx * vSize + 0] = mesh.x_of_t(t);
-                vData[idx * vSize + 1] = mesh.y_of_t(t);
+                vData[idx * vSize + offset + 0] = mesh.x_of_t(t);
+                vData[idx * vSize + offset + 1] = mesh.y_of_t(t);
             }
         };
 
-        void setMapGeometry(DualMesh mesh, Map map, uint32_t *iData)
+        static void setMapGeometry(DualMesh &mesh, unsigned int *iData)
         {
 
             float mountain_folds = 0.05;
@@ -181,7 +185,7 @@ namespace fog::examples::e03
         INIT(setupAll)()
         {
             Data data = setupData();
-            setupObj(data);
+            setupObj2(data);
             setupCompositor();
             core->addFrameListener(this);
         }
@@ -227,7 +231,7 @@ namespace fog::examples::e03
             points.insert(points.end(), std::make_move_iterator(exteriorBoundaryPoints.begin()), std::make_move_iterator(exteriorBoundaryPoints.end()));
             points.insert(points.end(), std::make_move_iterator(interiorPoints.begin()), std::make_move_iterator(interiorPoints.end()));
 
-            return Data{points, static_cast<int>(exteriorBoundaryPoints.size())};
+            return Data{toFlatPoints(points), static_cast<int>(exteriorBoundaryPoints.size())};
         }
 
         std::vector<PoissonDisk::Point> generateInteriorBoundaryPoints(PoissonDisk::Bounds bounds, double boundarySpacing)
@@ -298,57 +302,106 @@ namespace fog::examples::e03
             Ogre::CompositorManager::getSingleton().addCompositor(vp, "E03Comp01");
             Ogre::CompositorManager::getSingleton().setCompositorEnabled(vp, "E03Comp01", true);
         }
-
         void setupObj(Data &data)
+        {
+            DualMesh mesh(data);
+            unsigned int vCount = mesh.numRegions;
+            unsigned int iCount = mesh.numSolidSides;
+            unsigned int vSize = 3 + 2 + 2; //
+            setupObj(vCount, iCount,        //
+                     [](Ogre::VertexDeclaration *decl)
+                     {
+                         decl->addElement(0, 0, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
+                         decl->addElement(0, 4 * 3, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES);
+                         decl->addElement(0, 4 * 5, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES, 1); //
+                     },
+                     [&mesh, vSize](float *vData)
+                     {
+                         int vIdx = 0;
+                         int offset = 3;
+                         for (int r = 0; r < mesh.numRegions; r++)
+                         {
+                             vData[vIdx * vSize + 0 + 0] = mesh.is_ghost_r(r) ? 0.0 : mesh.x_of_r(r);
+                             vData[vIdx * vSize + 0 + 1] = mesh.is_ghost_r(r) ? 0.0 : mesh.y_of_r(r);
+                             vData[vIdx * vSize + offset + 0] = mesh.is_ghost_r(r) ? 0.0 : mesh.x_of_r(r);
+                             vData[vIdx * vSize + offset + 1] = mesh.is_ghost_r(r) ? 0.0 : mesh.y_of_r(r);
+                             vIdx++;
+                         } //
+                     },
+                     [&mesh](unsigned int *iData) { //
+                         int iIdx = 0;
+                         for (int s = 0; s < mesh.numSolidSides; s++)
+                         {
+                             iData[iIdx] = mesh._triangles[s];
+                             iIdx++;
+                         }
+                     });
+        }
+        void setupObj2(Data &data)
+        {
+            unsigned int vCount = 3;
+            setupObj(vCount, 3, [vCount](Ogre::VertexDeclaration *decl)
+                     {
+                         decl->addElement(0, 0, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
+                         decl->addElement(0, 4 * 3, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES);
+                         decl->addElement(0, 4 * 5, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES, 1); //
+                     },
+                     [](float *vData)
+                     {
+                         int idx = 0;
+                         vData[idx++] = 0; // x
+                         vData[idx++] = 0; // y
+                         vData[idx++] = 0; // z
+                         vData[idx++] = 0; // u
+                         vData[idx++] = 0; // v
+                         vData[idx++] = 0; // u
+                         vData[idx++] = 0; // v
+
+                         vData[idx++] = 1; // x
+                         vData[idx++] = 0; // y
+                         vData[idx++] = 0; // z
+                         vData[idx++] = 1; // u
+                         vData[idx++] = 0; // v
+                         vData[idx++] = 1; // u
+                         vData[idx++] = 0; // v
+
+                         vData[idx++] = 0;  // x
+                         vData[idx++] = 0;  // y
+                         vData[idx++] = -1; // z
+                         vData[idx++] = 0;  // u
+                         vData[idx++] = -1; // v
+                         vData[idx++] = 0;  // u
+                         vData[idx++] = -2; // v
+                     },
+                     [](uint32_t *iData)
+                     {
+                         int idx = 0;
+                         iData[idx++] = 0;
+                         iData[idx++] = 1;
+                         iData[idx++] = 2; });
+        }
+        template <typename E, typename V, typename I>
+        void setupObj(unsigned int vCount, unsigned int iCount, E &&declFunc, V &&vDataFunc, I iDataFunc)
         {
 
             Ogre::MeshPtr meshPtr = Ogre::MeshManager::getSingleton().createManual("LandMesh", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             Ogre::SubMesh *subMesh = meshPtr->createSubMesh();
             subMesh->useSharedVertices = false;
             Ogre::VertexDeclaration *decl = Ogre::HardwareBufferManager::getSingleton().createVertexDeclaration();
-            decl->addElement(0, 0, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
-            decl->addElement(0, 4 * 3, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES);
-            decl->addElement(0, 4 * 5, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES, 1);
-
             subMesh->vertexData = new Ogre::VertexData();
             subMesh->vertexData->vertexDeclaration = decl;
-            size_t vCount = 3;
-            subMesh->vertexData->vertexCount = vCount;
+            subMesh->vertexData->vertexCount = vCount; //
+            declFunc(decl);
 
             // vertex data
             size_t vSize = decl->getVertexSize(0);
             Ogre::HardwareVertexBufferSharedPtr vBufPtr = Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(vSize, vCount, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
             float *vData = static_cast<float *>(vBufPtr->lock(Ogre::HardwareBuffer::HBL_DISCARD));
-            int idx = 0;
-
-            vData[idx++] = 0; // x
-            vData[idx++] = 0; // y
-            vData[idx++] = 0; // z
-            vData[idx++] = 0; // u
-            vData[idx++] = 0; // v
-            vData[idx++] = 0; // u
-            vData[idx++] = 0; // v
-
-            vData[idx++] = 1; // x
-            vData[idx++] = 0; // y
-            vData[idx++] = 0; // z
-            vData[idx++] = 1; // u
-            vData[idx++] = 0; // v
-            vData[idx++] = 1; // u
-            vData[idx++] = 0; // v
-
-            vData[idx++] = 0;  // x
-            vData[idx++] = 0;  // y
-            vData[idx++] = -1; // z
-            vData[idx++] = 0;  // u
-            vData[idx++] = -1; // v
-            vData[idx++] = 0;  // u
-            vData[idx++] = -2; // v
+            vDataFunc(vData);
 
             vBufPtr->unlock();
             subMesh->vertexData->vertexBufferBinding->setBinding(0, vBufPtr);
             // index data.
-            int iCount = 3;
             subMesh->indexData->indexCount = iCount;
 
             subMesh->indexData->indexBuffer = Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(
@@ -357,10 +410,7 @@ namespace fog::examples::e03
                 Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 
             uint32_t *iData = static_cast<uint32_t *>(subMesh->indexData->indexBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD));
-            idx = 0;
-            iData[idx++] = 0;
-            iData[idx++] = 1;
-            iData[idx++] = 2;
+            iDataFunc(iData);
 
             subMesh->indexData->indexBuffer->unlock();
 
@@ -368,7 +418,6 @@ namespace fog::examples::e03
 
             // mesh bounds
             meshPtr->_setBounds(Ogre::AxisAlignedBox(-1000, -1000, -1, 1000, 1000, 1));
-            meshPtr->_setBoundingSphereRadius(2000);
 
             // entity
             Ogre::Entity *entity = core->createEntity("LandMesh");
