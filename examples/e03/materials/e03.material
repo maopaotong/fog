@@ -31,7 +31,7 @@ material E03Mat01
 		{			
 			vertex_program_ref vertexShader_01
 			{
-	 			param_named_auto worldviewproj_matrix worldviewproj_matrix								
+	 			//param_named_auto worldviewproj_matrix worldviewproj_matrix	
 			}
 			fragment_program_ref fragmentShader_01
 			{												
@@ -53,7 +53,7 @@ material E03Mat02
 			lighting off		
 			vertex_program_ref vertexShader_02
 			{
-	 			param_named_auto worldviewproj_matrix worldviewproj_matrix								
+	 			param_named_auto worldviewproj_matrix worldviewproj_matrix
 			}
 			fragment_program_ref fragmentShader_02
 			{												

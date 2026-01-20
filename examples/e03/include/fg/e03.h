@@ -60,9 +60,35 @@ namespace fog::examples::e03
             setupObj(data);
             setupCompositor();
             core->addFrameListener(this);
+
             Ogre::SceneNode *cNode = core->getCameraSceneNode();
-            cNode->setPosition(0, 0, 10000);
+            cNode->setPosition(0, 0, 500);
             cNode->lookAt(Ogre::Vector3(0, 0, 0), Ogre::Node::TS_PARENT);
+
+            Ogre::GpuProgramManager &gpuMgr = Ogre::GpuProgramManager::getSingleton();
+
+            Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("E03Mat01");
+            Ogre::Technique *tech = material->getTechnique(0);
+            Ogre::Pass *pass = tech->getPass(0);
+            Ogre::GpuProgramParametersSharedPtr sParams = pass->getVertexProgramParameters();
+            Ogre::Matrix4 projection = getProjection();
+            Ogre::Matrix4 proj = projection; //.transpose();
+            
+            sParams->setNamedConstant("projection", proj);
+        }
+
+        Ogre::Matrix4 getProjection()
+        {
+            Ogre::Camera *cam = core->getCamera();
+            Ogre::Affine3 wM = sceNode->_getFullTransform();
+            Ogre::Affine3 vM = cam->getViewMatrix(false);
+            Ogre::Matrix4 pM = cam->getProjectionMatrixWithRSDepth(); // core->getCamerayProjMatrix();
+            pM[1][0] = -pM[1][0];
+            pM[1][1] = -pM[1][1];
+            pM[1][2] = -pM[1][2];
+            pM[1][3] = -pM[1][3];
+
+            return pM * (vM * wM);
         }
 
         void setupCompositor()
@@ -81,7 +107,7 @@ namespace fog::examples::e03
             Ogre::Entity *entity = core->createEntity(meshName);
             entity->setMaterialName("E03Mat01");
             sceNode->attachObject(entity);
-            sceNode->setScale(30, 30, 30);
+            // sceNode->setScale(30, 30, 30);
         }
 
         void setupMesh(Data &data, std::string meshName)
@@ -114,12 +140,12 @@ namespace fog::examples::e03
                                 },
                                 [&mesh](unsigned int *iData) { //
                                     int iIdx = 0;
-                                    for (int s = 0; s < mesh.numSolidSides; s++)
+                                    int len = mesh.numSolidSides;
+                                    for (int s = 0; s < len; s++)
                                     {
-                                        iData[iIdx] = mesh._triangles[s];
+                                        iData[len - iIdx - 1] = mesh._triangles[s];
                                         iIdx++;
                                     }
-                                    std::reverse(iData, iData + mesh.numSolidSides);
                                 });
         }
 

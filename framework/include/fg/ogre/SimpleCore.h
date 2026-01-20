@@ -174,6 +174,17 @@ namespace fog
         {
             return camera->getParentSceneNode();
         }
+        Ogre::Affine3 getCamerayViewMatrix(bool bl){
+            return camera->getViewMatrix(bl);
+        }
+        Ogre::Camera * getCamera(){
+            return camera;
+        }
+
+        Ogre::Matrix4 getCamerayProjMatrix(){
+            return camera->getProjectionMatrix();
+        }
+        
         Ogre::Ray getCameraToViewportRay(float x, float y)
         {
             return this->camera->getCameraToViewportRay(x, y);
