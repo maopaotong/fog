@@ -9,8 +9,5 @@
 #include "util.h"
 namespace fog
 {
-    class App
-    {
-        
-    };
+    
 };

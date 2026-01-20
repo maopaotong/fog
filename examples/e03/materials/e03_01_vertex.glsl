@@ -11,7 +11,7 @@ void main() {
 	//vec3 tPos = aPos;
 	vec3 tPos = aPos;
 	tPos = vec3(uv0.x, 0, uv0.y);
-	tPos = vec3(uv1.x, 0, uv1.y);
+	//tPos = vec3(uv1.x, 0, uv1.y);
 	gl_Position = worldviewproj_matrix * vec4(tPos, 1.0);
 	fUv0 = uv1;
 }

@@ -13,7 +13,7 @@ namespace fog::examples::e01
         }
     };
 
-    struct Example01 : public App
+    struct Example01
     {
         struct TheImGuiAppContext : public ImGuiAppContext
         {
@@ -45,7 +45,6 @@ namespace fog::examples::e01
             }
         };
 
-        
         static void setup(Injector &injector)
         {
             // context binding
@@ -128,9 +127,6 @@ namespace fog::examples::e01
                 TransformD2TD3,
                 WorldTexGenerator>();
             injector.bindImpl<WorldManager, WorldManager>();
-
-            // binding mod.
-            injector.bindImpl<Example01, Example01>();
         };
 
         bool breakRenderRequested = false;
@@ -150,14 +146,14 @@ namespace fog::examples::e01
 
     public:
         INJECT(Example01(OnFrameUI *onFrameUI, FogOfWar *fog, WorldManager *world,
-                      //   RenderWindow *window,
-                      CellInstanceStateManager *cellInstances,
-                      MovableStateManager *msm,
-                      CoreMod *core,
-                      ImGuiApp *imGuiApp,
-                      Config *config,
-                      CellsDatas::Args &cdargs,
-                      MovingStateManager *movingStateManager))
+                         //   RenderWindow *window,
+                         CellInstanceStateManager *cellInstances,
+                         MovableStateManager *msm,
+                         CoreMod *core,
+                         ImGuiApp *imGuiApp,
+                         Config *config,
+                         CellsDatas::Args &cdargs,
+                         MovingStateManager *movingStateManager))
             : movingStateManager(movingStateManager),
               config(config),
               cellsCols(cdargs.cellsRange.getWidth()),
@@ -168,6 +164,11 @@ namespace fog::examples::e01
               core(core),
               //   window(window),
               world(world), fogOfWar(fog), onFrameUI(onFrameUI)
+        {
+        }
+        SELF(Example01)
+
+        INIT(init)()
         {
             imGuiApp->addFrameListener(onFrameUI);
             MaterialFactory::createMaterials(core);
@@ -181,12 +182,49 @@ namespace fog::examples::e01
             sParams->setNamedConstant<int>("leiout", CellLayout);
             sParams->setNamedConstant<int>("cellsCols", cellsCols);
             sParams->setNamedConstant<int>("cellsRows", cellsRows);
+            //
+            Ogre::SceneNode *cNode = core->getCameraSceneNode();
+            cNode->setPosition(0, 500, -500);
         }
 
         virtual ~Example01()
         {
         }
 
-        static int run(Options::Groups &ogs);
+        static int run(Options::Groups &ogs)
+        {
+            std::cout << "OGRE Version: "
+                      << OGRE_VERSION_MAJOR << "."
+                      << OGRE_VERSION_MINOR << "."
+                      << OGRE_VERSION_PATCH << std::endl;
+
+            std::cout << "Weighted Hexagonal Grid Navigation System\n";
+            std::cout << "=========================================\n\n";
+
+            {
+                Injector injector;
+                injector.bindPtr<Injector>(&injector);
+                injector.bindFunc<Options::Groups>([&ogs]()
+                                                   { return &ogs; });
+
+                injector.bindImpl<Example01>();
+                injector.bindImpl<ImGuiAppContext::Args>();
+                injector.bindArgOfConstructor<std::string, ImGuiAppContext::Args>([]() -> std::string *
+                                                                                  { return new std::string("e01"); });
+                injector.bindImpl<ImGuiAppContext, Example01::TheImGuiAppContext>();
+
+                injector.bindImpl<CoreMod, SimpleCore>();
+                injector.bindImpl<ImGuiAppImpl>();
+                CoreMod *core = injector.get<CoreMod>();
+                Example01::setup(injector);
+                injector.get<Example01>();
+                core->startRendering();
+
+                // Ogre::Root *root = injector.getPtr<CoreMod>()->getRoot();
+                // root->startRendering(); //
+                // injector.getPtr<CoreMod>()->startRendering();
+            }
+            return 0;
+        }
     };
 };

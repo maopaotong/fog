@@ -9,6 +9,7 @@
 // #include "imgui_impl_opengl3.h"
 #include "Common.h"
 #include "ImGuiAppContext.h"
+#include "OgreUtil.h"
 
 #define FG_LIGHT_DIRECTION_X 300
 #define FG_LIGHT_DIRECTION_Y 500
@@ -16,11 +17,11 @@
 
 namespace fog
 {
-    class SimpleCore : public CoreMod, public Ogre::FrameListener
+    struct SimpleCore : public CoreMod, public Ogre::FrameListener
     {
-    private:
+
+    protected:
         Ogre::Camera *camera;
-        Ogre::SceneNode *cameraNode;
         Ogre::Viewport *vp;
         ImGuiAppContext *appCtx;
         Ogre::SceneManager *sceMgr;
@@ -32,6 +33,12 @@ namespace fog
 
     public:
         INJECT(SimpleCore(ImGuiAppContext *appCtx)) : appCtx(appCtx), CoreMod()
+        {
+        }
+
+        SELF(SimpleCore)
+
+        INIT(init)()
         {
             this->matMgr = Ogre::MaterialManager::getSingletonPtr();
             this->root = appCtx->getRoot();
@@ -73,23 +80,19 @@ namespace fog
             lightNode->setDirection(lightDirection);
 
             lightNode->attachObject(light);
-            // Create camera
-            camera = sceMgr->createCamera("Cam01");
-            camera->setNearClipDistance(0.1f);
-            camera->setFarClipDistance(0.0f);
-            camera->setAutoAspectRatio(true);
-
-            // Create camera node and set position and direction
-            cameraNode = sceMgr->getRootSceneNode()->createChildSceneNode("CameraNode");
-            cameraNode->setPosition(0, 500, 500); //
-            cameraNode->attachObject(camera);
-            cameraNode->lookAt(Ogre::Vector3(0, 0, 0), Ogre::Node::TS_PARENT);
+            
+            camera = setupCamera(sceMgr);
 
             // Create viewport
             vp = window->addViewport(camera);
             vp->setBackgroundColour(Ogre::ColourValue(0.2f, 0.2f, 0.2f));
             this->root->addFrameListener(this);
         }
+
+        virtual Ogre::Camera * setupCamera(Ogre::SceneManager * sceMgr) {
+            return OgreUtil::setupCamera(sceMgr);
+        }
+
         virtual ~SimpleCore()
         {
             delete appCtx;
@@ -182,7 +185,8 @@ namespace fog
         {
             return this->light;
         }
-        Ogre::Viewport * getViewport() override {
+        Ogre::Viewport *getViewport() override
+        {
             return this->vp;
         }
         ImGuiApp *getImGuiApp() override
