@@ -62,8 +62,8 @@ namespace fog::examples::e03
             setupCompositor();
             core->addFrameListener(this);
             Ogre::SceneNode *cNode = core->getCameraSceneNode();
-            cNode->setPosition(0, 10000, 0);
-
+            cNode->setPosition(0, 0, -10000);
+            cNode->lookAt(Ogre::Vector3(0, 0, 0), Ogre::Node::TS_PARENT);
         }
 
         void setupCompositor()
@@ -92,8 +92,8 @@ namespace fog::examples::e03
                                     for (int r = 0; r < mesh.numRegions; r++)
                                     {
                                         vData[vIdx * vSize + 0] = mesh.x_of_r(r);
-                                        vData[vIdx * vSize + 1] = 0.0f;
-                                        vData[vIdx * vSize + 2] = mesh.y_of_r(r);
+                                        vData[vIdx * vSize + 1] = mesh.y_of_r(r);
+                                        vData[vIdx * vSize + 2] = 0.0f;
                                         vData[vIdx * vSize + 3 + 0] = mesh.x_of_r(r);
                                         vData[vIdx * vSize + 3 + 1] = mesh.y_of_r(r);
                                         vData[vIdx * vSize + 5 + 0] = mesh.x_of_r(r);
