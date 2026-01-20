@@ -63,7 +63,7 @@ namespace fog
             //
         }
 
-        void buildExampleMesh(std::string name)
+        static void buildExampleMesh(std::string name)
         {
             unsigned int vCount = 3;
             OgreUtil::buildMesh(name, vCount, 3, [vCount](Ogre::VertexDeclaration *decl)
@@ -92,8 +92,8 @@ namespace fog
                                     vData[idx++] = 0; // v
 
                                     vData[idx++] = 0;  // x
-                                    vData[idx++] = 0;  // y
-                                    vData[idx++] = -1; // z
+                                    vData[idx++] = -1; // y
+                                    vData[idx++] = 0;  // z
                                     vData[idx++] = 0;  // u
                                     vData[idx++] = -1; // v
                                     vData[idx++] = 0;  // u

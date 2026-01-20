@@ -58,7 +58,6 @@ namespace fog::examples::e03
         {
             Data data = MapGen::setupData();
             setupObj(data);
-            // setupObj2(data);
             setupCompositor();
             core->addFrameListener(this);
             Ogre::SceneNode *cNode = core->getCameraSceneNode();
@@ -74,11 +73,23 @@ namespace fog::examples::e03
         }
         void setupObj(Data &data)
         {
+            std::string meshName = "LandMesh";
+
+            setupMesh(data, meshName);
+            // OgreUtil::buildExampleMesh(meshName);
+            //  entity
+            Ogre::Entity *entity = core->createEntity(meshName);
+            entity->setMaterialName("E03Mat01");
+            sceNode->attachObject(entity);
+            sceNode->setScale(30, 30, 30);
+        }
+
+        void setupMesh(Data &data, std::string meshName)
+        {
             DualMesh mesh(data);
             unsigned int vCount = mesh.numRegions;
             unsigned int iCount = mesh.numSolidSides;
-            unsigned int vSize = 3 + 2 + 2; //
-            std::string meshName = "LandMesh";
+            unsigned int vSize = 3 + 2 + 2;               //
             OgreUtil::buildMesh(meshName, vCount, iCount, //
                                 [](Ogre::VertexDeclaration *decl)
                                 {
@@ -108,14 +119,8 @@ namespace fog::examples::e03
                                         iData[iIdx] = mesh._triangles[s];
                                         iIdx++;
                                     }
-                                    std::reverse(iData,iData+mesh.numSolidSides);
+                                    std::reverse(iData, iData + mesh.numSolidSides);
                                 });
-
-            // entity
-            Ogre::Entity *entity = core->createEntity(meshName);
-            entity->setMaterialName("E03Mat01");
-            sceNode->attachObject(entity);
-            sceNode->setScale(30, 30, 30);
         }
 
         bool frameRenderingQueued(const Ogre::FrameEvent &evt) override
