@@ -62,7 +62,7 @@ namespace fog::examples::e03
             setupCompositor();
             core->addFrameListener(this);
             Ogre::SceneNode *cNode = core->getCameraSceneNode();
-            cNode->setPosition(0, 0, -10000);
+            cNode->setPosition(0, 0, 10000);
             cNode->lookAt(Ogre::Vector3(0, 0, 0), Ogre::Node::TS_PARENT);
         }
 
@@ -108,6 +108,7 @@ namespace fog::examples::e03
                                         iData[iIdx] = mesh._triangles[s];
                                         iIdx++;
                                     }
+                                    std::reverse(iData,iData+mesh.numSolidSides);
                                 });
 
             // entity
