@@ -15,11 +15,9 @@ void main() {
 //	pro = worldviewproj_matrix;
 	pro = projection;
 	//tPos = vec3(uv1.x, 0, uv1.y);
-	float scale = 0.01;
-	gl_Position = vec4(tPos.x * scale, tPos.y * scale, 0, 1.0 );
-
 	
 	gl_Position = pro * vec4(tPos, 1.0);
+	gl_Position = vec4(tPos.x * 0.01*0.25,  -tPos.y* 0.01*0.5,-0.1, 1);
 
 	fUv0 = uv1;
 }

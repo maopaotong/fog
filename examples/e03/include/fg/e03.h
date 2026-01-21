@@ -71,25 +71,11 @@ namespace fog::examples::e03
             Ogre::Technique *tech = material->getTechnique(0);
             Ogre::Pass *pass = tech->getPass(0);
             Ogre::GpuProgramParametersSharedPtr sParams = pass->getVertexProgramParameters();
-            Ogre::Matrix4 projection = getProjection();
-            Ogre::Matrix4 proj = projection; //.transpose();
+            Ogre::Matrix4 proj = core->getCameraWorldViewProj(sceNode, true);
             
             sParams->setNamedConstant("projection", proj);
         }
 
-        Ogre::Matrix4 getProjection()
-        {
-            Ogre::Camera *cam = core->getCamera();
-            Ogre::Affine3 wM = sceNode->_getFullTransform();
-            Ogre::Affine3 vM = cam->getViewMatrix(false);
-            Ogre::Matrix4 pM = cam->getProjectionMatrixWithRSDepth(); // core->getCamerayProjMatrix();
-            pM[1][0] = -pM[1][0];
-            pM[1][1] = -pM[1][1];
-            pM[1][2] = -pM[1][2];
-            pM[1][3] = -pM[1][3];
-
-            return pM * (vM * wM);
-        }
 
         void setupCompositor()
         {

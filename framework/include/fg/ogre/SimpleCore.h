@@ -80,7 +80,7 @@ namespace fog
             lightNode->setDirection(lightDirection);
 
             lightNode->attachObject(light);
-            
+
             camera = setupCamera(sceMgr);
 
             // Create viewport
@@ -89,7 +89,8 @@ namespace fog
             this->root->addFrameListener(this);
         }
 
-        virtual Ogre::Camera * setupCamera(Ogre::SceneManager * sceMgr) {
+        virtual Ogre::Camera *setupCamera(Ogre::SceneManager *sceMgr)
+        {
             return OgreUtil::setupCamera(sceMgr);
         }
 
@@ -170,29 +171,40 @@ namespace fog
         {
             return camera->getFOVy();
         }
-        Ogre::SceneNode *getCameraSceneNode()
+        Ogre::SceneNode *getCameraSceneNode() override
         {
             return camera->getParentSceneNode();
         }
-        Ogre::Affine3 getCamerayViewMatrix(bool bl){
-            return camera->getViewMatrix(bl);
-        }
-        Ogre::Camera * getCamera(){
+      
+        Ogre::Camera *getCamera() override
+        {
             return camera;
         }
 
-        Ogre::Matrix4 getCamerayProjMatrix(){
-            return camera->getProjectionMatrix();
+        Ogre::Matrix4 getCameraWorldViewProj(Ogre::SceneNode *sceNode, bool flip) override
+        {
+            Ogre::Affine3 wM = sceNode->_getFullTransform();
+            Ogre::Affine3 vM = camera->getViewMatrix(false);
+            Ogre::Matrix4 pM = camera->getProjectionMatrixWithRSDepth(); // core->getCamerayProjMatrix();
+            if (flip)
+            {
+                pM[1][0] = -pM[1][0];
+                pM[1][1] = -pM[1][1];
+                pM[1][2] = -pM[1][2];
+                pM[1][3] = -pM[1][3];
+            }
+
+            return pM * vM * wM;
         }
-        
-        Ogre::Ray getCameraToViewportRay(float x, float y)
+
+        Ogre::Ray getCameraToViewportRay(float x, float y) override
         {
             return this->camera->getCameraToViewportRay(x, y);
         }
 
         // Root *getRoot() override { return this->root; };
 
-        Ogre::Light *getLight()
+        Ogre::Light *getLight() override
         {
             return this->light;
         }
@@ -208,7 +220,7 @@ namespace fog
         // {
         //     return this->appCtx->getRenderWindow();
         // }
-        Box2<int> getWindowBox()
+        Box2<int> getWindowBox() override
         {
             return Box2<int>(this->appCtx->getRenderWindow()->getWidth(), this->appCtx->getRenderWindow()->getHeight());
         }
@@ -261,7 +273,7 @@ namespace fog
             return Box2<float>(this->vp->getActualLeft(), this->vp->getActualTop(), this->vp->getActualLeft() + vp->getActualWidth(), this->vp->getActualTop() + vp->getActualHeight());
         }
 
-        bool frameStarted(const Ogre::FrameEvent &evt)
+        bool frameStarted(const Ogre::FrameEvent &evt) override
         {
             for (Stairs *listener : this->stepListeners)
             {

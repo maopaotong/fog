@@ -61,10 +61,9 @@ namespace fog
         virtual void setUserObject(const std::string key, std::any value) = 0;
         virtual bool getUserObject(const std::string key, std::any &value) = 0;
         virtual Ogre::Light *getLight() = 0;
-        virtual Ogre::Viewport *getViewport() = 0;
-        virtual Ogre::Affine3 getCamerayViewMatrix(bool bl) = 0;
-        virtual Ogre::Matrix4 getCamerayProjMatrix() = 0;
+        virtual Ogre::Viewport *getViewport() = 0;        
         virtual Ogre::Camera * getCamera() = 0;       
+        virtual Ogre::Matrix4 getCameraWorldViewProj(Ogre::SceneNode *sceNode, bool flip) = 0;
 
         template <typename T>
         void setUserObject(const std::string key, T *obj)
