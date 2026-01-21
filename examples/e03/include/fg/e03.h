@@ -58,13 +58,14 @@ namespace fog::examples::e03
         }
         INIT(init)()
         {   
-            
-            DualMesh mesh(MapGen::generateDualData());
+            Args mArgs;
+            DualMesh mesh(MapGen::generateDualData(mArgs));
             DualMap map(mesh);
-            ElevationGen::Constraints constraints(128, true);
-            ElevationGen::Args args;
+            float island = 0.5;
+            ElevationGen::Constraints constraints(128, island);
+            ElevationGen::Args eArgs;
             ElevationGen eGen{mesh, map.elevation_t, map.elevation_r};
-            eGen.assignElevation(constraints, args);
+            eGen.assignElevation(constraints, eArgs);
             setupObj(map);
             setupCompositor();
             core->addFrameListener(this);

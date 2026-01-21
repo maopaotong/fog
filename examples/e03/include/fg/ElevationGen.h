@@ -44,7 +44,7 @@ namespace fog::examples::e03
 
             std::vector<float> elevation;
             int size;
-            Constraints(int CANVAS_SIZE, bool island) : elevation(CANVAS_SIZE * CANVAS_SIZE, 0.0f), size(CANVAS_SIZE)
+            Constraints(int CANVAS_SIZE, float island) : elevation(CANVAS_SIZE * CANVAS_SIZE, 0.0f), size(CANVAS_SIZE)
             {
                 float persistence = 0.5f;
                 std::vector<float> amplitudes;
@@ -164,7 +164,7 @@ namespace fog::examples::e03
 
             for (int t = 0; t < mesh.numSolidTriangles; t++)
             {
-                float e = constraints.constraintAt(mesh.x_of_t(t) / 1000, mesh.y_of_t(t) / 1000);
+                float e = constraints.constraintAt(mesh.x_of_t(t) / mesh.width, mesh.y_of_t(t) / mesh.width);
                 // TODO: e*e*e*e seems too steep for this, as I want this
                 // to apply mostly at the original coastlines and not
                 // elsewhere
@@ -188,7 +188,7 @@ namespace fog::examples::e03
                     int s_outgoing = mesh.s_next_s(s_incoming);
                     s_incoming = mesh._halfedges[s_outgoing];
                     count++;
-                    if (count > 10)//TODO fix and remove.
+                    if (count > 10) // TODO fix and remove.
                     {
                         break;
                     }

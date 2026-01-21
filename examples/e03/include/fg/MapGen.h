@@ -3,6 +3,7 @@
 #include "fg/util.h"
 #include "fg/ogre.h"
 #include "fg/demo.h"
+#include "Common.h"
 #include "delaunator/delaunator.h"
 #include "DualMesh.h"
 namespace fog::examples::e03
@@ -10,6 +11,7 @@ namespace fog::examples::e03
 
     struct MapGen
     {
+
         static std::vector<double> toFlatPoints(std::vector<PoissonDisk::Point> points)
         {
             std::vector<double> ps2;
@@ -83,24 +85,17 @@ namespace fog::examples::e03
             return points;
         }
 
-        static DualMesh::Data generateDualData()
+        static DualMesh::Data generateDualData(Args args)
         {
 
-            double spacing = 5.5;
-            double mountainSpacing = 35;
-            double boundarySpacing = spacing * std::sqrt(2);
-            int mountainRetries = 30;
-            int retries = 6;
-            unsigned int seed = 12345;
+            PoissonDisk::Bounds bounds(0, 0, args.meshWidth, args.meshWidth);
+            std::vector<PoissonDisk::Point> interiorBoundaryPoints = generateInteriorBoundaryPoints(bounds, args.boundarySpacing);
+            std::vector<PoissonDisk::Point> exteriorBoundaryPoints = generateExteriorBoundaryPoints(bounds, args.boundarySpacing);
 
-            PoissonDisk::Bounds bounds(0, 0, 100, 100);
-            std::vector<PoissonDisk::Point> interiorBoundaryPoints = generateInteriorBoundaryPoints(bounds, boundarySpacing);
-            std::vector<PoissonDisk::Point> exteriorBoundaryPoints = generateExteriorBoundaryPoints(bounds, boundarySpacing);
-
-            PoissonDisk::Generator<std::mt19937> mountainPointsGen(bounds, mountainSpacing, mountainRetries, std::mt19937{seed});
+            PoissonDisk::Generator<std::mt19937> mountainPointsGen(bounds, args.mountainSpacing, args.mountainRetries, std::mt19937{args.seed});
             for (auto p : interiorBoundaryPoints)
             {
-                if (!mountainPointsGen.add_point(p, spacing * spacing))
+                if (!mountainPointsGen.add_point(p, args.spacing * args.spacing))
                 {
                     throw std::runtime_error("failed to add point.");
                 }
@@ -109,7 +104,7 @@ namespace fog::examples::e03
             std::vector<PoissonDisk::Point> interiorPoints = mountainPointsGen.fill();
             int numMoutainPoints = interiorPoints.size() - interiorBoundaryPoints.size();
 
-            PoissonDisk::Generator<std::mt19937> pointsGen(bounds, spacing, retries, std::mt19937{seed});
+            PoissonDisk::Generator<std::mt19937> pointsGen(bounds, args.spacing, args.retries, std::mt19937{args.seed});
             for (auto p : interiorPoints)
             {
                 if (!pointsGen.add_point(p))
@@ -124,8 +119,7 @@ namespace fog::examples::e03
             points.insert(points.end(), std::make_move_iterator(exteriorBoundaryPoints.begin()), std::make_move_iterator(exteriorBoundaryPoints.end()));
             points.insert(points.end(), std::make_move_iterator(interiorPoints.begin()), std::make_move_iterator(interiorPoints.end()));
 
-            return DualMesh::Data{toFlatPoints(points), static_cast<int>(exteriorBoundaryPoints.size())};
+            return DualMesh::Data{args.meshWidth, toFlatPoints(points), static_cast<int>(exteriorBoundaryPoints.size())};
         }
-
     };
 };

@@ -10,6 +10,8 @@ namespace fog::examples::e03
     using namespace delaunator;
     struct DualMap
     {
+        
+
         DualMesh &mesh;
         std::vector<float> elevation_t;
         std::vector<float> elevation_r;
