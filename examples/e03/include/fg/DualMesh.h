@@ -13,18 +13,18 @@ namespace fog::examples::e03
     {
         struct Data
         {
-            std::vector<double> points;
+            std::vector<double> points; // x,y coords
             int numBoundaryPoints;
             Delaunator delaunator;
             Data(std::vector<double> points, int numBoundaryPoints) : points(points),
-            numBoundaryPoints(numBoundaryPoints),
-            delaunator(this->points)
+                                                                      numBoundaryPoints(numBoundaryPoints),
+                                                                      delaunator(this->points)
             {
             }
         };
 
         static unsigned int t_from_s(unsigned int s) { return s / 3; }
-        static unsigned int s_next_s(unsigned int s) { return (s % 3 == 2) ? s-2 : s+1; }
+        static unsigned int s_next_s(unsigned int s) { return (s % 3 == 2) ? s - 2 : s + 1; }
 
         std::vector<double> _vertex_r;
         std::vector<std::size_t> _triangles; // actually the sides of triangles, size = 3 * real_triangles_size.
@@ -39,14 +39,14 @@ namespace fog::examples::e03
         std::vector<unsigned int> _s_of_r;
 
         DualMesh(Data &data) : _vertex_r(data.points),
-                                   _triangles(data.delaunator.triangles),
-                                   _halfedges(data.delaunator.halfedges),
-                                   numRegions(data.points.size() / 2),
-                                   numSides(data.delaunator.triangles.size()),      // numSolidSides + ghost_sides.
-                                   numSolidSides(data.delaunator.triangles.size()), //
-                                   numTriangles(data.delaunator.triangles.size() / 3),
-                                   _vertex_t(data.delaunator.triangles.size() / 3, std::array<double, 2>{2, 0.0}),
-                                   numSolidTriangles(data.delaunator.triangles.size() / 3)
+                               _triangles(data.delaunator.triangles),
+                               _halfedges(data.delaunator.halfedges),
+                               numRegions(data.points.size() / 2),
+                               numSides(data.delaunator.triangles.size()),      // numSolidSides + ghost_sides.
+                               numSolidSides(data.delaunator.triangles.size()), //
+                               numTriangles(data.delaunator.triangles.size() / 3),
+                               _vertex_t(data.delaunator.triangles.size() / 3, std::array<double, 2>{2, 0.0}),
+                               numSolidTriangles(data.delaunator.triangles.size() / 3)
         {
 
             // Construct an index for finding sides connected to a region

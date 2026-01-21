@@ -175,7 +175,9 @@ namespace fog::examples::e03
         {
             for (int r = 0; r < mesh.numRegions; r++)
             {
-                int count = 0, e = 0, water = false;
+                int count = 0;
+                float e = 0.0f;
+                bool water = false;
                 int s0 = mesh._s_of_r[r];
                 int s_incoming = s0;
                 do

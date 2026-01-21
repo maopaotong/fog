@@ -2,5 +2,9 @@
 
 in float elevation;
 void main() {
-    gl_FragColor = vec4(elevation, 0, 0, 1);
+    float e = elevation;
+    if(e < 0){
+        e = -e;
+    }
+    gl_FragColor = vec4(e, 0, 0, 1);
 }

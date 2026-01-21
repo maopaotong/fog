@@ -107,6 +107,8 @@ namespace fog::examples::e03
         void setupMesh(DualMap &map, std::string meshName)
         {
             DualMesh & mesh = map.mesh;
+            std::vector<float> &elevation_r = map.elevation_r;
+            
             unsigned int vCount = mesh.numRegions;
             unsigned int iCount = mesh.numSolidSides;
             unsigned int vSize = 3 + 2 + 2;               //
@@ -117,14 +119,14 @@ namespace fog::examples::e03
                                     decl->addElement(0, 4 * 3, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES);
                                     decl->addElement(0, 4 * 5, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES, 1); //
                                 },
-                                [&mesh, vSize](float *vData)
+                                [&mesh, vSize, &elevation_r](float *vData)
                                 {
                                     int vIdx = 0;
                                     for (int r = 0; r < mesh.numRegions; r++)
                                     {
                                         vData[vIdx * vSize + 0] = mesh.x_of_r(r);
                                         vData[vIdx * vSize + 1] = mesh.y_of_r(r);
-                                        vData[vIdx * vSize + 2] = 0.0f;
+                                        vData[vIdx * vSize + 2] = elevation_r[r];
                                         vData[vIdx * vSize + 3 + 0] = mesh.x_of_r(r);
                                         vData[vIdx * vSize + 3 + 1] = mesh.y_of_r(r);
                                         vData[vIdx * vSize + 5 + 0] = mesh.x_of_r(r);
