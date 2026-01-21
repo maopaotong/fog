@@ -4,6 +4,8 @@
 #include "fg/ogre.h"
 #include "fg/demo.h"
 #include "MapGen.h"
+#include "DualMap.h"
+#include "ElevationGen.h"
 namespace fog::examples::e03
 {
 
@@ -55,9 +57,15 @@ namespace fog::examples::e03
         {
         }
         INIT(init)()
-        {
-            Data data = MapGen::setupData();
-            setupObj(data);
+        {   
+            
+            DualMesh mesh(MapGen::generateDualData());
+            DualMap map(mesh);
+            ElevationGen::Constraints constraints(128, true);
+            ElevationGen::Args args;
+            ElevationGen eGen{mesh, map.elevation_t, map.elevation_r};
+            eGen.assignElevation(constraints, args);
+            setupObj(map);
             setupCompositor();
             core->addFrameListener(this);
 
@@ -83,11 +91,11 @@ namespace fog::examples::e03
             Ogre::CompositorManager::getSingleton().addCompositor(vp, "E03Comp01");
             Ogre::CompositorManager::getSingleton().setCompositorEnabled(vp, "E03Comp01", true);
         }
-        void setupObj(Data &data)
+        void setupObj(DualMap &map)
         {
             std::string meshName = "LandMesh";
 
-            setupMesh(data, meshName);
+            setupMesh(map, meshName);
             // OgreUtil::buildExampleMesh(meshName);
             //  entity
             Ogre::Entity *entity = core->createEntity(meshName);
@@ -96,9 +104,9 @@ namespace fog::examples::e03
             // sceNode->setScale(30, 30, 30);
         }
 
-        void setupMesh(Data &data, std::string meshName)
+        void setupMesh(DualMap &map, std::string meshName)
         {
-            DualMesh mesh(data);
+            DualMesh & mesh = map.mesh;
             unsigned int vCount = mesh.numRegions;
             unsigned int iCount = mesh.numSolidSides;
             unsigned int vSize = 3 + 2 + 2;               //

@@ -32,6 +32,7 @@
 #include "util/OptionsLoader.h"
 #include "util/Injector.h"
 #include "util/PoissonDisk.h"
+#include "util/SimplexNoise.h"
 
 
 
