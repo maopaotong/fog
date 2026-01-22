@@ -29,7 +29,7 @@ compositor E03Comp01
             }
             pass render_scene
             {
-                
+                input 0 rt0   
             }
         }
         

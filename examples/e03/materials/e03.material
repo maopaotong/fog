@@ -65,10 +65,17 @@ material E03Mat01
 			{
 			}
 			fragment_program_ref fragmentShader_01
-			{												
+			{	
+				param_named tex_0 int 0											
 				//
 				shared_params_ref FragSharedParams
 			}		
+			
+			texture_unit
+	        {				
+				tex_address_mode clamp
+				filtering none
+	        }
 			
 		}
 	}	

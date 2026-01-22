@@ -1,4 +1,6 @@
 #version 330 core
+
+uniform sampler2D tex_0;
 in float elevation;
 out vec4 color;
 void main() {
