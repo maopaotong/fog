@@ -21,6 +21,7 @@
 #include <OgreLogManager.h>
 #include <OgreMaterialManager.h>
 #include <OgreInput.h>
+#include <OgreCustomCompositionPass.h>
 #include <unordered_map>
 
 namespace fog

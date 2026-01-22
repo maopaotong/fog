@@ -1,4 +1,14 @@
 
+//00
+vertex_program vertexShader_00 glsl
+{
+    source e03_00_vertex.glsl	
+}
+fragment_program fragmentShader_00 glsl
+{
+    source e03_00_fragment.glsl
+}
+//01
 vertex_program vertexShader_01 glsl
 {
     source e03_01_vertex.glsl	
@@ -7,6 +17,7 @@ fragment_program fragmentShader_01 glsl
 {
     source e03_01_fragment.glsl
 }
+//02
 vertex_program vertexShader_02 glsl
 {
     source e03_02_vertex.glsl	
@@ -22,6 +33,27 @@ shared_params FragSharedParams
 }
 
 
+material E03Mat00
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{			
+			vertex_program_ref vertexShader_00
+			{
+			}
+			fragment_program_ref fragmentShader_00
+			{												
+				//
+				shared_params_ref FragSharedParams
+			}		
+			
+		}
+	}	
+}
+
+
 material E03Mat01
 {
 	receive_shadows on
@@ -31,7 +63,6 @@ material E03Mat01
 		{			
 			vertex_program_ref vertexShader_01
 			{
-	 			//param_named_auto worldviewproj_matrix worldviewproj_matrix	
 			}
 			fragment_program_ref fragmentShader_01
 			{												
@@ -53,14 +84,21 @@ material E03Mat02
 			lighting off		
 			vertex_program_ref vertexShader_02
 			{
-	 			param_named_auto worldviewproj_matrix worldviewproj_matrix
 			}
 			fragment_program_ref fragmentShader_02
-			{												
+			{	
+				param_named tex_0 int 0
+				param_named tex_1 int 1
+															
 				//
 				shared_params_ref FragSharedParams
 			}		
 			
+			texture_unit
+	        {				
+				tex_address_mode clamp
+				filtering none
+	        }
 			texture_unit
 	        {				
 				tex_address_mode clamp

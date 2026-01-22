@@ -45,7 +45,40 @@ namespace fog::examples::e03
         }
     };
 
-    struct Example : public Ogre::FrameListener
+    struct Pass0302 : public Ogre::CustomCompositionPass
+    {
+        struct RenderOperation : public Ogre::CompositorInstance::RenderSystemOperation
+        {
+            Ogre::Entity *entity;
+            Ogre::SceneManager *sceMgr;
+            Ogre::Viewport *vp;
+            RenderOperation(Ogre::SceneManager *sceMgr, Ogre::Viewport *vp, Ogre::Entity *entity)
+                : entity(entity), sceMgr(sceMgr)
+            {
+            }
+            void execute(Ogre::SceneManager *sm, Ogre::RenderSystem *rs) override
+            {
+                rs->_setViewport(vp);
+                Ogre::RenderQueue *q = sceMgr->getRenderQueue();
+                q->clear();
+                entity->_updateRenderQueue(q);
+            }
+        };
+        Ogre::Entity *entity;
+        Ogre::SceneManager *sceMgr;
+        Pass0302(Ogre::SceneManager *sceMgr, Ogre::Entity *entity) : sceMgr(sceMgr), entity(entity)
+        {
+        }
+
+        Ogre::CompositorInstance::RenderSystemOperation *createOperation(
+            Ogre::CompositorInstance *instance, const Ogre::CompositionPass *pass)
+        {
+            Ogre::Viewport *vp = instance->getChain()->getViewport();
+            return new RenderOperation(sceMgr, vp, entity);
+        }
+    };
+
+    struct Example : public Ogre::FrameListener, public Ogre::CompositorInstance::Listener
     {
 
         Ogre::ManualObject *obj;
@@ -57,7 +90,7 @@ namespace fog::examples::e03
         {
         }
         INIT(init)()
-        {   
+        {
             Args mArgs;
             DualMesh mesh(MapGen::generateDualData(mArgs));
             DualMap map(mesh);
@@ -76,40 +109,55 @@ namespace fog::examples::e03
 
             Ogre::GpuProgramManager &gpuMgr = Ogre::GpuProgramManager::getSingleton();
 
-            Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("E03Mat01");
+            setProjection("E03Mat00", core, sceNode);
+            setProjection("E03Mat01", core, sceNode);
+            
+        }
+
+        static void setProjection(std::string matName, CoreMod *core, Ogre::SceneNode * sceNode)
+        {
+
+            Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName(matName);
             Ogre::Technique *tech = material->getTechnique(0);
             Ogre::Pass *pass = tech->getPass(0);
             Ogre::GpuProgramParametersSharedPtr sParams = pass->getVertexProgramParameters();
             Ogre::Matrix4 proj = core->getCameraWorldViewProj(sceNode, true);
-            
             sParams->setNamedConstant("projection", proj);
         }
 
+        void notifyMaterialSetup(uint32_t pass_id, Ogre::MaterialPtr &mat) override
+        {
+        }
 
         void setupCompositor()
         {
             Ogre::Viewport *vp = core->getViewport();
-            Ogre::CompositorManager::getSingleton().addCompositor(vp, "E03Comp01");
-            Ogre::CompositorManager::getSingleton().setCompositorEnabled(vp, "E03Comp01", true);
+            Ogre::CompositorInstance *ci = Ogre::CompositorManager::getSingleton().addCompositor(vp, "E03Comp01");
+            ci->setEnabled(true);
+            // ci->addListener(this);
+            //  Ogre::CompositorManager::getSingleton().registerCustomCompositionPass("E03Pass01", new Pass0302());
         }
         void setupObj(DualMap &map)
         {
             std::string meshName = "LandMesh";
-
             setupMesh(map, meshName);
-            // OgreUtil::buildExampleMesh(meshName);
-            //  entity
-            Ogre::Entity *entity = core->createEntity(meshName);
-            entity->setMaterialName("E03Mat01");
-            sceNode->attachObject(entity);
-            // sceNode->setScale(30, 30, 30);
+            Ogre::Entity *entity0 = core->createEntity(meshName);
+            entity0->setMaterialName("E03Mat00");
+            entity0->setVisibilityFlags(0x1 << 0);
+            sceNode->attachObject(entity0);
+            //
+            Ogre::Entity *entity1 = core->createEntity(meshName);
+            entity1->setMaterialName("E03Mat01");
+            entity1->setVisibilityFlags(0x1 << 1);
+            sceNode->attachObject(entity1);
+            //
         }
 
         void setupMesh(DualMap &map, std::string meshName)
         {
-            DualMesh & mesh = map.mesh;
+            DualMesh &mesh = map.mesh;
             std::vector<float> &elevation_r = map.elevation_r;
-            
+
             unsigned int vCount = mesh.numRegions;
             unsigned int iCount = mesh.numSolidSides;
             unsigned int vSize = 3 + 2 + 2;               //
