@@ -82,6 +82,8 @@ namespace fog::examples::e03
 
     struct Example : public Ogre::FrameListener
     {
+        static inline std::string tex_colormap{"tex_colormap"};
+        static inline std::string tex_show{tex_colormap};
 
         Ogre::ManualObject *obj;
         CoreMod *core;
@@ -94,7 +96,8 @@ namespace fog::examples::e03
         INIT(init)()
         {
 
-            ColorMap::createTexture("tex_cm");
+            ColorMap::createTexture(tex_colormap);
+            OgreUtil::saveTextureToPNG(tex_colormap,"tex_colormap.png");
             setupMaterial();
             Args mArgs;
             DualMesh mesh(MapGen::generateDualData(mArgs));
@@ -105,30 +108,39 @@ namespace fog::examples::e03
             ElevationGen eGen{mesh, map.elevation_t, map.elevation_r};
             eGen.assignElevation(constraints, eArgs);
             setupObj(map);
-            //setup 
+            // setup
             setupCompositor();
             core->addFrameListener(this);
 
             Ogre::SceneNode *cNode = core->getCameraSceneNode();
-            cNode->setPosition(0, 0, 500);
-            cNode->lookAt(Ogre::Vector3(0, 0, 0), Ogre::Node::TS_PARENT);
+            cNode->setPosition(500, 500, 1000);
+            cNode->lookAt(Ogre::Vector3(500, 500, 0), Ogre::Node::TS_PARENT);
 
             Ogre::GpuProgramManager &gpuMgr = Ogre::GpuProgramManager::getSingleton();
 
             setProjection("E03Mat00", core, sceNode);
             setProjection("E03Mat01", core, sceNode);
-            //setProjection("E03Mat02", core, sceNode);
-            
+            // setProjection("E03Mat02", core, sceNode);
         }
-        static void setupMaterial(){
+        static void setupMaterial()
+        {
 
-            Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("E03Mat01");
-            Ogre::Pass* pass = material->getTechnique(0)->getPass(0);
-            pass->getTextureUnitState(1)->setTextureName("tex_cm");
-            pass->getTextureUnitState(1)->setTextureFiltering(Ogre::TFO_NONE);
+            {
+                Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("E03Mat01");
+                Ogre::Pass *pass = material->getTechnique(0)->getPass(0);
+                pass->getTextureUnitState(1)->setTextureName(tex_colormap);
+                pass->getTextureUnitState(1)->setTextureFiltering(Ogre::TFO_NONE);
+            }
+            {
+
+                Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("E03MatShowTex");
+                Ogre::Pass *pass = material->getTechnique(0)->getPass(0);
+                pass->getTextureUnitState(0)->setTextureName(tex_show);
+                pass->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
+            }
         }
 
-        static void setProjection(std::string matName, CoreMod *core, Ogre::SceneNode * sceNode)
+        static void setProjection(std::string matName, CoreMod *core, Ogre::SceneNode *sceNode)
         {
 
             Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName(matName);
@@ -165,7 +177,7 @@ namespace fog::examples::e03
             entity2->setMaterialName("E03Mat02");
             entity2->setVisibilityFlags(0x1 << 2);
             sceNode->attachObject(entity2);
-            
+
             //
         }
 

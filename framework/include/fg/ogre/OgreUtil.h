@@ -73,6 +73,53 @@ namespace fog
             delete[] data;
         }
 
+        static void saveTextureToPNG(std::string texName, const std::string &filename)
+        {
+            Ogre::TexturePtr tex = TextureFactory::getTexture(texName);
+            //
+            Ogre::HardwarePixelBufferSharedPtr buffer = tex->getBuffer();
+
+            buffer->lock(Ogre::HardwareBuffer::HBL_READ_ONLY);
+            void *data = buffer->getCurrentLock().data;
+
+            // Ogre::PixelBox pixelBox(
+            //     tex->getWidth(),
+            //     tex->getHeight(),
+            //     tex->getDepth(),         //
+            //     tex->getFormat(),        //
+            //     const_cast<void *>(data) //
+            // );
+            int w = tex->getWidth();
+            int h = tex->getHeight();
+            unsigned char *data2 = new unsigned char[w * h * 3];
+            unsigned char *data1 = reinterpret_cast<unsigned char *>(data);
+            for (int x = 0; x < w; x++)
+            {
+                for (int y = 0; y < h; y++)
+                {
+                    int p1 = (y * w + x) * 4;
+                    int p2 = (y * w + x) * 3;
+                    data2[p2] = data1[p1];
+                    data2[p2 + 1] = data1[p1 + 1];
+                    data2[p2 + 2] = data1[p1 + 2];
+                }
+            }
+            Ogre::Image img;
+            img.loadDynamicImage(
+                static_cast<Ogre::uchar *>(data2),
+                tex->getWidth(),
+                tex->getHeight(),
+                tex->getDepth(),
+                Ogre::PixelFormat::PF_R8G8B8,
+                false //
+            );
+
+            //
+            img.save(filename);
+
+            buffer->unlock();
+        }
+
         static void buildExampleMesh(std::string name)
         {
             unsigned int vCount = 3;

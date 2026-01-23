@@ -16,7 +16,6 @@ namespace fog
                                             for (int y = 0; y < rows; y++)
                                             {
 
-
                                                 float e = 2 * x / cols - 1,
                                                       m = y / rows;
 
@@ -58,12 +57,12 @@ namespace fog
                                                     b = 255 * e + b * (1 - e);
                                                 }
                                                 int p = (y * cols + x) * 4;
-                                                pixels[p++] = r;
-                                                pixels[p++] = g;
-                                                pixels[p++] = b;
+                                                pixels[p++] = static_cast<unsigned char>(r);
+                                                pixels[p++] = static_cast<unsigned char>(g);
+                                                pixels[p++] = static_cast<unsigned char>(b);
                                                 pixels[p++] = 255;
-                                            }//end for
-                                        } //end for
+                                            } // end for
+                                        } // end for
                                     });
         }
     };

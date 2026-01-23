@@ -5,6 +5,8 @@ compositor E03Comp01
     {
         texture tex_elevation target_width target_height PF_BYTE_RGB
         texture tex_output target_width target_height PF_BYTE_RGB
+        texture tex_show target_width target_height PF_BYTE_RGB
+
 
         target tex_elevation 
         {            
@@ -32,6 +34,15 @@ compositor E03Comp01
                 input 0 tex_elevation   
             }
         }
+
+        target_output
+        {
+            pass render_quad
+            {
+                material E03MatShowTex
+            }
+        }
+        /*
         
         target_output
         {   
@@ -43,5 +54,7 @@ compositor E03Comp01
                 material E03Mat02
             }
         }
+        */
+        
     }
 }

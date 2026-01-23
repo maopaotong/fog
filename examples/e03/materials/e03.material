@@ -26,6 +26,15 @@ fragment_program fragmentShader_02 glsl
 {
     source e03_02_fragment.glsl
 }
+//showTex
+vertex_program vertexShader_showTex glsl
+{
+    source e03_showTex_vertex.glsl	
+}
+fragment_program fragmentShader_showTex glsl
+{
+    source e03_showTex_fragment.glsl
+}
 
 shared_params FragSharedParams
 {
@@ -107,6 +116,33 @@ material E03Mat02
 			texture_unit
 	        {						
 	        }
+			texture_unit
+	        {						
+	        }
+						
+		}
+	}	
+}
+
+
+material E03MatShowTex
+{
+	technique
+	{
+		pass
+		{	
+			lighting off		
+			vertex_program_ref vertexShader_showTex
+			{
+			}
+			fragment_program_ref fragmentShader_showTex
+			{	
+				param_named tex_show int 0
+															
+				//
+				shared_params_ref FragSharedParams
+			}		
+			
 			texture_unit
 	        {						
 	        }
