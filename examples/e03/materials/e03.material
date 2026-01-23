@@ -96,11 +96,18 @@ material E03Mat02
 			{	
 				param_named tex_0 int 0
 				param_named tex_1 int 1
+				param_named tex_cm int 2
+
 															
 				//
 				shared_params_ref FragSharedParams
 			}		
 			
+			texture_unit
+	        {				
+				tex_address_mode clamp
+				filtering none
+	        }
 			texture_unit
 	        {				
 				tex_address_mode clamp

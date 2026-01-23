@@ -63,6 +63,16 @@ namespace fog
             //
         }
 
+        template <typename F>
+        static void createTexture(std::string name, int cols, int rows, F &&dataF)
+        {
+            unsigned char *data = new unsigned char[cols * rows * 4];
+            dataF(data, cols, rows);
+            Ogre::TexturePtr texture = TextureFactory::createTexture(name, cols, rows);
+            TextureFactory::updateTexture(texture, cols, rows, data);
+            delete[] data;
+        }
+
         static void buildExampleMesh(std::string name)
         {
             unsigned int vCount = 3;
@@ -107,8 +117,8 @@ namespace fog
                                     iData[idx++] = 2; //
                                 });
         }
-        struct SimpleApp{
-
+        struct SimpleApp
+        {
         };
     };
 };

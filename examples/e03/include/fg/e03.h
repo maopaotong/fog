@@ -6,6 +6,8 @@
 #include "MapGen.h"
 #include "DualMap.h"
 #include "ElevationGen.h"
+#include "ColorMap.h"
+
 namespace fog::examples::e03
 {
 
@@ -78,7 +80,7 @@ namespace fog::examples::e03
         }
     };
 
-    struct Example : public Ogre::FrameListener, public Ogre::CompositorInstance::Listener
+    struct Example : public Ogre::FrameListener
     {
 
         Ogre::ManualObject *obj;
@@ -91,6 +93,9 @@ namespace fog::examples::e03
         }
         INIT(init)()
         {
+
+            ColorMap::createTexture("tex_cm");
+
             Args mArgs;
             DualMesh mesh(MapGen::generateDualData(mArgs));
             DualMap map(mesh);
@@ -100,6 +105,7 @@ namespace fog::examples::e03
             ElevationGen eGen{mesh, map.elevation_t, map.elevation_r};
             eGen.assignElevation(constraints, eArgs);
             setupObj(map);
+            //setup 
             setupCompositor();
             core->addFrameListener(this);
 
@@ -111,6 +117,7 @@ namespace fog::examples::e03
 
             setProjection("E03Mat00", core, sceNode);
             setProjection("E03Mat01", core, sceNode);
+            //setProjection("E03Mat02", core, sceNode);
             
         }
 
@@ -123,10 +130,6 @@ namespace fog::examples::e03
             Ogre::GpuProgramParametersSharedPtr sParams = pass->getVertexProgramParameters();
             Ogre::Matrix4 proj = core->getCameraWorldViewProj(sceNode, true);
             sParams->setNamedConstant("projection", proj);
-        }
-
-        void notifyMaterialSetup(uint32_t pass_id, Ogre::MaterialPtr &mat) override
-        {
         }
 
         void setupCompositor()
@@ -150,6 +153,12 @@ namespace fog::examples::e03
             entity1->setMaterialName("E03Mat01");
             entity1->setVisibilityFlags(0x1 << 1);
             sceNode->attachObject(entity1);
+            //
+            Ogre::Entity *entity2 = core->createEntity(meshName);
+            entity2->setMaterialName("E03Mat02");
+            entity2->setVisibilityFlags(0x1 << 2);
+            sceNode->attachObject(entity2);
+            
             //
         }
 

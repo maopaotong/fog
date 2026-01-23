@@ -34,7 +34,7 @@ compositor E03Comp01
         }
         
         target_output
-        {           
+        {   
             pass render_quad
             {
                 input 0 rt0

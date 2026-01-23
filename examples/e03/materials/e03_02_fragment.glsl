@@ -2,16 +2,14 @@
 
 uniform sampler2D tex_0;
 uniform sampler2D tex_1;
+uniform sampler2D tex_cm;
 
-in vec2 fUV;
- 
+in vec2 fUv;
+
 void main() {
-
-    
-    //gl_FragColor = vec4(1,0,1,1);   
-    vec4 c0 = texture2D(tex_0, fUV);
-    vec4 c1 = texture2D(tex_1, fUV);
-    
-    gl_FragColor = vec4(c1.x, c1.y, 0,1);
+    vec3 c0 = texture2D(tex_0, fUv).xyz;
+    vec3 c1 = texture2D(tex_1, fUv).xyz;
+    vec3 cm = texture2D(tex_cm, fUv).xyz;
+    gl_FragColor = vec4(c1, 1);
 
 }//end of main()
