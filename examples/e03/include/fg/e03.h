@@ -95,7 +95,7 @@ namespace fog::examples::e03
         {
 
             ColorMap::createTexture("tex_cm");
-
+            setupMaterial();
             Args mArgs;
             DualMesh mesh(MapGen::generateDualData(mArgs));
             DualMap map(mesh);
@@ -119,6 +119,13 @@ namespace fog::examples::e03
             setProjection("E03Mat01", core, sceNode);
             //setProjection("E03Mat02", core, sceNode);
             
+        }
+        static void setupMaterial(){
+
+            Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("E03Mat01");
+            Ogre::Pass* pass = material->getTechnique(0)->getPass(0);
+            pass->getTextureUnitState(1)->setTextureName("tex_cm");
+            pass->getTextureUnitState(1)->setTextureFiltering(Ogre::TFO_NONE);
         }
 
         static void setProjection(std::string matName, CoreMod *core, Ogre::SceneNode * sceNode)
