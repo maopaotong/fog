@@ -66,8 +66,8 @@ material E03Mat01
 			}
 			fragment_program_ref fragmentShader_01
 			{	
-				param_named tex_0 int 0			
-				param_named tex_cm int 1
+				param_named tex_elevation int 0			
+				param_named tex_colormap int 1
 								
 				//
 				shared_params_ref FragSharedParams
@@ -97,8 +97,8 @@ material E03Mat02
 			}
 			fragment_program_ref fragmentShader_02
 			{	
-				param_named tex_0 int 0
-				param_named tex_1 int 1
+				param_named tex_elevation int 0
+				param_named tex_output int 1
 															
 				//
 				shared_params_ref FragSharedParams
