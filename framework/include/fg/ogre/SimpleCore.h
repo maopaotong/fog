@@ -216,6 +216,9 @@ namespace fog
         {
             return this->appCtx->getImGuiApp();
         }
+        Ogre::SceneManager * getSceneManager() override {
+            return this->sceMgr;
+        }
         // RenderWindow *getWindow()
         // {
         //     return this->appCtx->getRenderWindow();

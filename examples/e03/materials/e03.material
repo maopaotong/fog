@@ -93,38 +93,6 @@ material E03Mat01
 	}	
 }
 
-
-material E03MatQuad
-{
-	technique
-	{
-		pass
-		{	
-			lighting off		
-			vertex_program_ref vertexShader_quad
-			{
-			}
-			fragment_program_ref fragmentShader_quad
-			{	
-				param_named tex_elevation int 0
-				param_named tex_output int 1
-															
-				//
-				shared_params_ref FragSharedParams
-			}		
-			
-			texture_unit
-	        {						
-	        }
-			texture_unit
-	        {						
-	        }
-						
-		}
-	}	
-}
-
-
 material E03MatShowTex
 {
 	technique
@@ -137,12 +105,16 @@ material E03MatShowTex
 			}
 			fragment_program_ref fragmentShader_showTex
 			{	
-				param_named tex_show int 0
+				param_named tex_elevation int 0
+				param_named tex_drape int 1
 															
 				//
 				shared_params_ref FragSharedParams
 			}		
 			
+			texture_unit
+	        {						
+	        }
 			texture_unit
 	        {						
 	        }

@@ -45,6 +45,7 @@ namespace fog
         virtual Ogre::SceneNode *getCameraSceneNode() = 0;
         virtual Ogre::Radian getCameraFOVy() = 0;
         virtual Ogre::MaterialPtr createMaterial(std::string name, std::string group) = 0;
+        virtual Ogre::SceneManager * getSceneManager() = 0;
 
         // virtual Root *getRoot() = 0;
         // virtual RenderWindow *getWindow() = 0;

@@ -7,7 +7,7 @@
 #include "DualMap.h"
 #include "ElevationGen.h"
 #include "ColorMap.h"
-
+#include "RenderTarget.h"
 namespace fog::examples::e03
 {
 
@@ -47,30 +47,49 @@ namespace fog::examples::e03
         }
     };
 
-    struct Example : public Ogre::FrameListener, public Ogre::CompositorInstance::Listener
+    struct Example : public Ogre::FrameListener
     {
         static inline std::string tex_elevation{"tex_elevation"};
         static inline std::string tex_colormap{"tex_colormap"};
+        static inline std::string tex_drape{"tex_drape"};
+        
         static inline std::string tex_show{tex_colormap};
-        static inline std::string E03MatShowTex{"E03MatShowTex"};
-        static inline std::string E03Mat01{"E03Mat01"};
         static inline std::string E03Mat00{"E03Mat00"};
+        static inline std::string E03Mat01{"E03Mat01"};
+        static inline std::string E03MatShowTex{"E03MatShowTex"};
+        
 
         Ogre::ManualObject *obj;
         CoreMod *core;
         Ogre::SceneNode *sceNode;
+        std::vector<RenderTarget *> rts;
+
         SELF(Example)
 
         INJECT(Example(CoreMod *core, Ogre::SceneNode *sceNode)) : core(core), sceNode(sceNode)
         {
         }
+        void setupRenderTarget()
+        {
+            Box2<int> window = core->getWindowBox();
+
+            RenderTarget *rtElevation = new RenderTarget(tex_elevation, window.getWidth(), window.getHeight(), core->getSceneManager(), 0x00000001);
+            rts.push_back(rtElevation);
+            
+            RenderTarget *rtDrape = new RenderTarget(tex_drape, window.getWidth(), window.getHeight(), core->getSceneManager(), 0x00000002);
+
+            rts.push_back(rtDrape);
+
+        }
+
         INIT(init)()
         {
 
             ColorMap::createTexture(tex_colormap);
             OgreUtil::saveTextureToPNG("tex_colormap", "tex_colormap.png");
+            setupRenderTarget();
+            setupMaterial();
 
-            // setupMaterial();
             Args mArgs;
             DualMesh mesh(MapGen::generateDualData(mArgs));
             DualMap map(mesh);
@@ -81,8 +100,7 @@ namespace fog::examples::e03
             eGen.assignElevation(constraints, eArgs);
             setupObj(map);
             // setup
-            setupCompositor();
-            setupMaterial();
+            core->getViewport()->setVisibilityMask(0x1 << 2);
 
             core->addFrameListener(this);
 
@@ -95,20 +113,9 @@ namespace fog::examples::e03
             setProjection(E03Mat00, core, sceNode);
             setProjection(E03Mat01, core, sceNode);
             setProjection(E03MatShowTex, core, sceNode);
+            
         }
 
-        void notifyMaterialSetup(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat) override
-        {
-
-            Ogre::TexturePtr tex = Ogre::TextureManager::getSingleton().getByName(tex_elevation);
-            if (tex != nullptr)
-            {
-                Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName(E03Mat01);
-                Ogre::Pass *pass = material->getTechnique(0)->getPass(0);
-                pass->getTextureUnitState(0)->setTextureName(tex_elevation);
-                pass->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
-            }
-        }
 
         static void setupMaterial()
         {
@@ -118,16 +125,25 @@ namespace fog::examples::e03
                 Ogre::Pass *pass = material->getTechnique(0)->getPass(0);
 
                 //
+                pass->getTextureUnitState(0)->setTextureName(tex_elevation);
+                pass->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
+                //
                 pass->getTextureUnitState(1)->setTextureName(tex_colormap);
                 pass->getTextureUnitState(1)->setTextureFiltering(Ogre::TFO_NONE);
             }
             {
-
                 Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName(E03MatShowTex);
                 Ogre::Pass *pass = material->getTechnique(0)->getPass(0);
-                pass->getTextureUnitState(0)->setTextureName(tex_show);
+
+                //
+                pass->getTextureUnitState(0)->setTextureName(tex_elevation);
                 pass->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
+                pass->getTextureUnitState(1)->setTextureName(tex_drape);
+                pass->getTextureUnitState(1)->setTextureFiltering(Ogre::TFO_NONE);
+                
+                
             }
+            
             Ogre::GpuProgramManager &gpuMgr = Ogre::GpuProgramManager::getSingleton();
             Ogre::GpuSharedParametersPtr sParams = gpuMgr.getSharedParameters("FragSharedParams");
             sParams->setNamedConstant<float>("ambient", 0.25f);
@@ -144,13 +160,12 @@ namespace fog::examples::e03
             sParams->setNamedConstant("projection", proj);
         }
 
-        void setupCompositor()
-        {
-            Ogre::Viewport *vp = core->getViewport();
-            Ogre::CompositorInstance *ci = Ogre::CompositorManager::getSingleton().addCompositor(vp, "E03Comp01");
-            ci->addListener(this);
-            ci->setEnabled(true);
-        }
+        // void setupCompositor()
+        // {
+        //     Ogre::Viewport *vp = core->getViewport();
+        //     Ogre::CompositorInstance *ci = Ogre::CompositorManager::getSingleton().addCompositor(vp, "E03Comp01");
+        //     ci->setEnabled(true);
+        // }
         void setupObj(DualMap &map)
         {
             std::string meshName = "LandMesh";
@@ -216,6 +231,9 @@ namespace fog::examples::e03
 
         bool frameRenderingQueued(const Ogre::FrameEvent &evt) override
         {
+            for(auto rt:this->rts){
+                rt->update();
+            }
             return true;
         }
 
