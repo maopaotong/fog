@@ -18,13 +18,13 @@ fragment_program fragmentShader_01 glsl
     source e03_01_fragment.glsl
 }
 //02
-vertex_program vertexShader_02 glsl
+vertex_program vertexShader_quad glsl
 {
-    source e03_02_vertex.glsl	
+    source e03_quad_vertex.glsl	
 }
-fragment_program fragmentShader_02 glsl
+fragment_program fragmentShader_quad glsl
 {
-    source e03_02_fragment.glsl
+    source e03_quad_fragment.glsl
 }
 //showTex
 vertex_program vertexShader_showTex glsl
@@ -94,17 +94,17 @@ material E03Mat01
 }
 
 
-material E03Mat02
+material E03MatQuad
 {
 	technique
 	{
 		pass
 		{	
 			lighting off		
-			vertex_program_ref vertexShader_02
+			vertex_program_ref vertexShader_quad
 			{
 			}
-			fragment_program_ref fragmentShader_02
+			fragment_program_ref fragmentShader_quad
 			{	
 				param_named tex_elevation int 0
 				param_named tex_output int 1

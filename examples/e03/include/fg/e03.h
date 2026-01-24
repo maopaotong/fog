@@ -84,6 +84,9 @@ namespace fog::examples::e03
     {
         static inline std::string tex_colormap{"tex_colormap"};
         static inline std::string tex_show{tex_colormap};
+        static inline std::string E03MatShowTex{"E03MatShowTex"};
+        static inline std::string E03Mat01{"E03Mat01"};
+        static inline std::string E03Mat00{"E03Mat00"};
 
         Ogre::ManualObject *obj;
         CoreMod *core;
@@ -119,22 +122,22 @@ namespace fog::examples::e03
 
             Ogre::GpuProgramManager &gpuMgr = Ogre::GpuProgramManager::getSingleton();
 
-            setProjection("E03Mat00", core, sceNode);
-            setProjection("E03Mat01", core, sceNode);
-            // setProjection("E03Mat02", core, sceNode);
+            setProjection(E03Mat00, core, sceNode);
+            setProjection(E03Mat01, core, sceNode);
+            setProjection(E03MatShowTex, core, sceNode);
         }
         static void setupMaterial()
         {
 
             {
-                Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("E03Mat01");
+                Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName(E03Mat01);
                 Ogre::Pass *pass = material->getTechnique(0)->getPass(0);
                 pass->getTextureUnitState(1)->setTextureName(tex_colormap);
                 pass->getTextureUnitState(1)->setTextureFiltering(Ogre::TFO_NONE);
             }
             {
 
-                Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("E03MatShowTex");
+                Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName(E03MatShowTex);
                 Ogre::Pass *pass = material->getTechnique(0)->getPass(0);
                 pass->getTextureUnitState(0)->setTextureName(tex_show);
                 pass->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
@@ -165,17 +168,17 @@ namespace fog::examples::e03
             std::string meshName = "LandMesh";
             setupMesh(map, meshName);
             Ogre::Entity *entity0 = core->createEntity(meshName);
-            entity0->setMaterialName("E03Mat00");
+            entity0->setMaterialName(E03Mat00);
             entity0->setVisibilityFlags(0x1 << 0);
             sceNode->attachObject(entity0);
             //
             Ogre::Entity *entity1 = core->createEntity(meshName);
-            entity1->setMaterialName("E03Mat01");
+            entity1->setMaterialName(E03Mat01);
             entity1->setVisibilityFlags(0x1 << 1);
             sceNode->attachObject(entity1);
             //
             Ogre::Entity *entity2 = core->createEntity(meshName);
-            entity2->setMaterialName("E03Mat02");
+            entity2->setMaterialName(E03MatShowTex);
             entity2->setVisibilityFlags(0x1 << 2);
             sceNode->attachObject(entity2);
 

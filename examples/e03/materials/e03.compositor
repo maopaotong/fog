@@ -3,10 +3,9 @@ compositor E03Comp01
 {
     technique
     {
-        texture tex_elevation target_width target_height PF_BYTE_RGB
-        texture tex_output target_width target_height PF_BYTE_RGB
-        texture tex_show target_width target_height PF_BYTE_RGB
-
+        texture tex_elevation target_width target_height PF_BYTE_RGBA
+        texture tex_output1 target_width target_height PF_BYTE_RGBA
+        texture tex_output2 target_width target_height PF_BYTE_RGBA
 
         target tex_elevation 
         {            
@@ -21,7 +20,8 @@ compositor E03Comp01
 
             }
         }
-        target tex_output
+        
+        target tex_output1
         {            
             
             visibility_mask 0x00000002
@@ -34,27 +34,30 @@ compositor E03Comp01
                 input 0 tex_elevation   
             }
         }
-
-        target_output
-        {
-            pass render_quad
+        
+        target tex_output2
+        {    
+            visibility_mask 0x00000004
+            pass clear
             {
-                material E03MatShowTex
+
+            }        
+            pass render_scene
+            {
+                
             }
         }
-        /*
         
         target_output
         {   
             pass render_quad
             {
                 input 0 tex_elevation
-                input 1 tex_output
+                input 1 tex_output1
                 
-                material E03Mat02
+                material E03MatQuad
             }
         }
-        */
         
     }
 }
