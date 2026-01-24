@@ -142,6 +142,9 @@ namespace fog::examples::e03
                 pass->getTextureUnitState(0)->setTextureName(tex_show);
                 pass->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
             }
+            Ogre::GpuProgramManager &gpuMgr = Ogre::GpuProgramManager::getSingleton();
+            Ogre::GpuSharedParametersPtr sParams = gpuMgr.getSharedParameters("FragSharedParams");
+            sParams->setNamedConstant<float>("ambient", 0.25f);
         }
 
         static void setProjection(std::string matName, CoreMod *core, Ogre::SceneNode *sceNode)

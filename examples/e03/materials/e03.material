@@ -38,7 +38,7 @@ fragment_program fragmentShader_showTex glsl
 
 shared_params FragSharedParams
 {
-   
+   	shared_param_named ambient float 0.25
 }
 
 
