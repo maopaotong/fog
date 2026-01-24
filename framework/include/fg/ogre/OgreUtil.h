@@ -64,55 +64,34 @@ namespace fog
         }
 
         template <typename F>
-        static void createTexture(std::string name, int cols, int rows, F &&dataF)
+        static void createTexture2(std::string name, int cols, int rows, F &&dataF)
         {
             unsigned char *data = new unsigned char[cols * rows * 4];
             dataF(data, cols, rows);
-            Ogre::TexturePtr texture = TextureFactory::createTexture(name, cols, rows);
-            TextureFactory::updateTexture(texture, cols, rows, data);
+            Ogre::TexturePtr texture = TextureFactory::createTexture2(name, cols, rows);
+            TextureFactory::updateTexture2(texture, cols, rows, data);
             delete[] data;
         }
 
+        /**
+         * TODO this method does not work correctly yet, all gray in png file.
+         */
         static void saveTextureToPNG(std::string texName, const std::string &filename)
         {
             Ogre::TexturePtr tex = TextureFactory::getTexture(texName);
             //
             Ogre::HardwarePixelBufferSharedPtr buffer = tex->getBuffer();
-
-            buffer->lock(Ogre::HardwareBuffer::HBL_READ_ONLY);
-            void *data = buffer->getCurrentLock().data;
-
-            // Ogre::PixelBox pixelBox(
-            //     tex->getWidth(),
-            //     tex->getHeight(),
-            //     tex->getDepth(),         //
-            //     tex->getFormat(),        //
-            //     const_cast<void *>(data) //
-            // );
-            int w = tex->getWidth();
-            int h = tex->getHeight();
-            unsigned char *data2 = new unsigned char[w * h * 3];
-            unsigned char *data1 = reinterpret_cast<unsigned char *>(data);
-            for (int x = 0; x < w; x++)
-            {
-                for (int y = 0; y < h; y++)
-                {
-                    int p1 = (y * w + x) * 4;
-                    int p2 = (y * w + x) * 3;
-                    data2[p2] = data1[p1];
-                    data2[p2 + 1] = data1[p1 + 1];
-                    data2[p2 + 2] = data1[p1 + 2];
-                }
-            }
+            buffer->lock(Ogre::HardwareBuffer::HBL_READ_ONLY);//
+            //buffer->lock(Ogre::HardwareBuffer::HBL_NORMAL);//this option causes texture rendered as all gray,including export to png.
+            const Ogre::PixelBox &pb = buffer->getCurrentLock();
             Ogre::Image img;
             img.loadDynamicImage(
-                static_cast<Ogre::uchar *>(data2),
-                tex->getWidth(),
-                tex->getHeight(),
-                tex->getDepth(),
-                Ogre::PixelFormat::PF_R8G8B8,
-                false //
+                pb.data,
+                pb.getWidth(),
+                pb.getHeight(),                
+                pb.format
             );
+            std::cout << "Save texture to PNG:" << filename << ",pb.format:"<<Ogre::PixelUtil::getFormatName(pb.format) << std::endl;
 
             //
             img.save(filename);

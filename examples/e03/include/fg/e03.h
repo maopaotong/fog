@@ -97,7 +97,8 @@ namespace fog::examples::e03
         {
 
             ColorMap::createTexture(tex_colormap);
-            OgreUtil::saveTextureToPNG(tex_colormap,"tex_colormap.png");
+            OgreUtil::saveTextureToPNG("tex_colormap","tex_colormap.png");
+
             setupMaterial();
             Args mArgs;
             DualMesh mesh(MapGen::generateDualData(mArgs));
