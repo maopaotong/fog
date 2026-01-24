@@ -47,41 +47,9 @@ namespace fog::examples::e03
         }
     };
 
-    struct Pass0302 : public Ogre::CustomCompositionPass
+    struct Example : public Ogre::FrameListener, public Ogre::CompositorInstance::Listener
     {
-        struct RenderOperation : public Ogre::CompositorInstance::RenderSystemOperation
-        {
-            Ogre::Entity *entity;
-            Ogre::SceneManager *sceMgr;
-            Ogre::Viewport *vp;
-            RenderOperation(Ogre::SceneManager *sceMgr, Ogre::Viewport *vp, Ogre::Entity *entity)
-                : entity(entity), sceMgr(sceMgr)
-            {
-            }
-            void execute(Ogre::SceneManager *sm, Ogre::RenderSystem *rs) override
-            {
-                rs->_setViewport(vp);
-                Ogre::RenderQueue *q = sceMgr->getRenderQueue();
-                q->clear();
-                entity->_updateRenderQueue(q);
-            }
-        };
-        Ogre::Entity *entity;
-        Ogre::SceneManager *sceMgr;
-        Pass0302(Ogre::SceneManager *sceMgr, Ogre::Entity *entity) : sceMgr(sceMgr), entity(entity)
-        {
-        }
-
-        Ogre::CompositorInstance::RenderSystemOperation *createOperation(
-            Ogre::CompositorInstance *instance, const Ogre::CompositionPass *pass)
-        {
-            Ogre::Viewport *vp = instance->getChain()->getViewport();
-            return new RenderOperation(sceMgr, vp, entity);
-        }
-    };
-
-    struct Example : public Ogre::FrameListener
-    {
+        static inline std::string tex_elevation{"tex_elevation"};
         static inline std::string tex_colormap{"tex_colormap"};
         static inline std::string tex_show{tex_colormap};
         static inline std::string E03MatShowTex{"E03MatShowTex"};
@@ -100,9 +68,9 @@ namespace fog::examples::e03
         {
 
             ColorMap::createTexture(tex_colormap);
-            OgreUtil::saveTextureToPNG("tex_colormap","tex_colormap.png");
+            OgreUtil::saveTextureToPNG("tex_colormap", "tex_colormap.png");
 
-            setupMaterial();
+            // setupMaterial();
             Args mArgs;
             DualMesh mesh(MapGen::generateDualData(mArgs));
             DualMap map(mesh);
@@ -114,6 +82,8 @@ namespace fog::examples::e03
             setupObj(map);
             // setup
             setupCompositor();
+            setupMaterial();
+
             core->addFrameListener(this);
 
             Ogre::SceneNode *cNode = core->getCameraSceneNode();
@@ -126,12 +96,28 @@ namespace fog::examples::e03
             setProjection(E03Mat01, core, sceNode);
             setProjection(E03MatShowTex, core, sceNode);
         }
+
+        void notifyMaterialSetup(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat) override
+        {
+
+            Ogre::TexturePtr tex = Ogre::TextureManager::getSingleton().getByName(tex_elevation);
+            if (tex != nullptr)
+            {
+                Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName(E03Mat01);
+                Ogre::Pass *pass = material->getTechnique(0)->getPass(0);
+                pass->getTextureUnitState(0)->setTextureName(tex_elevation);
+                pass->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
+            }
+        }
+
         static void setupMaterial()
         {
 
             {
                 Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName(E03Mat01);
                 Ogre::Pass *pass = material->getTechnique(0)->getPass(0);
+
+                //
                 pass->getTextureUnitState(1)->setTextureName(tex_colormap);
                 pass->getTextureUnitState(1)->setTextureFiltering(Ogre::TFO_NONE);
             }
@@ -162,9 +148,8 @@ namespace fog::examples::e03
         {
             Ogre::Viewport *vp = core->getViewport();
             Ogre::CompositorInstance *ci = Ogre::CompositorManager::getSingleton().addCompositor(vp, "E03Comp01");
+            ci->addListener(this);
             ci->setEnabled(true);
-            // ci->addListener(this);
-            //  Ogre::CompositorManager::getSingleton().registerCustomCompositionPass("E03Pass01", new Pass0302());
         }
         void setupObj(DualMap &map)
         {

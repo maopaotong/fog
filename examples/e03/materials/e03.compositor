@@ -3,10 +3,10 @@ compositor E03Comp01
 {
     technique
     {
-        texture tex_elevation target_width target_height PF_BYTE_RGBA
-        texture tex_output1 target_width target_height PF_BYTE_RGBA
-        texture tex_output2 target_width target_height PF_BYTE_RGBA
-
+        texture tex_elevation target_width target_height PF_BYTE_RGB
+        texture tex_output1 target_width target_height PF_BYTE_RGB
+        texture tex_output2 target_width target_height PF_BYTE_RGB
+        // land elevation.
         target tex_elevation 
         {            
             
@@ -20,7 +20,7 @@ compositor E03Comp01
 
             }
         }
-        
+        // drape output 
         target tex_output1
         {            
             
@@ -31,10 +31,10 @@ compositor E03Comp01
             }
             pass render_scene
             {
-                input 0 tex_elevation   
+                
             }
         }
-        
+        //tools to show texture.
         target tex_output2
         {    
             visibility_mask 0x00000004
@@ -47,7 +47,7 @@ compositor E03Comp01
                 
             }
         }
-        
+        //final output
         target_output
         {   
             pass render_quad
