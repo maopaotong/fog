@@ -7,8 +7,8 @@
 //inversely the parent folder can be built on part of util.
 #include "util/Video.h"
 #include "util/VarBag.h"
-#include "util/EventBus.h"
-#include "util/Property.h"
+#include <fg/util/EventBus.h>
+#include <fg/util/Property.h>
 #include "util/PathFollow2.h"
 #include "util/Transform.h"
 #include "util/CellsLayout.h"
@@ -18,7 +18,7 @@
 #include "util/CellKey.h"
 #include "util/CellUtil.h"
 #include "util/CostMap.h"
-#include "util/Component.h"
+#include <fg/util/Component.h>
 #include "util/DiamondSquare.h"
 #include "util/Iteration.h"
 #include "util/Rect.h"
@@ -29,8 +29,8 @@
 #include "util/Normaliser.h"
 #include "util/Circle.h"
 #include "util/Math.h"
-#include "util/OptionsLoader.h"
-#include "util/Injector.h"
+#include <fg/util/OptionsLoader.h>
+#include <fg/util/Injector.h>
 #include "util/PoissonDisk.h"
 #include "util/SimplexNoise.h"
 

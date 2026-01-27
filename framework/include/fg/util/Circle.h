@@ -9,7 +9,7 @@
 #include "Common.h"
 
 #include "Point2.h"
-#include "Box2.h"
+#include <fg/util/Box2.h>
 
 #include "CollectionUtil.h"
 #include "Transform.h"

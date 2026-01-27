@@ -27,6 +27,7 @@ target_link_libraries(framework
         Codec_STBI
         OgreTerrain
         OgrePaging
+        fog-util
     PRIVATE
         imgui::imgui   
         fmt::fmt
